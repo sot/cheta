@@ -47,7 +47,7 @@ L0   MISC       AXAF_MISC       MISC8ENG        ENG0    eng     OGIP            
 L0   OBC        AXAF_OBC        OBC3ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   OBC        AXAF_OBC        OBC4ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   OBC        AXAF_OBC        OBC5ENG         ENG0    eng     OGIP            TEMPORALDATA 
-L0   OBC        AXAF_OBC        OBC6ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0   OBC        AXAF_OBC        OBC6ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD3ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD4ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD5ENG        ENG0    eng     OGIP            TEMPORALDATA 
@@ -74,7 +74,7 @@ L0   SMS        AXAF_SMS        SMS2ENG         ENG0    eng     OGIP            
 L0   TEL        AXAF_TEL        TEL1ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   TEL        AXAF_TEL        TEL2ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   TEL        AXAF_TEL        TEL3ENG         ENG0    eng     OGIP            TEMPORALDATA 
-L0   TEL        AXAF_TEL        TEL4ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0   TEL        AXAF_TEL        TEL4ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   THM        AXAF_THM        THM1ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   THM        AXAF_THM        THM2ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   THM        AXAF_THM        THM3ENG         ENG0    eng     OGIP            TEMPORALDATA 
