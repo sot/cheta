@@ -19,7 +19,7 @@ import pyfits
 import tables
 import numpy as np
 
-import file_defs
+import Ska.engarchive.file_defs as file_defs
 import arc5gl
 import shutil
 

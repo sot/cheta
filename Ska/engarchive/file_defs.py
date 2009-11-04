@@ -11,18 +11,16 @@ Arch files are the CXC archive files containing a short interval of telemetry fo
 all MSIDs in the same content-type group (e.g. ACIS2ENG). 
 """
 
-# Root directories for MSID files.  Multiple dirs => multiple copies of archive.
-# This is done for redundancy.
-msid_root = '/data/baffin3/telem_archive/data'
-# '/data/drivel/ska/eng_archive/data',
-
+# Root directories for MSID files.  msid_root is prime, others are backups.
+msid_root = '/data/drivel/ska/data/eng_archive/data'
+msid_roots = [msid_root, '/data/baffin3/telem_archive/data']
 msid_files = {'contentdir':   '{{ft.content}}/',
               'headers':      '{{ft.content}}/headers.pickle',
               'archfiles':    '{{ft.content}}/archfiles.db3',
               'colnames':     '{{ft.content}}/colnames.pickle',
               'colnames_all': '{{ft.content}}/colnames_all.pickle',
-              'msid':         '{{ft.content}}/{{ft.msid}}.h5',
-              'data':         '{{ft.content}}/{{ft.msid}}.h5',
+              'msid':         '{{ft.content}}/{{ft.msid | upper}}.h5',
+              'data':         '{{ft.content}}/{{ft.msid | upper}}.h5',
               }
 
 arch_root = '/data/cosmos2/eng_archive/data'
