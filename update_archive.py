@@ -63,7 +63,6 @@ def main():
 
         logger.info('Processing %s content type', ft.content)
         tmpdir = Ska.File.TempDir(dir=datadir)
-        logger.verbose('Created tmpdir ' + tmpdir.name)
 
         with Ska.File.chdir(tmpdir.name): 
             archfiles = get_archive_files(filetype)
