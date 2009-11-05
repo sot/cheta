@@ -7,6 +7,7 @@ import glob
 import time
 import cPickle as pickle
 import optparse
+import shutil
 
 from Chandra.Time import DateTime
 import Ska.File
@@ -20,8 +21,7 @@ import tables
 import numpy as np
 
 import Ska.engarchive.file_defs as file_defs
-import arc5gl
-import shutil
+import Ska.arc5gl
 
 FT = pyyaks.context.ContextDict('ft')
 ft = FT.accessor()
@@ -45,7 +45,7 @@ opt, args = parser.parse_args()
 
 def main():
     # Get the archive content filetypes
-    filetypes = Ska.Table.read_ascii_table('filetypes.dat')
+    filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
     # filetypes = Ska.Numpy.filter(filetypes, 'content == "CCDM4ENG"')
 
     # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
@@ -61,6 +61,7 @@ def main():
             logger.info('No archfiles.db3 for %s - skipping'  % ft.content)
             continue
 
+        logger.info('Processing %s content type', ft.content)
         tmpdir = Ska.File.TempDir(dir=datadir)
         logger.verbose('Created tmpdir ' + tmpdir.name)
 
@@ -162,7 +163,7 @@ def update_msid_files(filetype, archfiles):
         row += len(dat)
 
     if dats:
-        logger.info('Writing accumulated column data to h5 file at ' + time.ctime())
+        logger.verbose('Writing accumulated column data to h5 file at ' + time.ctime())
         for colname in colnames:
             ft.msid = colname
             append_h5_col(dats, ft.content, colname)
@@ -214,7 +215,7 @@ def get_archive_files(filetype):
         return files
 
     # Retrieve CXC archive files in a temp directory with arc5gl
-    arc5 = arc5gl.Arc5gl(echo=True)
+    arc5 = Ska.arc5gl.Arc5gl(echo=True)
 
     # Get datestart as the most-recent file time from archfiles table
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].rel)
