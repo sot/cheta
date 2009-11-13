@@ -83,14 +83,18 @@ def fetch_arrays(start, stop, msids):
     :returns: times, values, quals
     """
 
-    tstart, tstop, times, values, quals = _fetch(start, stop, msids)
+    tstart, tstop, _times, _values, _quals = _fetch(start, stop, msids)
+
+    times = {}
+    values = {}
+    quals = {}
 
     for msid in msids:
         MSID = msid.upper()
-        i0, i1 = numpy.searchsorted(times[MSID], [tstart, tstop])
-        times[msid] = times[MSID][i0:i1]
-        values[msid] = values[MSID][i0:i1]
-        quals[msid] = quals[MSID][i0:i1]
+        i0, i1 = numpy.searchsorted(_times[MSID], [tstart, tstop])
+        times[msid] = _times[MSID][i0:i1]
+        values[msid] = _values[MSID][i0:i1]
+        quals[msid] = _quals[MSID][i0:i1]
 
     return times, values, quals
 
