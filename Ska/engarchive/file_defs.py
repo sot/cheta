@@ -25,6 +25,8 @@ msid_files = {'filetypes':    os.path.join(SKA, 'data', 'eng_archive', 'filetype
               'colnames_all': '{{ft.content}}/colnames_all.pickle',
               'msid':         '{{ft.content}}/{{ft.msid | upper}}.h5',
               'data':         '{{ft.content}}/{{ft.msid | upper}}.h5',
+              'msid5dir':     '{{ft.content}}/5min/',
+              'msid5':        '{{ft.content}}/5min/{{ft.msid | upper}}.h5',
               }
 
 arch_root = '/data/cosmos2/eng_archive/data'

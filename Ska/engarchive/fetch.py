@@ -2,17 +2,17 @@
 """
 Fetch values from the SKA telemetry archive.
 """
+from __future__ import with_statement  # only for python 2.5
+
 __docformat__ = 'restructuredtext'
 import os
 import time
+import contextlib
 import cPickle as pickle
 
 import numpy
 import tables
-from Chandra.Time import DateTime
 import Ska.Table
-import Ska.Numpy
-import Ska.DBI
 import pyyaks.context
 
 import file_defs
@@ -47,7 +47,10 @@ def fetch_records(start, stop, msids, dt=32.8):
 
     :returns: numpy recarray with columns for time (CXC seconds) and ``msids``
     """
-    tstart, tstop, times, values, quals = _fetch(start, stop, msids)
+    import Ska.Numpy
+
+    with cache_ft():
+        tstart, tstop, times, values, quals = _fetch(start, stop, msids)
     dt_times = numpy.arange(tstart, tstop, dt)
 
     len_times = len(dt_times)
@@ -83,7 +86,8 @@ def fetch_arrays(start, stop, msids):
     :returns: times, values, quals
     """
 
-    tstart, tstop, _times, _values, _quals = _fetch(start, stop, msids)
+    with cache_ft():
+        tstart, tstop, _times, _values, _quals = _fetch(start, stop, msids)
 
     times = {}
     values = {}
@@ -110,6 +114,7 @@ def _fetch(start, stop, msids):
 
     :returns: times, values, quals
     """
+    from Chandra.Time import DateTime
 
     # Convert input date values to time in CXC seconds.  tstop defaults to Now.
     tstart = DateTime(start).secs
@@ -153,7 +158,7 @@ def _fetch(start, stop, msids):
 
         if cm not in content_times:
             ft['msid'] = 'time'
-            h5 = tables.openFile(msid_files['data'].abs)
+            h5 = tables.openFile(msid_files['msid'].abs)
             content_times[cm] = h5.root.data[rowslice[cm]]
             content_quals[cm] = h5.root.quality[rowslice[cm]]
             h5.close()
@@ -171,6 +176,8 @@ def get_interval(content, tstart, tstop):
 
     :returns: rowslice, timestart, timestop
     """
+    import Ska.DBI
+
     ft['content'] = content
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
 
@@ -192,4 +199,20 @@ def get_interval(content, tstart, tstop):
     timestop = query_row['tstop']
 
     return slice(rowstart, rowstop), timestart, timestop
+
+@contextlib.contextmanager
+def cache_ft():
+    """
+    Cache the global filetype ``ft`` context variable so that fetch operations
+    do not corrupt user values of ``ft``.  
+    """
+    ft_cache_pickle = pickle.dumps(ft)
+    try:
+        yield
+    finally:
+        ft_cache = pickle.loads(ft_cache_pickle)
+        ft.update(ft_cache)
+        delkeys = [x for x in ft if x not in ft_cache]
+        for key in delkeys:
+            del ft[key]
 

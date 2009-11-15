@@ -8,6 +8,7 @@ import time
 import cPickle as pickle
 import optparse
 import shutil
+import itertools
 
 from Chandra.Time import DateTime
 import Ska.File
@@ -20,14 +21,15 @@ import pyfits
 import tables
 import numpy as np
 
+import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
 import Ska.arc5gl
 
-FT = pyyaks.context.ContextDict('ft')
+# FT = pyyaks.context.ContextDict('ft')
+FT = fetch.ft
 ft = FT.accessor()
 
-datadir = file_defs.msid_root
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=datadir) 
+msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_roots[1]) # msid_root
 msid_files.update(file_defs.msid_files)
 
 arch_files = pyyaks.context.ContextDict('arch_files', basedir=file_defs.arch_root)
@@ -41,12 +43,28 @@ parser = optparse.OptionParser()
 parser.add_option("--dry-run",
                   action="store_true",
                   help="Dry run (no actual file or database updatees)")
+parser.add_option("--no-full",
+                  action="store_false",
+                  dest="update_full",
+                  default=False,
+                  help="Do not fetch files from archive and update full-resolution MSID archive")
+parser.add_option("--no-5min",
+                  action="store_false",
+                  dest="update_5min",
+                  default=True,
+                  help="Do not update 5 minute archive")
+parser.add_option("--no-daily",
+                  action="store_false",
+                  dest="update_daily",
+                  default=False,
+                  help="Do not update daily archive")
 opt, args = parser.parse_args()
 
 def main():
     # Get the archive content filetypes
     filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
-    # filetypes = Ska.Numpy.filter(filetypes, 'content == "CCDM4ENG"')
+    # filetypes = Ska.Numpy.filter(filetypes, 'content == "THM1ENG"')
+    filetypes = Ska.Numpy.filter(filetypes, 'content == "PCAD3ENG"')
 
     # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
     # debug()
@@ -54,22 +72,115 @@ def main():
     for filetype in filetypes:
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
-        ft.content = filetype.content.lower()
-        ft.instrum = filetype.instrum.lower()
+        ft['content'] = filetype.content.lower()
+        ft['instrum'] = filetype.instrum.lower()
 
-        if not os.path.exists(msid_files['archfiles'].rel):
+        if not os.path.exists(msid_files['archfiles'].abs):
             logger.info('No archfiles.db3 for %s - skipping'  % ft.content)
             continue
 
         logger.info('Processing %s content type', ft.content)
-        tmpdir = Ska.File.TempDir(dir=datadir)
 
-        with Ska.File.chdir(tmpdir.name): 
-            archfiles = get_archive_files(filetype)
-            if archfiles:
-                update_msid_files(filetype, archfiles)
-                move_archive_files(filetype, archfiles)
-        del tmpdir
+        if opt.update_full:
+            update_archive(filetype)
+
+        if opt.update_5min:
+            colnames = pickle.load(open(msid_files['colnames'].abs))
+            for colname in colnames:
+                update_5min(colname)
+
+        if opt.update_daily:
+            update_daily(filetype)
+
+def calc_5min_vals(msid_vals, rows, indexes):
+    cols_5min = ('index', 'n', 'val')
+    n_out = len(rows) - 1
+    msid_dtype = msid_vals.dtype
+    msid_is_numeric = not msid_dtype.name.startswith('string')
+    # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
+    out = dict(index=np.ndarray((n_out,), dtype=np.int32),
+               n=np.ndarray((n_out,), dtype=np.int16),
+               val=np.ndarray((n_out,), dtype=msid_dtype),
+               )
+    if msid_is_numeric:
+        cols_5min = cols_5min + ('min', 'max', 'mean')
+        out.update(dict(min=np.ndarray((n_out,), dtype=msid_dtype),
+                        max=np.ndarray((n_out,), dtype=msid_dtype),
+                        mean=np.ndarray((n_out,), dtype=np.float32),))
+
+    i = 0
+    for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
+        vals = msid_vals[row0:row1]
+        n_vals = len(vals)
+        if n_vals > 0:
+            out['index'][i] = index
+            out['n'][i] = n_vals
+            out['val'][i] = vals[n_vals // 2]
+            if msid_is_numeric:
+                out['min'][i] = np.min(vals)
+                out['max'][i] = np.max(vals)
+                out['mean'][i] = np.mean(vals)
+            i += 1
+        
+    return np.rec.fromarrays([out[x][:i] for x in cols_5min], names=cols_5min)
+
+def update_5min(colname):
+    max_ingest_time = 3e5
+    dt = 328
+
+    ft['msid'] = colname
+    msid5_file = msid_files['msid5'].abs
+    print 'Updating', msid5_file
+    if os.path.exists(msid5_file):
+        msid5 = tables.openFile(msid5_file, mode='a')
+        index0 = msid5.root.data.cols.index[-1]
+    else:
+        msid5 = None
+        index0 = DateTime('2000:001:00:00:00').secs // dt
+
+    time0 = index0 * dt
+    time1 = min(DateTime().secs, time0 + max_ingest_time)
+    msid_times, msid_vals, msid_quals = fetch.fetch_arrays(time0, time1, [colname])
+
+    # Filter out bad data
+    ok = ~msid_quals[colname]
+    msid_times = msid_times[colname][ok]
+    msid_vals = msid_vals[colname][ok]
+
+    if len(msid_times) < 10:        # Don't bother, not enough new data
+        return
+
+    indexes = np.arange(index0 + 1, msid_times[-1] / dt, dtype=np.int32)
+    times = indexes * dt
+
+    rows = np.searchsorted(msid_times, times)
+    vals_5min = calc_5min_vals(msid_vals, rows, indexes)
+        
+    if msid5:
+        msid5.root.data.row.append(vals_5min)
+    else:
+        if not os.path.exists(msid_files['msid5dir'].abs):
+            os.makedirs(msid_files['msid5dir'].abs)
+        filters = tables.Filters(complevel=5, complib='zlib')
+        msid5 = tables.openFile(msid5_file, mode='w', filters=filters)
+        table = msid5.createTable(msid5.root, 'data', vals_5min, "5-minute sampling", expectedrows=2e7)
+
+    msid5.root.data.flush()
+    msid5.close()
+
+def update_daily(filetype):
+    pass
+
+def update_archive(filetype):
+    """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
+    archive files.
+    """
+    tmpdir = Ska.File.TempDir(dir=file_defs.arch_root)
+    with Ska.File.chdir(tmpdir.name): 
+        archfiles = get_archive_files(filetype)
+        if archfiles:
+            update_msid_files(filetype, archfiles)
+            move_archive_files(filetype, archfiles)
 
 def append_h5_col(dats, content, colname):
     """Append new values to an HDF5 MSID data table.
@@ -95,13 +206,13 @@ def append_h5_col(dats, content, colname):
 def update_msid_files(filetype, archfiles):
     archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',   
                           'tlmver', 'ascdsver', 'revision', 'date')
-    colnames = pickle.load(open(msid_files['colnames'].rel))
-    colnames_all = pickle.load(open(msid_files['colnames_all'].rel))
+    colnames = pickle.load(open(msid_files['colnames'].abs))
+    colnames_all = pickle.load(open(msid_files['colnames_all'].abs))
     old_colnames = colnames.copy()
     old_colnames_all = colnames_all.copy()
     
     # Setup db handle with autocommit=False so that error along the way aborts insert transactions
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].rel, autocommit=False)
+    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
 
     # Get the last row number from the archfiles table
     out = db.fetchall('SELECT max(rowstop) FROM archfiles')
@@ -175,14 +286,14 @@ def update_msid_files(filetype, archfiles):
     # If colnames or colnames_all changed then give warning and update files.
     if colnames != old_colnames:
         logger.warning('WARNING: updating %s because colnames changed: %s'
-                       % (msid_files['colnames'].rel, old_colnames ^ colnames))
+                       % (msid_files['colnames'].abs, old_colnames ^ colnames))
         if not opt.dry_run:
-            pickle.dump(colnames, open(msid_files['colnames'].rel, 'w'))
+            pickle.dump(colnames, open(msid_files['colnames'].abs, 'w'))
     if colnames_all != old_colnames_all:
         logger.warning('WARNING: updating %s because colnames_all changed: %s'
-                       % (msid_files['colnames_all'].rel, colnames_all ^ old_colnames_all))
+                       % (msid_files['colnames_all'].abs, colnames_all ^ old_colnames_all))
         if not opt.dry_run:
-            pickle.dump(colnames_all, open(msid_files['colnames_all'].rel, 'w'))
+            pickle.dump(colnames_all, open(msid_files['colnames_all'].abs, 'w'))
 
 
 def move_archive_files(filetype, archfiles):
@@ -217,7 +328,7 @@ def get_archive_files(filetype):
     arc5 = Ska.arc5gl.Arc5gl(echo=True)
 
     # Get datestart as the most-recent file time from archfiles table
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].rel)
+    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
     vals = db.fetchone("select max(filetime) from archfiles")
     datestart = DateTime(vals['max(filetime)']).date
 
