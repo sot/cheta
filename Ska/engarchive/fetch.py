@@ -32,6 +32,10 @@ for filetype in filetypes:
     colnames = pickle.load(open(msid_files['colnames'].abs))
     content.update((x, ft['content'].val) for x in colnames)
 
+fetch_cache = dict(key=None,
+                   times=None,
+                   quals=None)
+
 def fetch_records(start, stop, msids, dt=32.8):
     """
     Fetch data from the telemetry archive as a recarray at a uniform time spacing.
@@ -85,7 +89,7 @@ def fetch_arrays(start, stop, msids):
 
     :returns: times, values, quals
     """
-
+    
     with cache_ft():
         tstart, tstop, _times, _values, _quals = _fetch(start, stop, msids)
 
@@ -101,6 +105,28 @@ def fetch_arrays(start, stop, msids):
         quals[msid] = _quals[MSID][i0:i1]
 
     return times, values, quals
+
+def fetch_array(start, stop, msid):
+    """
+    Fetch data for single ``msid`` from the telemetry archive as an array.  
+
+    The telemetry values are returned in three arrays: ``times``, ``values``,
+    and ``quals``.  
+
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry
+    :param msid: MSID (case-insensitive)
+
+    :returns: times, values, quals
+    """
+    
+    with cache_ft():
+        tstart, tstop, _times, _values, _quals = _fetch(start, stop, [msid])
+
+    MSID = msid.upper()
+    i0, i1 = numpy.searchsorted(_times[MSID], [tstart, tstop])
+
+    return _times[MSID][i0:i1], _values[MSID][i0:i1], _quals[MSID][i0:i1]
 
 def _fetch(start, stop, msids):
     """
@@ -122,53 +148,66 @@ def _fetch(start, stop, msids):
 
     msids = [x.upper() for x in msids]
 
-    # Attributes for each content type represented by msids list
-    rowslice = dict()    # slice object that selects hdf5 row ranges
-    timestart = dict()   # start time of arch file containing tstart or first available
-    timestop = dict()    # stop time of arch file containing tstop or last available
-
-    # Go through msids and use the archfiles database to get the time and row ranges
-    for msid in msids:
-        if msid not in content:
-            raise ValueError('MSID %s is not in Eng Archive' % msid)
-        if content[msid] not in rowslice:
-            cm = content[msid]
-            rowslice[cm], timestart[cm], timestop[cm] = get_interval(cm, tstart, tstop)
-    
-    # Determine final tstart, tstop values incorporating knowledge of times available
-    # in MSID eng archive files.  Then generate array of times.
-    tstart = max([tstart] + list(timestart.values()))
-    tstop = min([tstop] + list(timestop.values()))
-
-    content_times = dict()              # time stamps for each content type
-    content_quals = dict()              # quality flags for each content type
     times = dict()
     values = dict()
     quals = dict()
 
     for msid in msids:
+        if msid not in content:
+            raise ValueError('MSID %s is not in Eng Archive' % msid)
         cm = content[msid]
         ft['content'] = cm
         ft['msid'] = msid
+        rowslice = get_interval(cm, tstart, tstop)
 
         h5 = tables.openFile(msid_files['data'].abs)
-        data = h5.root.data[rowslice[cm]]
-        qual = h5.root.quality[rowslice[cm]]
+        data = h5.root.data[rowslice]
+        qual = h5.root.quality[rowslice]
         h5.close()
 
-        if cm not in content_times:
+        key = (cm, tstart, tstop)
+        if key == fetch_cache['key']:
+            content_times = fetch_cache['times']
+            content_quals = fetch_cache['quals']
+        else:
             ft['msid'] = 'time'
             h5 = tables.openFile(msid_files['msid'].abs)
-            content_times[cm] = h5.root.data[rowslice[cm]]
-            content_quals[cm] = h5.root.quality[rowslice[cm]]
+            content_times = h5.root.data[rowslice]
+            content_quals = h5.root.quality[rowslice]
             h5.close()
-        
+            fetch_cache.update(dict(key=key,
+                                    times=content_times,
+                                    quals=content_quals))
+
         values[msid] = data
-        times[msid] = content_times[cm]
-        quals[msid] = qual | content_quals[cm]
+        times[msid] = content_times
+        quals[msid] = qual | content_quals
 
     return tstart, tstop, times, values, quals
 
+class memoized(object):
+    """Decorator that caches a function's return value each time it is called.
+    If called later with the same arguments, the cached value is returned, and
+    not re-evaluated.
+    """
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+    def __call__(self, *args):
+        try:
+            return self.cache[args]
+        except KeyError:
+            self.cache[args] = value = self.func(*args)
+            return value
+        except TypeError:
+            # uncachable -- for instance, passing a list as an argument.
+            # Better to not cache than to blow up entirely.
+            return self.func(*args)
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+@memoized
 def get_interval(content, tstart, tstop):
     """
     Get the approximate row and time intervals that enclose the specified ``tstart`` and
@@ -187,18 +226,15 @@ def get_interval(content, tstart, tstop):
         query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles order by filetime asc')
 
     rowstart = query_row['rowstart']
-    timestart = query_row['tstart']
 
     query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
                             'WHERE filetime > ? order by filetime asc', (tstop,))
-
     if not query_row:
         query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles order by filetime desc')
 
     rowstop = query_row['rowstop']
-    timestop = query_row['tstop']
 
-    return slice(rowstart, rowstop), timestart, timestop
+    return slice(rowstart, rowstop)
 
 @contextlib.contextmanager
 def cache_ft():

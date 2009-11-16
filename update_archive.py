@@ -25,7 +25,6 @@ import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
 import Ska.arc5gl
 
-# FT = pyyaks.context.ContextDict('ft')
 FT = fetch.ft
 ft = FT.accessor()
 
@@ -81,6 +80,9 @@ def main():
 
         logger.info('Processing %s content type', ft.content)
 
+        if not os.path.exists(msid_files['msid5dir'].abs):
+            os.makedirs(msid_files['msid5dir'].abs)
+
         if opt.update_full:
             update_archive(filetype)
 
@@ -110,6 +112,8 @@ def calc_5min_vals(msid_vals, rows, indexes):
 
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
+        if index % 10000 == 0:
+            print index
         vals = msid_vals[row0:row1]
         n_vals = len(vals)
         if n_vals > 0:
@@ -125,27 +129,27 @@ def calc_5min_vals(msid_vals, rows, indexes):
     return np.rec.fromarrays([out[x][:i] for x in cols_5min], names=cols_5min)
 
 def update_5min(colname):
-    max_ingest_time = 3e5
+    max_ingest_time = 3e9
     dt = 328
 
     ft['msid'] = colname
     msid5_file = msid_files['msid5'].abs
     print 'Updating', msid5_file
-    if os.path.exists(msid5_file):
-        msid5 = tables.openFile(msid5_file, mode='a')
+    msid5 = tables.openFile(msid5_file, mode='a', 
+                            filters=tables.Filters(complevel=5, complib='zlib'))
+    try:
         index0 = msid5.root.data.cols.index[-1]
-    else:
-        msid5 = None
+    except tables.NoSuchNodeError:
         index0 = DateTime('2000:001:00:00:00').secs // dt
 
     time0 = index0 * dt
     time1 = min(DateTime().secs, time0 + max_ingest_time)
-    msid_times, msid_vals, msid_quals = fetch.fetch_arrays(time0, time1, [colname])
+    msid_times, msid_vals, msid_quals = fetch.fetch_array(time0, time1, colname)
 
     # Filter out bad data
-    ok = ~msid_quals[colname]
-    msid_times = msid_times[colname][ok]
-    msid_vals = msid_vals[colname][ok]
+    ok = ~msid_quals
+    msid_times = msid_times[ok]
+    msid_vals = msid_vals[ok]
 
     if len(msid_times) < 10:        # Don't bother, not enough new data
         return
@@ -156,13 +160,9 @@ def update_5min(colname):
     rows = np.searchsorted(msid_times, times)
     vals_5min = calc_5min_vals(msid_vals, rows, indexes)
         
-    if msid5:
-        msid5.root.data.row.append(vals_5min)
-    else:
-        if not os.path.exists(msid_files['msid5dir'].abs):
-            os.makedirs(msid_files['msid5dir'].abs)
-        filters = tables.Filters(complevel=5, complib='zlib')
-        msid5 = tables.openFile(msid5_file, mode='w', filters=filters)
+    try:
+        msid5.root.data.append(vals_5min)
+    except tables.NoSuchNodeError:
         table = msid5.createTable(msid5.root, 'data', vals_5min, "5-minute sampling", expectedrows=2e7)
 
     msid5.root.data.flush()
