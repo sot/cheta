@@ -20,6 +20,7 @@ import pyyaks.context
 import pyfits
 import tables
 import numpy as np
+import scipy.stats.mstats
 
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
@@ -28,7 +29,7 @@ import Ska.arc5gl
 FT = fetch.ft
 ft = FT.accessor()
 
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_roots[1]) # msid_root
+msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_root) # msid_roots[1]
 msid_files.update(file_defs.msid_files)
 
 arch_files = pyyaks.context.ContextDict('arch_files', basedir=file_defs.arch_root)
@@ -47,23 +48,18 @@ parser.add_option("--no-full",
                   dest="update_full",
                   default=False,
                   help="Do not fetch files from archive and update full-resolution MSID archive")
-parser.add_option("--no-5min",
+parser.add_option("--no-stats",
                   action="store_false",
-                  dest="update_5min",
+                  dest="update_stats",
                   default=True,
-                  help="Do not update 5 minute archive")
-parser.add_option("--no-daily",
-                  action="store_false",
-                  dest="update_daily",
-                  default=False,
-                  help="Do not update daily archive")
+                  help="Do not update 5 minute and daily stats archive")
 opt, args = parser.parse_args()
 
 def main():
     # Get the archive content filetypes
     filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
     # filetypes = Ska.Numpy.filter(filetypes, 'content == "THM1ENG"')
-    filetypes = Ska.Numpy.filter(filetypes, 'content == "PCAD3ENG"')
+    # filetypes = [x for x in filetypes if x.content in ('PCAD3ENG', 'THM1ENG')]
 
     # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
     # debug()
@@ -80,22 +76,18 @@ def main():
 
         logger.info('Processing %s content type', ft.content)
 
-        if not os.path.exists(msid_files['msid5dir'].abs):
-            os.makedirs(msid_files['msid5dir'].abs)
-
         if opt.update_full:
             update_archive(filetype)
 
-        if opt.update_5min:
+        if opt.update_stats:
             colnames = pickle.load(open(msid_files['colnames'].abs))
             for colname in colnames:
-                update_5min(colname)
+                msid_times, msid_vals = update_stats(colname, 'daily')
+                update_stats(colname, '5min', msid_times, msid_vals)
 
-        if opt.update_daily:
-            update_daily(filetype)
-
-def calc_5min_vals(msid_vals, rows, indexes):
-    cols_5min = ('index', 'n', 'val')
+def calc_stats_vals(msid_vals, rows, indexes, interval):
+    quantiles = (1, 5, 16, 50, 84, 95, 99)
+    cols_stats = ('index', 'n', 'val')
     n_out = len(rows) - 1
     msid_dtype = msid_vals.dtype
     msid_is_numeric = not msid_dtype.name.startswith('string')
@@ -105,15 +97,16 @@ def calc_5min_vals(msid_vals, rows, indexes):
                val=np.ndarray((n_out,), dtype=msid_dtype),
                )
     if msid_is_numeric:
-        cols_5min = cols_5min + ('min', 'max', 'mean')
+        cols_stats += ('min', 'max', 'mean')
         out.update(dict(min=np.ndarray((n_out,), dtype=msid_dtype),
                         max=np.ndarray((n_out,), dtype=msid_dtype),
                         mean=np.ndarray((n_out,), dtype=np.float32),))
-
+        if interval == 'daily':
+            cols_stats += ('std',) + tuple('p%02d' % x for x in quantiles)
+            out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
+            out.update(('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles)
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
-        if index % 10000 == 0:
-            print index
         vals = msid_vals[row0:row1]
         n_vals = len(vals)
         if n_vals > 0:
@@ -124,52 +117,58 @@ def calc_5min_vals(msid_vals, rows, indexes):
                 out['min'][i] = np.min(vals)
                 out['max'][i] = np.max(vals)
                 out['mean'][i] = np.mean(vals)
+                if interval == 'daily':
+                    out['std'][i] = np.std(vals)
+                    quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
+                    for quant_val, quantile in zip(quant_vals, quantiles):
+                        out['p%02d' % quantile][i] = quant_val
             i += 1
         
-    return np.rec.fromarrays([out[x][:i] for x in cols_5min], names=cols_5min)
+    return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
-def update_5min(colname):
+def update_stats(colname, interval, msid_times=None, msid_vals=None):
     max_ingest_time = 3e9
-    dt = 328
+    dt = {'5min': 328,
+          'daily': 86400}[interval]
 
     ft['msid'] = colname
-    msid5_file = msid_files['msid5'].abs
-    print 'Updating', msid5_file
-    msid5 = tables.openFile(msid5_file, mode='a', 
+    ft['interval'] = interval
+    stats_file = msid_files['stats'].abs
+    logger.info('Updating stats file %s', stats_file)
+
+    if not os.path.exists(msid_files['statsdir'].abs):
+        os.makedirs(msid_files['statsdir'].abs)
+    stats = tables.openFile(stats_file, mode='a', 
                             filters=tables.Filters(complevel=5, complib='zlib'))
     try:
-        index0 = msid5.root.data.cols.index[-1]
+        index0 = stats.root.data.cols.index[-1] + 1
     except tables.NoSuchNodeError:
         index0 = DateTime('2000:001:00:00:00').secs // dt
 
-    time0 = index0 * dt
-    time1 = min(DateTime().secs, time0 + max_ingest_time)
-    msid_times, msid_vals, msid_quals = fetch.fetch_array(time0, time1, colname)
+    if msid_times is None or msid_vals is None:
+        time0 = index0 * dt - 500      # fetch a little extra telemetry
+        time1 = min(DateTime().secs, time0 + max_ingest_time)
+        msid_times, msid_vals, msid_quals = fetch.fetch_array(time0, time1, colname)
+        # Filter out bad data
+        ok = ~msid_quals
+        msid_times = msid_times[ok]
+        msid_vals = msid_vals[ok]
 
-    # Filter out bad data
-    ok = ~msid_quals
-    msid_times = msid_times[ok]
-    msid_vals = msid_vals[ok]
-
-    if len(msid_times) < 10:        # Don't bother, not enough new data
-        return
-
-    indexes = np.arange(index0 + 1, msid_times[-1] / dt, dtype=np.int32)
+    indexes = np.arange(index0, msid_times[-1] / dt, dtype=np.int32)
     times = indexes * dt
 
-    rows = np.searchsorted(msid_times, times)
-    vals_5min = calc_5min_vals(msid_vals, rows, indexes)
-        
-    try:
-        msid5.root.data.append(vals_5min)
-    except tables.NoSuchNodeError:
-        table = msid5.createTable(msid5.root, 'data', vals_5min, "5-minute sampling", expectedrows=2e7)
+    if len(times) > 2:
+        rows = np.searchsorted(msid_times, times)
+        vals_stats = calc_stats_vals(msid_vals, rows, indexes, interval)
+        try:
+            stats.root.data.append(vals_stats)
+        except tables.NoSuchNodeError:
+            table = stats.createTable(stats.root, 'data', vals_stats,
+                                      "%s sampling" % interval, expectedrows=2e7)
+    stats.root.data.flush()
+    stats.close()
 
-    msid5.root.data.flush()
-    msid5.close()
-
-def update_daily(filetype):
-    pass
+    return msid_times, msid_vals
 
 def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
