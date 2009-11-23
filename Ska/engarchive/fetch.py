@@ -39,7 +39,7 @@ for filetype in filetypes:
 
 # Cache of the most-recently used TIME array and associated bad values mask.
 # The key is (content_type, tstart, tstop).
-time_cache = dict(key=None)
+times_cache = dict(key=None)
 
 # Set up logging.
 class NullHandler(logging.Handler):
@@ -57,16 +57,16 @@ class MSID(object):
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter: automatically filter out bad values
-    :param stats: return 5-minute or daily statistics ('5min' or 'daily')
+    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
 
     :returns: MSID instance
     """
-    def __init__(self, msid, start, stop=None, filter=False, stats=None):
+    def __init__(self, msid, start, stop=None, filter=False, stat=None):
         self.msid = msid
         self.MSID = msid.upper()
-        self.stats = stats
-        if stats:
-            self.dt = {'5min': 328, 'daily': 86400}[stats]
+        self.stat = stat
+        if stat:
+            self.dt = {'5min': 328, 'daily': 86400}[stat]
             
         self.tstart = DateTime(start).secs
         self.tstop = DateTime(stop).secs if stop else DateTime(time.time(),
@@ -94,13 +94,13 @@ class MSID(object):
             ft['content'] = self.content
             ft['msid'] = self.MSID
 
-            if self.stats:
-                ft['interval'] = self.stats
-                self._get_stats_data()
+            if self.stat:
+                ft['interval'] = self.stat
+                self._get_stat_data()
             else:
                 self._get_msid_data()
 
-    def _get_stats_data(self):
+    def _get_stat_data(self):
         filename = msid_files['stats'].abs
         logger.info('Opening %s', filename)
         h5 = tables.openFile(filename)
@@ -112,9 +112,10 @@ class MSID(object):
         logger.info('Closed %s', filename)
 
         self.time = times[row0:row1]
-        self.table = table_rows
         for colname in table_rows.dtype.names:
-            setattr(self, plural(colname), table_rows[colname])
+            # Don't like the way columns were named in the stats tables.  Fix that here.
+            colname_out = _plural(colname) if colname != 'n' else 'samples' 
+            setattr(self, colname_out, table_rows[colname])
 
     def _get_msid_data(self):
         # Get a row slice into HDF5 file for this content type that picks out
@@ -122,72 +123,70 @@ class MSID(object):
         h5_slice = get_interval(self.content, self.tstart, self.tstop)
 
         # Read the TIME values either from cache or from disk.
-        if time_cache['key'] == (self.content, self.tstart, self.tstop):
-            logger.info('Using time_cache for %s %s to %s', self.content, self.datestart, self.datestop)
-            time = time_cache['val']    # Already filtered on time_ok
-            time_ok = time_cache['ok']  # For filtering MSID.val and MSID.bad
-            time_all_ok = time_cache['all_ok']
+        if times_cache['key'] == (self.content, self.tstart, self.tstop):
+            logger.info('Using times_cache for %s %s to %s', self.content, self.datestart, self.datestop)
+            times = times_cache['val']    # Already filtered on times_ok
+            times_ok = times_cache['ok']  # For filtering MSID.val and MSID.bad
+            times_all_ok = times_cache['all_ok']
         else:
             ft['msid'] = 'time'
             filename = msid_files['msid'].abs
-            logger.info('Opening %s', filename)
+            logger.info('Reading %s', filename)
             h5 = tables.openFile(filename)
-            time_ok = ~h5.root.quality[h5_slice]
-            time = h5.root.data[h5_slice]
+            times_ok = ~h5.root.quality[h5_slice]
+            times = h5.root.data[h5_slice]
             h5.close()
-            logger.info('Closed %s', filename)
 
             # Filter bad times.  Last instance of bad times in archive is 2004 so
-            # don't do this unless needed.  Creating a new 'time' array is much
-            # more expensive than checking for numpy.all(time_ok).
-            time_all_ok = numpy.all(time_ok)
-            if not time_all_ok:
-                time = time[time_ok]
+            # don't do this unless needed.  Creating a new 'times' array is much
+            # more expensive than checking for numpy.all(times_ok).
+            times_all_ok = numpy.all(times_ok)
+            if not times_all_ok:
+                times = times[times_ok]
 
-            time_cache.update(dict(key=(self.content, self.tstart, self.tstop),
-                                   val=time,
-                                   ok=time_ok,
-                                   all_ok=time_all_ok))
+            times_cache.update(dict(key=(self.content, self.tstart, self.tstop),
+                                   val=times,
+                                   ok=times_ok,
+                                   all_ok=times_all_ok))
 
         # Extract the actual MSID values and bad values mask
         ft['msid'] = self.msid
         filename = msid_files['msid'].abs
-        logger.info('Opening %s', filename)
+        logger.info('Reading %s', filename)
         h5 = tables.openFile(filename)
-        val = h5.root.data[h5_slice]
-        bad = h5.root.quality[h5_slice]
+        vals = h5.root.data[h5_slice]
+        bads = h5.root.quality[h5_slice]
         h5.close()
-        logger.info('Closed %s', filename)
 
-        # Filter bad time rows if needed
-        if not time_all_ok:
-            logger.info('Filtering bad time values for %s', self.msid)
-            bad = bad[time_ok]
-            val = val[time_ok]
+        # Filter bad times rows if needed
+        if not times_all_ok:
+            logger.info('Filtering bad times values for %s', self.msid)
+            bads = bads[times_ok]
+            vals = vals[times_ok]
 
         # Slice down to exact requested time range
-        row0, row1 = numpy.searchsorted(time, [self.tstart, self.tstop])
+        row0, row1 = numpy.searchsorted(times, [self.tstart, self.tstop])
         logger.info('Slicing %s arrays [%d:%d]', self.msid, row0, row1)
-        self.val = val[row0:row1]
-        self.time = time[row0:row1]
-        self.bad = bad[row0:row1]
+        self.vals = vals[row0:row1]
+        self.times = times[row0:row1]
+        self.bads = bads[row0:row1]
 
     def filter_bad(self):
         """Filter out any bad values."""
-        if self.bad is None:
+        if self.bads is None:
             return
 
-        if self.stats:
+        if self.stat:
             pass
         else:
-            if numpy.any(self.bad):
+            if numpy.any(self.bads):
                 logger.info('Filtering bad values for %s', self.msid)
-                ok = ~self.bad
-                self.val = self.val[ok]
-                self.time = self.time[ok]
+                ok = ~self.bads
+                self.vals = self.vals[ok]
+                self.times = self.times[ok]
             else:
                 logger.info('No bad values to filter for %s', self.msid)
-            self.bad = None
+            self.bads = None
 
 def fetch_records(start, stop, msids, dt=32.8):
     """
@@ -249,9 +248,9 @@ def fetch_arrays(start, stop, msids):
 
     for msid in msids:
         m = MSID(msid, start, stop)
-        times[msid] = m.time
-        values[msid] = m.val
-        quals[msid] = m.bad
+        times[msid] = m.times
+        values[msid] = m.vals
+        quals[msid] = m.bads
 
     return times, values, quals
 
@@ -367,3 +366,10 @@ def add_logging_handler(level=logging.INFO,
     handler.setFormatter(formatter)
     handler.setLevel(level)
     logger.addHandler(handler)
+
+def _plural(x):
+    """Return English plural of ``x``.  Super-simple and only valid for the
+    known small set of cases within fetch where it will get applied.
+    """
+    return x + 'es' if (x.endswith('x')  or x.endswith('s')) else x + 's'
+
