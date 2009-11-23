@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Fetch values from the SKA telemetry archive.
+Fetch values from the Ska engineering archive.
 """
 from __future__ import with_statement  # only for python 2.5
 
@@ -9,6 +9,7 @@ import os
 import time
 import contextlib
 import cPickle as pickle
+import logging
 
 import numpy
 import tables
@@ -16,15 +17,19 @@ import Ska.Table
 import pyyaks.context
 
 import file_defs
+from Chandra.Time import DateTime
 
 SKA = os.getenv('SKA') or '/proj/sot/ska'
 SKA_DATA = SKA + '/data/eng_archive'
 
+# Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
+# Global (eng_archive) definition of file names
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_root) 
 msid_files.update(file_defs.msid_files)
 
+# Module-level values defining available content types and column (MSID) names
 filetypes = Ska.Table.read_ascii_table(os.path.join(SKA_DATA, 'filetypes.dat'))
 content = dict()
 for filetype in filetypes:
@@ -32,9 +37,157 @@ for filetype in filetypes:
     colnames = pickle.load(open(msid_files['colnames'].abs))
     content.update((x, ft['content'].val) for x in colnames)
 
-fetch_cache = dict(key=None,
-                   times=None,
-                   quals=None)
+# Cache of the most-recently used TIME array and associated bad values mask.
+# The key is (content_type, tstart, tstop).
+time_cache = dict(key=None)
+
+# Set up logging.
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+logger = logging.getLogger('Ska.engarchive.fetch')
+logger.addHandler(NullHandler())
+logger.propagate = False
+
+class MSID(object):
+    """
+    Fetch data from the engineering telemetry archive. 
+
+    :param msid: name of MSID (case-insensitive)
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry (current time if not supplied)
+    :param filter: automatically filter out bad values
+    :param stats: return 5-minute or daily statistics ('5min' or 'daily')
+
+    :returns: MSID instance
+    """
+    def __init__(self, msid, start, stop=None, filter=False, stats=None):
+        self.msid = msid
+        self.MSID = msid.upper()
+        self.stats = stats
+        if stats:
+            self.dt = {'5min': 328, 'daily': 86400}[stats]
+            
+        self.tstart = DateTime(start).secs
+        self.tstop = DateTime(stop).secs if stop else DateTime(time.time(),
+                                                               format='unix').secs
+        self.datestart = DateTime(self.tstart).date
+        self.datestop = DateTime(self.tstop).date
+        try:
+            self.content = content[self.MSID]
+        except KeyError:
+            raise ValueError('MSID %s is not in Eng Archive' % self.MSID)
+
+        # Get the times, values, bad values mask from the HDF5 files archive
+        self._get_data()
+
+        # If requested filter out bad values and set self.bad = None
+        if filter:
+            self.filter_bad()               
+
+    def _get_data(self):
+        """Actually get data from the Eng archive"""
+        logger.info('Getting data for %s between %s to %s', self.msid, self.datestart, self.datestop)
+
+        # Avoid stomping on caller's filetype 'ft' values with _cache_ft()
+        with _cache_ft():
+            ft['content'] = self.content
+            ft['msid'] = self.MSID
+
+            if self.stats:
+                ft['interval'] = self.stats
+                self._get_stats_data()
+            else:
+                self._get_msid_data()
+
+    def _get_stats_data(self):
+        filename = msid_files['stats'].abs
+        logger.info('Opening %s', filename)
+        h5 = tables.openFile(filename)
+        table = h5.root.data
+        times = (table.col('index') + 0.5) * self.dt
+        row0, row1 = numpy.searchsorted(times, [self.tstart, self.tstop])
+        table_rows = table[row0:row1]   # returns np.ndarray (structured array)
+        h5.close()
+        logger.info('Closed %s', filename)
+
+        self.time = times[row0:row1]
+        self.table = table_rows
+        for colname in table_rows.dtype.names:
+            setattr(self, plural(colname), table_rows[colname])
+
+    def _get_msid_data(self):
+        # Get a row slice into HDF5 file for this content type that picks out
+        # the required time range plus a little padding on each end.
+        h5_slice = get_interval(self.content, self.tstart, self.tstop)
+
+        # Read the TIME values either from cache or from disk.
+        if time_cache['key'] == (self.content, self.tstart, self.tstop):
+            logger.info('Using time_cache for %s %s to %s', self.content, self.datestart, self.datestop)
+            time = time_cache['val']    # Already filtered on time_ok
+            time_ok = time_cache['ok']  # For filtering MSID.val and MSID.bad
+            time_all_ok = time_cache['all_ok']
+        else:
+            ft['msid'] = 'time'
+            filename = msid_files['msid'].abs
+            logger.info('Opening %s', filename)
+            h5 = tables.openFile(filename)
+            time_ok = ~h5.root.quality[h5_slice]
+            time = h5.root.data[h5_slice]
+            h5.close()
+            logger.info('Closed %s', filename)
+
+            # Filter bad times.  Last instance of bad times in archive is 2004 so
+            # don't do this unless needed.  Creating a new 'time' array is much
+            # more expensive than checking for numpy.all(time_ok).
+            time_all_ok = numpy.all(time_ok)
+            if not time_all_ok:
+                time = time[time_ok]
+
+            time_cache.update(dict(key=(self.content, self.tstart, self.tstop),
+                                   val=time,
+                                   ok=time_ok,
+                                   all_ok=time_all_ok))
+
+        # Extract the actual MSID values and bad values mask
+        ft['msid'] = self.msid
+        filename = msid_files['msid'].abs
+        logger.info('Opening %s', filename)
+        h5 = tables.openFile(filename)
+        val = h5.root.data[h5_slice]
+        bad = h5.root.quality[h5_slice]
+        h5.close()
+        logger.info('Closed %s', filename)
+
+        # Filter bad time rows if needed
+        if not time_all_ok:
+            logger.info('Filtering bad time values for %s', self.msid)
+            bad = bad[time_ok]
+            val = val[time_ok]
+
+        # Slice down to exact requested time range
+        row0, row1 = numpy.searchsorted(time, [self.tstart, self.tstop])
+        logger.info('Slicing %s arrays [%d:%d]', self.msid, row0, row1)
+        self.val = val[row0:row1]
+        self.time = time[row0:row1]
+        self.bad = bad[row0:row1]
+
+    def filter_bad(self):
+        """Filter out any bad values."""
+        if self.bad is None:
+            return
+
+        if self.stats:
+            pass
+        else:
+            if numpy.any(self.bad):
+                logger.info('Filtering bad values for %s', self.msid)
+                ok = ~self.bad
+                self.val = self.val[ok]
+                self.time = self.time[ok]
+            else:
+                logger.info('No bad values to filter for %s', self.msid)
+            self.bad = None
 
 def fetch_records(start, stop, msids, dt=32.8):
     """
@@ -53,7 +206,7 @@ def fetch_records(start, stop, msids, dt=32.8):
     """
     import Ska.Numpy
 
-    with cache_ft():
+    with _cache_ft():
         tstart, tstop, times, values, quals = _fetch(start, stop, msids)
     dt_times = numpy.arange(tstart, tstop, dt)
 
@@ -90,19 +243,15 @@ def fetch_arrays(start, stop, msids):
     :returns: times, values, quals
     """
     
-    with cache_ft():
-        tstart, tstop, _times, _values, _quals = _fetch(start, stop, msids)
-
     times = {}
     values = {}
     quals = {}
 
     for msid in msids:
-        MSID = msid.upper()
-        i0, i1 = numpy.searchsorted(_times[MSID], [tstart, tstop])
-        times[msid] = _times[MSID][i0:i1]
-        values[msid] = _values[MSID][i0:i1]
-        quals[msid] = _quals[MSID][i0:i1]
+        m = MSID(msid, start, stop)
+        times[msid] = m.time
+        values[msid] = m.val
+        quals[msid] = m.bad
 
     return times, values, quals
 
@@ -120,70 +269,13 @@ def fetch_array(start, stop, msid):
     :returns: times, values, quals
     """
     
-    with cache_ft():
+    with _cache_ft():
         tstart, tstop, _times, _values, _quals = _fetch(start, stop, [msid])
 
     MSID = msid.upper()
     i0, i1 = numpy.searchsorted(_times[MSID], [tstart, tstop])
 
     return _times[MSID][i0:i1], _values[MSID][i0:i1], _quals[MSID][i0:i1]
-
-def _fetch(start, stop, msids):
-    """
-    Fetch data from the telemetry archive.  Returns a bit more than the requested
-    time range so that calling routine can filter appropriately.  This routine is
-    not intended for external use.
-
-    :param start: start date of telemetry (Chandra.Time compatible)
-    :param stop: stop date of telemetry
-    :param msids: list of MSIDs (case-insensitive)
-
-    :returns: times, values, quals
-    """
-    from Chandra.Time import DateTime
-
-    # Convert input date values to time in CXC seconds.  tstop defaults to Now.
-    tstart = DateTime(start).secs
-    tstop = DateTime(stop).secs if stop else DateTime(time.time(), format='unix').secs
-
-    msids = [x.upper() for x in msids]
-
-    times = dict()
-    values = dict()
-    quals = dict()
-
-    for msid in msids:
-        if msid not in content:
-            raise ValueError('MSID %s is not in Eng Archive' % msid)
-        cm = content[msid]
-        ft['content'] = cm
-        ft['msid'] = msid
-        rowslice = get_interval(cm, tstart, tstop)
-
-        h5 = tables.openFile(msid_files['data'].abs)
-        data = h5.root.data[rowslice]
-        qual = h5.root.quality[rowslice]
-        h5.close()
-
-        key = (cm, tstart, tstop)
-        if key == fetch_cache['key']:
-            content_times = fetch_cache['times']
-            content_quals = fetch_cache['quals']
-        else:
-            ft['msid'] = 'time'
-            h5 = tables.openFile(msid_files['msid'].abs)
-            content_times = h5.root.data[rowslice]
-            content_quals = h5.root.quality[rowslice]
-            h5.close()
-            fetch_cache.update(dict(key=key,
-                                    times=content_times,
-                                    quals=content_quals))
-
-        values[msid] = data
-        times[msid] = content_times
-        quals[msid] = qual | content_quals
-
-    return tstart, tstop, times, values, quals
 
 class memoized(object):
     """Decorator that caches a function's return value each time it is called.
@@ -210,10 +302,14 @@ class memoized(object):
 @memoized
 def get_interval(content, tstart, tstop):
     """
-    Get the approximate row and time intervals that enclose the specified ``tstart`` and
+    Get the approximate row intervals that enclose the specified ``tstart`` and
     ``tstop`` times for the ``content`` type.
 
-    :returns: rowslice, timestart, timestop
+    :param content: content type (e.g. 'pcad3eng', 'thm1eng')
+    :param tstart: start time (CXC seconds)
+    :param tstop: stop time (CXC seconds)
+
+    :returns: rowslice
     """
     import Ska.DBI
 
@@ -237,7 +333,7 @@ def get_interval(content, tstart, tstop):
     return slice(rowstart, rowstop)
 
 @contextlib.contextmanager
-def cache_ft():
+def _cache_ft():
     """
     Cache the global filetype ``ft`` context variable so that fetch operations
     do not corrupt user values of ``ft``.  
@@ -252,3 +348,22 @@ def cache_ft():
         for key in delkeys:
             del ft[key]
 
+def add_logging_handler(level=logging.INFO,
+                        formatter=None,
+                        handler=None):
+    """Configure logging for fetch module.
+
+    :param level: logging level (logging.DEBUG, logging.INFO, etc)
+    :param formatter: logging.Formatter (default: Formatter('%(funcName)s: %(message)s'))
+    :param handler: logging.Handler (default: StreamHandler())
+    """
+
+    if formatter is None:
+        formatter = logging.Formatter('%(funcName)s: %(message)s')
+
+    if handler is None:
+        handler = logging.StreamHandler()
+
+    handler.setFormatter(formatter)
+    handler.setLevel(level)
+    logger.addHandler(handler)
