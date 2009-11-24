@@ -51,17 +51,17 @@ logger.propagate = False
 
 class MSID(object):
     """
-    Fetch data from the engineering telemetry archive. 
+    Fetch data from the engineering telemetry archive into an MSID object. 
 
     :param msid: name of MSID (case-insensitive)
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry (current time if not supplied)
-    :param filter: automatically filter out bad values
+    :param filter_bad: automatically filter out bad values
     :param stat: return 5-minute or daily statistics ('5min' or 'daily')
 
     :returns: MSID instance
     """
-    def __init__(self, msid, start, stop=None, filter=False, stat=None):
+    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         self.msid = msid
         self.MSID = msid.upper()
         self.stat = stat
@@ -82,11 +82,11 @@ class MSID(object):
         self._get_data()
 
         # If requested filter out bad values and set self.bad = None
-        if filter:
+        if filter_bad:
             self.filter_bad()               
 
     def _get_data(self):
-        """Actually get data from the Eng archive"""
+        """Get data from the Eng archive"""
         logger.info('Getting data for %s between %s to %s', self.msid, self.datestart, self.datestop)
 
         # Avoid stomping on caller's filetype 'ft' values with _cache_ft()
@@ -101,6 +101,7 @@ class MSID(object):
                 self._get_msid_data()
 
     def _get_stat_data(self):
+        """Do the actual work of getting stats values for an MSID from HDF5 files"""
         filename = msid_files['stats'].abs
         logger.info('Opening %s', filename)
         h5 = tables.openFile(filename)
@@ -111,13 +112,17 @@ class MSID(object):
         h5.close()
         logger.info('Closed %s', filename)
 
-        self.time = times[row0:row1]
+        self.times = times[row0:row1]
+        self.colnames = ['times']
         for colname in table_rows.dtype.names:
             # Don't like the way columns were named in the stats tables.  Fix that here.
             colname_out = _plural(colname) if colname != 'n' else 'samples' 
             setattr(self, colname_out, table_rows[colname])
+            self.colnames.append(colname_out)
 
     def _get_msid_data(self):
+        """Do the actual work of getting time and values for an MSID from HDF5 files"""
+
         # Get a row slice into HDF5 file for this content type that picks out
         # the required time range plus a little padding on each end.
         h5_slice = get_interval(self.content, self.tstart, self.tstop)
@@ -170,9 +175,14 @@ class MSID(object):
         self.vals = vals[row0:row1]
         self.times = times[row0:row1]
         self.bads = bads[row0:row1]
+        self.colnames = ['times', 'vals', 'bads']
 
     def filter_bad(self):
-        """Filter out any bad values."""
+        """Filter out any bad values.
+
+        After applying this method the "bads" column will be set to None to indicate
+        that there are no bad values.  
+        """
         if self.bads is None:
             return
 
@@ -187,6 +197,58 @@ class MSID(object):
             else:
                 logger.info('No bad values to filter for %s', self.msid)
             self.bads = None
+
+class MSIDset(dict):
+    """Fetch a set of MSIDs from the engineering telemetry archive.
+
+    :param msids: list of MSID names (case-insensitive)
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry (current time if not supplied)
+    :param filter_bad: automatically filter out bad values
+    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+
+    :returns: Dict-like object containing MSID instances keyed by MSID name
+    """
+    def __init__(self, msids, start, stop=None, filter_bad=False, stat=None):
+        super(MSIDset, self).__init__()
+
+        self.msids = msids
+        self.tstart = DateTime(start).secs
+        self.tstop = DateTime(stop).secs if stop else DateTime(time.time(),
+                                                               format='unix').secs
+        self.datestart = DateTime(self.tstart).date
+        self.datestop = DateTime(self.tstop).date
+
+        for msid in msids:
+            self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=filter_bad, stat=stat)
+
+    def interpolate(self, dt=328.0, start=None, stop=None):
+        """Nearest-neighbor interpolation of all MSID values in the set to a common time sequence.
+        The values are updated in-place.
+
+        The time sequence steps uniformly by ``dt`` seconds starting at the ``start`` time for
+        the set.
+
+        :param dt: time step (sec)
+        """
+        # Speed could be improved by clever use of bad masking among common content types
+        # (assuming no bad filtering to begin with) so that interpolation only gets done once.
+        # For now just brute-force it for every MSID.
+        
+        tstart = DateTime(start).secs if start else self.tstart
+        tstop = DateTime(stop).secs if stop else self.tstop
+        self.times = numpy.arange(tstart, tstop, dt)
+
+        for msid in self.values():
+            msid.filter_bad()
+            logger.info('Interpolating index for %s', msid.msid)
+            indexes = Ska.Numpy.interpolate(numpy.arange(len(msid.times)),
+                                            msid.times, self.times, method='nearest')
+            logger.info('Slicing on indexes')
+            for colname in msid.colnames:
+                colvals = getattr(msid, colname)
+                if colvals is not None:
+                    setattr(msid, colname, colvals[indexes])
 
 def fetch_records(start, stop, msids, dt=32.8):
     """
@@ -229,7 +291,10 @@ def fetch_records(start, stop, msids, dt=32.8):
 
 def fetch_arrays(start, stop, msids):
     """
-    Fetch data for ``msids`` from the telemetry archive as arrays.  
+    Fetch data for ``msids`` from the telemetry archive as arrays.
+
+    This routine is deprecated and is retained only for back-compatibility with
+    old plotting analysis scripts.
 
     The telemetry values are returned in three dictionaries: ``times``, ``values``,
     and ``quals``.  Each of these dictionaries contains key-value pairs for each
@@ -241,7 +306,6 @@ def fetch_arrays(start, stop, msids):
 
     :returns: times, values, quals
     """
-    
     times = {}
     values = {}
     quals = {}
@@ -258,6 +322,9 @@ def fetch_array(start, stop, msid):
     """
     Fetch data for single ``msid`` from the telemetry archive as an array.  
 
+    This routine is deprecated and is retained only for back-compatibility with
+    old plotting analysis scripts.
+
     The telemetry values are returned in three arrays: ``times``, ``values``,
     and ``quals``.  
 
@@ -268,13 +335,12 @@ def fetch_array(start, stop, msid):
     :returns: times, values, quals
     """
     
-    with _cache_ft():
-        tstart, tstop, _times, _values, _quals = _fetch(start, stop, [msid])
+    m = MSID(msid, start, stop)
+    times = m.times
+    values = m.vals
+    quals = m.bads
 
-    MSID = msid.upper()
-    i0, i1 = numpy.searchsorted(_times[MSID], [tstart, tstop])
-
-    return _times[MSID][i0:i1], _values[MSID][i0:i1], _quals[MSID][i0:i1]
+    return times, values, quals
 
 class memoized(object):
     """Decorator that caches a function's return value each time it is called.
@@ -364,7 +430,7 @@ def add_logging_handler(level=logging.INFO,
         handler = logging.StreamHandler()
 
     handler.setFormatter(formatter)
-    handler.setLevel(level)
+    logger.setLevel(level)
     logger.addHandler(handler)
 
 def _plural(x):
