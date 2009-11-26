@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Fetch values from the Ska engineering archive.
+Fetch values from the Ska engineering telemetry archive.
 """
 from __future__ import with_statement  # only for python 2.5
 
@@ -177,26 +177,32 @@ class MSID(object):
         self.bads = bads[row0:row1]
         self.colnames = ['times', 'vals', 'bads']
 
-    def filter_bad(self):
+    def filter_bad(self, bads=None):
         """Filter out any bad values.
 
         After applying this method the "bads" column will be set to None to indicate
         that there are no bad values.  
+
+        :param bads: Bad values mask.  If not supplied then self.bads is used.
         """
+        # No bad values for MSID objects from a statistics (5min or daily) query
+        if self.stat
+            return
+
+        # If a bad mask is provided then override any existing bad mask for the MSID
+        if bads is not None:
+            self.bads = bads
+            
+        # Nothing to do if bads is None (indicating bad values already filtered)
         if self.bads is None:
             return
 
-        if self.stat:
-            pass
-        else:
-            if numpy.any(self.bads):
-                logger.info('Filtering bad values for %s', self.msid)
-                ok = ~self.bads
-                self.vals = self.vals[ok]
-                self.times = self.times[ok]
-            else:
-                logger.info('No bad values to filter for %s', self.msid)
-            self.bads = None
+        if numpy.any(self.bads):
+            logger.info('Filtering bad values for %s', self.msid)
+            ok = ~self.bads
+            self.vals = self.vals[ok]
+            self.times = self.times[ok]
+        self.bads = None
 
 class MSIDset(dict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
@@ -220,7 +226,50 @@ class MSIDset(dict):
         self.datestop = DateTime(self.tstop).date
 
         for msid in msids:
-            self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=filter_bad, stat=stat)
+            self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False, stat=stat)
+
+        if filter_bad:
+            self.filter_bad()
+
+    def filter_bad(self):
+        """Filter bad values for the MSID set.
+
+        This function applies the union (logical-OR) of bad value masks for all
+        MSIDs in the set with the same content type.  The result is that the
+        filtered MSID samples are valid for *all* MSIDs within the
+        content type and the arrays all match up.
+
+        For example::
+
+          msids = fetch.MSIDset(['aorate1', 'aorate2', 'aogyrct1', 'aogyrct2'],
+                                '2009:001', '2009:002')
+          msids.filter_bad()
+                                
+        Since ``aorate1`` and ``aorate2`` both have content type of ``pcad3eng`` they
+        will be filtered as a group and will remain with the same sampling.  This
+        will allow something like::
+
+          plot(msids['aorate1'].vals, msids['aorate2'].vals)
+
+        Likewise the two gyro count MSIDs would be filtered as a group.  If this
+        group-filtering is not the desired behavior one can always call the individual
+        MSID.filter_bad() function for each MSID in the set::
+
+          for msid in msids.values():
+              msid.filter_bad()
+        """
+        for content in set(x.content for x in self.values()):
+            bads = None
+
+            msids = [x for x in self.values() if x.content == content]
+            for msid in msids:
+                if bads is None:
+                    bads = msid.bads.copy()
+                else:
+                    bads |= msid.bads
+
+            for msid in msids:
+                msid.filter_bad(bads)
 
     def interpolate(self, dt=328.0, start=None, stop=None):
         """Nearest-neighbor interpolation of all MSID values in the set to a common time sequence.
@@ -234,6 +283,7 @@ class MSIDset(dict):
         # Speed could be improved by clever use of bad masking among common content types
         # (assuming no bad filtering to begin with) so that interpolation only gets done once.
         # For now just brute-force it for every MSID.
+        import Ska.Numpy
         
         tstart = DateTime(start).secs if start else self.tstart
         tstop = DateTime(stop).secs if stop else self.tstop
