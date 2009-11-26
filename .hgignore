@@ -1,5 +1,9 @@
 data
-run.*log
+.*\.log
 testdata
 files_def.sql
 db.sql3
+Ska.engarchive.egg-info
+build
+dist
+.*\.wpr

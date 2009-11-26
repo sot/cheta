@@ -186,7 +186,7 @@ class MSID(object):
         :param bads: Bad values mask.  If not supplied then self.bads is used.
         """
         # No bad values for MSID objects from a statistics (5min or daily) query
-        if self.stat
+        if self.stat:
             return
 
         # If a bad mask is provided then override any existing bad mask for the MSID

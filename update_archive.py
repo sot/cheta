@@ -26,8 +26,7 @@ import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
 import Ska.arc5gl
 
-FT = fetch.ft
-ft = FT.accessor()
+ft = fetch.ft
 
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_root) # msid_roots[1]
 msid_files.update(file_defs.msid_files)
@@ -37,7 +36,7 @@ arch_files.update(file_defs.arch_files)
 
 # Set up logging
 loglevel = pyyaks.logger.VERBOSE
-logger = pyyaks.logger.get_logger(level=loglevel, format="%(message)s")
+logger = pyyaks.logger.get_logger(level=loglevel, format="%(asctime)s %(message)s")
 
 parser = optparse.OptionParser()
 parser.add_option("--dry-run",
@@ -59,22 +58,22 @@ def main():
     # Get the archive content filetypes
     filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
     # filetypes = Ska.Numpy.filter(filetypes, 'content == "THM1ENG"')
-    # filetypes = [x for x in filetypes if x.content in ('PCAD3ENG', 'THM1ENG')]
+    # filetypes = [x for x in filetypes if x.content in ('PCAD7ENG',)]
 
     # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
     # debug()
 
-    for filetype in filetypes:
+    for filetype in filetypes[::-1]:
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
         ft['content'] = filetype.content.lower()
         ft['instrum'] = filetype.instrum.lower()
 
         if not os.path.exists(msid_files['archfiles'].abs):
-            logger.info('No archfiles.db3 for %s - skipping'  % ft.content)
+            logger.info('No archfiles.db3 for %s - skipping'  % ft['content'])
             continue
 
-        logger.info('Processing %s content type', ft.content)
+        logger.info('Processing %s content type', ft['content'])
 
         if opt.update_full:
             update_archive(filetype)
@@ -82,8 +81,8 @@ def main():
         if opt.update_stats:
             colnames = pickle.load(open(msid_files['colnames'].abs))
             for colname in colnames:
-                msid_times, msid_vals = update_stats(colname, 'daily')
-                update_stats(colname, '5min', msid_times, msid_vals)
+                msid = update_stats(colname, 'daily')
+                update_stats(colname, '5min', msid)
 
 def calc_stats_vals(msid_vals, rows, indexes, interval):
     quantiles = (1, 5, 16, 50, 84, 95, 99)
@@ -126,7 +125,7 @@ def calc_stats_vals(msid_vals, rows, indexes, interval):
         
     return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
-def update_stats(colname, interval, msid_times=None, msid_vals=None):
+def update_stats(colname, interval, msid=None):
     max_ingest_time = 3e9
     dt = {'5min': 328,
           'daily': 86400}[interval]
@@ -145,30 +144,28 @@ def update_stats(colname, interval, msid_times=None, msid_vals=None):
     except tables.NoSuchNodeError:
         index0 = DateTime('2000:001:00:00:00').secs // dt
 
-    if msid_times is None or msid_vals is None:
+    if msid is None:
         time0 = index0 * dt - 500      # fetch a little extra telemetry
         time1 = min(DateTime().secs, time0 + max_ingest_time)
-        msid_times, msid_vals, msid_quals = fetch.fetch_array(time0, time1, colname)
-        # Filter out bad data
-        ok = ~msid_quals
-        msid_times = msid_times[ok]
-        msid_vals = msid_vals[ok]
+        msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
-    indexes = np.arange(index0, msid_times[-1] / dt, dtype=np.int32)
+    indexes = np.arange(index0, msid.times[-1] / dt, dtype=np.int32)
     times = indexes * dt
 
     if len(times) > 2:
-        rows = np.searchsorted(msid_times, times)
-        vals_stats = calc_stats_vals(msid_vals, rows, indexes, interval)
-        try:
-            stats.root.data.append(vals_stats)
-        except tables.NoSuchNodeError:
-            table = stats.createTable(stats.root, 'data', vals_stats,
-                                      "%s sampling" % interval, expectedrows=2e7)
+        rows = np.searchsorted(msid.times, times)
+        vals_stats = calc_stats_vals(msid.vals, rows, indexes, interval)
+        if not opt.dry_run:
+            try:
+                stats.root.data.append(vals_stats)
+                logger.info('  Adding %d records', len(vals_stats))
+            except tables.NoSuchNodeError:
+                table = stats.createTable(stats.root, 'data', vals_stats,
+                                          "%s sampling" % interval, expectedrows=2e7)
     stats.root.data.flush()
     stats.close()
 
-    return msid_times, msid_vals
+    return msid
 
 def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
@@ -181,11 +178,10 @@ def update_archive(filetype):
             update_msid_files(filetype, archfiles)
             move_archive_files(filetype, archfiles)
 
-def append_h5_col(dats, content, colname):
+def append_h5_col(dats, colname):
     """Append new values to an HDF5 MSID data table.
 
     :param dats: List of pyfits HDU data objects
-    :param content: content type
     :param colname: column name
     """
     def i_colname(dat):
@@ -274,8 +270,8 @@ def update_msid_files(filetype, archfiles):
     if dats:
         logger.verbose('Writing accumulated column data to h5 file at ' + time.ctime())
         for colname in colnames:
-            ft.msid = colname
-            append_h5_col(dats, ft.content, colname)
+            ft['msid'] = colname
+            append_h5_col(dats, colname)
 
     # Assuming everything worked now commit the db inserts that signify the
     # new archive files have been processed
@@ -296,13 +292,13 @@ def update_msid_files(filetype, archfiles):
 
 
 def move_archive_files(filetype, archfiles):
-    ft.content = filetype.content.lower()
+    ft['content'] = filetype.content.lower()
 
     for f in archfiles:
-        ft.basename = os.path.basename(f)
-        tstart = re.search(r'(\d+)', ft.basename).group(1)
+        ft['basename'] = os.path.basename(f)
+        tstart = re.search(r'(\d+)', str(ft['basename'])).group(1)
         datestart = DateTime(tstart).date
-        ft.year, ft.doy = re.search(r'(\d\d\d\d):(\d\d\d)', datestart).groups()
+        ft['year'], ft['doy'] = re.search(r'(\d\d\d\d):(\d\d\d)', datestart).groups()
 
         archdir = arch_files['archdir'].abs
         archfile = arch_files['archfile'].abs
@@ -335,11 +331,11 @@ def get_archive_files(filetype):
     datestop = DateTime(time.time(), format='unix').date
     # datestop = DateTime(vals['max(filetime)'] + 100000).date
 
-    print '********** %s %s **********' % (ft.content, time.ctime())
+    print '********** %s %s **********' % (ft['content'], time.ctime())
 
     arc5.sendline('tstart=%s' % datestart)
     arc5.sendline('tstop=%s;' % datestop)
-    arc5.sendline('get %s_eng_0{%s}' % (ft.instrum, ft.content))
+    arc5.sendline('get %s_eng_0{%s}' % (ft['instrum'], ft['content']))
 
     return sorted(glob.glob('*.fits.gz'))
 
