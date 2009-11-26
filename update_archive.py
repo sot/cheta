@@ -52,6 +52,10 @@ parser.add_option("--no-stats",
                   dest="update_stats",
                   default=True,
                   help="Do not update 5 minute and daily stats archive")
+parser.add_option("--max-lookback-time",
+                  type='float',
+                  default=3e9,
+                  help="Maximum look back time for updating statistics (seconds)")
 opt, args = parser.parse_args()
 
 def main():
@@ -126,7 +130,6 @@ def calc_stats_vals(msid_vals, rows, indexes, interval):
     return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
 def update_stats(colname, interval, msid=None):
-    max_ingest_time = 3e9
     dt = {'5min': 328,
           'daily': 86400}[interval]
 
@@ -144,9 +147,13 @@ def update_stats(colname, interval, msid=None):
     except tables.NoSuchNodeError:
         index0 = DateTime('2000:001:00:00:00').secs // dt
 
+    # Get all new data. time0 is the fetch start time which nominally starts at
+    # 500 sec before the last available record.  However some MSIDs may not
+    # be sampled for years at a time so once the archive is built and kept
+    # up to date then do not look back beyond a certain point.
     if msid is None:
-        time0 = index0 * dt - 500      # fetch a little extra telemetry
-        time1 = min(DateTime().secs, time0 + max_ingest_time)
+        time0 = max(DateTime().secs - opt.max_lookback_time, index0 * dt - 500)  # fetch a little extra telemetry
+        time1 = DateTime().secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
     indexes = np.arange(index0, msid.times[-1] / dt, dtype=np.int32)

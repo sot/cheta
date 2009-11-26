@@ -154,8 +154,9 @@ As an example a daily statistics query for the PCAD mode ``AOPCADMD``
 there is no really useful meaning for the other statistics.
 
 Telemetry statistics are a little different than the full-resolution data in
-that they do not have an associated bad values mask.  Instead if there are no
-good samples within an interval then no record for that interval will exist.
+that they do not have an associated bad values mask.  Instead if there are not
+at least 3 good samples within an interval then no record for that interval
+will exist.
 
 **MSID sets**
 
