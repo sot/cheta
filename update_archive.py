@@ -26,9 +26,38 @@ import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
 import Ska.arc5gl
 
+def get_options():
+    parser = optparse.OptionParser()
+    parser.add_option("--dry-run",
+                      action="store_true",
+                      help="Dry run (no actual file or database updatees)")
+    parser.add_option("--no-full",
+                      action="store_false",
+                      dest="update_full",
+                      default=True,
+                      help="Do not fetch files from archive and update full-resolution MSID archive")
+    parser.add_option("--no-stats",
+                      action="store_false",
+                      dest="update_stats",
+                      default=True,
+                      help="Do not update 5 minute and daily stats archive")
+    parser.add_option("--max-lookback-time",
+                      type='float',
+                      default=3e9,
+                      help="Maximum look back time for updating statistics (seconds)")
+    parser.add_option("--msid-root",
+                      default='/data/drivel/ska/data/eng_archive/data',
+                      help="Engineering archive root directory for MSID files")
+    parser.add_option("--content",
+                      action='append',
+                      help="Content type to process (default = all)")
+    return parser.parse_args()
+
+opt, args = get_options()
+
 ft = fetch.ft
 
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_root) # msid_roots[1]
+msid_files = pyyaks.context.ContextDict('msid_files', basedir=opt.msid_root)
 msid_files.update(file_defs.msid_files)
 
 arch_files = pyyaks.context.ContextDict('arch_files', basedir=file_defs.arch_root)
@@ -38,31 +67,12 @@ arch_files.update(file_defs.arch_files)
 loglevel = pyyaks.logger.VERBOSE
 logger = pyyaks.logger.get_logger(level=loglevel, format="%(asctime)s %(message)s")
 
-parser = optparse.OptionParser()
-parser.add_option("--dry-run",
-                  action="store_true",
-                  help="Dry run (no actual file or database updatees)")
-parser.add_option("--no-full",
-                  action="store_false",
-                  dest="update_full",
-                  default=False,
-                  help="Do not fetch files from archive and update full-resolution MSID archive")
-parser.add_option("--no-stats",
-                  action="store_false",
-                  dest="update_stats",
-                  default=True,
-                  help="Do not update 5 minute and daily stats archive")
-parser.add_option("--max-lookback-time",
-                  type='float',
-                  default=3e9,
-                  help="Maximum look back time for updating statistics (seconds)")
-opt, args = parser.parse_args()
-
 def main():
     # Get the archive content filetypes
     filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
-    # filetypes = Ska.Numpy.filter(filetypes, 'content == "THM1ENG"')
-    # filetypes = [x for x in filetypes if x.content in ('PCAD7ENG',)]
+    if opt.content:
+        contents = [x.upper() for x in opt.content]
+        filetypes = [x for x in filetypes if x.content in contents]
 
     # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
     # debug()
