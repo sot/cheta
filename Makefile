@@ -7,11 +7,10 @@ FLIGHT = SKA
 include /proj/sot/ska/include/Makefile.FLIGHT
 
 WWW  = $(INSTALL)/www
-
 # Define the installed executables for the task.  This directory is reserved
 # for documented tools and not for dedicated scripts, one-off codes etc
 # BIN = fetch fetch_server
-# DOC = doc/.build/html/*
+DOC = doc/_build/html/*
 
 # Installed data.  These are template RDB files, mostly relevant for testing
 DATA = archfiles_def.sql filetypes.dat filetypes_all.dat task_schedule.cfg
@@ -28,9 +27,9 @@ install: $(TEST_DEPS)
 #	mkdir -p $(INSTALL_BIN)
 	mkdir -p $(INSTALL_DATA)
 	mkdir -p $(INSTALL_SHARE)
-#	mkdir -p $(INSTALL_DOC)
+	mkdir -p $(INSTALL_DOC)
 #
 #	rsync --times --cvs-exclude $(BIN) $(INSTALL_BIN)/
 	rsync --archive --cvs-exclude $(DATA)  $(INSTALL_DATA)/
 	rsync --times --cvs-exclude $(SHARE) $(INSTALL_SHARE)/
-#	rsync --archive --times $(DOC)   $(INSTALL_DOC)/
+	rsync --archive --times $(DOC)   $(INSTALL_DOC)/
