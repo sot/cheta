@@ -9,14 +9,10 @@ L0   CCDM       AXAF_CCDM       CCDM4ENG        ENG0    eng     OGIP            
 L0   CCDM       AXAF_CCDM       CCDM5ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   CCDM       AXAF_CCDM       CCDM7ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   CCDM       AXAF_CCDM       CCDM8ENG        ENG0    eng     OGIP            TEMPORALDATA 
-# L0   CCDM       AXAF_CCDM       CCDM9ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   CCDM       AXAF_CCDM       CCDM10ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   CCDM       AXAF_CCDM       CCDM11ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   CCDM       AXAF_CCDM       CCDM12ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   CCDM       AXAF_CCDM       CCDM13ENG       ENG0    eng     OGIP            TEMPORALDATA 
-# L0   CCDM       AXAF_CCDM       CCDM14ENG       ENG0    eng     OGIP            TEMPORALDATA 
-# L0   CCDM       AXAF_CCDM       CCDM15ENG       ENG0    eng     OGIP            TEMPORALDATA 
-# L0   CPE        AXAF_CPE        CPE1ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   EPHIN      AXAF_EPHIN      EPHIN1ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   EPHIN      AXAF_EPHIN      EPHIN2ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   EPS        AXAF_EPS        EPS1ENG         ENG0    eng     OGIP            TEMPORALDATA 
@@ -29,10 +25,8 @@ L0   EPS        AXAF_EPS        EPS7ENG         ENG0    eng     OGIP            
 L0   EPS        AXAF_EPS        EPS9ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   EPS        AXAF_EPS        EPS10ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   HRC        AXAF_HRC        HRC2ENG         ENG0    eng     OGIP            TEMPORALDATA 
-# L0   HRC        AXAF_HRC        HRC3ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   HRC        AXAF_HRC        HRC4ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   HRC        AXAF_HRC        HRC5ENG         ENG0    eng     OGIP            TEMPORALDATA 
-# L0   HRC        AXAF_HRC        HRC6ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   HRC        AXAF_HRC        HRC7ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   MISC       AXAF_MISC       MISC1ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   MISC       AXAF_MISC       MISC2ENG        ENG0    eng     OGIP            TEMPORALDATA 
@@ -42,12 +36,9 @@ L0   MISC       AXAF_MISC       MISC5ENG        ENG0    eng     OGIP            
 L0   MISC       AXAF_MISC       MISC6ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   MISC       AXAF_MISC       MISC7ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   MISC       AXAF_MISC       MISC8ENG        ENG0    eng     OGIP            TEMPORALDATA 
-# L0 OBC        AXAF_OBC        OBC1ENG         ENG0    eng     OGIP            TEMPORALDATA 
-# L0 OBC        AXAF_OBC        OBC2ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   OBC        AXAF_OBC        OBC3ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   OBC        AXAF_OBC        OBC4ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   OBC        AXAF_OBC        OBC5ENG         ENG0    eng     OGIP            TEMPORALDATA 
-# L0   OBC        AXAF_OBC        OBC6ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD3ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD4ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD5ENG        ENG0    eng     OGIP            TEMPORALDATA 
@@ -61,8 +52,6 @@ L0   PCAD       AXAF_PCAD       PCAD12ENG       ENG0    eng     OGIP            
 L0   PCAD       AXAF_PCAD       PCAD13ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD14ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD15ENG       ENG0    eng     OGIP            TEMPORALDATA 
-# L0   PCAD       AXAF_PCAD       PCAD16ENG       ENG0    eng     OGIP            TEMPORALDATA 
-# L0   PCAD       AXAF_PCAD       PCAD17ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   PROP       AXAF_PROP       PROP1ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PROP       AXAF_PROP       PROP2ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   SIM        AXAF_SIM        SIM1ENG         ENG0    eng     OGIP            TEMPORALDATA 
@@ -74,7 +63,31 @@ L0   SMS        AXAF_SMS        SMS2ENG         ENG0    eng     OGIP            
 L0   TEL        AXAF_TEL        TEL1ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   TEL        AXAF_TEL        TEL2ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   TEL        AXAF_TEL        TEL3ENG         ENG0    eng     OGIP            TEMPORALDATA 
-# L0   TEL        AXAF_TEL        TEL4ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   THM        AXAF_THM        THM1ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   THM        AXAF_THM        THM2ENG         ENG0    eng     OGIP            TEMPORALDATA 
 L0   THM        AXAF_THM        THM3ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# 
+# Candidate file types.
+# Arc5gl query <instrum>_<type>_<level> (or <instrum>_<level>if type is None)
+#
+# L0.5 SIM        AXAF_SIMCOOR    SIMCOOR         SIM0.5  None    ASC             TEMPORALDATA 
+#
+# L1   EPHEM     ANGLES          OANGLEEPHEM     EPHEM1  angles     ASC             TEMPORALDATA 
+# L1   EPHEM     ORBITEPHEM      ORBITEPHEM1     EPHEM1  orbit      OGIP            TEMPORALDATA 
+# L1   EPHEM     SOLAREPHEM      SOLAREPHEM1     EPHEM1  solar      OGIP            TEMPORALDATA 
+# L1   EPHEM     LUNAREPHEM      LUNAREPHEM1     EPHEM1  lunar      OGIP            TEMPORALDATA 
+#
+# Deleted
+#
+# L0   HRC        AXAF_HRC        HRC3ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0   HRC        AXAF_HRC        HRC6ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0 OBC        AXAF_OBC        OBC1ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0 OBC        AXAF_OBC        OBC2ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0   OBC        AXAF_OBC        OBC6ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0   PCAD       AXAF_PCAD       PCAD16ENG       ENG0    eng     OGIP            TEMPORALDATA 
+# L0   PCAD       AXAF_PCAD       PCAD17ENG       ENG0    eng     OGIP            TEMPORALDATA 
+# L0   TEL        AXAF_TEL        TEL4ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0   CCDM       AXAF_CCDM       CCDM9ENG        ENG0    eng     OGIP            TEMPORALDATA 
+# L0   CCDM       AXAF_CCDM       CCDM14ENG       ENG0    eng     OGIP            TEMPORALDATA 
+# L0   CCDM       AXAF_CCDM       CCDM15ENG       ENG0    eng     OGIP            TEMPORALDATA 
+# L0   CPE        AXAF_CPE        CPE1ENG         ENG0    eng     OGIP            TEMPORALDATA 

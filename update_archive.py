@@ -43,7 +43,7 @@ def get_options():
                       help="Do not update 5 minute and daily stats archive")
     parser.add_option("--max-lookback-time",
                       type='float',
-                      default=3e9,
+                      default=2e6,
                       help="Maximum look back time for updating statistics (seconds)")
     parser.add_option("--msid-root",
                       default='/data/drivel/ska/data/eng_archive/data',
@@ -77,7 +77,7 @@ def main():
     # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
     # debug()
 
-    for filetype in filetypes[::-1]:
+    for filetype in filetypes:
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
         ft['content'] = filetype.content.lower()
@@ -166,19 +166,20 @@ def update_stats(colname, interval, msid=None):
         time1 = DateTime().secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
-    indexes = np.arange(index0, msid.times[-1] / dt, dtype=np.int32)
-    times = indexes * dt
+    if len(msid.times) > 0:
+        indexes = np.arange(index0, msid.times[-1] / dt, dtype=np.int32)
+        times = indexes * dt
 
-    if len(times) > 2:
-        rows = np.searchsorted(msid.times, times)
-        vals_stats = calc_stats_vals(msid.vals, rows, indexes, interval)
-        if not opt.dry_run:
-            try:
-                stats.root.data.append(vals_stats)
-                logger.info('  Adding %d records', len(vals_stats))
-            except tables.NoSuchNodeError:
-                table = stats.createTable(stats.root, 'data', vals_stats,
-                                          "%s sampling" % interval, expectedrows=2e7)
+        if len(times) > 2:
+            rows = np.searchsorted(msid.times, times)
+            vals_stats = calc_stats_vals(msid.vals, rows, indexes, interval)
+            if not opt.dry_run:
+                try:
+                    stats.root.data.append(vals_stats)
+                    logger.info('  Adding %d records', len(vals_stats))
+                except tables.NoSuchNodeError:
+                    table = stats.createTable(stats.root, 'data', vals_stats,
+                                              "%s sampling" % interval, expectedrows=2e7)
     stats.root.data.flush()
     stats.close()
 
