@@ -32,6 +32,7 @@ This tutorial has been copied and adapted from the matplotlib
 
 To see `matplotlib`_ in action and make a simple plot do::
 
+  clf()
   plot([1,2,3])
   ylabel('some numbers')
 
@@ -49,6 +50,7 @@ same length as y but starts with 0.  Hence the x data are
 an arbitrary number of arguments.  For example, to plot x versus y,
 you can issue the command::
 
+  clf()
   plot([1,2,3,4], [1,4,9,16])
 
 For every x, y pair of arguments, there is a optional third argument
@@ -58,6 +60,7 @@ matlab, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue::
 
+  clf()
   plot([1,2,3,4], [1,4,9,16], 'ro')
   axis([0, 6, 0, 20])
 
@@ -81,6 +84,7 @@ using arrays.
   t = arange(0., 5., 0.2)
 
   # red dashes, blue squares and green triangles
+  clf()
   plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
 
 .. image:: pyplots/pyplot_three.png
@@ -103,6 +107,7 @@ scenes.  Below is a script to create two subplots.
   t2 = arange(0.0, 5.0, 0.02)
 
   figure(1)
+  clf()
   subplot(2, 1, 1)  # (nrows, ncols, fignum)
   plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 
@@ -130,6 +135,7 @@ number.  Of course, each figure can contain as many axes and subplots
 as your heart desires::
 
     figure(1)                # the first figure
+    clf()
     subplot(2, 1, 1)         # the first subplot in the first figure
     plot([1,2,3])
     subplot(2, 1, 2)         # the second subplot in the first figure
@@ -137,6 +143,7 @@ as your heart desires::
 
 
     figure(2)                # a second figure
+    clf()
     plot([4,5,6])            # creates a subplot(111) by default
 
     figure(1)                # figure 1 current; subplot(2, 1, 2) still current
@@ -161,6 +168,7 @@ for a more detailed example)::
   x = mu + sigma * normal(size=10000)
 
   # the histogram of the data
+  clf()
   n, bins, patches = hist(x, 50, normed=1, facecolor='g', alpha=0.75)
 
   xlabel('Smarts')

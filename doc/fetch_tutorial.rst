@@ -17,6 +17,7 @@ Fetching and plotting full time-resolution data for a single MSID is then quite
 easy::
 
   tephin = fetch.MSID('tephin', '2009:001', '2009:007') # (MSID, start, stop)
+  clf()
   plot(tephin.times, tephin.vals)
 
 .. image:: fetchplots/first.png
@@ -28,6 +29,8 @@ numpy arrays.  As such you can inspect them and perform numpy operations and
 explore their methods::
 
   type(tephin)
+  type(tephin.vals)
+  help tephin.vals
   tephin.vals.mean()
   tephin.vals.min()
   tephin.vals.<TAB>
@@ -56,13 +59,13 @@ Converting between units is straightforward with the ``Chandra.Time`` module::
   import Chandra.Time
   datetime = Chandra.Time.DateTime(126446464.184)
   datetime.date
-  Out: '2002:003:12:00:00.000'
+  Out[]: '2002:003:12:00:00.000'
   
   datetime.greta
-  Out: '2002003.120000000'
+  Out[]: '2002003.120000000'
   
   Chandra.Time.DateTime('2009:235:12:13:14').secs
-  Out: 367416860.18399996
+  Out[]: 367416860.18399996
 
 **Plotting time data**
 
@@ -73,6 +76,7 @@ converting between formats but for making plots we use the
 function of the ``Ska.Matplotlib`` module::
 
   from Ska.Matplotlib import plot_cxctime
+  clf()
   plot_cxctime(tephin.times, tephin.vals)
 
 That looks better:
@@ -88,7 +92,7 @@ called ``bads`` that is ``True`` for bad samples.  This array corresponds to the
 respective ``times`` and ``vals`` arrays.  To remove the bad values one can use numpy 
 boolean masking::
 
-  ok = ~tephin.bad  # numpy mask requires the "good" values to be True
+  ok = ~tephin.bads  # numpy mask requires the "good" values to be True
   vals_ok = tephin.vals[ok]
   times_ok = tephin.times[ok]
 
@@ -103,8 +107,30 @@ retrieving the data from the archive::
   tephin = fetch.MSID('tephin', '2009:001', '2009:007', filter_bad=True)
 
 You might wonder why fetch ever bothers to return bad data and a bad mask, but
-this will become apparent later when we start making scatter plots instead of
-just time plots.
+this will become apparent later when we start using time-correlated values instead
+just simple time plots.
+
+**Really bad data**
+
+Even after applying ``filter_bad()`` you may run across obviously bad data in
+the archive (e.g. there is a single value of AORATE1 of around 2e32
+in 2007).  These are not marked with bad quality in the CXC archive and are
+presumably real telemetry errors.  If you run across a bad data point you can
+locate and filter it out as follows::
+
+  aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
+  bad_vals_mask = abs(aorate1.vals) > 0.01
+  aorate1.vals[bad_vals_mask]
+  Out[]: array([ -2.24164635e+32], dtype=float32)
+
+  Chandra.Time.DateTime(aorate1.times[bad_vals_mask]).date
+  Out[]: array(['2007:310:22:10:02.951'], 
+         dtype='|S21')
+
+  aorate1.filter_bad(bad_vals_mask)
+  bad_vals_mask = abs(aorate1.vals) > 0.01
+  aorate1.vals[bad_vals_mask]
+  Out[]: array([], dtype=float32)
 
 **5 minute and daily statistics**
 
@@ -117,8 +143,13 @@ These data are accessed by specifying
 
   tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
   tephin_daily = fetch.MSID('tephin', '2000:001', stat='daily')
+  figure(1)
+  clf()
   plot_cxctime(tephin_daily.times, tephin_daily.mins, '-b')
   plot_cxctime(tephin_daily.times, tephin_daily.maxes, '-r')
+  figure(2)
+  clf()
+  plot_cxctime(tephin_5min.times, tephin_5min.means, '-b')
   
 .. image:: fetchplots/tephin_daily.png
 
@@ -133,7 +164,7 @@ Name        5min   daily  Supported types   Column type       Description
 ==========  =====  =====  ================= ================  ===================
 times         x      x    int,float,string  float             Time at midpoint
 indexes       x      x    int,float,string  int               Interval index
-samples       x      x    int,float,string  int               Number of samples 
+samples       x      x    int,float,string  int16             Number of samples
 vals          x      x    int,float,string  int,float,string  Sample at midpoint
 mins          x      x    int,float         int,float         Minimum
 maxes         x      x    int,float         int,float         Maximum
@@ -147,6 +178,9 @@ p84s                 x    int,float         float             84% percentile
 p95s                 x    int,float         float             95% percentile
 p99s                 x    int,float         float             99% percentile
 ==========  =====  =====  ================= ================  ===================
+
+Note: the inadvertent use of int16 for the daily stat ``samples`` column means
+that it rolls over at 32767.  This column should not be trusted at this time.
 
 As an example a daily statistics query for the PCAD mode ``AOPCADMD``
 (``NPNT``, ``NMAN``, etc) yields an object with only the ``times``,
@@ -169,6 +203,7 @@ The returned ``rates`` object is like a python dictionary (hash) object with
 a couple extra methods.  Indexing the object by the MSID name gives the
 usual ``fetch.MSID`` object that we've been using up to this point::
 
+  clf()
   plot_cxctime(rates['aorate1'].times, rates['aorate1'].vals)
 
 You might wonder what's special about an ``MSIDset``, after all the actual code
@@ -243,9 +278,72 @@ new centroid value every 2.05 sec.
   gyr_dct1 = msids['aogyrct1'].vals[1:] - msids['aogyrct1'].vals[:-1]
   gyr_dt = msids['aogyrct1'].times[1:] - msids['aogyrct1'].times[:-1]
   gyr_rate = gyr_dct1 / gyr_dt * 0.02
+  clf()
   plot(aca_rate, gyr_rate, '.')
 
 .. image:: fetchplots/aca_gyro_rates.png
+
+**Pushing it to the limit**
+
+The engineering telemetry archive is designed to help answer questions that
+require big datasets.  Let's explore what is possible.  First quit from your
+current ``ipython`` session with ``exit()``.  Then start a window that will let
+you watch memory usage::
+
+  xterm -geometry 80x15 -e 'top -u <username>' &
+
+This brings up a text-based process monitor.  Focus on that window and hit "M"
+to tell it to order by memory usage.  Now go back to your main window and get
+all the ``TEIO`` data for the mission::
+
+  ipython -pylab
+  import Ska.engarchive.fetch as fetch
+  from Ska.Matplotlib import plot_cxctime
+  time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
+  Out[]: CPU times: user 2.08 s, sys: 0.49 s, total: 2.57 s
+         Wall time: 2.85 s
+
+Now look at the memory usage and see that around a 1 Gb is being used::
+  
+  len(teio.vals) / 1e6
+  clf()
+  plot_cxctime(teio.times, teio.vals, '.', markersize=0.5)
+
+Making a plot with 13 million points takes 5 to 10 seconds and some memory.
+See what happens to memory when you clear the plot::
+
+  clf()
+
+Now let's get serious and fetch all the AORATE3 values (1 per second) for the mission after deleting the TEIO data::
+
+    del teio
+    time aorate3 = fetch.MSID('aorate3', '2000:001', '2010:001', filter_bad=True)
+    Out[]: CPU times: user 38.83 s, sys: 7.43 s, total: 46.26 s
+           Wall time: 60.10 s
+
+We just fetched 300 million floats and now ``top`` should be showing some respectable memory usage::
+
+  Cpu(s):  0.0%us,  0.1%sy,  0.0%ni, 99.7%id,  0.2%wa,  0.1%hi,  0.0%si,  0.0%st
+
+    PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND           
+  14243 aca       15   0 6866m 6.4g  11m S  0.0 40.9   3:08.70 ipython            
+
+If you try to make a simple scatter plot with 300 million points you will
+make the machine very unhappy.  But we can do computations or make a histogram of
+the distribution::
+
+  clf()
+  hist(log10(abs(aorate3.vals)+1e-15), log=True, bins=100)
+
+.. image:: fetchplots/aorate3_hist.png
+
+Rules of thumb: 
+
+* 1 million is fast for plotting and analysis.
+* 10 million is OK for plotting and fast for analysis.
+* 300 million is OK for analysis, expect 30-60 seconds for any operation.
+* Look before you leap, do smaller fetches first and check sizes.
+* 5-minute stats are ~10 million so you are always OK.
 
 **Putting it all together**
 

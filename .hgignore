@@ -7,3 +7,4 @@ Ska.engarchive.egg-info
 build
 dist
 .*\.wpr
+example_files

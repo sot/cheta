@@ -87,10 +87,14 @@ Tools overview
 There are four key elements that are the basis for doing plotting and analysis
 with the engineering archive.
 
+* Ska.engarchive.fetch: module to read and manipulate telemetry data
 * `IPython`_: interactive python interpreter
 * `matplotlib`_: python plotting package with an interface similar to Matlab
 * `NumPy`_: python numerical package for fast vector and array math
-* Ska.engarchive.fetch: module to read and manipulate telemetry data
+
+Ska.engarchive.fetch
+~~~~~~~~~~~~~~~~~~~~~~
+.. include:: fetch_tutorial.rst
 
 IPython
 ~~~~~~~~~~
@@ -104,7 +108,7 @@ data analysis environment.  `IPython`_ is similar in many ways to the command-li
 
 * `Main documentation page <http://ipython.scipy.org/doc/manual/html/index.html>`_
 * `Tutorial (newer) <http://ipython.scipy.org/doc/manual/html/interactive/tutorial.html>`_
-* `Tuturial (older but good) <http://onlamp.com/pub/a/python/2005/01/27/ipython.html>`_
+* `Tutorial (older but good) <http://onlamp.com/pub/a/python/2005/01/27/ipython.html>`_
 
 .. include:: ipython_tutorial.rst
 
@@ -120,8 +124,4 @@ elements, all of the same type, indexed by a vector of nonnegative integers.
 Matplotlib
 ~~~~~~~~~~~
 .. include:: matplotlib_tutorial.rst
-
-Ska.engarchive.fetch
-~~~~~~~~~~~~~~~~~~~~~~
-.. include:: fetch_tutorial.rst
 
