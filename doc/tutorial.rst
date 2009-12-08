@@ -46,6 +46,12 @@ libraries. ::
    <Enter password>
   source /proj/sot/ska/bin/ska_envs.csh
 
+If you have not used Python and matplotlib on the HEAD LAN before you should do the 
+following setup to ensure that the right plotting backend (Tk) is used::
+
+  mkdir -p ~/.matplotlib
+  cp /proj/sot/ska/data/eng_archive/matplotlibrc ~/.matplotlib/
+
 Basic Functionality Test
 ----------------------------------------------
 

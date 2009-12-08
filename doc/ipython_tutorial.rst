@@ -46,11 +46,12 @@ gracefully) so that when you start a new IPython you can use up-arrow to re-do
 old commands.  You can view your history within the current session by entering
 ``history``.
 
-**Linux commands**
+**Linux and shell commands**
 
 A select set of useful linux commands are available from the IPython prompt.
 These include ``ls`` (list directory), ``pwd`` (print working directory),
-``cd`` (change directory), and ``rm`` (remove file).
+``cd`` (change directory), and ``rm`` (remove file).  Any shell command
+can be executed by preceding it with an exclamation point "!".
 
 **Tab completion**
 

@@ -67,6 +67,42 @@ Converting between units is straightforward with the ``Chandra.Time`` module::
   Chandra.Time.DateTime('2009:235:12:13:14').secs
   Out[]: 367416860.18399996
 
+**Exporting to CSV for local access**
+
+If you want to move the fetch data to your local machine an ``MSID`` or
+``MSIDset`` can be exported as ASCII data table(s) in CSV format.  This can
+easily be imported into Excel or other PC applications.::
+
+  biases = fetch.MSIDset(['aogbias1', 'aogbias2', 'aogbias3'], '2002:001', stat='daily')
+  biases.write_zip('biases.zip')
+
+To suspend the ipython shell and look at the newly created file do::
+
+  <Ctrl>-z
+
+  % ls -l biases.zip
+  -rw-rw-r-- 1 aldcroft aldcroft 366924 Dec  4 17:07 biases.zip
+
+  % unzip -l biases.zip
+  Archive:  biases.zip
+    Length     Date   Time    Name
+   --------    ----   ----    ----
+     510809  12-04-09 17:02   aogbias1.csv
+     504556  12-04-09 17:02   aogbias2.csv
+     504610  12-04-09 17:02   aogbias3.csv
+   --------                   -------
+    1519975                   3 files
+
+To resume your ``ipython`` session::
+
+  % fg
+
+From a separate local cygwin or terminal window then retrieve the zip file and
+unzip as follows::
+
+  scp ccosmos.cfa.harvard.edu:biases.zip ./
+  unzip biases.zip
+
 **Plotting time data**
 
 Even though seconds since 1998.0 is convenient for computations it isn't so

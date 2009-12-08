@@ -112,6 +112,7 @@ class MSID(object):
         h5.close()
         logger.info('Closed %s', filename)
 
+        self.bads = None
         self.times = times[row0:row1]
         self.colnames = ['times']
         for colname in table_rows.dtype.names:
@@ -185,10 +186,6 @@ class MSID(object):
 
         :param bads: Bad values mask.  If not supplied then self.bads is used.
         """
-        # No bad values for MSID objects from a statistics (5min or daily) query
-        if self.stat:
-            return
-
         # If a bad mask is provided then override any existing bad mask for the MSID
         if bads is not None:
             self.bads = bads
@@ -200,9 +197,41 @@ class MSID(object):
         if numpy.any(self.bads):
             logger.info('Filtering bad values for %s', self.msid)
             ok = ~self.bads
-            self.vals = self.vals[ok]
-            self.times = self.times[ok]
+            colnames = (x for x in self.colnames if x != 'bads')
+            print colnames
+            for colname in colnames:
+                print 'filtering',colname
+                setattr(self, colname, getattr(self, colname)[ok])
+
         self.bads = None
+
+    def write_zip(self, filename, append=False):
+        """Write MSID to a zip file named ``filename``
+
+        Within the zip archive the data for this MSID will be stored in csv format with
+        the name <msid_name>.csv.
+
+        :param filename: output zipfile name
+        :param append: append to an existing zipfile
+        """
+        import zipfile
+        from itertools import izip
+        colnames = self.colnames[:]
+        if self.bads is None and 'bads' in colnames:
+            colnames.remove('bads')
+
+        colvals = tuple(getattr(self, x) for x in colnames)
+        fmt = ",".join("%s" for x in colnames)
+
+        f = zipfile.ZipFile(filename, ('a' if append and os.path.exists(filename) else 'w')) 
+        info = zipfile.ZipInfo(self.msid + '.csv')
+        info.external_attr = 0664 << 16L # Set permissions 
+        info.date_time = time.localtime()[:7]
+        info.compress_type = zipfile.ZIP_DEFLATED
+        f.writestr(info,
+                   ",".join(colnames) + '\n' + 
+                   '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
+        f.close()
 
 class MSIDset(dict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
@@ -299,6 +328,19 @@ class MSIDset(dict):
                 colvals = getattr(msid, colname)
                 if colvals is not None:
                     setattr(msid, colname, colvals[indexes])
+
+    def write_zip(self, filename):
+        """Write MSIDset to a zip file named ``filename``
+
+        Within the zip archive the data for each MSID in the set will be stored
+        in csv format with the name <msid_name>.csv.
+
+        :param filename: output zipfile name
+        """
+        append = False
+        for msid in self.values():
+            msid.write_zip(filename, append=append)
+            append = True
 
 def fetch_records(start, stop, msids, dt=32.8):
     """
