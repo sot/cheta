@@ -151,7 +151,7 @@ tephin = fetch.MSID('tephin', '2009:001', '2009:007', filter_bad=True)
 ## presumably real telemetry errors.  If you run across a bad data point you can
 ## locate and filter it out as follows::
 
-aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
+aorate1 = fetch.MSID('aorate1', '2007:300', '2008:001', filter_bad=True)
 bad_vals_mask = abs(aorate1.vals) > 0.01
 aorate1.vals[bad_vals_mask]
 Chandra.Time.DateTime(aorate1.times[bad_vals_mask]).date
@@ -352,7 +352,7 @@ time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
 # <demo> --- stop ---
 
 ## Now look at the memory usage and see that around a 1 Gb is being used::
-  
+
 len(teio.vals) / 1e6
 clf()
 out = plot_cxctime(teio.times, teio.vals, '.', markersize=0.5)
