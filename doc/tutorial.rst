@@ -38,16 +38,16 @@ by opening a new X-terminal window.  It is assumed you are using ``csh`` or
 ``tcsh``.
 
 The first step is to log in to the machine ``ccosmos`` on the HEAD LAN and
-configure the Ska runtime environment.::
+configure the Ska runtime environment and make a new xterm window with a black
+background::
 
   ssh -Y <username>@ccosmos.cfa.harvard.edu
    <Enter password>
+  xterm -bg black -fg green &
 
-Now make a new xterm window with a black background and set up your path and
-various environment variables so all the tools are accessible and use the
-correct libraries.::
+Now focus on the new xterm window and set up your path and various environment
+variables so all the tools are accessible and use the correct libraries.::
 
-  xterm --bg black --fg green
   source /proj/sot/ska/bin/ska_envs.csh
 
 If you have not used Python and matplotlib on the HEAD LAN before you should do the 

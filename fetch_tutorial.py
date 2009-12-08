@@ -34,8 +34,8 @@ print tephin.vals[1:20]
 ## itself.  Case is not important when specifying the MSID name so one might do::
 
 pcad_mode = fetch.MSID('AOpcadMD', '2009Jan01 at 12:00:00.000', '2009-01-12T14:15:16')
-pcad_mode.msid  # MSID name as entered by user
-pcad_mode.MSID  # Upper-cased version used internally
+print pcad_mode.msid
+print pcad_mode.MSID
 
 # <demo> --- stop ---
 
@@ -154,14 +154,14 @@ tephin = fetch.MSID('tephin', '2009:001', '2009:007', filter_bad=True)
 
 aorate1 = fetch.MSID('aorate1', '2007:300', '2008:001', filter_bad=True)
 bad_vals_mask = abs(aorate1.vals) > 0.01
-aorate1.vals[bad_vals_mask]
-Chandra.Time.DateTime(aorate1.times[bad_vals_mask]).date
+print aorate1.vals[bad_vals_mask]
+print Chandra.Time.DateTime(aorate1.times[bad_vals_mask]).date
 
 # <demo> --- stop ---
 
 aorate1.filter_bad(bad_vals_mask)
 bad_vals_mask = abs(aorate1.vals) > 0.01
-aorate1.vals[bad_vals_mask]
+print aorate1.vals[bad_vals_mask]
 
 # <demo> --- stop ---
 
@@ -354,7 +354,7 @@ time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
 
 ## Now look at the memory usage and see that around a 1 Gb is being used::
 
-len(teio.vals) / 1e6
+print len(teio.vals) / 1e6
 clf()
 out = plot_cxctime(teio.times, teio.vals, '.', markersize=0.5)
 
