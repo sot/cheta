@@ -42,7 +42,7 @@ configure the Ska runtime environment.  This sets up your path and various
 environment variables so all the tools are accessible and use the correct 
 libraries. ::
 
-  ssh <username>@ccosmos.cfa.harvard.edu
+  ssh -Y <username>@ccosmos.cfa.harvard.edu
    <Enter password>
   source /proj/sot/ska/bin/ska_envs.csh
 
