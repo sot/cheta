@@ -107,11 +107,9 @@ biases.write_zip('biases.zip')
 
 from Ska.Matplotlib import plot_cxctime
 clf()
-plot_cxctime(tephin.times, tephin.vals)
+out = plot_cxctime(tephin.times, tephin.vals)
 
-## That looks better:
-
-## .. image:: fetchplots/plot_cxctime.png
+# <demo> --- stop ---
 
 ## **Bad data**
 
@@ -139,10 +137,11 @@ tephin.filter_bad()
 
 tephin = fetch.MSID('tephin', '2009:001', '2009:007', filter_bad=True)
 
-# <demo> --- stop ---
 ## You might wonder why fetch ever bothers to return bad data and a bad mask, but
 ## this will become apparent later when we start using time-correlated values instead
 ## just simple time plots.
+
+# <demo> --- stop ---
 
 ## **Really bad data**
 
@@ -155,9 +154,6 @@ tephin = fetch.MSID('tephin', '2009:001', '2009:007', filter_bad=True)
 aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
 bad_vals_mask = abs(aorate1.vals) > 0.01
 aorate1.vals[bad_vals_mask]
-
-# <demo> --- stop ---
-
 Chandra.Time.DateTime(aorate1.times[bad_vals_mask]).date
 
 # <demo> --- stop ---
@@ -181,11 +177,11 @@ tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
 tephin_daily = fetch.MSID('tephin', '2000:001', stat='daily')
 figure(1)
 clf()
-plot_cxctime(tephin_daily.times, tephin_daily.mins, '-b')
-plot_cxctime(tephin_daily.times, tephin_daily.maxes, '-r')
+out = plot_cxctime(tephin_daily.times, tephin_daily.mins, '-b')
+out = plot_cxctime(tephin_daily.times, tephin_daily.maxes, '-r')
 figure(2)
 clf()
-plot_cxctime(tephin_5min.times, tephin_5min.means, '-b')
+out = plot_cxctime(tephin_5min.times, tephin_5min.means, '-b')
   
 ## Notice that we did not supply a stop time which means to return values up to the last
 ## available data in the archive.  The start time, however, is always required.  
@@ -246,7 +242,7 @@ rates = fetch.MSIDset(['aorate1', 'aorate2', 'aorate3'], '2009:001', '2009:002')
 ## usual ``fetch.MSID`` object that we've been using up to this point::
 
 clf()
-plot_cxctime(rates['aorate1'].times, rates['aorate1'].vals)
+out = plot_cxctime(rates['aorate1'].times, rates['aorate1'].vals)
 
 # <demo> --- stop ---
 
@@ -349,36 +345,31 @@ plot(aca_rate, gyr_rate, '.')
 ## to tell it to order by memory usage.  Now go back to your main window and get
 ## all the ``TEIO`` data for the mission::
 
-##   ipython -pylab
-##   import Ska.engarchive.fetch as fetch
-##   from Ska.Matplotlib import plot_cxctime
-##   time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
-##   Out[]: CPU times: user 2.08 s, sys: 0.49 s, total: 2.57 s
-##          Wall time: 2.85 s
+import Ska.engarchive.fetch as fetch
+from Ska.Matplotlib import plot_cxctime
+time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
 
 # <demo> --- stop ---
 
 ## Now look at the memory usage and see that around a 1 Gb is being used::
   
-##   len(teio.vals) / 1e6
-##   clf()
-##   plot_cxctime(teio.times, teio.vals, '.', markersize=0.5)
+len(teio.vals) / 1e6
+clf()
+out = plot_cxctime(teio.times, teio.vals, '.', markersize=0.5)
 
 # <demo> --- stop ---
 
 ## Making a plot with 13 million points takes 5 to 10 seconds and some memory.
 ## See what happens to memory when you clear the plot::
 
-##   clf()
+clf()
 
 # <demo> --- stop ---
 
 ## Now let's get serious and fetch all the AORATE3 values (1 per second) for the mission after deleting the TEIO data::
 
-##     del teio
-##     time aorate3 = fetch.MSID('aorate3', '2000:001', '2010:001', filter_bad=True)
-##     Out[]: CPU times: user 38.83 s, sys: 7.43 s, total: 46.26 s
-##            Wall time: 60.10 s
+del teio
+time aorate3 = fetch.MSID('aorate3', '2000:001', '2010:001', filter_bad=True)
 
 # <demo> --- stop ---
 
@@ -393,8 +384,8 @@ plot(aca_rate, gyr_rate, '.')
 ## make the machine very unhappy.  But we can do computations or make a histogram of
 ## the distribution::
 
-##     clf()
-##     hist(log10(abs(aorate3.vals)+1e-15), log=True, bins=100)
+clf()
+hist(log10(abs(aorate3.vals)+1e-15), log=True, bins=100)
 
 # <demo> --- stop ---
 
@@ -454,8 +445,8 @@ for frame, msid, label in ((1, 'aorate1', 'roll'),
                            (3, 'aorate3', 'yaw')):
     subplot(3, 1, frame)
     obc_rates = obc[msid].vals * 206254.
-    plot_cxctime(obc[msid].times, obc_rates, '-')
-    plot_cxctime(obc[msid].times, Ska.Numpy.smooth(obc_rates, window_len=20), '-r')
+    out = plot_cxctime(obc[msid].times, obc_rates, '-')
+    out = plot_cxctime(obc[msid].times, Ska.Numpy.smooth(obc_rates, window_len=20), '-r')
     ylim(average(obc_rates) + array([-1.5, 1.5]))
     title(label.capitalize() + ' rate (arcsec/sec)')
 
@@ -474,8 +465,8 @@ for axis, label in ((0, 'roll'),
                     (2, 'yaw')):
     subplot(3, 1, 1+axis)
     raw_rate = raw_rates[axis, :]
-    plot_cxctime(raw_times, raw_rate, '-')
-    plot_cxctime(raw_times, Ska.Numpy.smooth(raw_rate, window_len=20), '-r')
+    out = plot_cxctime(raw_times, raw_rate, '-')
+    out = plot_cxctime(raw_times, Ska.Numpy.smooth(raw_rate, window_len=20), '-r')
     ylim(np.mean(raw_rate) + np.array([-0.4, 0.4]))
     title(label.capitalize() + ' S/C rate (arcsec/sec)')
 

@@ -198,9 +198,7 @@ class MSID(object):
             logger.info('Filtering bad values for %s', self.msid)
             ok = ~self.bads
             colnames = (x for x in self.colnames if x != 'bads')
-            print colnames
             for colname in colnames:
-                print 'filtering',colname
                 setattr(self, colname, getattr(self, colname)[ok])
 
         self.bads = None
