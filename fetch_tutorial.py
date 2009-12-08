@@ -1,6 +1,7 @@
 ## The basic process of fetching data always starts with importing the module
 ## into the python session::
 
+print "Welcome to the fetch module!"
 import Ska.engarchive.fetch as fetch
 
 # <demo> --- stop ---

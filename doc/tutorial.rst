@@ -35,15 +35,19 @@ already set with X-windows.
 
 To set up and to use the archive it is best to start with a "clean" environment
 by opening a new X-terminal window.  It is assumed you are using ``csh`` or
-``tcsh``.  
+``tcsh``.
 
 The first step is to log in to the machine ``ccosmos`` on the HEAD LAN and
-configure the Ska runtime environment.  This sets up your path and various
-environment variables so all the tools are accessible and use the correct 
-libraries. ::
+configure the Ska runtime environment.::
 
   ssh -Y <username>@ccosmos.cfa.harvard.edu
    <Enter password>
+
+Now make a new xterm window with a black background and set up your path and
+various environment variables so all the tools are accessible and use the
+correct libraries.::
+
+  xterm --bg black --fg green
   source /proj/sot/ska/bin/ska_envs.csh
 
 If you have not used Python and matplotlib on the HEAD LAN before you should do the 
