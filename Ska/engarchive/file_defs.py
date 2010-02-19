@@ -15,8 +15,8 @@ import os
 SKA = os.environ.get('SKA') or '/proj/sot/ska'
 
 # Root directories for MSID files.  msid_root is prime, others are backups.
-msid_root = '/data/drivel/ska/data/eng_archive/data'
-msid_roots = [msid_root, '/data/baffin3/telem_archive/data']
+msid_root = os.path.join(SKA, 'data', 'eng_archive', 'data')
+msid_roots = [msid_root]
 msid_files = {'filetypes':    os.path.join(SKA, 'data', 'eng_archive', 'filetypes.dat'),
               'contentdir':   '{{ft.content}}/',
               'headers':      '{{ft.content}}/headers.pickle',
