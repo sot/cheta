@@ -46,7 +46,6 @@ def get_options():
                       default=2e6,
                       help="Maximum look back time for updating statistics (seconds)")
     parser.add_option("--msid-root",
-                      default='/data/drivel/ska/data/eng_archive/data',
                       help="Engineering archive root directory for MSID files")
     parser.add_option("--content",
                       action='append',
@@ -57,7 +56,7 @@ opt, args = get_options()
 
 ft = fetch.ft
 
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=opt.msid_root)
+msid_files = pyyaks.context.ContextDict('msid_files', basedir=(opt.msid_root or file_defs.msid_root))
 msid_files.update(file_defs.msid_files)
 
 arch_files = pyyaks.context.ContextDict('arch_files', basedir=file_defs.arch_root)
