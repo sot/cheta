@@ -22,6 +22,7 @@ Functions
 
 .. autofunction:: fetch_arrays
 
+.. autofunction:: read_bad_times
 
 Time and Date formats
 ----------------------
