@@ -49,6 +49,39 @@ logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
 
+def read_bad_times(filename):
+    """Include a list of bad times from ``filename`` in the fetch module
+    ``bad_times`` registry.  This routine can be called multiple times with
+    different files and the bad times will be appended to the registry.  The
+    file can include any number of bad time interval specifications, one per
+    line.  A bad time interval line has three columns separated by whitespace,
+    e.g.::
+
+      aogbias1  2008:292:00:00:00  2008:297:00:00:00
+      
+    The MSID name is not case sensitive and the time values can be in any ``DateTime`` format.
+    Blank lines and any line starting with the # character are ignored.
+    """
+    if not os.path.exists(filename):
+        raise IOError('Bad times file %s not found' % filename)
+
+    for line in open(filename):
+        line = line.strip()
+        if len(line) == 0 or line.startswith('#'):
+            continue
+        vals = line.split()
+        if len(vals) != 3:
+            raise ValueError('Bad times line "%s" has incorrect format.  Need "<MSID> <start> <stop>"' % line)
+        msid = vals[0].upper()
+        msid_bad_times.setdefault(msid, []).append((vals[1], vals[2]))
+    
+# Set up bad times dict
+msid_bad_times = dict()
+try:
+    read_bad_times(os.path.join(SKA_DATA, 'msid_bad_times.dat'))
+except IOError:
+    pass
+
 class MSID(object):
     """
     Fetch data from the engineering telemetry archive into an MSID object. 
@@ -202,6 +235,36 @@ class MSID(object):
                 setattr(self, colname, getattr(self, colname)[ok])
 
         self.bads = None
+
+    def filter_bad_times(self, start=None, stop=None):
+        """Filter out bad times between ``start`` and ``stop``.  If ``start`` and ``stop`` are
+        not supplied then the list of ``bad_times`` for this MSID is used.
+
+        :param start: Start of time interval to exclude (any DateTime format is acceptable)
+        :param stop: End of time interval to exclude (any DateTime format is acceptable)
+        """
+
+        if start is None and stop is None:
+            bad_times = msid_bad_times.get(self.MSID, [])
+        elif start is None or stop is None:
+            raise ValueError('filter_times requires either 2 args (start, stop) or no args')
+        else:
+            bad_times = [(start, stop)]
+            
+        for start, stop in bad_times:
+            tstart = DateTime(start).secs
+            tstop = DateTime(stop).secs
+            if tstart > tstop:
+                raise ValueError("Start time %s must be less than stop time %s" % (start, stop))
+
+            if tstop < self.times[0] or tstart > self.times[-1]:
+                continue
+
+            logger.info('Filtering times between %s and %s' % (start, stop))
+            ok = (self.times < tstart) | (self.times > tstop)
+            colnames = (x for x in self.colnames)
+            for colname in colnames:
+                setattr(self, colname, getattr(self, colname)[ok])
 
     def write_zip(self, filename, append=False):
         """Write MSID to a zip file named ``filename``

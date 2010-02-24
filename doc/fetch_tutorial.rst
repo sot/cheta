@@ -188,7 +188,7 @@ Even after applying ``filter_bad()`` you may run across obviously bad data in
 the archive (e.g. there is a single value of AORATE1 of around 2e32
 in 2007).  These are not marked with bad quality in the CXC archive and are
 presumably real telemetry errors.  If you run across a bad data point you can
-locate and filter it out as follows::
+locate and filter it out as follows (but also see the next section)::
 
   aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
   bad_vals_mask = abs(aorate1.vals) > 0.01
@@ -203,6 +203,57 @@ locate and filter it out as follows::
   bad_vals_mask = abs(aorate1.vals) > 0.01
   aorate1.vals[bad_vals_mask]
   Out[]: array([], dtype=float32)
+
+.. _filter_bad_times:
+
+**Filtering out bad time intervals of data the easy way**
+
+If you just want to remove an interval of time known to have bad values (or
+perhaps remove extreme values that mess up your plot) there is an easy way with
+the ``filter_bad_times`` method::
+
+  aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
+  aorate1.filter_bad_times('2007:025:12:13:00', '2007:026:09:00:00')
+
+As expected this will remove all data from the aorate1 MSID between the
+specified times.  Because the bad times for historical data don't really change
+it doesn't make sense to always have to put these hard-coded times into every
+plotting or analysis script.  Instead fetch also allows you to create a plain
+text file of bad times in a simple format.  The file can include any number of
+bad time interval specifications, one per line.  A bad time interval line has
+three columns separated by whitespace, for instance::
+
+  # Bad times file: "bad_times.dat"
+  # MSID      bad_start_time  bad_stop_time
+  aogbias1 2008:292:00:00:00 2008:297:00:00:00
+  aogbias1 2008:227:00:00:00 2008:228:00:00:00
+  aogbias1 2009:253:00:00:00 2009:254:00:00:00
+  aogbias2 2008:292:00:00:00 2008:297:00:00:00
+  aogbias2 2008:227:00:00:00 2008:228:00:00:00
+  aogbias2 2009:253:00:00:00 2009:254:00:00:00
+      
+The MSID name is not case sensitive and the time values can be in any
+``DateTime`` format.  Blank lines and any line starting with the # character
+are ignored.  To read in this bad times file do::
+
+  fetch.read_bad_times('bad_times.dat')
+
+Once you've done this you can filter out all those bad times with a single method of
+the MSID object::
+
+  aorate1.filter_bad_times()
+
+In this case no start or stop time was supplied and the routine instead knows
+to use the internal registry of bad times defined by MSID.  Finally, as if this
+wasn't easy enough, there is a global list of bad times that is always read
+when the fetch module is loaded.  If you come across an interval of time that
+can always be filtered by all users of fetch then send an email to Tom Aldcroft
+with the interval and MSID and that will be added to the global registry.
+After that there will be no need to explicitly run the
+``fetch.read_bad_times(filename)`` command to exclude that interval.
+
+At the present time this filtering only applies to MSID objects and not for MSIDset 
+objects.  Upon request this can be implemented.
 
 **5 minute and daily statistics**
 
