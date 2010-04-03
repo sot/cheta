@@ -45,7 +45,6 @@ L0   PCAD       AXAF_PCAD       PCAD5ENG        ENG0    eng     OGIP            
 L0   PCAD       AXAF_PCAD       PCAD6ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD7ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD8ENG        ENG0    eng     OGIP            TEMPORALDATA 
-L0   PCAD       AXAF_PCAD       PCAD9ENG        ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD10ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD11ENG       ENG0    eng     OGIP            TEMPORALDATA 
 L0   PCAD       AXAF_PCAD       PCAD12ENG       ENG0    eng     OGIP            TEMPORALDATA 
@@ -91,3 +90,4 @@ L0   THM        AXAF_THM        THM3ENG         ENG0    eng     OGIP            
 # L0   CCDM       AXAF_CCDM       CCDM14ENG       ENG0    eng     OGIP            TEMPORALDATA 
 # L0   CCDM       AXAF_CCDM       CCDM15ENG       ENG0    eng     OGIP            TEMPORALDATA 
 # L0   CPE        AXAF_CPE        CPE1ENG         ENG0    eng     OGIP            TEMPORALDATA 
+# L0   PCAD       AXAF_PCAD       PCAD9ENG        ENG0    eng     OGIP            TEMPORALDATA (Earth Sensor)

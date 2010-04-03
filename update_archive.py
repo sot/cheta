@@ -41,6 +41,10 @@ def get_options():
                       dest="update_stats",
                       default=True,
                       help="Do not update 5 minute and daily stats archive")
+    parser.add_option("--fix-misorders",
+                      action="store_true",
+                      default=False,  
+                      help="Fix errors in ingest file order")
     parser.add_option("--max-lookback-time",
                       type='float',
                       default=2e6,
@@ -81,6 +85,7 @@ def main():
         # rendering of "files" ContextValue.
         ft['content'] = filetype.content.lower()
         ft['instrum'] = filetype.instrum.lower()
+        colnames = pickle.load(open(msid_files['colnames'].abs))
 
         if not os.path.exists(msid_files['archfiles'].abs):
             logger.info('No archfiles.db3 for %s - skipping'  % ft['content'])
@@ -88,14 +93,133 @@ def main():
 
         logger.info('Processing %s content type', ft['content'])
 
+        if opt.fix_misorders:
+            misorder_time = fix_misorders(filetype)
+            if misorder_time:
+                for colname in colnames:
+                    del_stats(colname, misorder_time, 'daily')
+                    del_stats(colname, misorder_time, '5min')
+            continue
+        
         if opt.update_full:
             update_archive(filetype)
 
         if opt.update_stats:
-            colnames = pickle.load(open(msid_files['colnames'].abs))
             for colname in colnames:
                 msid = update_stats(colname, 'daily')
                 update_stats(colname, '5min', msid)
+
+def fix_misorders(filetype):
+    """Fix problems in the eng archive where archive files were ingested out of
+    time order.  This results in a non-monotonic times in the MSID hdf5 files
+    and subsequently corrupts the stats files.  This routine looks for
+    discontinuities in rowstart assuming filename ordering and swaps neighbors.
+    One needs to verify in advance (--dry-run --fix-misorders --content ...)
+    that this will be an adequate fix.
+
+    Example::
+
+      update_archive.py --dry-run --fix-misorders --content misc3eng
+      update_archive.py --fix-misorders --content misc3eng >& fix_misc3.log 
+      update_archive.py --content misc3eng --max-lookback-time 8640000 >>& fix_misc3.log 
+
+    In the --dry-run it is important to verify that the gap is really just from
+    two mis-ordered files that can be swapped.  Look at the rowstart,rowstop values
+    in the filename-ordered list.
+
+    :param filetype: filetype
+    :returns: minimum time for all misorders found
+    """
+    archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',   
+                          'tlmver', 'ascdsver', 'revision', 'date')
+    colnames = pickle.load(open(msid_files['colnames'].abs))
+    
+    # Setup db handle with autocommit=False so that error along the way aborts insert transactions
+    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
+
+    # Get misordered archive files
+    archfiles = db.fetchall('SELECT * FROM archfiles order by filename')
+    bads = archfiles['rowstart'][1:] - archfiles['rowstart'][:-1] < 0
+
+    if not np.any(bads):
+        logger.info('No misorders')
+        return
+
+    for bad in np.flatnonzero(bads):
+        i2_0, i1_0 = archfiles['rowstart'][bad:bad+2]
+        i2_1, i1_1 = archfiles['rowstop'][bad:bad+2]
+
+        # Update hdf5 file for each column (MSIDs + TIME, MJF, etc)
+        for colname in colnames:
+            ft['msid'] = colname
+            logger.info('Fixing %s', msid_files['msid'].abs)
+            if not opt.dry_run:
+                h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+                hrd = h5.root.data
+                hrq = h5.root.quality
+
+                hrd1 = hrd[i1_0:i1_1]
+                hrd2 = hrd[i2_0:i2_1]
+                hrd[i1_0 : i1_0 + len(hrd2)] = hrd2
+                hrd[i1_0 + len(hrd2): i2_1] = hrd1
+
+                hrq1 = hrq[i1_0:i1_1]
+                hrq2 = hrq[i2_0:i2_1]
+                hrq[i1_0 : i1_0 + len(hrq2)] = hrq2
+                hrq[i1_0 + len(hrq2): i2_1] = hrq1
+
+                h5.close()
+
+        # Update the archfiles table
+        cmd = 'UPDATE archfiles SET '
+        cols = ['rowstart', 'rowstop']
+        cmd += ', '.join(['%s=?' % x for x in cols])
+        cmd += ' WHERE filename=?' 
+        rowstart1 = i1_0
+        rowstop1 = rowstart1 + i2_1 - i2_0
+        rowstart2 = rowstop1 + 1
+        rowstop2 = i2_1
+        vals1 = [rowstart1, rowstop1, archfiles['filename'][bad]]
+        vals2 = [rowstart2, rowstop2, archfiles['filename'][bad+1]]
+        logger.info('Running %s %s', cmd, vals1)
+        logger.info('Running %s %s', cmd, vals2)
+
+        logger.info('Swapping rows %s for %s', [i1_0, i1_1, i2_0, i2_1], filetype.content)
+        logger.info('%s', archfiles[bad-3:bad+5])
+        logger.info('')
+
+        if not opt.dry_run:
+            db.execute(cmd, [x.tolist() for x in vals1])
+            db.execute(cmd, [x.tolist() for x in vals2])
+            db.commit()
+
+    return np.min(archfiles['tstart'][bads])
+
+def del_stats(colname, time0, interval):
+    """Delete all rows in ``interval`` stats file for column ``colname`` that
+    occur after time ``time0`` - ``interval``.  This is used to fix problems
+    that result from a file misorder.  Subsequent runs of update_stats will
+    refresh the values correctly.
+    """
+    dt = {'5min': 328,
+          'daily': 86400}[interval]
+
+    ft['msid'] = colname
+    ft['interval'] = interval
+    stats_file = msid_files['stats'].abs
+    logger.info('Fixing stats file %s after time %s', stats_file, DateTime(time0).date)
+
+    stats = tables.openFile(stats_file, mode='a', 
+                            filters=tables.Filters(complevel=5, complib='zlib'))
+    index0 = time0 // dt - 1
+    indexes = stats.root.data.col('index')[:]
+    row0 = np.searchsorted(indexes, [index0])[0] - 1
+    if opt.dry_run:
+        n_del = len(stats.root.data) - row0
+    else:
+        n_del = stats.root.data.removeRows(row0, len(stats.root.data))
+    logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0, DateTime(indexes[row0] * dt).date)
+    stats.close()
 
 def calc_stats_vals(msid_vals, rows, indexes, interval):
     quantiles = (1, 5, 16, 50, 84, 95, 99)
