@@ -51,7 +51,7 @@ def get_options():
                       help="Maximum look back time for updating statistics (seconds)")
     parser.add_option("--max-gap",
                       type='float',
-                      default=2.1,
+                      default=32.9,
                       help="Maximum time gap between archive files")
     parser.add_option("--msid-root",
                       help="Engineering archive root directory for MSID files")
@@ -88,7 +88,6 @@ def main():
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
         ft['content'] = filetype.content.lower()
-        ft['instrum'] = filetype.instrum.lower()
         colnames = pickle.load(open(msid_files['colnames'].abs))
 
         if not os.path.exists(msid_files['archfiles'].abs):
@@ -378,7 +377,7 @@ def update_msid_files(filetype, archfiles):
         # Accumlate relevant info about archfile that will be ingested into
         # MSID h5 files.  Commit info before h5 ingest so if there is a failure
         # the needed info will be available to do the repair.
-        archfiles_row = dict((x, hdu.header[x.upper()]) for x in archfiles_hdr_cols)
+        archfiles_row = dict((x, hdu.header.get(x.upper())) for x in archfiles_hdr_cols)
         archfiles_row['checksum'] = hdu._checksum
         archfiles_row['rowstart'] = row
         archfiles_row['rowstop'] = row + len(dat)
@@ -479,7 +478,7 @@ def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
     
     # For testing purposes the directory might already have files
-    files = sorted(glob.glob('*.fits.gz'))
+    files = sorted(glob.glob(filetype['fileglob']))
     if files:
         return files
 
@@ -498,10 +497,10 @@ def get_archive_files(filetype):
     print '********** %s %s **********' % (ft['content'], time.ctime())
 
     arc5.sendline('tstart=%s' % datestart)
-    arc5.sendline('tstop=%s;' % datestop)
-    arc5.sendline('get %s_eng_0{%s}' % (ft['instrum'], ft['content']))
+    arc5.sendline('tstop=%s' % datestop)
+    arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
 
-    return sorted(glob.glob('*.fits.gz'))
+    return sorted(glob.glob(filetype['fileglob']))
 
 if __name__ == '__main__':
     main()

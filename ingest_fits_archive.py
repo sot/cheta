@@ -45,7 +45,7 @@ for filetype in filetypes:
 
             arc5.sendline('tstart=%s' % datestart)
             arc5.sendline('tstop=%s;' % datestop)
-            arc5.sendline('get %s{%s}' % (arc5gl_query, content))
+            arc5.sendline('get %s' % arc5gl_query.lower())
 
         open('.process', 'w')
 
