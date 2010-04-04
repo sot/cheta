@@ -1,7 +1,7 @@
 from pyyaks.context import ContextDict
 
-datadir = '/data/baffin3/telem_archive/data'
-# datadir = 'testdata'
+# datadir = '/data/baffin3/telem_archive/data'
+datadir = 'data'
 
 ft = ContextDict('ft')
 

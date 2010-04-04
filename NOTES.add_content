@@ -1,0 +1,30 @@
+*********************************************************************************
+Add a new content type to eng_archive
+*********************************************************************************
+
+- Add content definition to filestypes.dat.  The CONTENT value must be upper case
+
+- Get FITS archive files from 2000 through 2009 inclusive
+python ingest_fits_archive.py <CONTENT>
+
+- Ingest to a local H5 repo for <CONTENT>
+python ingest_h5_archive.py <CONTENT>
+
+- Generate sql archfiles file
+python convert_headers.py <CONTENT>
+ 
+- Fix file overlaps
+python fix_ingest_h5.py <CONTENT>
+
+- Move FITS files into archive
+python move_fits_archive.py <CONTENT>
+
+- Move h5 files into Ska
+cp -rp data/<CONTENT> $SKA/data/eng_archive/data/
+
+- Install new filetypes.dat
+make install
+(or cp -rp filestype.dat $SKA/data/eng_archive)
+
+- Update/create the stats files
+python update_archive.py --no-full --content <CONTENT> --max-lookback-time 1e20

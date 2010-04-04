@@ -6,6 +6,7 @@ to correct an original hasty decision about storing file info.
 import re, os , sys
 import cPickle as pickle
 import collections
+import sqlite3
 
 import Ska.Table
 import Ska.DBI
@@ -15,6 +16,8 @@ from Chandra.Time import DateTime
 import Ska.Table
 
 filetypes = Ska.Table.read_ascii_table('filetypes.dat')
+if len(sys.argv) == 2:
+    filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
 
 cols_map = dict(TSTART =   'tstart',    
                 TSTOP =    'tstop',     
@@ -33,21 +36,21 @@ cols_map = dict(TSTART =   'tstart',
 archfiles_def = open('archfiles_def.sql').read()
 
 for filetype in filetypes:
-    ft.val.content = filetype.content.lower()
+    ft['content'] = filetype['content'].lower()
 
-    if not os.path.exists(files.abs.contentdir) or os.path.exists(files.abs.archfiles):
-        print 'Skipping', ft.val.content
+    if not os.path.exists(files['contentdir'].abs) or os.path.exists(files['archfiles'].abs):
+        print 'Skipping', ft['content'].val
         continue
 
-    print 'Processing', ft.val.content
-
-    print 'Creating db', files.abs.archfiles
-    db = Ska.DBI.DBI(dbi='sqlite', server=files.abs.archfiles, autocommit=False)
+    print 'Processing', ft['content'].val
+ 
+    print 'Creating db', files['archfiles'].abs
+    db = Ska.DBI.DBI(dbi='sqlite', server=files['archfiles'].abs, autocommit=False)
     db.execute(archfiles_def)
     db.commit()
     
-    print 'Reading', files.abs.headers
-    headers = pickle.load(open(files.abs.headers))
+    print 'Reading', files['headers'].abs
+    headers = pickle.load(open(files['headers'].abs))
 
     
     filetime_counts = collections.defaultdict(int)
@@ -55,17 +58,17 @@ for filetype in filetypes:
     n = len(headers)
     for i, filename in enumerate(sorted(headers)):
         header = headers[filename]
-        out = dict((outkey, header[inkey]) for inkey, outkey in cols_map.items())
+        out = dict((outkey, header.get(inkey)) for inkey, outkey in cols_map.items())
         out['filename'] = filename
         filetime = int(re.search(r'(\d+)', filename).group(1))
         out['filetime'] = filetime
         filedate = DateTime(filetime).date
         out['year'], out['doy'] = re.search(r'(\d\d\d\d):(\d\d\d)', filedate).groups()
         
-        filetime_counts[filetime] += 1
         if i % 100 == 0:
             print i, n, filetime, filename, header['row0'], header['row1'], '\r',
         
+        filetime_counts[filetime] += 1
         db.insert(out, 'archfiles')
 
     db.commit()

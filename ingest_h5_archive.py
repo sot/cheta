@@ -37,18 +37,17 @@ def append_h5_col(dats, content, colname):
     filename = os.path.join('data', content, colname + '.h5')
     h5 = tables.openFile(filename, mode='a')
     newdata = np.hstack([x.field(colname) for x in dats])
-    # print 'Appending to', colname, 'with shape', newdata.shape
+    print 'Appending to', colname, 'with shape', newdata.shape
     h5.root.data.append(newdata)
     h5.root.quality.append(np.hstack([x.field('QUALITY')[:,i_colname(x)] for x in dats]))
     h5.close()
 
 filetypes = Ska.Table.read_ascii_table('filetypes.dat')
-filetypes = filetypes[ filetypes.pipe == 'ENG0' ]
-# filetypes = filetypes[ filetypes.content == 'PCAD3ENG' ]
+if len(sys.argv) == 2:
+    filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
 
 for filetype in filetypes:
-    content = filetype.content.lower()
-    instrum = filetype.instrum.lower()
+    content = filetype['content'].lower()
     fitsdir = os.path.abspath(os.path.join('/data/cosmos2/tlm', content))
 
     if os.path.exists(os.path.join('data', content)):
@@ -56,7 +55,7 @@ for filetype in filetypes:
         continue
     print filetype
 
-    fitsfiles = sorted(glob.glob(os.path.join(fitsdir, '*.fits.gz')))
+    fitsfiles = sorted(glob.glob(os.path.join(fitsdir, filetype['fileglob'])))
     if not fitsfiles:
         print 'No files'
         continue

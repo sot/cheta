@@ -4,6 +4,7 @@ problems with different versioned files that cover same time range being
 retrieved by the archive.
 """
 
+import sys
 import os
 import shutil
 
@@ -15,6 +16,8 @@ import Ska.Table
 from context_def import datadir, ft, files
 
 filetypes = Ska.Table.read_ascii_table('filetypes.dat')
+if len(sys.argv) == 2:
+    filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
 
 for filetype in filetypes:
     # Update attributes of global ContextValue "ft".  This is needed for

@@ -6,18 +6,17 @@ import numpy as np
 import pexpect
 
 import Ska.Table
-import arc5gl
 from Chandra.Time import DateTime
+import Ska.arc5gl as arc5gl
 
 filetypes = Ska.Table.read_ascii_table('filetypes.dat')
-filetypes = filetypes[ filetypes.pipe == 'ENG0' ]
-
-datestop = DateTime(time.time(), format='unix').date
+if len(sys.argv) == 2:
+    filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
 
 for filetype in filetypes:
     try:
-        content = filetype.content.lower()
-        instrum = filetype.instrum.lower()
+        content = filetype['content'].lower()
+        arc5gl_query = filetype['arc5gl_query'].lower()
 
         outdir = os.path.abspath(os.path.join('/data/cosmos2/tlm', content))
         if os.path.exists(outdir):
@@ -42,11 +41,11 @@ for filetype in filetypes:
             sys.stdout.flush()
             print '  tstart=%s' % datestart
             print '  tstop=%s' % datestop
-            print '  get %s_eng_0{%s}' % (instrum, content)
+            print '  get %s{%s}' % (arc5gl_query, content)
 
             arc5.sendline('tstart=%s' % datestart)
             arc5.sendline('tstop=%s;' % datestop)
-            arc5.sendline('get %s_eng_0{%s}' % (instrum, content))
+            arc5.sendline('get %s{%s}' % (arc5gl_query, content))
 
         open('.process', 'w')
 
