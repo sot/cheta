@@ -49,6 +49,10 @@ def get_options():
                       type='float',
                       default=2e6,
                       help="Maximum look back time for updating statistics (seconds)")
+    parser.add_option("--max-gap",
+                      type='float',
+                      default=2.1,
+                      help="Maximum time gap between archive files")
     parser.add_option("--msid-root",
                       help="Engineering archive root directory for MSID files")
     parser.add_option("--content",
@@ -351,8 +355,9 @@ def update_msid_files(filetype, archfiles):
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
 
     # Get the last row number from the archfiles table
-    out = db.fetchall('SELECT max(rowstop) FROM archfiles')
-    row = out[0]['max(rowstop)']
+    out = db.fetchone('SELECT max(rowstop) FROM archfiles')
+    row = out['max(rowstop)']
+    last_archfile = db.fetchone('SELECT * FROM archfiles where rowstop=?', (row,))
 
     archfiles_rows = []
     dats = []
@@ -387,16 +392,34 @@ def update_msid_files(filetype, archfiles):
         hdus.close()
         del hdus
 
-        # A very small number of archive files (a few) have a problem where the quality
-        # column tform is specified as 3B instead of 17X (for example).  This breaks
-        # things, so in this case just skip the file.
+        # Ensure that the time gap between the end of the last ingested archive
+        # file and the start of this one is less than opt.max_gap.  If this fails
+        # then break out of the archfiles processing but continue on to ingest any
+        # previously successful archfiles
+        time_gap = archfiles_row['tstart'] - last_archfile['tstop']
+        if abs(time_gap) > opt.max_gap:
+            logger.warning('WARNING: found gap of %.2f secs between archfiles %s and %s',
+                           time_gap, last_archfile['filename'], archfiles_row['filename'])
+            break
+
+        # Update the last_archfile values. 
+        last_archfile = archfiles_row
+
+        # A very small number of archive files (a few) have a problem where the
+        # quality column tform is specified as 3B instead of 17X (for example).
+        # This breaks things, so in this case just skip the file.  However
+        # since last_archfile is set above the gap check considers this file to
+        # have been ingested.
         if dat.field('QUALITY').shape[1] != len(dat.dtype.names):
             logging.warning('WARNING: skipping because of quality size mismatch: %d %d' %
                             (dat.field('QUALITY').shape[1], len(dat.dtype.names)))
             continue
 
+        # Mark the archfile as ingested in the database
         if not opt.dry_run:
             db.insert(archfiles_row, 'archfiles')
+
+        # Capture the data for subsequent storage in the hdf5 files
         dats.append(dat)
 
         # Update the running list of column names.  Colnames_all is the maximal
