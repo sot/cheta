@@ -66,16 +66,16 @@ L0   THM       THM1ENG         THM_ENG_0{THM1ENG}           *.fits.gz
 L0   THM       THM2ENG         THM_ENG_0{THM2ENG}           *.fits.gz
 L0   THM       THM3ENG         THM_ENG_0{THM3ENG}           *.fits.gz
 L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
-# L1   EPHEM     OANGLEEPHEM     EPHEM_ANGLES_1{ANGLES}                  
-L1   EPHEM     ORBITEPHEM1     EPHEM_ANGLES_1{ORBITEPHEM1}  *.fits.gz  
-L1   EPHEM     SOLAREPHEM1     EPHEM_ANGLES_1{SOLAREPHEM1}  *.fits.gz  
-L1   EPHEM     LUNAREPHEM1     EPHEM_ANGLES_1{LUNAREPHEM1}  *.fits.gz  
 # 
 # Candidate file types.
 # Arc5gl query <instrum>_<type>_<level> (or <instrum>_<level>if type is None)
 #
 #level instrum   content         arc5gl_query
 # L1   EPHEM     ANGLEEPHEM      ephem_angles_1   
+# L1   EPHEM     OANGLEEPHEM     EPHEM_ANGLES_1{ANGLES}                  
+# L1   EPHEM     ORBITEPHEM1     EPHEM_ANGLES_1{ORBITEPHEM1}  *.fits.gz  
+# L1   EPHEM     SOLAREPHEM1     EPHEM_ANGLES_1{SOLAREPHEM1}  *.fits.gz  
+# L1   EPHEM     LUNAREPHEM1     EPHEM_ANGLES_1{LUNAREPHEM1}  *.fits.gz  
 #
 #level instrum   hdu_name        content        pipe    type    hduclass        hduclas1     
 # L0.5 SIM       AXAF_SIMCOOR    SIMCOOR         SIM0.5  None    ASC             TEMPORALDATA  sim_0.5{simcoor}
