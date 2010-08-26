@@ -13,7 +13,7 @@ import logging
 
 import numpy
 import tables
-import Ska.Table
+import asciitable
 import pyyaks.context
 
 import file_defs
@@ -30,7 +30,7 @@ msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_roo
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
-filetypes = Ska.Table.read_ascii_table(os.path.join(SKA_DATA, 'filetypes.dat'))
+filetypes = asciitable.read(os.path.join(SKA_DATA, 'filetypes.dat'))
 content = dict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
@@ -49,11 +49,11 @@ logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
 
-def read_bad_times(filename):
-    """Include a list of bad times from ``filename`` in the fetch module
+def read_bad_times(table):
+    """Include a list of bad times from ``table`` in the fetch module
     ``bad_times`` registry.  This routine can be called multiple times with
-    different files and the bad times will be appended to the registry.  The
-    file can include any number of bad time interval specifications, one per
+    different tables and the bad times will be appended to the registry.  The
+    table can include any number of bad time interval specifications, one per
     line.  A bad time interval line has three columns separated by whitespace,
     e.g.::
 
@@ -62,18 +62,10 @@ def read_bad_times(filename):
     The MSID name is not case sensitive and the time values can be in any ``DateTime`` format.
     Blank lines and any line starting with the # character are ignored.
     """
-    if not os.path.exists(filename):
-        raise IOError('Bad times file %s not found' % filename)
+    bad_times = asciitable.read(table, Reader=asciitable.NoHeader, names=['msid', 'start', 'stop'])
 
-    for line in open(filename):
-        line = line.strip()
-        if len(line) == 0 or line.startswith('#'):
-            continue
-        vals = line.split()
-        if len(vals) != 3:
-            raise ValueError('Bad times line "%s" has incorrect format.  Need "<MSID> <start> <stop>"' % line)
-        msid = vals[0].upper()
-        msid_bad_times.setdefault(msid, []).append((vals[1], vals[2]))
+    for msid, start, stop in bad_times:
+        msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
     
 # Set up bad times dict
 msid_bad_times = dict()
@@ -236,15 +228,35 @@ class MSID(object):
 
         self.bads = None
 
-    def filter_bad_times(self, start=None, stop=None):
-        """Filter out bad times between ``start`` and ``stop``.  If ``start`` and ``stop`` are
-        not supplied then the list of ``bad_times`` for this MSID is used.
+    def filter_bad_times(self, start=None, stop=None, table=None):
+        """Filter out intervals of bad data in the MSID object.
+
+        There are three usage options:
+
+        - Supply no arguments.  This will use the global list of bad times read
+          in with fetch.read_bad_times().
+        - Supply both ``start`` and ``stop`` values where each is a single value
+          in a valid DateTime format.
+        - Supply an ``table`` parameter in the form of a 2-column table of
+          start and stop dates (space-delimited) or the name of a file with data
+          in the same format.
+
+        The ``table`` parameter must be supplied as a table or the name of a
+        table file, for example::
+
+          bad_times = ['2008:292:00:00:00 2008:297:00:00:00',
+                       '2008:305:00:12:00 2008:305:00:12:03',
+                       '2010:101:00:01:12 2010:101:00:01:25']
+          msid.filter_bad_times(table=bad_times)
+          msid.filter_bad_times(table='msid_bad_times.dat')
 
         :param start: Start of time interval to exclude (any DateTime format is acceptable)
         :param stop: End of time interval to exclude (any DateTime format is acceptable)
+        :param table: Two-column table (start, stop) of bad time intervals
         """
-
-        if start is None and stop is None:
+        if table is not None:
+            bad_times = asciitable.read(table, Reader=asciitable.NoHeader, names=['start', 'stop'])
+        elif start is None and stop is None:
             bad_times = msid_bad_times.get(self.MSID, [])
         elif start is None or stop is None:
             raise ValueError('filter_times requires either 2 args (start, stop) or no args')

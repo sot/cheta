@@ -206,22 +206,34 @@ locate and filter it out as follows (but also see the next section)::
 
 .. _filter_bad_times:
 
-**Filtering out bad time intervals of data the easy way**
+**Filtering out bad time intervals of data**
 
-If you just want to remove an interval of time known to have bad values (or
-perhaps remove extreme values that mess up your plot) there is an easy way with
-the ``filter_bad_times`` method::
+If you want to remove an interval of time known to have bad values there is an
+easy way with the ``filter_bad_times`` method::
 
   aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
   aorate1.filter_bad_times('2007:025:12:13:00', '2007:026:09:00:00')
 
 As expected this will remove all data from the aorate1 MSID between the
-specified times.  Because the bad times for historical data don't really change
-it doesn't make sense to always have to put these hard-coded times into every
-plotting or analysis script.  Instead fetch also allows you to create a plain
-text file of bad times in a simple format.  The file can include any number of
-bad time interval specifications, one per line.  A bad time interval line has
-three columns separated by whitespace, for instance::
+specified times.  Multiple bad time filters can be specified at once using the
+``table`` parameter option for ``filter_bad_times``::
+
+  bad_times = ['2008:292:00:00:00 2008:297:00:00:00',
+               '2008:305:00:12:00 2008:305:00:12:03',
+               '2010:101:00:01:12 2010:101:00:01:25']
+  msid.filter_bad_times(table=bad_times)
+
+The ``table`` parameter can also be the name of a plain text file that has two
+columns (separated by whitespace) containing the start and stop times::
+
+  msid.filter_bad_times(table='msid_bad_times.dat')
+
+Because the bad times for corrupted data don't change it doesn't always
+make sense to always have to put these hard-coded times into every plotting or
+analysis script.  Instead fetch also allows you to create a plain text file of
+bad times in a simple format.  The file can include any number of bad time
+interval specifications, one per line.  A bad time interval line has three
+columns separated by whitespace, for instance::
 
   # Bad times file: "bad_times.dat"
   # MSID      bad_start_time  bad_stop_time
