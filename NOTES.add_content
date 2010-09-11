@@ -4,7 +4,7 @@ Add a new content type to eng_archive
 
 * Add content definition to filestypes.dat.  The CONTENT value must be upper case
 
-* Get FITS archive files from 2000 through 2009 inclusive
+* Get FITS archive files from 2000 through 2010 inclusive
 python ingest_fits_archive.py <CONTENT>
 
 * Ingest to a local H5 repo for <CONTENT>
@@ -19,12 +19,17 @@ python fix_ingest_h5.py <CONTENT>
 * Move FITS files into archive
 python move_fits_archive.py <CONTENT>
 
-* Move h5 files into Ska
+* Move or h5 files into Ska or link into dev Ska
 cp -rp data/<CONTENT> $SKA/data/eng_archive/data/
+  -or-
+devska
+mkdir -p $SKA/data/eng_archive/data
+ln -s $PWD/data/<CONTENT> $SKA/data/eng_archive/data/
 
-* Install new filetypes.dat
+* Install new filetypes.dat.  For testing may need to edit to remove 
+* filetypes that are not reflected in devska archive
 make install
-(or cp -rp filestype.dat $SKA/data/eng_archive)
+(or cp -p filetypes.dat $SKA/data/eng_archive)
 
 * Update/create the stats files
 python update_archive.py --no-full --content <CONTENT> --max-lookback-time 1e20

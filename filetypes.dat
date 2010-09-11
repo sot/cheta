@@ -1,4 +1,9 @@
 level instrum  content         arc5gl_query               fileglob
+#L1   EPHEM     ORBITEPHEM      EPHEM_ORBIT_1{ORBITEPHEM1}   *.fits.gz
+#L1   EPHEM     LUNAREPHEM      EPHEM_LUNAR_1{LUNAREPHEM1}   *.fits.gz
+#L1   EPHEM     SOLAREPHEM      EPHEM_SOLAR_1{SOLAREPHEM1}   *.fits.gz
+#L1   EPHEM     ANGLEEPHEM      EPHEM_ANGLES_1{OANGLEEPHEM}  *.fits.gz
+L0   ACIS      ACISDEAHK       ACIS0{ACISDEAHK}             *.fits.gz
 L0   ACIS      ACIS2ENG        ACIS_ENG_0{ACIS2ENG}         *.fits.gz
 L0   ACIS      ACIS3ENG        ACIS_ENG_0{ACIS3ENG}         *.fits.gz
 L0   ACIS      ACIS4ENG        ACIS_ENG_0{ACIS4ENG}         *.fits.gz

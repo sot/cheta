@@ -24,12 +24,12 @@ for filetype in filetypes:
     # rendering of "files" ContextValue.
     print filetype.content
 
-    ft['content'] = filetype.content.lower()
+    ft['content'] = filetype['content'].lower()
     ft['msid'] = 'TIME'
 
     # archive files
     if not os.path.exists(files['archfiles'].abs) or os.path.exists(files['oldmsid'].abs + '.bak'):
-        print 'Skipping', ft.val.content
+        print 'Skipping', ft['content']
         continue
 
     # Make backup!

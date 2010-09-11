@@ -23,6 +23,7 @@ import numpy as np
 import scipy.stats.mstats
 
 import Ska.engarchive.fetch as fetch
+import Ska.engarchive.converters as converters
 import Ska.engarchive.file_defs as file_defs
 import Ska.arc5gl
 
@@ -72,7 +73,7 @@ arch_files.update(file_defs.arch_files)
 
 # Set up logging
 loglevel = pyyaks.logger.VERBOSE
-logger = pyyaks.logger.get_logger(level=loglevel, format="%(asctime)s %(message)s")
+logger = pyyaks.logger.get_logger(name='engarchive', level=loglevel, format="%(asctime)s %(message)s")
 
 def main():
     # Get the archive content filetypes
@@ -372,7 +373,7 @@ def update_msid_files(filetype, archfiles):
         logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
         hdus = pyfits.open(f)
         hdu = hdus[1]
-        dat = hdu.data.copy()
+        dat = converters.convert(hdu.data, filetype['content'])
 
         # Accumlate relevant info about archfile that will be ingested into
         # MSID h5 files.  Commit info before h5 ingest so if there is a failure

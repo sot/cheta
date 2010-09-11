@@ -9,6 +9,8 @@ import sys
 import glob
 import cPickle as pickle
 
+import Ska.engarchive.converters as converters
+
 def make_h5_col_file(dat, content, colname, n_rows):
     """Make a new h5 table to hold column from ``dat``."""
     filename = os.path.join('data', content, colname + '.h5')
@@ -55,13 +57,17 @@ for filetype in filetypes:
         continue
     print filetype
 
+    # If files are already in the final cxc archive location:
+    # fitsfiles = sorted(glob.glob('/data/cosmos2/eng_archive/data/acisdeahk/arch/????/???/*.fits.gz'))
     fitsfiles = sorted(glob.glob(os.path.join(fitsdir, filetype['fileglob'])))
     if not fitsfiles:
         print 'No files'
         continue
 
     dat = Ska.Table.read_fits_table(fitsfiles[-1])
+    dat = converters.convert(dat, filetype['content'])
     dt = np.median(dat['TIME'][1:] - dat['TIME'][:-1])
+    print 'dt=',dt
     n_rows = int(86400 * 365 * 12 / dt)
     colnames = set(dat.dtype.names)
     colnames_all = set(dat.dtype.names)
@@ -78,17 +84,23 @@ for filetype in filetypes:
     dats = []
     row = 0
 
+    # fitsfiles = fitsfiles[:50]   # for testing a few
     for i, f in enumerate(fitsfiles):
         print 'Reading', i, len(fitsfiles), f
         sys.stdout.flush()
         hdus = pyfits.open(f)
         hdu = hdus[1]
-        dat = hdu.data.copy()
+        try:
+            dat = converters.convert(hdu.data, filetype['content'])
+        except converters.NoValidDataError:
+            print 'WARNING: skipping because of no valid data'
+            continue
         header = dict((x, hdu.header[x]) for x in hdu.header.keys() if not re.match(r'T.+\d+', x))
         header['row0'] = row
         header['row1'] = row + len(dat)
         if dat.field('QUALITY').shape[1] != len(dat.dtype.names):
-            print 'WARNING: skipping because of quality size mismatch: ', dat.field('QUALITY').shape[1], len(dat.dtype.names)
+            print 'WARNING: skipping because of quality size mismatch: ', \
+                  dat.field('QUALITY').shape[1], len(dat.dtype.names)
             hdus.close()
             continue
         headers[os.path.basename(f)] = header
