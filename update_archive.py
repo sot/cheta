@@ -52,7 +52,6 @@ def get_options():
                       help="Maximum look back time for updating statistics (seconds)")
     parser.add_option("--max-gap",
                       type='float',
-                      default=32.9,
                       help="Maximum time gap between archive files")
     parser.add_option("--msid-root",
                       help="Engineering archive root directory for MSID files")
@@ -323,7 +322,7 @@ def update_archive(filetype):
             update_msid_files(filetype, archfiles)
             move_archive_files(filetype, archfiles)
 
-def append_h5_col(dats, colname):
+def append_h5_col(dats, colname, files_overlaps):
     """Append new values to an HDF5 MSID data table.
 
     :param dats: List of pyfits HDU data objects
@@ -340,6 +339,21 @@ def append_h5_col(dats, colname):
     if not opt.dry_run:
         h5.root.data.append(stacked_data)
         h5.root.quality.append(stacked_quality)
+
+    # Remove overlaps in the archive files where file0['tstop'] > file1['tstart'].
+    # Do this by setting the TIME column quality flag for the overlapping rows
+    # in file0.  files_overlaps is a list of 2-tuples with consequetive files that
+    # overlap.
+    if colname == 'TIME':
+        for file0, file1 in files_overlaps:
+            times = h5.root.data[file0['rowstart']:file0['rowstop']]
+            bad_rowstart = np.searchsorted(times, file1['tstart']) + file0['rowstart']
+            bad_rowstop = file0['rowstop']
+            if not opt.dry_run:
+                logger.verbose('Removing overlapping data in rows {0}:{1}'.format(
+                    bad_rowstart, bad_rowstop))
+                h5.root.quality[bad_rowstart:bad_rowstop] = True
+
     h5.close()
 
 
@@ -359,6 +373,7 @@ def update_msid_files(filetype, archfiles):
     row = out['max(rowstop)']
     last_archfile = db.fetchone('SELECT * FROM archfiles where rowstop=?', (row,))
 
+    archfiles_overlaps = []
     archfiles_rows = []
     dats = []
 
@@ -393,14 +408,26 @@ def update_msid_files(filetype, archfiles):
         del hdus
 
         # Ensure that the time gap between the end of the last ingested archive
-        # file and the start of this one is less than opt.max_gap.  If this fails
-        # then break out of the archfiles processing but continue on to ingest any
-        # previously successful archfiles
+        # file and the start of this one is less than opt.max_gap (or
+        # filetype-based defaults).  If this fails then break out of the
+        # archfiles processing but continue on to ingest any previously
+        # successful archfiles
         time_gap = archfiles_row['tstart'] - last_archfile['tstop']
-        if abs(time_gap) > opt.max_gap:
+        max_gap = opt.max_gap
+        if max_gap is None:
+            if filetype['instrum'] == 'EPHEM':
+                max_gap = 601
+            elif filetype['content'] == 'ACISDEAHK':
+                max_gap = 66
+            else:
+                max_gap = 32.9
+        if time_gap > max_gap:
             logger.warning('WARNING: found gap of %.2f secs between archfiles %s and %s',
                            time_gap, last_archfile['filename'], archfiles_row['filename'])
             break
+        elif time_gap < 0:
+            # Overlapping archfiles - deal with this in append_h5_col
+            archfiles_overlaps.append((last_archfile, archfiles_row))
 
         # Update the last_archfile values. 
         last_archfile = archfiles_row
@@ -435,7 +462,7 @@ def update_msid_files(filetype, archfiles):
         logger.verbose('Writing accumulated column data to h5 file at ' + time.ctime())
         for colname in colnames:
             ft['msid'] = colname
-            append_h5_col(dats, colname)
+            append_h5_col(dats, colname, archfiles_overlaps)
 
     # Assuming everything worked now commit the db inserts that signify the
     # new archive files have been processed
@@ -489,17 +516,25 @@ def get_archive_files(filetype):
     # Get datestart as the most-recent file time from archfiles table
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
     vals = db.fetchone("select max(filetime) from archfiles")
-    datestart = DateTime(vals['max(filetime)']).date
+    datestart = DateTime(vals['max(filetime)'])
 
     # End time (now) for archive queries
-    datestop = DateTime(time.time(), format='unix').date
-    # datestop = DateTime(vals['max(filetime)'] + 100000).date
+    # datestop = DateTime(vals['max(filetime)'] + 1000000)
+    datestop = DateTime(time.time(), format='unix')
 
-    print '********** %s %s **********' % (ft['content'], time.ctime())
+    # For instrum==EPHEM break queries into time ranges no longer than
+    # 100000 sec each.  EPHEM files are at least 7 days long and generated
+    # no more often than every ~3 days so this should work.
+    n_queries = (1 if filetype['instrum'] != 'EPHEM'
+          else 1 + round((datestop.secs - datestart.secs) / 100000.))
+    times = np.linspace(datestart.secs, datestop.secs, n_queries + 1)
 
-    arc5.sendline('tstart=%s' % datestart)
-    arc5.sendline('tstop=%s' % datestop)
-    arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
+    logger.info('********** %s %s **********' % (ft['content'], time.ctime()))
+
+    for t0, t1 in zip(times[:-1], times[1:]):
+        arc5.sendline('tstart=%s' % DateTime(t0).date)
+        arc5.sendline('tstop=%s' % DateTime(t1).date)
+        arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
 
     return sorted(glob.glob(filetype['fileglob']))
 

@@ -4,37 +4,77 @@ Add a new content type to eng_archive
 
 * Add content definition to filestypes.dat.  The CONTENT value must be upper case
 
+*********************************************************************************
 * Get FITS archive files from 2000 through 2010 inclusive
+*********************************************************************************
 python ingest_fits_archive.py <CONTENT>
 
+*********************************************************************************
 * Ingest to a local H5 repo for <CONTENT>
+*********************************************************************************
 python ingest_h5_archive.py <CONTENT>
 
+*********************************************************************************
 * Generate sql archfiles file
+*********************************************************************************
 python convert_headers.py <CONTENT>
+
+*********************************************************************************
+* Get into skadev environment and set up a link in $SKA/data/eng_archive
+*********************************************************************************
+devska
+cd $SKA/data/eng_archive
+ln -s ~/hg/eng_archive/data
+cp -p filetypes.dat $SKA/data/eng_archive/
  
-* Fix file overlaps
+*********************************************************************************
+* Fix file overlaps.  Do a dry run perhaps.
+*********************************************************************************
+python fix_ingest_h5.py <CONTENT> --dry-run
 python fix_ingest_h5.py <CONTENT>
 
-* Move FITS files into archive
-python move_fits_archive.py <CONTENT>
+# For EPHEM content (and others in future??) use the --overwrite-partial
+# flag to make it overwrite overlapping rows instead of tossing the
+# entire archive file:
+python fix_ingest_h5.py <CONTENT> --overwrite-partial
 
-* Move or h5 files into Ska or link into dev Ska
-cp -rp data/<CONTENT> $SKA/data/eng_archive/data/
-  -or-
-devska
-mkdir -p $SKA/data/eng_archive/data
-ln -s $PWD/data/<CONTENT> $SKA/data/eng_archive/data/
+*********************************************************************************
+* Test in skadev
+*********************************************************************************
 
-* Install new filetypes.dat.  For testing may need to edit to remove 
-* filetypes that are not reflected in devska archive
-make install
-(or cp -p filetypes.dat $SKA/data/eng_archive)
+pylab
+import Ska.engarchive.fetch as fetch
+from Ska.Matplotlib import plot_cxctime
+dat = fetch.MSID(<msid>, '2010:001', '2010:002')  # etc
+plot_cxctime(dat.times, dat.vals, '.')  # etc
 
-* Update/create the stats files
+*********************************************************************************
+* Update/create the stats files in skadev
+*********************************************************************************
 python update_archive.py --no-full --content <CONTENT> --max-lookback-time 1e20
 
-* Bring archive up to current date
+*********************************************************************************
+* Bring archive up to current date in skadev
+*********************************************************************************
 python update_archive.py --content <CONTENT> --max-lookback-time 1e20
+python update_archive.py  --max-lookback-time 1e20 >& log.20 &
+
+*********************************************************************************
+* Move FITS files into archive
+*********************************************************************************
+python move_fits_archive.py <CONTENT>
+
+*********************************************************************************
+* Copy h5 files into Ska
+*********************************************************************************
+cp -rp data/<CONTENT> $SKA/data/eng_archive/data/
+
+*********************************************************************************
+* Install new filetypes.dat.  For testing may need to edit to remove 
+* filetypes that are not reflected in devska archive
+*********************************************************************************
+make install
+ - or - 
+cp -p filetypes.dat $SKA/data/eng_archive)
 
 

@@ -24,6 +24,18 @@ The engineering telemetry archive consists of:
     5, 16, 50, 84, 95, 99), number of samples.
 * A python module to retrieve telemetry values.
 
+Pseudo-MSIDs
+----------------------------
+
+A small selection of pseudo-MSIDs that do not come in the engineering telemetry
+stream are also available in the archive.  These are:
+
+* SIM telemetry: SIM position and moving status
+* ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
+* Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
+
+For details see the documentation on Pseudo-MSIDs in the engineering archive.
+
 Documentation
 -------------
 
@@ -32,4 +44,5 @@ Documentation
 
    tutorial
    fetch
-
+   fetch_tutorial_standalone
+   pseudo_msids

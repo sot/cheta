@@ -47,9 +47,12 @@ def generic_converter(prefix=None, add_quality=False):
 
     return _convert
 
-orbitephem = generic_converter('orbit', add_quality=True)
-lunarephem = generic_converter('lunar', add_quality=True)
-solarephem = generic_converter('solar', add_quality=True)
+orbitephem0 = generic_converter('orbitephem0', add_quality=True)
+lunarephem0 = generic_converter('lunarephem0', add_quality=True)
+solarephem0 = generic_converter('solarephem0', add_quality=True)
+orbitephem1 = generic_converter('orbitephem1', add_quality=True)
+lunarephem1 = generic_converter('lunarephem1', add_quality=True)
+solarephem1 = generic_converter('solarephem1', add_quality=True)
 angleephem = generic_converter(add_quality=True)
 
 def acisdeahk(dat):
