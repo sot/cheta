@@ -1,7 +1,7 @@
 .. include:: references.rst
 
 ====================================
-Ska.engarchive.fetch
+Fetch API documentation
 ====================================
 
 .. automodule:: Ska.engarchive.fetch

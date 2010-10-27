@@ -1,6 +1,6 @@
-================================
+==================================
  Ska Engineering Telemetry Archive 
-================================
+==================================
 .. include:: references.rst
 
 Overview
@@ -43,6 +43,7 @@ Documentation
    :maxdepth: 1
 
    tutorial
-   fetch
    fetch_tutorial_standalone
    pseudo_msids
+   fetch
+   utils
