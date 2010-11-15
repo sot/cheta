@@ -418,7 +418,7 @@ def update_msid_files(filetype, archfiles):
             if filetype['instrum'] == 'EPHEM':
                 max_gap = 601
             elif filetype['content'] == 'ACISDEAHK':
-                max_gap = 66
+                max_gap = 3600
             else:
                 max_gap = 32.9
         if time_gap > max_gap:
