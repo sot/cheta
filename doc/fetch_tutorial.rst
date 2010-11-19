@@ -1,8 +1,15 @@
+================================
+Fetch Tutorial
+================================
+
 The python module ``Ska.engarchive.fetch`` provides a simple interface to the 
 engineering archive data files.  Using the module functions it is easy to
 retrieve data over a time range for a single MSID or a related set of MSIDs.
 The data are return as MSID objects that contain not only the telemetry timestamps 
 and values but also various other data arrays and MSID metadata.
+
+Getting started
+================
 
 **Running the demo**
 
@@ -86,7 +93,8 @@ the basis for time for all CXC data files.  In order to make life inconvenient
 1998-01-01T00:00:00 is actually 1997:365:23:58:56.816 (UTC).  This stems from
 the difference of around 64 seconds between TT and UTC.
 
-**Date and time formats**
+Date and time formats
+======================
 
 .. include:: date_time_formats.rst
 
@@ -103,7 +111,8 @@ Converting between units is straightforward with the ``Chandra.Time`` module::
   Chandra.Time.DateTime('2009:235:12:13:14').secs
   Out[]: 367416860.18399996
 
-**Exporting to CSV for local access**
+Exporting to CSV
+================
 
 If you want to move the fetch data to your local machine an ``MSID`` or
 ``MSIDset`` can be exported as ASCII data table(s) in CSV format.  This can
@@ -139,7 +148,8 @@ unzip as follows::
   scp ccosmos.cfa.harvard.edu:biases.zip ./
   unzip biases.zip
 
-**Plotting time data**
+Plotting time data
+====================
 
 Even though seconds since 1998.0 is convenient for computations it isn't so
 natural for humans.  As mentioned the ``Chandra.Time`` module can help with
@@ -155,7 +165,8 @@ That looks better:
 
 .. image:: fetchplots/plot_cxctime.png
 
-**Bad data**
+Bad data
+=========
 
 At this point we've glossed over the important point of possible bad data.  For 
 various reasons (typically a VCDU drop) the data value associated with a particular 
@@ -267,7 +278,8 @@ After that there will be no need to explicitly run the
 At the present time this filtering only applies to MSID objects and not for MSIDset 
 objects.  Upon request this can be implemented.
 
-**5 minute and daily statistics**
+Five minute and daily stats
+===========================
 
 The engineering telemetry archive also hosts tables of telemetry statistics
 computed over 5 minute and daily intervals.  To be more precise, the intervals
@@ -327,7 +339,8 @@ that they do not have an associated bad values mask.  Instead if there are not
 at least 3 good samples within an interval then no record for that interval
 will exist.
 
-**MSID sets**
+MSID sets
+==========
 
 Frequently one wants to fetch a set of MSIDs over the same time range.  This is
 easily accomplished::
@@ -418,7 +431,61 @@ new centroid value every 2.05 sec.
 
 .. image:: fetchplots/aca_gyro_rates.png
 
-**Pushing it to the limit**
+Unit systems
+==============
+
+Within ``fetch`` it is possible to select a different system of physical 
+units for the retrieved telemetry.  Internally the engineering archive
+stores values in the FITS format standard units as used by the CXC archive.
+This is essentially the MKS system and features all temperatures in Kelvins
+(not the most convenient).  
+
+In addition to the CXC unit system one can select "science" units or 
+"engineering" units:
+
+====== ==============================================================
+System  Description
+====== ==============================================================
+cxc    FITS standard units used in CXC archive files (basically MKS)
+sci    Same as "cxc" but with temperatures in degC instead of Kelvins
+eng    OCC engineering units (TDB P009, e.g. degF, ft-lb-sec, PSI)
+====== ==============================================================
+
+The simplest way to select a different unit system is to alter the
+canonical command for importing the ``fetch`` module.  To use OCC 
+engineering units use the following command::
+
+  from Ska.engarchive import fetch_eng as fetch
+
+This uses a special Python syntax to import the ``fetch_eng`` module
+but then refer to it as ``fetch``.  In this way there is no need to
+change existing codes (except one line) or habits.  To use "science"
+units use the command::
+
+  from Ska.engarchive import fetch_sci as fetch
+
+The two modules ``fetch_eng`` and ``fetch_sci`` are just very thin wrappers
+around ``fetch``.  Underneath what they do is use the ``fetch.set_units()``
+command to set the unit system.  So an alternate to the above methods is to
+explicitly set the unit system.  This can be done at any time and you can
+switch between unit systems as desired.  (But the units for previously
+fetched telemetry will *not* change).  In addition the actual unit for any
+MSID telemetry can be obtained with the ``unit`` attribute.
+
+Example::
+
+  from Ska.engarchive import fetch
+  
+  fetch.set_units('eng')
+  mom1 = fetch.MSID('aosymom1', '2010:001', '2010:002')
+  print mom1.unit  # prints "FTLBSEC"
+  
+  fetch.set_units('sci')
+  mom1 = fetch.MSID('aosymom1', '2010:001', '2010:002')
+  print mom1.unit  # print "J*s"
+
+Pushing it to the limit
+========================
 
 The engineering telemetry archive is designed to help answer questions that
 require big datasets.  Let's explore what is possible.  First quit from your
@@ -480,7 +547,8 @@ Rules of thumb:
 * Look before you leap, do smaller fetches first and check sizes.
 * 5-minute stats are ~10 million so you are always OK.
 
-**Putting it all together**
+Putting it all together
+=======================
 
 As a final example here is a real-world problem of wanting to compare OBC
 rates to those derived on the ground using raw gyro data.
@@ -547,13 +615,11 @@ rates to those derived on the ground using raw gyro data.
 .. image:: fetchplots/obc_rates.png
 .. image:: fetchplots/gyro_sc_rates.png
 
-**To do**
+To do
+======
 
 * Add telemetry:
 
-  - 3TSCPOS and 3FAPOS
-  - ACIS DEA housekeeping
   - ACA header-3
 
-* Apply transformations to P009 units (e.g. Kelvins to C or F)
 * Add MSID method to determine exact time of mins or maxes

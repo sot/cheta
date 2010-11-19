@@ -1,14 +1,19 @@
 .. include:: references.rst
 
 ================================
-Ska Engineering Archive Tutorial
+Ska Analysis Tutorial
 ================================
 
 Overview
 --------
 
-This document gives a tutorial introduction to the Ska Engineering Archive,
-including basic configuration and a number of examples.
+This document gives a tutorial introduction to analysis using the Ska analysis
+environment, including basic configuration and a number
+of examples.
+
+The Ska analysis environment consists of a full-featured Python installation (with
+interactive analysis, plotting and numeric capability) along with the Ska engineering
+telemetry archive.
 
 The telemetry archive consists of:
 
@@ -104,7 +109,8 @@ with the engineering archive.
 
 Ska.engarchive.fetch
 ~~~~~~~~~~~~~~~~~~~~~~
-.. include:: fetch_tutorial.rst
+The tools to access and manipulate telemetry with the Ska engineering archive
+are described in the :doc:`fetch_tutorial`.
 
 IPython
 ~~~~~~~~~~

@@ -43,7 +43,7 @@ Documentation
    :maxdepth: 1
 
    tutorial
-   fetch_tutorial_standalone
+   fetch_tutorial
    pseudo_msids
    fetch
    utils

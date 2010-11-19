@@ -9,4 +9,5 @@ setup(name='Ska.engarchive',
       namespace_packages=['Ska'],
       packages=['Ska', 'Ska.engarchive'],
       package_dir={'Ska' : 'Ska'},
+      package_data={'': ['units_*.pkl']|},
       )

@@ -2,8 +2,6 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
-from __future__ import with_statement  # only for python 2.5
-
 __docformat__ = 'restructuredtext'
 import os
 import time
@@ -16,7 +14,8 @@ import tables
 import asciitable
 import pyyaks.context
 
-import file_defs
+from . import file_defs
+from . import units
 from Chandra.Time import DateTime
 
 SKA = os.getenv('SKA') or '/proj/sot/ska'
@@ -48,6 +47,20 @@ class NullHandler(logging.Handler):
 logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
+
+def set_units(unit_system):
+    """Set the unit system used for output telemetry values.  The default
+    is "cxc".  Allowed values for ``unit_system``  are:
+
+    ====  ==============================================================
+    cxc   FITS standard units used in CXC archive files (basically MKS)
+    sci   Same as "cxc" but with temperatures in degC instead of Kelvins
+    eng   OCC engineering units (TDB P009, e.g. degF, ft-lb-sec, PSI)
+    ====  ==============================================================
+
+    :param unit_system: system of units (cxc, sci, eng)
+    """
+    units.set_units(unit_system)
 
 def read_bad_times(table):
     """Include a list of bad times from ``table`` in the fetch module
@@ -89,6 +102,7 @@ class MSID(object):
     def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         self.msid = msid
         self.MSID = msid.upper()
+        self.unit = units.units_out.get(self.MSID)
         self.stat = stat
         if stat:
             self.dt = {'5min': 328, 'daily': 86400}[stat]
@@ -143,7 +157,16 @@ class MSID(object):
         for colname in table_rows.dtype.names:
             # Don't like the way columns were named in the stats tables.  Fix that here.
             colname_out = _plural(colname) if colname != 'n' else 'samples' 
-            setattr(self, colname_out, table_rows[colname])
+
+            if colname_out in ('vals', 'mins', 'maxes', 'means',
+                               'p01s', 'p05s', 'p16s', 'p50s', 'p84s', 'p95s', 'p99s'):
+                vals = units.convert(self.MSID, table_rows[colname])
+            elif colname_out == 'stds':
+                vals = units.convert(self.MSID, table_rows[colname], delta_val=True)
+            else:
+                vals = table_rows[colname]
+                
+            setattr(self, colname_out, vals)
             self.colnames.append(colname_out)
 
     def _get_msid_data(self):
@@ -198,7 +221,7 @@ class MSID(object):
         # Slice down to exact requested time range
         row0, row1 = numpy.searchsorted(times, [self.tstart, self.tstop])
         logger.info('Slicing %s arrays [%d:%d]', self.msid, row0, row1)
-        self.vals = vals[row0:row1]
+        self.vals = units.convert(self.MSID, vals[row0:row1])
         self.times = times[row0:row1]
         self.bads = bads[row0:row1]
         self.colnames = ['times', 'vals', 'bads']

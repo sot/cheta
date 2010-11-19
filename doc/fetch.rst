@@ -24,6 +24,8 @@ Functions
 
 .. autofunction:: read_bad_times
 
+.. autofunction:: set_units
+
 Time and Date formats
 ----------------------
 .. include:: date_time_formats.rst
