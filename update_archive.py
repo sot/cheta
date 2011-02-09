@@ -50,11 +50,15 @@ def get_options():
                       type='float',
                       default=2e6,
                       help="Maximum look back time for updating statistics (seconds)")
+    parser.add_option("--max-query-days",
+                      type='float',
+                      default=30,
+                      help="Maximum number of days to fetch from archive")
     parser.add_option("--max-gap",
                       type='float',
                       help="Maximum time gap between archive files")
-    parser.add_option("--msid-root",
-                      help="Engineering archive root directory for MSID files")
+    parser.add_option("--data-root",
+                      help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--content",
                       action='append',
                       help="Content type to process (default = all)")
@@ -64,10 +68,12 @@ opt, args = get_options()
 
 ft = fetch.ft
 
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=(opt.msid_root or file_defs.msid_root))
+msid_files = pyyaks.context.ContextDict('msid_files',
+                                        basedir=(opt.data_root or file_defs.msid_root))
 msid_files.update(file_defs.msid_files)
 
-arch_files = pyyaks.context.ContextDict('arch_files', basedir=file_defs.arch_root)
+arch_files = pyyaks.context.ContextDict('arch_files',
+                                        basedir=(opt.data_root or file_defs.arch_root)
 arch_files.update(file_defs.arch_files)
 
 # Set up logging
@@ -518,9 +524,9 @@ def get_archive_files(filetype):
     vals = db.fetchone("select max(filetime) from archfiles")
     datestart = DateTime(vals['max(filetime)'])
 
-    # End time (now) for archive queries
-    # datestop = DateTime(vals['max(filetime)'] + 1000000)
-    datestop = DateTime(time.time(), format='unix')
+    # End time for archive queries (minimum of start + max_query_days and NOW)
+    datestop = DateTime(min(datestart.secs + opt.max_query_days * 86400,
+                            DateTime().secs))
 
     # For instrum==EPHEM break queries into time ranges no longer than
     # 100000 sec each.  EPHEM files are at least 7 days long and generated

@@ -19,7 +19,7 @@ from . import units
 from Chandra.Time import DateTime
 
 SKA = os.getenv('SKA') or '/proj/sot/ska'
-SKA_DATA = SKA + '/data/eng_archive'
+SKA_DATA = os.getenv('ENG_SKA_DATA') or SKA + '/data/eng_archive'
 
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
