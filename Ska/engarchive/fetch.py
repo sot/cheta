@@ -25,7 +25,7 @@ SKA_DATA = os.getenv('ENG_SKA_DATA') or SKA + '/data/eng_archive'
 ft = pyyaks.context.ContextDict('ft')
 
 # Global (eng_archive) definition of file names
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_root) 
+msid_files = pyyaks.context.ContextDict('msid_files', basedir=SKA_DATA) 
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
@@ -33,8 +33,11 @@ filetypes = asciitable.read(os.path.join(SKA_DATA, 'filetypes.dat'))
 content = dict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
-    colnames = pickle.load(open(msid_files['colnames'].abs))
-    content.update((x, ft['content'].val) for x in colnames)
+    try:
+        colnames = pickle.load(open(msid_files['colnames'].abs))
+        content.update((x, ft['content'].val) for x in colnames)
+    except IOError:
+        pass
 
 # Cache of the most-recently used TIME array and associated bad values mask.
 # The key is (content_type, tstart, tstop).
