@@ -9,8 +9,8 @@ import tables
 import numpy as np
 import cPickle as pickle
 
+import asciitable
 from Chandra.Time import DateTime
-#import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
 import Ska.DBI
 import pyyaks.context
@@ -22,7 +22,6 @@ logger = pyyaks.logger.get_logger(name='make_regr_data', level=loglevel, format=
 # Globals related to Ska (flight) eng_archive
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
-# ft = fetch.ft
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=file_defs.msid_root)
 msid_files.update(file_defs.msid_files)
 arch_files = pyyaks.context.ContextDict('arch_files', basedir=file_defs.arch_root)
@@ -90,12 +89,13 @@ def make_test_content_dir():
     shutil.copy2(msid_files['colnames_all'].abs, test_msid_files['colnames_all'].abs)
 
 def make_test_archfiles_db(file_records):
+    if os.path.exists(test_msid_files['archfiles'].abs):
+        return
     shutil.copy2(msid_files['archfiles'].abs, test_msid_files['archfiles'].abs)
     db = Ska.DBI.DBI(dbi='sqlite', server=test_msid_files['archfiles'].abs)
     db.execute('DELETE FROM archfiles', commit=True)
     rowstart0 = file_records[0]['rowstart']
     for record in file_records:
-        print record
         record['rowstart'] -= rowstart0
         record['rowstop'] -= rowstart0
         db.insert(record, 'archfiles', commit=False)
@@ -144,6 +144,12 @@ def copy_statfiles_to_test(stat, dt, tstart, tstop):
             h5.close()
             os.unlink(test_msid_files['stats.tmp'].abs)
 
+def make_filetypes_dat(contents):
+    filetypes = asciitable.read(msid_files['filetypes'].abs)
+    test_filetypes = [x for x in filetypes if x['content'].lower() in contents]
+    asciitable.write(test_filetypes, os.path.join(opt.data_root, 'filetypes.dat'),
+                     names=filetypes.dtype.names)
+
 opt, args = get_options()
 
 test_msid_files = pyyaks.context.ContextDict('msid_files', basedir=opt.data_root)
@@ -151,9 +157,10 @@ test_msid_files.update(file_defs.msid_files)
 test_arch_files = pyyaks.context.ContextDict('arch_files', basedir=opt.data_root)
 test_arch_files.update(file_defs.arch_files)
 
-contents = opt.contents.split(',')
+contents = [x.lower() for x in opt.contents.split(',')]
 for content in contents:
-    ft['content'] = content.lower()
+    ft['content'] = content
+    logger.info("Making content {0}".format(content.upper()))
     make_test_content_dir()
     file_records = get_interval_files(opt.start, opt.stop)
     copy_archfiles_to_test(file_records)
@@ -169,4 +176,5 @@ for content in contents:
 
     make_test_archfiles_db(file_records)
 
-shutil.copy2('filetypes.dat', opt.data_root)
+make_filetypes_dat(contents)
+
