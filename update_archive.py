@@ -50,14 +50,14 @@ def get_options():
                       type='float',
                       default=2e6,
                       help="Maximum look back time for updating statistics (seconds)")
-    parser.add_option("--max-query-days",
-                      type='float',
-                      default=30,
-                      help="Maximum number of days to fetch from archive")
+    parser.add_option("--date-now",
+                      default=DateTime().date,
+                      help="Set effective processing date for testing (default=NOW)")
     parser.add_option("--max-gap",
                       type='float',
                       help="Maximum time gap between archive files")
     parser.add_option("--data-root",
+                      default='test_eng_archive',
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--content",
                       action='append',
@@ -73,7 +73,7 @@ msid_files = pyyaks.context.ContextDict('msid_files',
 msid_files.update(file_defs.msid_files)
 
 arch_files = pyyaks.context.ContextDict('arch_files',
-                                        basedir=(opt.data_root or file_defs.arch_root)
+                                        basedir=(opt.data_root or file_defs.arch_root))
 arch_files.update(file_defs.arch_files)
 
 # Set up logging
@@ -294,8 +294,8 @@ def update_stats(colname, interval, msid=None):
     # be sampled for years at a time so once the archive is built and kept
     # up to date then do not look back beyond a certain point.
     if msid is None:
-        time0 = max(DateTime().secs - opt.max_lookback_time, index0 * dt - 500)  # fetch a little extra telemetry
-        time1 = DateTime().secs
+        time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time, index0 * dt - 500)  # fetch a little extra telemetry
+        time1 = DateTime(opt.date_now).secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
     if len(msid.times) > 0:
@@ -525,8 +525,7 @@ def get_archive_files(filetype):
     datestart = DateTime(vals['max(filetime)'])
 
     # End time for archive queries (minimum of start + max_query_days and NOW)
-    datestop = DateTime(min(datestart.secs + opt.max_query_days * 86400,
-                            DateTime().secs))
+    datestop = DateTime(opt.date_now)
 
     # For instrum==EPHEM break queries into time ranges no longer than
     # 100000 sec each.  EPHEM files are at least 7 days long and generated

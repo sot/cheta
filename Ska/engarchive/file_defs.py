@@ -15,24 +15,24 @@ import os
 SKA = os.environ.get('SKA') or '/proj/sot/ska'
 
 # Root directories for MSID files.  msid_root is prime, others are backups.
-msid_root = os.path.join(SKA, 'data', 'eng_archive', 'data')
+msid_root = os.path.join(SKA, 'data', 'eng_archive')
 msid_roots = [msid_root]
-msid_files = {'filetypes':    os.path.join(SKA, 'data', 'eng_archive', 'filetypes.dat'),
-              'contentdir':   '{{ft.content}}/',
-              'headers':      '{{ft.content}}/headers.pickle',
-              'archfiles':    '{{ft.content}}/archfiles.db3',
-              'colnames':     '{{ft.content}}/colnames.pickle',
-              'colnames_all': '{{ft.content}}/colnames_all.pickle',
-              'msid':         '{{ft.content}}/{{ft.msid | upper}}.h5',
-              'data':         '{{ft.content}}/{{ft.msid | upper}}.h5',
-              'statsdir':     '{{ft.content}}/{{ft.interval}}/',
-              'stats':        '{{ft.content}}/{{ft.interval}}/{{ft.msid | upper}}.h5',
+msid_files = {'filetypes':    'filetypes.dat',
+              'contentdir':   'data/{{ft.content}}/',
+              'headers':      'data/{{ft.content}}/headers.pickle',
+              'archfiles':    'data/{{ft.content}}/archfiles.db3',
+              'colnames':     'data/{{ft.content}}/colnames.pickle',
+              'colnames_all': 'data/{{ft.content}}/colnames_all.pickle',
+              'msid':         'data/{{ft.content}}/{{ft.msid | upper}}.h5',
+              'data':         'data/{{ft.content}}/{{ft.msid | upper}}.h5',
+              'statsdir':     'data/{{ft.content}}/{{ft.interval}}/',
+              'stats':        'data/{{ft.content}}/{{ft.interval}}/{{ft.msid | upper}}.h5',
               }
 
-arch_root = '/data/cosmos2/eng_archive/data'
-arch_files = {'archrootdir':  '{{ft.content}}/arch/',
-              'archdir':      '{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/',
-              'archfile':     '{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
+arch_root = '/data/cosmos2/eng_archive'
+arch_files = {'archrootdir':  'data/{{ft.content}}/arch/',
+              'archdir':      'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/',
+              'archfile':     'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
               }
 
 # Used when originally creating database.

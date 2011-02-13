@@ -19,17 +19,17 @@ from . import units
 from Chandra.Time import DateTime
 
 SKA = os.getenv('SKA') or '/proj/sot/ska'
-SKA_DATA = os.getenv('ENG_SKA_DATA') or SKA + '/data/eng_archive'
+ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
 
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
 # Global (eng_archive) definition of file names
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=SKA_DATA) 
+msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE) 
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
-filetypes = asciitable.read(os.path.join(SKA_DATA, 'filetypes.dat'))
+filetypes = asciitable.read(os.path.join(ENG_ARCHIVE, 'filetypes.dat'))
 content = dict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
@@ -86,7 +86,7 @@ def read_bad_times(table):
 # Set up bad times dict
 msid_bad_times = dict()
 try:
-    read_bad_times(os.path.join(SKA_DATA, 'msid_bad_times.dat'))
+    read_bad_times(os.path.join(ENG_ARCHIVE, 'msid_bad_times.dat'))
 except IOError:
     pass
 

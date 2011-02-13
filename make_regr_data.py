@@ -33,14 +33,13 @@ def get_options():
                       default='2010:260',
                       help="Start time")
     parser.add_option("--stop",
-                      default='2010:280',
+                      default='2010:270',
                       help="Stop time")
     parser.add_option("--data-root",
-                      default="data",
+                      default="test_eng_archive",
                       help="Engineering archive root directory for MSID files")
     parser.add_option("--contents",
                       default="acis2eng,acisdeahk,orbitephem0,simcoor,thm1eng",
-                      #default="orbitephem0",
                       help="Content type to process (default = all)")
     return parser.parse_args()
 
@@ -102,7 +101,7 @@ def make_test_archfiles_db(file_records):
     db.commit()
     db.execute('vacuum')
 
-def copy_msidfiles_to_test(rowstart, rowstop):
+def copy_msidfiles_to_test(file_records, rowstart, rowstop):
     n_rows = rowstop - rowstart
     colnames = pickle.load(open(msid_files['colnames'].abs))
     for colname in colnames:
@@ -114,11 +113,10 @@ def copy_msidfiles_to_test(rowstart, rowstop):
         h5 = tables.openFile(test_msid_files['data.tmp'].abs, 'a')
         h5.root.data[:n_rows] = h5.root.data[rowstart:rowstop]
         h5.root.quality[:n_rows] = h5.root.quality[rowstart:rowstop]
-        # pdb.set_trace()
         h5.root.data.truncate(n_rows)
         h5.root.quality.truncate(n_rows)
         h5.copyFile(test_msid_files['data'].abs, overwrite=True)
-        print h5.root.data[0], h5.root.data[-1], len(h5.root.data), rowstart, rowstop
+        #print h5.root.data[0], h5.root.data[-1], len(h5.root.data), rowstart, rowstop
         h5.close()
         os.unlink(test_msid_files['data.tmp'].abs)
 
@@ -138,9 +136,12 @@ def copy_statfiles_to_test(stat, dt, tstart, tstop):
             h5 = tables.openFile(test_msid_files['stats.tmp'].abs, 'a')
             times = (h5.root.data.col('index') + 0.5) * dt
             row0, row1 = np.searchsorted(times, [tstart, tstop])
-            h5.root.data.removeRows(0, row0)
+            #print colname, row0, row1, len(times), DateTime(times[row0]).date, DateTime(times[row1]).date,
             h5.root.data.removeRows(row1, h5.root.data.nrows)
+            h5.root.data.removeRows(0, row0)
             h5.copyFile(test_msid_files['stats'].abs, overwrite=True)
+            newtimes = (h5.root.data.col('index') + 0.5) * dt
+            #print len(newtimes), DateTime(newtimes[0]).date, DateTime(newtimes[-1]).date
             h5.close()
             os.unlink(test_msid_files['stats.tmp'].abs)
 
@@ -169,8 +170,11 @@ for content in contents:
     tstop = file_records[-1]['tstop']
     rowstart = file_records[0]['rowstart']
     rowstop = file_records[-1]['rowstop']
+    print 'tstart, tstop, datestart, datestop, rowstart, rowstop', (
+        tstart, tstop, DateTime(tstart).date, DateTime(tstop).date,
+        rowstart, rowstop)
 
-    copy_msidfiles_to_test(rowstart, rowstop)
+    copy_msidfiles_to_test(file_records, rowstart, rowstop)
     copy_statfiles_to_test('5min', 328, tstart, tstop)
     copy_statfiles_to_test('daily', 86400, tstart, tstop)
 
