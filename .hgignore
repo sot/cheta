@@ -1,6 +1,5 @@
 data
 .*\.log
-test/eng_archive
 files_def.sql
 db.sql3
 Ska.engarchive.egg-info
@@ -8,3 +7,13 @@ build
 dist
 .*\.wpr
 example_files
+test/plot_1crat.png
+test/plot_fptemp_11.png
+test/plot_orbitephem0_x.png
+test/plot_sim_z.png
+test/plot_tephin.png
+test/regr_vals.flight
+test/regr_vals.test
+test/eng_archive
+test_eng_archive.tar.gz
+test_eng_archive/filetypes.dat

@@ -137,7 +137,10 @@ def copy_statfiles_to_test(stat, dt, tstart, tstop):
             times = (h5.root.data.col('index') + 0.5) * dt
             row0, row1 = np.searchsorted(times, [tstart, tstop])
             #print colname, row0, row1, len(times), DateTime(times[row0]).date, DateTime(times[row1]).date,
-            h5.root.data.removeRows(row1, h5.root.data.nrows)
+            # Remove from row1-1 to end.  The row1-1 is because it is possible
+            # to get the daily stat without the rest of the 5min data if
+            # tstop is past noon of the day.  This messes up update_archive.
+            h5.root.data.removeRows(row1 - 1, h5.root.data.nrows)
             h5.root.data.removeRows(0, row0)
             h5.copyFile(test_msid_files['stats'].abs, overwrite=True)
             newtimes = (h5.root.data.col('index') + 0.5) * dt

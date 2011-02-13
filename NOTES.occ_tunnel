@@ -1,0 +1,22 @@
+- See mail from Paul Grant (search "ssh tunnel")
+
+gretasot IP: 131.142.113.82
+snowman IP: 131.142.113.102
+
+imac% history
+     1	11:09	ssh 131.142.113.82
+     2	11:19	ssh -X -N -f -L 1234:131.142.113.82:22 SOT@131.142.113.102
+     7	11:21	ssh -Y -p 1234 SOT@127.0.0.1
+
+None of these work.  Not sure why
+    14	11:29	rsync --dry-run -av -e ssh eng_archive/ rsync://SOT@127.0.0.1:1234/proj/sot/ska/data/eng_archive/data/
+    19	11:35	rsync --dry-run -av eng_archive/ rsync://SOT@127.0.0.1:1234/proj/sot/ska/data/eng_archive/data/
+    25	11:43	rsync --dry-run -av --port=1234 eng_archive/thm2eng SOT@127.0.0.1:/proj/sot/ska/data/eng_archive/data/
+
+This worked:
+scp -rp -P 1234 thm1eng SOT@127.0.0.1:/proj/sot/ska/data/eng_archive/data/
+
+Remove the tunnel
+-----------------
+ps auxwww| grep ssh
+kill <ssh_pid>
