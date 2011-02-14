@@ -57,7 +57,6 @@ def get_options():
                       type='float',
                       help="Maximum time gap between archive files")
     parser.add_option("--data-root",
-                      default='test_eng_archive',
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--content",
                       action='append',
