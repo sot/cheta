@@ -12,7 +12,9 @@ echo "Making regr data..."
 ./make_regr_data.py --start 2010:260 --stop 2010:270 --data-root test/eng_archive >>& test/make_eng_archive.log
 
 echo "Tarring..."
-tar zcf test_eng_archive.tar.gz test_eng_archive
+cd test
+tar zcf eng_archive.tar.gz eng_archive
+cd ..
 
 echo "Updating archive..."
 ./update_archive.py --date-now 2010:271 --data-root test/eng_archive >>& test/make_eng_archive.log

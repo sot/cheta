@@ -13,3 +13,35 @@ cd test
 ./get_regr_vals.py
 ./get_regr_vals.py --test
 ./compare_regr_vals.py
+
+
+# OCC functionality testing
+
+source make_test_eng_archive.csh
+mv test/eng_archive test/eng_archive.head
+
+cd test
+  rm -rf eng_archive eng_archive_occ
+  tar xf eng_archive.tar.gz
+  cp -rp eng_archive eng_archive_occ
+  mkdir eng_archive_occ/stage
+
+  rm -f make_eng_archive.log
+  rm -f make_eng_archive_occ.log
+  touch make_eng_archive.log
+  touch make_eng_archive_occ.log
+cd ..
+
+foreach doy (274 275 276 277 278 279 280 )
+  setenv ENG_ARCHIVE $PWD/test/eng_archive
+  rm -rf test/eng_archive/stage
+  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
+  rsync -a test/eng_archive/stage/ test/eng_archive_occ/stage
+  setenv ENG_ARCHIVE $PWD/test/eng_archive_occ
+  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE --occ >>& test/make_eng_archive_occ.log
+end
+
+# Regression tests:
+# diff logs (after cutting time columns and replacing _occ with ""): No diffs seen
+# diff "ls -l" from respective MSID and 5min directories.  Only diffs in times seen.
+# diff binary MSID files.  Some diffs seens...

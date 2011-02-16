@@ -58,6 +58,9 @@ def get_options():
                       help="Maximum time gap between archive files")
     parser.add_option("--data-root",
                       help="Engineering archive root directory for MSID and arch files")
+    parser.add_option("--occ",
+                      action="store_true",
+                      help="Running on the OCC GRETA network (no arc5gl)")
     parser.add_option("--content",
                       action='append',
                       help="Content type to process (default = all)")
@@ -293,7 +296,8 @@ def update_stats(colname, interval, msid=None):
     # be sampled for years at a time so once the archive is built and kept
     # up to date then do not look back beyond a certain point.
     if msid is None:
-        time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time, index0 * dt - 500)  # fetch a little extra telemetry
+        # fetch telemetry plus a little extra
+        time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time, index0 * dt - 500)  
         time1 = DateTime(opt.date_now).secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
@@ -320,8 +324,13 @@ def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
     archive files.
     """
-    tmpdir = Ska.File.TempDir(dir=file_defs.arch_root)
-    with Ska.File.chdir(tmpdir.name): 
+    if opt.occ:
+        dirname = arch_files['stagedir'].abs
+    else:
+        tmpdir = Ska.File.TempDir(dir=file_defs.arch_root)
+        dirname = tmpdir.name
+
+    with Ska.File.chdir(dirname): 
         archfiles = get_archive_files(filetype)
         if archfiles:
             update_msid_files(filetype, archfiles)
@@ -490,6 +499,10 @@ def update_msid_files(filetype, archfiles):
 def move_archive_files(filetype, archfiles):
     ft['content'] = filetype.content.lower()
 
+    stagedir = arch_files['stagedir'].abs
+    if not os.path.exists(stagedir):
+        os.makedirs(stagedir)
+
     for f in archfiles:
         ft['basename'] = os.path.basename(f)
         tstart = re.search(r'(\d+)', str(ft['basename'])).group(1)
@@ -505,15 +518,18 @@ def move_archive_files(filetype, archfiles):
         if not os.path.exists(archfile):
             logger.info('mv %s %s' % (f, archfile))
             if not opt.dry_run:
+                if not opt.occ:
+                    shutil.copy2(f, stagedir)
                 shutil.move(f, archfile)
 
 def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
     
-    # For testing purposes the directory might already have files
+    # If running on the OCC GRETA network the cwd is a staging directory that
+    # could already have files.  Also used in testing.
     files = sorted(glob.glob(filetype['fileglob']))
-    if files:
-        return files
+    if opt.occ or files:
+        return sorted(files)
 
     # Retrieve CXC archive files in a temp directory with arc5gl
     arc5 = Ska.arc5gl.Arc5gl(echo=True)
