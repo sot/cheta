@@ -1,4 +1,6 @@
-# First make test data.  This sets ENG_ARCHIVE in that window
+######## Regression test for primary (HEAD) update_archive.py and fetch.py
+
+# First make test data.  This sets ENG_ARCHIVE in that window.
 
 source make_test_eng_archive.csh
 
@@ -7,15 +9,20 @@ source make_test_eng_archive.csh
 setenv ENG_ARCHIVE $PWD/test/eng_archive
 test/make_plots.py
 
-# Regression test
+# Regression test.  Get_regr_vals.py uses the local ../Ska/engarchive/fetch.py
+# if --test is given, otherwise uses the installed Ska version.  It sets
+# ENG_ARCHIVE internally prior to importing fetch.
+
 unsetenv ENG_ARCHIVE
 cd test
-./get_regr_vals.py
-./get_regr_vals.py --test
-./compare_regr_vals.py
+  ./get_regr_vals.py --start 2010:265 --stop 2010:285
+  ./get_regr_vals.py --start 2010:265 --stop 2010:285 --test 
+  ./compare_regr_vals.py
+cd ..
 
+## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df
 
-# OCC functionality testing
+######## OCC functionality testing
 
 source make_test_eng_archive.csh
 mv test/eng_archive test/eng_archive.head
@@ -45,3 +52,13 @@ end
 # diff logs (after cutting time columns and replacing _occ with ""): No diffs seen
 # diff "ls -l" from respective MSID and 5min directories.  Only diffs in times seen.
 # diff binary MSID files.  Some diffs seens...
+
+cd test
+  unsetenv ENG_ARCHIVE
+  ./get_regr_vals.py --start 2010:265 --stop 2010:277
+  setenv ENG_ARCHIVE $PWD/eng_archive_occ
+  ./get_regr_vals.py --test --start 2010:265 --stop 2010:277
+  ./compare_regr_vals.py
+cd ..
+
+## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df

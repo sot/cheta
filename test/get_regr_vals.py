@@ -24,7 +24,8 @@ def get_options():
 opt, args = get_options()
 if opt.test:
     sys.path.insert(0, '..')
-    os.environ['ENG_ARCHIVE'] = os.path.abspath(os.getcwd() + '/eng_archive')
+    if not 'ENG_ARCHIVE' in os.environ:
+        os.environ['ENG_ARCHIVE'] = os.path.abspath(os.getcwd() + '/eng_archive')
     outfile = opt.out + '.test'
 else:
     outfile = opt.out + '.flight'
