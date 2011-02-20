@@ -31,6 +31,7 @@ msid_files = {'filetypes':    'filetypes.dat',
 
 arch_root = '/data/cosmos2/eng_archive'
 arch_files = {'stagedir': 'stage/{{ft.content}}/',
+              'rootdir': '',
               'archrootdir':  'data/{{ft.content}}/arch/',
               'archdir':      'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/',
               'archfile':     'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',

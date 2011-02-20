@@ -13,8 +13,10 @@ None of these work.  Not sure why
     19	11:35	rsync --dry-run -av eng_archive/ rsync://SOT@127.0.0.1:1234/proj/sot/ska/data/eng_archive/data/
     25	11:43	rsync --dry-run -av --port=1234 eng_archive/thm2eng SOT@127.0.0.1:/proj/sot/ska/data/eng_archive/data/
 
-This worked:
+These worked (but scp died after 10 minutes)
+
 scp -rp -P 1234 thm1eng SOT@127.0.0.1:/proj/sot/ska/data/eng_archive/data/
+rsync -av -e 'ssh -p 1234' eng_archive/ SOT@127.0.0.1:/proj/sot/ska/data/eng_archive/
 
 Remove the tunnel
 -----------------

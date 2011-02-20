@@ -326,6 +326,8 @@ def update_archive(filetype):
     """
     if opt.occ:
         dirname = arch_files['stagedir'].abs
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
     else:
         tmpdir = Ska.File.TempDir(dir=file_defs.arch_root)
         dirname = tmpdir.name

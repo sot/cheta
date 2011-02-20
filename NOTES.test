@@ -39,12 +39,14 @@ cd test
   touch make_eng_archive_occ.log
 cd ..
 
-foreach doy (274 275 276 277 278 279 280 )
+# foreach doy (274 275 276 277 278 279 280 )
+foreach doy (277 280 )
   setenv ENG_ARCHIVE $PWD/test/eng_archive
-  rm -rf test/eng_archive/stage
   ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
-  rsync -a test/eng_archive/stage/ test/eng_archive_occ/stage
+  ./transfer_stage.py --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
+
   setenv ENG_ARCHIVE $PWD/test/eng_archive_occ
+  ./transfer_stage.py --data-root $ENG_ARCHIVE --occ >>& test/make_eng_archive_occ.log
   ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE --occ >>& test/make_eng_archive_occ.log
 end
 
@@ -55,9 +57,9 @@ end
 
 cd test
   unsetenv ENG_ARCHIVE
-  ./get_regr_vals.py --start 2010:265 --stop 2010:277
+  ./get_regr_vals.py --start 2010:265 --stop 2010:276
   setenv ENG_ARCHIVE $PWD/eng_archive_occ
-  ./get_regr_vals.py --test --start 2010:265 --stop 2010:277
+  ./get_regr_vals.py --test --start 2010:265 --stop 2010:276
   ./compare_regr_vals.py
 cd ..
 
