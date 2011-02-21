@@ -27,22 +27,22 @@ cd ..
 source make_test_eng_archive.csh
 mv test/eng_archive test/eng_archive.head
 
-cd test
-  rm -rf eng_archive eng_archive_occ
-  tar xf eng_archive.tar.gz
-  cp -rp eng_archive eng_archive_occ
-  mkdir eng_archive_occ/stage
+rm -rf test/eng_archive_occ
+rm -rf test/eng_archive 
+tar -x -C test -f test/eng_archive.tar.gz 
+cp -rp test/eng_archive test/eng_archive_occ
+# mkdir test/eng_archive_occ/stage
 
-  rm -f make_eng_archive.log
-  rm -f make_eng_archive_occ.log
-  touch make_eng_archive.log
-  touch make_eng_archive_occ.log
-cd ..
+rm -f test/make_eng_archive.log
+rm -f test/make_eng_archive_occ.log
+touch test/make_eng_archive.log
+touch test/make_eng_archive_occ.log
 
 # foreach doy (274 275 276 277 278 279 280 )
 foreach doy (277 280 )
   setenv ENG_ARCHIVE $PWD/test/eng_archive
-  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
+  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE --no-stats >>& test/make_eng_archive.log
+  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE --no-full >>& test/make_eng_archive.log
   ./transfer_stage.py --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
 
   setenv ENG_ARCHIVE $PWD/test/eng_archive_occ

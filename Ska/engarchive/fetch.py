@@ -20,6 +20,7 @@ from Chandra.Time import DateTime
 
 SKA = os.getenv('SKA') or '/proj/sot/ska'
 ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
+IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
 
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
@@ -35,7 +36,8 @@ for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
     try:
         colnames = pickle.load(open(msid_files['colnames'].abs))
-        content.update((x, ft['content'].val) for x in colnames)
+        content.update((x, ft['content'].val) for x in colnames
+                       if x not in IGNORE_COLNAMES)
     except IOError:
         pass
 

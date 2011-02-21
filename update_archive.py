@@ -96,7 +96,8 @@ def main():
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
         ft['content'] = filetype.content.lower()
-        colnames = pickle.load(open(msid_files['colnames'].abs))
+        colnames = [x for x in pickle.load(open(msid_files['colnames'].abs))
+                    if x not in fetch.IGNORE_COLNAMES]
 
         if not os.path.exists(msid_files['archfiles'].abs):
             logger.info('No archfiles.db3 for %s - skipping'  % ft['content'])
@@ -315,6 +316,7 @@ def update_stats(colname, interval, msid=None):
                 except tables.NoSuchNodeError:
                     table = stats.createTable(stats.root, 'data', vals_stats,
                                               "%s sampling" % interval, expectedrows=2e7)
+
     stats.root.data.flush()
     stats.close()
 
