@@ -21,14 +21,13 @@ import pyyaks.context
 def get_options():
     parser = optparse.OptionParser()
     parser.add_option("--data-root",
-                      default="die",
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--timeout",
-                      default=60,
+                      default=6*3600,
                       type="int",
                       help="Tool timeout before quitting")
     parser.add_option("--sleep-time",
-                      default=5,
+                      default=300,
                       type="int",
                       help="Time to sleep while waiting for files on lucky")
     parser.add_option("--occ",

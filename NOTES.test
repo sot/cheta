@@ -31,18 +31,15 @@ rm -rf test/eng_archive_occ
 rm -rf test/eng_archive 
 tar -x -C test -f test/eng_archive.tar.gz 
 cp -rp test/eng_archive test/eng_archive_occ
-# mkdir test/eng_archive_occ/stage
 
 rm -f test/make_eng_archive.log
 rm -f test/make_eng_archive_occ.log
 touch test/make_eng_archive.log
 touch test/make_eng_archive_occ.log
 
-# foreach doy (274 275 276 277 278 279 280 )
-foreach doy (277 280 )
+foreach doy (271 272 273 274 275 276 277 278 279 280 )
   setenv ENG_ARCHIVE $PWD/test/eng_archive
-  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE --no-stats >>& test/make_eng_archive.log
-  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE --no-full >>& test/make_eng_archive.log
+  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
   ./transfer_stage.py --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
 
   setenv ENG_ARCHIVE $PWD/test/eng_archive_occ
@@ -57,10 +54,11 @@ end
 
 cd test
   unsetenv ENG_ARCHIVE
-  ./get_regr_vals.py --start 2010:265 --stop 2010:276
+  ./get_regr_vals.py --start 2010:265 --stop 2010:279
   setenv ENG_ARCHIVE $PWD/eng_archive_occ
-  ./get_regr_vals.py --test --start 2010:265 --stop 2010:276
+  ./get_regr_vals.py --test --start 2010:265 --stop 2010:279
   ./compare_regr_vals.py
 cd ..
 
 ## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df
+## 2011-Feb-20: All tests pass for rev 60
