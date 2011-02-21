@@ -1,1 +1,8 @@
 include Ska/engarchive/units_*.pkl
+include Makefile
+include update_archive.py
+include transfer_stage.py
+include archfiles_def.sql 
+include filetypes*.dat 
+include task_schedule*.cfg 
+include msid_bad_times.dat
