@@ -74,6 +74,7 @@ def transfer_lucky_to_stage():
     # Open lucky ftp connection and watch for tarfile(s) in '/taldcroft/eng_archive'
     logger.info('ftp to lucky')
     ftp = Ska.ftp.FTP('lucky')
+    ftp.set_pasv(False) # req'd on GRETA network
     ftp.cd('/taldcroft')
     files = ftp.ls()
     if 'eng_archive' not in files:
