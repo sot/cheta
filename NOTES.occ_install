@@ -1,0 +1,15 @@
+- Finish rsync-ing content over to OCC
+- rsync stage to OCC
+- Update HEAD skare and skare-occ to Ska.engarchive 0.12 (but don't push to $hg yet)
+- Pull changes to OCC skare-occ
+- Install skare-occ and engarchive 0.12
+X Test fetch
+- Try transfer_stage on HEAD LAN.  If ftp is OK, then run transfer stage on OCC.
+- Test update_archive on OCC:  OR better, use test eng_archive data repository
+   - Make backup copy of simcoor stage files and simcoor msid files
+   - update_archive.py --occ --content simcoor
+- Test results
+- Install engarchive 0.12 on HEAD
+- Set up OCC cron job with task_schedule_occ.cfg
+- Other testing then, maybe with a manual run of task_schedule on either side?
+
