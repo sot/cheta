@@ -112,9 +112,19 @@ rm -rf test/eng_archive/*
 rm -f test/make_eng_archive.log
 touch test/make_eng_archive.log
 
+## If no previous tarfile is available:
+echo "Making regr data..."
+./make_regr_data.py --start 2010:260 --stop 2010:270 --data-root test/eng_archive >>& test/make_eng_archive.log
+
+echo "Tarring..."
+pushd test
+tar zcf eng_archive.tar.gz eng_archive
+popd
+
+## If a previous tarfile is available (recommended)
 echo "Restoring tar..."
 pushd test
-tar xf eng_archive.7cb31b.tar.gz
+tar xf eng_archive.<previous>.tar.gz
 popd
 
 setenv ENG_ARCHIVE $PWD/test/eng_archive
@@ -151,7 +161,7 @@ test/make_plots.py
 unsetenv ENG_ARCHIVE
 pushd test
 ./get_regr_vals.py --start 2010:265 --stop 2010:285 --test 
-cp regr_vals.7cb31b.flight regr_vals.flight
+./get_regr_vals.py --start 2010:265 --stop 2010:285
 ./compare_regr_vals.py
 popd
 

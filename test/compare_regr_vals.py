@@ -18,15 +18,19 @@ opt, args = get_options()
 flight = pickle.load(open(opt.root + '.flight'))
 test = pickle.load(open(opt.root + '.test'))
 
-msids = ('1crat', 'fptemp_11', 'orbitephem0_x', 'sim_z', 'tephin')
+msids = ('1crat', 'fptemp_11', 'orbitephem0_x', 'sim_z', 'tephin', 'cvcductr')
 attrs = ('times', 'vals', 'quals', 'stds', 'mins', 'maxes', 'means',
          'p01s', 'p05s', 'p16s', 'p50s', 'p84s', 'p95s', 'p99s')
 
 for msid in msids:
     for stat in ('dat', 'dat5', 'datd'):
         for attr in attrs:
-            f = flight[msid][stat]
-            t = test[msid][stat]
+            try:
+                f = flight[msid][stat]
+                t = test[msid][stat]
+            except KeyError:
+                print 'MSID={} stat={} missing in flight or test data'.format(msid, stat)
+                continue
             if attr not in f:
                 continue
             print 'Checking', msid, stat, attr,

@@ -34,7 +34,7 @@ import Ska.engarchive.fetch as fetch
 print 'Fetch file is', fetch.__file__
 print 'ENG_ARCHIVE is', os.environ.get('ENG_ARCHIVE')
 
-msids = ('1crat', 'fptemp_11', 'orbitephem0_x', 'sim_z', 'tephin')
+msids = ('1crat', 'fptemp_11', 'orbitephem0_x', 'sim_z', 'tephin', 'cvcductr')
 attrs = ('times', 'vals', 'quals', 'stds', 'mins', 'maxes', 'means',
          'p01s', 'p05s', 'p16s', 'p50s', 'p84s', 'p95s', 'p99s')
 out = dict()

@@ -39,7 +39,7 @@ def get_options():
                       default="test_eng_archive",
                       help="Engineering archive root directory for MSID files")
     parser.add_option("--contents",
-                      default="acis2eng,acisdeahk,orbitephem0,simcoor,thm1eng",
+                      default="acis2eng,acisdeahk,orbitephem0,simcoor,thm1eng,ccdm4eng",
                       help="Content type to process (default = all)")
     return parser.parse_args()
 
@@ -162,6 +162,11 @@ test_arch_files = pyyaks.context.ContextDict('arch_files', basedir=opt.data_root
 test_arch_files.update(file_defs.arch_files)
 
 contents = [x.lower() for x in opt.contents.split(',')]
+if 'all' in contents:
+    filetypes = asciitable.read(msid_files['filetypes'].abs)
+    contents = [x['content'].lower() for x in filetypes]
+    print contents
+
 for content in contents:
     ft['content'] = content
     logger.info("Making content {0}".format(content.upper()))
