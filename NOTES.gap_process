@@ -1,0 +1,27 @@
+In the case where there is a gap in telemetry that really needs to be skipped
+over then do the procedure below.  An example is the safemode from 2011:187.
+
+** ERROR - line 1790: 2011-07-14 06:05:09,378 WARNING: found gap of 2100.00 secs 
+  between archfiles anglesf426340500N001_eph1.fits.gz and anglesf426344400N001_eph1.fits.gz
+** ERROR - line 66288: 2011-07-14 08:13:24,853 WARNING: found gap of 106.92 secs 
+  between archfiles simf426340586N001_coor0a.fits.gz and simf426342628N001_coor0a.fits.gz
+
+****************************************************************************
+*** ONLY run this is the gaps are understood and acceptable.  This procedure
+    is set to allow gaps up to 1000000 sec (~12 days)
+****************************************************************************
+
+Check initial conditions
+=========================
+- HEAD task_sched.cfg has been run and all other filetypes are up to date.  
+- OCC task_sched.cfg has been run successfully on the tar output from the 
+  HEAD version.  [I.e. OCC is synced to latest HEAD]
+- Lucky dir /taldcroft/eng_archive is empty.
+
+Run it:
+
+rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
+
+/proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap.cfg
+  - OR at the OCC -
+/proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
