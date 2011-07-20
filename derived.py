@@ -39,6 +39,34 @@ def get_data(rootparams, t1, t2):
     data.interpolate(dt=timestep)
     return data
 
+
+class DerivedParam(object):
+    def calc(self, data):
+        raise NotImplementedError
+
+    def __call__(self, start, stop):
+        data = fetch_eng.MSIDset(rootparams, start, stop, filter_bad=True)
+        # timestep = np.min([np.median(np.diff(data[name].times)) for name in rootparams])
+        data.interpolate(dt=self.timestep)
+
+        return self.calc(data)
+
+class CalcEE_AXIAL(DerivedParameter):
+    rootparams = ['OHRTHR58', 'OHRTHR12', 'OHRTHR36', 'OHRTHR56', 'OHRTHR57',
+                  'OHRTHR55', 'OHRTHR35', 'OHRTHR37', 'OHRTHR34', 'OHRTHR13',
+                  'OHRTHR10', 'OHRTHR11']
+    timestep = 0.25625
+
+    def calc(self, data):
+        HYPAVE = (data['OHRTHR12'].vals + data['OHRTHR13'].vals + data['OHRTHR36'].vals
+                  + data['OHRTHR37'].vals + data['OHRTHR57'].vals + data['OHRTHR58'].vals) / 6.0
+        PARAVE = (data['OHRTHR10'].vals + data['OHRTHR11'].vals + data['OHRTHR34'].vals
+                  + data['OHRTHR35'].vals + data['OHRTHR55'].vals + data['OHRTHR56'].vals) / 6.0
+        HAAG = PARAVE - HYPAVE
+        DTAXIAL = np.abs(1.0 * HAAG)
+        EE_AXIAL = DTAXIAL * 0.0034
+        return (EE_AXIAL, data.times)
+
 #-----------------------------------------------
 def calcEE_AXIAL(t1, t2, stat=None):
     """Calculate axial contribution to encircled energy.
