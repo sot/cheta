@@ -3,24 +3,58 @@ import numpy as np
 
 # no zone 21,22,56,70-74?
 
+# See PEP8 http://www.python.org/dev/peps/pep-0008/
 
-#-----------------------------------------------
-def calcEE_AXIAL(t1,t2,*args):
-    derrparam = 'EE_AXIAL'
-    eqnparams = ['DTAXIAL','HYPAVE','PARAVE','EE_AXIAL','HAAG']
-    rootparams = ['OHRTHR58','OHRTHR12','OHRTHR36','OHRTHR56','OHRTHR57','OHRTHR55','OHRTHR35','OHRTHR37','OHRTHR34','OHRTHR13','OHRTHR10','OHRTHR11']
-    if args:
-        data = fetch_eng.MSIDset(rootparams,t1,t2,stat=args[0])
+# In [1]: import Ska.engarchive.fetch_eng as fetch
+# In [2]: dats = fetch.MSIDset(['tephin', '5ephint'], '2011:100', '2011:105')
+# In [3]: dats.interpolate(dt=8.2)
+# In [5]: dats['tephin'].times[:40] - dats['tephin'].times[0]
+# Out[5]: 
+# array([   0.        ,    0.        ,    0.        ,   32.80000168,
+#          32.80000168,   32.80000168,   32.80000168,   65.60000342,
+#          65.60000342,   65.60000342,   65.60000342,   98.4000051 ,
+#          98.4000051 ,   98.4000051 ,   98.4000051 ,  131.20000678,
+#         ...
+#         295.20001531,  295.20001531,  295.20001531,  328.00001699])
+# In [6]: dats.times[:40] - dats['tephin'].times[0]
+# Out[6]: 
+# array([  -6.59606242,    1.60393757,    9.80393755,   18.00393754,
+#          26.20393753,   34.40393752,   42.60393751,   50.80393749,
+#          59.00393748,   67.20393747,   75.40393746,   83.60393745,
+#         ...
+#         288.60393715,  296.80393714,  305.00393713,  313.20393711])
+
+def get_data_old(rootparams, t1, t2, stat):
+    if stat:
+        data = fetch_eng.MSIDset(rootparams, t1, t2, stat=stat)
     else:
-        data = fetch_eng.MSIDset(rootparams,t1,t2,filter_bad=True)
+        data = fetch_eng.MSIDset(rootparams, t1, t2, filter_bad=True)
     timestep = np.min([np.median(np.diff(data[name].times)) for name in rootparams])
     data.interpolate(dt=timestep)
-    HYPAVE = (data['OHRTHR12'].vals+data['OHRTHR13'].vals+data['OHRTHR36'].vals+data['OHRTHR37'].vals+data['OHRTHR57'].vals+data['OHRTHR58'].vals)/6
-    PARAVE = (data['OHRTHR10'].vals+data['OHRTHR11'].vals+data['OHRTHR34'].vals+data['OHRTHR35'].vals+data['OHRTHR55'].vals+data['OHRTHR56'].vals)/6
-    HAAG = PARAVE-HYPAVE
-    DTAXIAL = np.abs(1.0*HAAG)
-    EE_AXIAL = DTAXIAL*0.0034
-    return (EE_AXIAL,data['OHRTHR58'].times)
+    return data
+
+def get_data(rootparams, t1, t2):
+    data = fetch_eng.MSIDset(rootparams, t1, t2, filter_bad=True)
+    timestep = np.min([np.median(np.diff(data[name].times)) for name in rootparams])
+    data.interpolate(dt=timestep)
+    return data
+
+#-----------------------------------------------
+def calcEE_AXIAL(t1, t2, stat=None):
+    """Calculate axial contribution to encircled energy.
+    """
+    rootparams = ['OHRTHR58', 'OHRTHR12', 'OHRTHR36', 'OHRTHR56', 'OHRTHR57',
+                  'OHRTHR55', 'OHRTHR35', 'OHRTHR37', 'OHRTHR34', 'OHRTHR13',
+                  'OHRTHR10', 'OHRTHR11']
+    data = get_data(rootparams, t1, t2)
+    HYPAVE = (data['OHRTHR12'].vals + data['OHRTHR13'].vals + data['OHRTHR36'].vals
+              + data['OHRTHR37'].vals + data['OHRTHR57'].vals + data['OHRTHR58'].vals) / 6.0
+    PARAVE = (data['OHRTHR10'].vals + data['OHRTHR11'].vals + data['OHRTHR34'].vals
+              + data['OHRTHR35'].vals + data['OHRTHR55'].vals + data['OHRTHR56'].vals) / 6.0
+    HAAG = PARAVE - HYPAVE
+    DTAXIAL = np.abs(1.0 * HAAG)
+    EE_AXIAL = DTAXIAL * 0.0034
+    return (EE_AXIAL, data.times)
 
 
 #-----------------------------------------------
