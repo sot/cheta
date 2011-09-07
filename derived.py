@@ -55,7 +55,7 @@ class CalcEE_AXIAL(DerivedParameter):
     rootparams = ['OHRTHR58', 'OHRTHR12', 'OHRTHR36', 'OHRTHR56', 'OHRTHR57',
                   'OHRTHR55', 'OHRTHR35', 'OHRTHR37', 'OHRTHR34', 'OHRTHR13',
                   'OHRTHR10', 'OHRTHR11']
-    timestep = 0.25625
+    timestep = 1 # minor frames
 
     def calc(self, data):
         HYPAVE = (data['OHRTHR12'].vals + data['OHRTHR13'].vals + data['OHRTHR36'].vals
