@@ -46,6 +46,8 @@ def get_options():
                       action="store_true",
                       default=False,  
                       help="Fix errors in ingest file order")
+    parser.add_option("--truncate",
+                      help="Truncate archive after <date> (CAUTION!!)")
     parser.add_option("--max-lookback-time",
                       type='float',
                       default=2e6,
@@ -56,6 +58,10 @@ def get_options():
     parser.add_option("--max-gap",
                       type='float',
                       help="Maximum time gap between archive files")
+    parser.add_option("--max-arch-files",
+                      type='int',
+                      default=100,
+                      help="Maximum number of archive files to ingest at once")
     parser.add_option("--data-root",
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--occ",
@@ -104,6 +110,10 @@ def main():
             continue
 
         logger.info('Processing %s content type', ft['content'])
+
+        if opt.truncate:
+            truncate_archive(filetype, opt.truncate)
+            continue
 
         if opt.fix_misorders:
             misorder_time = fix_misorders(filetype)
@@ -370,9 +380,51 @@ def append_h5_col(dats, colname, files_overlaps):
             if not opt.dry_run:
                 logger.verbose('Removing overlapping data in rows {0}:{1}'.format(
                     bad_rowstart, bad_rowstop))
-                h5.root.quality[bad_rowstart:bad_rowstop] = True
+                if  bad_rowstop > bad_rowstart:
+                    h5.root.quality[bad_rowstart:bad_rowstop] = True
+                else:
+                    logger.verbose('Unexpected null file overlap file0=%s file1=%s'
+                                   % (file0, file1))
 
     h5.close()
+
+
+def truncate_archive(filetype, date):
+    """Truncate msid and statfiles for every archive file after date (to nearest
+    year:doy)
+    """
+    colnames = pickle.load(open(msid_files['colnames'].abs))
+    
+    date = DateTime(date).date
+    year, doy = date[0:4], date[5:8]
+
+    # Setup db handle with autocommit=False so that error along the way aborts insert transactions
+    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
+
+    # Get the earliest row number from the archfiles table where year>=year and doy=>doy
+    out = db.fetchall('SELECT rowstart FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+    if len(out) == 0:
+        return
+    rowstart = out['rowstart'].min()
+    time0 = DateTime("{0}:{1}:00:00:00".format(year, doy)).secs
+
+    for colname in colnames:
+        ft['msid'] = colname
+        if not opt.dry_run:
+            h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+            h5.root.data.truncate(rowstart)
+            h5.root.quality.truncate(rowstart)
+            h5.close()
+        logger.verbose('Removed rows from {0} for filetype {1}:{2}'.format(
+            rowstart, filetype['content'], colname))
+        
+        # Delete the 5min and daily stats, with a little extra margin
+        del_stats(colname, time0, '5min')
+        del_stats(colname, time0, 'daily')
+
+    if not opt.dry_run:
+        db.execute('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+    logger.verbose('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
 
 
 def update_msid_files(filetype, archfiles):
@@ -531,9 +583,11 @@ def get_archive_files(filetype):
     
     # If running on the OCC GRETA network the cwd is a staging directory that
     # could already have files.  Also used in testing.
+    # Don't return more than opt.max_arch_files files at once because of memory
+    # issues on gretasot.  This only comes up when there has been some problem or stoppage.
     files = sorted(glob.glob(filetype['fileglob']))
     if opt.occ or files:
-        return sorted(files)
+        return sorted(files)[:opt.max_arch_files]
 
     # Retrieve CXC archive files in a temp directory with arc5gl
     arc5 = Ska.arc5gl.Arc5gl(echo=True)
