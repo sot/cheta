@@ -384,7 +384,7 @@ def append_h5_col(dats, colname, files_overlaps):
                 if  bad_rowstop > bad_rowstart:
                     h5.root.quality[bad_rowstart:bad_rowstop] = True
                 else:
-                    logger.verbose('Unexpected null file overlap file0=%s file1=%s'
+                    logger.verbose('WARNING: Unexpected null file overlap file0=%s file1=%s'
                                    % (file0, file1))
 
     h5.close()
