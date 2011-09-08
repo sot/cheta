@@ -50,8 +50,8 @@ def get_options():
                       help="Truncate archive after <date> (CAUTION!!)")
     parser.add_option("--max-lookback-time",
                       type='float',
-                      default=2e6,
-                      help="Maximum look back time for updating statistics (seconds)")
+                      default=60,
+                      help="Maximum look back time for updating statistics (days)")
     parser.add_option("--date-now",
                       default=DateTime().date,
                       help="Set effective processing date for testing (default=NOW)")
@@ -143,7 +143,7 @@ def fix_misorders(filetype):
 
       update_archive.py --dry-run --fix-misorders --content misc3eng
       update_archive.py --fix-misorders --content misc3eng >& fix_misc3.log 
-      update_archive.py --content misc3eng --max-lookback-time 8640000 >>& fix_misc3.log 
+      update_archive.py --content misc3eng --max-lookback-time 100 >>& fix_misc3.log 
 
     In the --dry-run it is important to verify that the gap is really just from
     two mis-ordered files that can be swapped.  Look at the rowstart,rowstop values
@@ -308,7 +308,8 @@ def update_stats(colname, interval, msid=None):
     # up to date then do not look back beyond a certain point.
     if msid is None:
         # fetch telemetry plus a little extra
-        time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time, index0 * dt - 500)  
+        time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time * 86400,
+                    index0 * dt - 500)  
         time1 = DateTime(opt.date_now).secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
@@ -424,6 +425,7 @@ def truncate_archive(filetype, date):
 
     if not opt.dry_run:
         db.execute('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+        db.commit()
     logger.verbose('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
 
 
@@ -451,7 +453,8 @@ def update_msid_files(filetype, archfiles):
         # Check if filename is already in archfiles.  If so then abort further processing.
         filename = os.path.basename(f)
         if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
-            logger.verbose('File %s already in archfiles - skipping' % filename)
+            logger.verbose('File %s already in archfiles - unlinking and skipping' % f)
+            os.unlink(f)
             continue
 
         # Read FITS archive file and accumulate data into dats list and header into headers dict
@@ -560,6 +563,8 @@ def move_archive_files(filetype, archfiles):
         os.makedirs(stagedir)
 
     for f in archfiles:
+        if not os.path.exists(f):
+            continue
         ft['basename'] = os.path.basename(f)
         tstart = re.search(r'(\d+)', str(ft['basename'])).group(1)
         datestart = DateTime(tstart).date
@@ -572,11 +577,15 @@ def move_archive_files(filetype, archfiles):
             os.makedirs(archdir)
 
         if not os.path.exists(archfile):
-            logger.info('mv %s %s' % (f, archfile))
+            logger.info('mv %s %s' % (os.path.abspath(f), archfile))
             if not opt.dry_run:
                 if not opt.occ:
                     shutil.copy2(f, stagedir)
                 shutil.move(f, archfile)
+
+        if os.path.exists(f):
+            logger.verbose('Unlinking %s' % os.path.abspath(f))
+            os.unlink(f)
 
 def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
