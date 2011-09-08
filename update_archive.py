@@ -46,16 +46,22 @@ def get_options():
                       action="store_true",
                       default=False,  
                       help="Fix errors in ingest file order")
+    parser.add_option("--truncate",
+                      help="Truncate archive after <date> (CAUTION!!)")
     parser.add_option("--max-lookback-time",
                       type='float',
-                      default=2e6,
-                      help="Maximum look back time for updating statistics (seconds)")
+                      default=60,
+                      help="Maximum look back time for updating statistics (days)")
     parser.add_option("--date-now",
                       default=DateTime().date,
                       help="Set effective processing date for testing (default=NOW)")
     parser.add_option("--max-gap",
                       type='float',
                       help="Maximum time gap between archive files")
+    parser.add_option("--max-arch-files",
+                      type='int',
+                      default=100,
+                      help="Maximum number of archive files to ingest at once")
     parser.add_option("--data-root",
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--occ",
@@ -105,6 +111,10 @@ def main():
 
         logger.info('Processing %s content type', ft['content'])
 
+        if opt.truncate:
+            truncate_archive(filetype, opt.truncate)
+            continue
+
         if opt.fix_misorders:
             misorder_time = fix_misorders(filetype)
             if misorder_time:
@@ -133,7 +143,7 @@ def fix_misorders(filetype):
 
       update_archive.py --dry-run --fix-misorders --content misc3eng
       update_archive.py --fix-misorders --content misc3eng >& fix_misc3.log 
-      update_archive.py --content misc3eng --max-lookback-time 8640000 >>& fix_misc3.log 
+      update_archive.py --content misc3eng --max-lookback-time 100 >>& fix_misc3.log 
 
     In the --dry-run it is important to verify that the gap is really just from
     two mis-ordered files that can be swapped.  Look at the rowstart,rowstop values
@@ -298,7 +308,8 @@ def update_stats(colname, interval, msid=None):
     # up to date then do not look back beyond a certain point.
     if msid is None:
         # fetch telemetry plus a little extra
-        time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time, index0 * dt - 500)  
+        time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time * 86400,
+                    index0 * dt - 500)  
         time1 = DateTime(opt.date_now).secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
@@ -370,9 +381,52 @@ def append_h5_col(dats, colname, files_overlaps):
             if not opt.dry_run:
                 logger.verbose('Removing overlapping data in rows {0}:{1}'.format(
                     bad_rowstart, bad_rowstop))
-                h5.root.quality[bad_rowstart:bad_rowstop] = True
+                if  bad_rowstop > bad_rowstart:
+                    h5.root.quality[bad_rowstart:bad_rowstop] = True
+                else:
+                    logger.verbose('WARNING: Unexpected null file overlap file0=%s file1=%s'
+                                   % (file0, file1))
 
     h5.close()
+
+
+def truncate_archive(filetype, date):
+    """Truncate msid and statfiles for every archive file after date (to nearest
+    year:doy)
+    """
+    colnames = pickle.load(open(msid_files['colnames'].abs))
+    
+    date = DateTime(date).date
+    year, doy = date[0:4], date[5:8]
+
+    # Setup db handle with autocommit=False so that error along the way aborts insert transactions
+    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
+
+    # Get the earliest row number from the archfiles table where year>=year and doy=>doy
+    out = db.fetchall('SELECT rowstart FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+    if len(out) == 0:
+        return
+    rowstart = out['rowstart'].min()
+    time0 = DateTime("{0}:{1}:00:00:00".format(year, doy)).secs
+
+    for colname in colnames:
+        ft['msid'] = colname
+        if not opt.dry_run:
+            h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+            h5.root.data.truncate(rowstart)
+            h5.root.quality.truncate(rowstart)
+            h5.close()
+        logger.verbose('Removed rows from {0} for filetype {1}:{2}'.format(
+            rowstart, filetype['content'], colname))
+        
+        # Delete the 5min and daily stats, with a little extra margin
+        del_stats(colname, time0, '5min')
+        del_stats(colname, time0, 'daily')
+
+    if not opt.dry_run:
+        db.execute('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+        db.commit()
+    logger.verbose('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
 
 
 def update_msid_files(filetype, archfiles):
@@ -399,7 +453,8 @@ def update_msid_files(filetype, archfiles):
         # Check if filename is already in archfiles.  If so then abort further processing.
         filename = os.path.basename(f)
         if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
-            logger.verbose('File %s already in archfiles - skipping' % filename)
+            logger.verbose('File %s already in archfiles - unlinking and skipping' % f)
+            os.unlink(f)
             continue
 
         # Read FITS archive file and accumulate data into dats list and header into headers dict
@@ -508,6 +563,8 @@ def move_archive_files(filetype, archfiles):
         os.makedirs(stagedir)
 
     for f in archfiles:
+        if not os.path.exists(f):
+            continue
         ft['basename'] = os.path.basename(f)
         tstart = re.search(r'(\d+)', str(ft['basename'])).group(1)
         datestart = DateTime(tstart).date
@@ -520,20 +577,26 @@ def move_archive_files(filetype, archfiles):
             os.makedirs(archdir)
 
         if not os.path.exists(archfile):
-            logger.info('mv %s %s' % (f, archfile))
+            logger.info('mv %s %s' % (os.path.abspath(f), archfile))
             if not opt.dry_run:
                 if not opt.occ:
                     shutil.copy2(f, stagedir)
                 shutil.move(f, archfile)
+
+        if os.path.exists(f):
+            logger.verbose('Unlinking %s' % os.path.abspath(f))
+            os.unlink(f)
 
 def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
     
     # If running on the OCC GRETA network the cwd is a staging directory that
     # could already have files.  Also used in testing.
+    # Don't return more than opt.max_arch_files files at once because of memory
+    # issues on gretasot.  This only comes up when there has been some problem or stoppage.
     files = sorted(glob.glob(filetype['fileglob']))
     if opt.occ or files:
-        return sorted(files)
+        return sorted(files)[:opt.max_arch_files]
 
     # Retrieve CXC archive files in a temp directory with arc5gl
     arc5 = Ska.arc5gl.Arc5gl(echo=True)
