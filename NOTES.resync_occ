@@ -1,0 +1,49 @@
+##########################################################################
+## On gretasot on GRETA
+##########################################################################
+
+# TRUNCATE BAD records
+set content=thm1eng
+$ska/share/eng_archive/update_archive.py --occ [--dry-run] [--content $content] \
+   --truncate 2011:205 --data-root /proj/sot/ska/data/eng_archive \
+   >&! run.log &
+tail -f run.log
+
+
+##########################################################################
+## On HEAD side
+##########################################################################
+
+# Make an artificial stage dir using archived CXCDS arch files
+mkdir stage
+./make_resync_stage --date <date>
+# then rsync -a stage/  => mac => GRETA
+
+
+##########################################################################
+## On gretasot on GRETA
+##########################################################################
+
+NOTE: if the duration to be resynced is longer than 60 days you must use
+      the --max-lookback flag!
+
+NOTE: the --data-root flag is needed, default is wrong for OCC
+
+# PRACTICE with single content types
+cd $ska/share/eng_archive
+$ska/share/eng_archive/update_archive.py --occ --content=$content \
+   --data-root /proj/sot/ska/data/eng_archive > & ! run.log &
+tail -f run.log
+
+# Only 100 files at a time are ingested, CCDM4 *crashes* because of memory after ~250 files.
+
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run3.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run4.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run5.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run6.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run7.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run8.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run9.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run10.log
+$ska/share/eng_archive/update_archive.py --occ --data-root /proj/sot/ska/data/eng_archive >& run11.log
+
