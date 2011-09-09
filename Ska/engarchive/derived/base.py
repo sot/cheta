@@ -6,13 +6,15 @@ class DerivedParameter(object):
         raise NotImplementedError
 
     def __call__(self, start, stop):
-        data = fetch_eng.MSIDset(self.rootparams, start, stop, filter_bad=True)
-        for name in self.rootparams:
-            if isinstance(data[name].vals[0],(str,unicode)):
-                if 'ON' in data[name].vals[0] or 'OFF' in data[name].vals[0]:
-                    data[name].vals = np.array([d.strip() == 'ON' for d in data[name].vals])
-                    
-        data.interpolate(dt=self.timestep)
+        dataset = fetch_eng.MSIDset(self.rootparams, start, stop, filter_bad=True)
 
-        return self.calc(data)
+        # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
+        for data in dataset.values():
+            if (data.vals.dtype.name == 'string24'
+                and set(data.vals) == set(('ON ', 'OFF'))):
+                data.vals = np.where(data.vals == 'OFF', 0, 1)
+                    
+        dataset.interpolate(dt=self.timestep)
+
+        return self.calc(dataset)
 
