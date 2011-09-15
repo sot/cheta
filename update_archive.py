@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import with_statement
-
 import re, os , sys
 import glob
 import time
@@ -37,6 +35,11 @@ def get_options():
                       dest="update_full",
                       default=True,
                       help="Do not fetch files from archive and update full-resolution MSID archive")
+    parser.add_option("--no-derived",
+                      action="store_false",
+                      dest="update_derived",
+                      default=True,
+                      help="Do not update derived parameter content types")
     parser.add_option("--no-stats",
                       action="store_false",
                       dest="update_stats",
@@ -88,6 +91,9 @@ arch_files.update(file_defs.arch_files)
 loglevel = pyyaks.logger.VERBOSE
 logger = pyyaks.logger.get_logger(name='engarchive', level=loglevel, format="%(asctime)s %(message)s")
 
+archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',   
+                      'tlmver', 'ascdsver', 'revision', 'date')
+
 def main():
     # Get the archive content filetypes
     filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
@@ -126,6 +132,9 @@ def main():
         if opt.update_full:
             update_archive(filetype)
 
+        if opt.update_derived:
+            update_derived(filetype)
+
         if opt.update_stats:
             for colname in colnames:
                 msid = update_stats(colname, 'daily')
@@ -152,8 +161,6 @@ def fix_misorders(filetype):
     :param filetype: filetype
     :returns: minimum time for all misorders found
     """
-    archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',   
-                          'tlmver', 'ascdsver', 'revision', 'date')
     colnames = pickle.load(open(msid_files['colnames'].abs))
     
     # Setup db handle with autocommit=False so that error along the way aborts insert transactions
@@ -333,10 +340,21 @@ def update_stats(colname, interval, msid=None):
 
     return msid
 
+def update_derived(filetype):
+    """Update full resolution MSID archive files for derived parameters with ``filetype``
+    """
+    # No action for derived content type
+    if filetype.instrum != 'DERIVED':
+        return
+
 def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
     archive files.
     """
+    # No action for derived content type
+    if filetype.instrum == 'DERIVED':
+        return
+
     if opt.occ:
         dirname = arch_files['stagedir'].abs
         if not os.path.exists(dirname):
@@ -429,9 +447,95 @@ def truncate_archive(filetype, date):
     logger.verbose('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
 
 
+def read_archfile(i, f, filetype, row, colnames, archfiles):
+    """Read filename ``f`` with index ``i`` (position within list of filenames).  The
+    file has type ``filetype`` and will be added to MSID file at row index ``row``.
+    ``colnames`` is the list of column names for the content type (not used here).
+    """
+    # Check if filename is already in archfiles.  If so then abort further processing.
+    filename = os.path.basename(f)
+    if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
+        logger.verbose('File %s already in archfiles - unlinking and skipping' % f)
+        os.unlink(f)
+        continue
+
+    # Read FITS archive file and accumulate data into dats list and header into headers dict
+    logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
+    hdus = pyfits.open(f)
+    hdu = hdus[1]
+    dat = converters.convert(hdu.data, filetype['content'])
+
+    # Accumlate relevant info about archfile that will be ingested into
+    # MSID h5 files.  Commit info before h5 ingest so if there is a failure
+    # the needed info will be available to do the repair.
+    archfiles_row = dict((x, hdu.header.get(x.upper())) for x in archfiles_hdr_cols)
+    archfiles_row['checksum'] = hdu._checksum
+    archfiles_row['rowstart'] = row
+    archfiles_row['rowstop'] = row + len(dat)
+    archfiles_row['filename'] = filename
+    archfiles_row['filetime'] = int(re.search(r'(\d+)', archfiles_row['filename']).group(1))
+    filedate = DateTime(archfiles_row['filetime']).date
+    year, doy = (int(x) for x in re.search(r'(\d\d\d\d):(\d\d\d)', filedate).groups())
+    archfiles_row['year'] = year
+    archfiles_row['doy'] = doy
+    hdus.close()
+
+    return dat, archfiles_row
+
+
+def read_derived(i, filename, filetype, row, colnames, archfiles):
+    """Read derived data using eng_archive and derived computation classes.
+    ``filename`` has format <content>_<index0>_<index1> where <content>
+    is the content type (e.g. "dp_thermal128"), <index0> is the start index for
+    the new data and index1 is the end index (using Python slicing convention
+    index0:index1).  Args ``i``, ``filetype``, and ``row`` are as in
+    read_archive().  ``row`` must equal <index0>.  ``colnames`` is the list of
+    column names for the content type.
+    """
+    # Check if filename is already in archfiles.  If so then abort further processing.
+    if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
+        logger.verbose('File %s already in archfiles - skipping' % filename)
+        continue
+
+    # f has format <content>_<index0>_<index1>
+    # <content> has format dp_<content><mnf_step> e.g. dp_thermal128
+    content, index0, index1 = filename.split('_')
+    mnf_step = int(re.search(r'(\d+)$', content).group(1))
+    time_step = mnf_step * derived.MNF_TIME
+    times = time_step * np.arange(int(index0), int(index1))
+    
+    logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
+    vals = {}
+    for colname in colnames:
+        if colname == 'time':
+            vals[colname] = times
+        else:
+            dp_class = getattr(Ska.engarchive.derived, colname.upper())
+            dp = dp_class()
+            dataset = dp.fetch(times[0] - 1000, times[-1] + 1000)
+            vals[colname] = dp.calc(dataset)
+
+    dat = structured_array(vals, colnames)
+
+    # Accumlate relevant info about archfile that will be ingested into
+    # MSID h5 files.  Commit info before h5 ingest so if there is a failure
+    # the needed info will be available to do the repair.
+    date = DateTime(times[0]).date
+    year, doy = date[0:4], date[5:8]
+    archfiles_row = dict(filename=filename,
+                         filetime=int(index0 * time_step),
+                         year=year,
+                         doy=doy,
+                         tstart=times[0],
+                         tstop=times[-1],
+                         rowstart=row,
+                         rowstop=row + len(dat),
+                         date=date)
+
+    return dat, archfiles_row
+
+
 def update_msid_files(filetype, archfiles):
-    archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',   
-                          'tlmver', 'ascdsver', 'revision', 'date')
     colnames = pickle.load(open(msid_files['colnames'].abs))
     colnames_all = pickle.load(open(msid_files['colnames_all'].abs))
     old_colnames = colnames.copy()
@@ -449,36 +553,11 @@ def update_msid_files(filetype, archfiles):
     archfiles_rows = []
     dats = []
 
+    content_is_derived = (filetype['INSTRUM'] == 'DERIVED')
+
     for i, f in enumerate(archfiles):
-        # Check if filename is already in archfiles.  If so then abort further processing.
-        filename = os.path.basename(f)
-        if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
-            logger.verbose('File %s already in archfiles - unlinking and skipping' % f)
-            os.unlink(f)
-            continue
-
-        # Read FITS archive file and accumulate data into dats list and header into headers dict
-        logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
-        hdus = pyfits.open(f)
-        hdu = hdus[1]
-        dat = converters.convert(hdu.data, filetype['content'])
-
-        # Accumlate relevant info about archfile that will be ingested into
-        # MSID h5 files.  Commit info before h5 ingest so if there is a failure
-        # the needed info will be available to do the repair.
-        archfiles_row = dict((x, hdu.header.get(x.upper())) for x in archfiles_hdr_cols)
-        archfiles_row['checksum'] = hdu._checksum
-        archfiles_row['rowstart'] = row
-        archfiles_row['rowstop'] = row + len(dat)
-        archfiles_row['filename'] = filename
-        archfiles_row['filetime'] = int(re.search(r'(\d+)', archfiles_row['filename']).group(1))
-        filedate = DateTime(archfiles_row['filetime']).date
-        year, doy = (int(x) for x in re.search(r'(\d\d\d\d):(\d\d\d)', filedate).groups())
-        archfiles_row['year'] = year
-        archfiles_row['doy'] = doy
-
-        hdus.close()
-        del hdus
+        get_data = (read_derived if content_is_derived else read_archfile)
+        dat, archfiles_row = get_data(i, f, filetype, row, colnames, archfiles)
 
         # Ensure that the time gap between the end of the last ingested archive
         # file and the start of this one is less than opt.max_gap (or
@@ -510,7 +589,7 @@ def update_msid_files(filetype, archfiles):
         # This breaks things, so in this case just skip the file.  However
         # since last_archfile is set above the gap check considers this file to
         # have been ingested.
-        if dat.field('QUALITY').shape[1] != len(dat.dtype.names):
+        if not content_is_derived and dat.field('QUALITY').shape[1] != len(dat.dtype.names):
             logging.warning('WARNING: skipping because of quality size mismatch: %d %d' %
                             (dat.field('QUALITY').shape[1], len(dat.dtype.names)))
             continue
@@ -624,6 +703,17 @@ def get_archive_files(filetype):
         arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
 
     return sorted(glob.glob(filetype['fileglob']))
+
+def structured_array(vals, colnames):
+    lens = set(len(vals[x]) for x in colnames)
+    if len(lens) != 1:
+        raise ValueError('Inconsistent length of input arrays')
+
+    dat = np.ndarray(lens.pop(), dtype=[(x, vals[x].dtype) for x in colnames])
+    for colname in colnames:
+        dat[colname] = vals[colname]
+
+    return dat
 
 if __name__ == '__main__':
     main()

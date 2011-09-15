@@ -1,3 +1,4 @@
-from .base import DerivedParameter
+from .base import *
 
-from .thermal import *
+# from .thermal import *
+from .test import *
