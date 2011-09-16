@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-import re, os , sys
+import re
+import os
+import sys
 import glob
 import time
 import cPickle as pickle
@@ -23,7 +25,10 @@ import scipy.stats.mstats
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.converters as converters
 import Ska.engarchive.file_defs as file_defs
+import Ska.engarchive.derived as derived
 import Ska.arc5gl
+
+from IPython.Debugger import Tracer
 
 def get_options():
     parser = optparse.OptionParser()
@@ -66,6 +71,7 @@ def get_options():
                       default=100,
                       help="Maximum number of archive files to ingest at once")
     parser.add_option("--data-root",
+                      default=".",
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--occ",
                       action="store_true",
@@ -99,7 +105,8 @@ def main():
     filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
     if opt.content:
         contents = [x.upper() for x in opt.content]
-        filetypes = [x for x in filetypes if x.content in contents]
+        filetypes = [x for x in filetypes
+                     if any(re.match(y, x.content) for y in contents)]
 
     # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
     # debug()
@@ -130,10 +137,10 @@ def main():
             continue
         
         if opt.update_full:
-            update_archive(filetype)
-
-        if opt.update_derived:
-            update_derived(filetype)
+            if filetype['instrum'] == 'DERIVED':
+                update_derived(filetype)
+            else:
+                update_archive(filetype)
 
         if opt.update_stats:
             for colname in colnames:
@@ -343,18 +350,71 @@ def update_stats(colname, interval, msid=None):
 def update_derived(filetype):
     """Update full resolution MSID archive files for derived parameters with ``filetype``
     """
-    # No action for derived content type
-    if filetype.instrum != 'DERIVED':
-        return
+    # Get the last H5 table row from archfiles table for this content type
+    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
+    last_row = db.fetchone('SELECT * FROM archfiles ORDER BY filetime DESC')
+
+    # Set the starting index from the last row in archfiles.  This
+    # uses Python slicing conventions so that the previous "end"
+    # value is exactly the next "start" values, e.g. [index0:index1]
+    # For derived parameters we have stopmjf <==> index1 
+    index0 = last_row['stopmjf']  
+    
+    # Get the full set of rootparams for all colnames
+    colnames = pickle.load(open(msid_files['colnames'].abs))
+    colnames = [x for x in colnames if x.startswith('DP_')]
+    msids = set()
+    for colname in colnames:
+        dp_class = getattr(derived, colname)
+        dp = dp_class()
+        msids = msids.union([x.upper() for x in dp.rootparams])
+        time_step = dp.time_step  # will be the same for every DP
+
+    # Find the last time in archive for each of the content types
+    # occuring in the list of rootparam MSIDs.
+    # fetch.content is a mapping from MSID to content type
+    last_times = {}
+    ft_content = ft['content'].val
+    for msid in msids:
+        ft['msid'] = 'TIME'
+        content = ft['content'] = fetch.content[msid]
+        if content not in last_times:
+            h5 = tables.openFile(fetch.msid_files['msid'].abs, mode='r')
+            last_times[content] = h5.root.data[-1]
+            h5.close()
+    last_time = min(last_times.values()) - 1000
+    ft['content'] = ft_content
+
+    # Make a list of indexes that will correspond to the index/time ranges
+    # for each pseudo-"archfile".  In this context an archfile just specifies
+    # the time range covered by an ingest, but is needed by fetch to roughly
+    # locate rows in the H5 file for fast queries.  Each archfile is 50000 sec
+    # long, and when updating the database no more than 1000000 seconds of
+    # telemetry will be read at one time.  
+    archfile_time_step = 200000.0
+    max_archfiles = int(1000000.0 / archfile_time_step)
+
+    # Read data out to either date_now or the last available time in telemetry.
+    # opt.date_now could be set in the past for testing.
+    index_step = int(round(archfile_time_step / time_step))
+    time1 = min(DateTime(opt.date_now).secs, last_time)
+    index1 = int(time1 / time_step)
+    indexes = np.arange(index0, index1, index_step)
+
+    archfiles = []
+    for index0, index1 in zip(indexes[:-1], indexes[1:]):
+        archfiles.append('{}:{}:{}'.format(filetype['content'], index0, index1))
+        if len(archfiles) == max_archfiles or index1 == indexes[-1]:
+            update_msid_files(filetype, archfiles)
+            logger.verbose('update_msid_files(filetype={}, archfiles={})'.format(filetype, archfiles))
+            archfiles = []
 
 def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
     archive files.
     """
-    # No action for derived content type
-    if filetype.instrum == 'DERIVED':
-        return
-
+    raise RunTimeError("SHOULD NOT BE HERE!!!")
+    
     if opt.occ:
         dirname = arch_files['stagedir'].abs
         if not os.path.exists(dirname):
@@ -380,8 +440,8 @@ def append_h5_col(dats, colname, files_overlaps):
         return list(dat.dtype.names).index(colname)
 
     h5 = tables.openFile(msid_files['msid'].abs, mode='a')
-    stacked_data = np.hstack([x.field(colname) for x in dats])
-    stacked_quality = np.hstack([x.field('QUALITY')[:,i_colname(x)] for x in dats])
+    stacked_data = np.hstack([x[colname] for x in dats])
+    stacked_quality = np.hstack([x['QUALITY'][:, i_colname(x)] for x in dats])
     logger.verbose('Appending %d items to %s' % (len(stacked_data), msid_files['msid'].abs))
     if not opt.dry_run:
         h5.root.data.append(stacked_data)
@@ -447,7 +507,7 @@ def truncate_archive(filetype, date):
     logger.verbose('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
 
 
-def read_archfile(i, f, filetype, row, colnames, archfiles):
+def read_archfile(i, f, filetype, row, colnames, archfiles, db):
     """Read filename ``f`` with index ``i`` (position within list of filenames).  The
     file has type ``filetype`` and will be added to MSID file at row index ``row``.
     ``colnames`` is the list of column names for the content type (not used here).
@@ -457,7 +517,7 @@ def read_archfile(i, f, filetype, row, colnames, archfiles):
     if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
         logger.verbose('File %s already in archfiles - unlinking and skipping' % f)
         os.unlink(f)
-        continue
+        return None, None
 
     # Read FITS archive file and accumulate data into dats list and header into headers dict
     logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
@@ -483,7 +543,7 @@ def read_archfile(i, f, filetype, row, colnames, archfiles):
     return dat, archfiles_row
 
 
-def read_derived(i, filename, filetype, row, colnames, archfiles):
+def read_derived(i, filename, filetype, row, colnames, archfiles, db):
     """Read derived data using eng_archive and derived computation classes.
     ``filename`` has format <content>_<index0>_<index1> where <content>
     is the content type (e.g. "dp_thermal128"), <index0> is the start index for
@@ -493,29 +553,37 @@ def read_derived(i, filename, filetype, row, colnames, archfiles):
     column names for the content type.
     """
     # Check if filename is already in archfiles.  If so then abort further processing.
+
     if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
         logger.verbose('File %s already in archfiles - skipping' % filename)
-        continue
+        return None, None
 
     # f has format <content>_<index0>_<index1>
     # <content> has format dp_<content><mnf_step> e.g. dp_thermal128
-    content, index0, index1 = filename.split('_')
+    content, index0, index1 = filename.split(':')
+    index0 = int(index0)
+    index1 = int(index1)
     mnf_step = int(re.search(r'(\d+)$', content).group(1))
     time_step = mnf_step * derived.MNF_TIME
-    times = time_step * np.arange(int(index0), int(index1))
+    times = time_step * np.arange(index0, index1)
     
     logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
     vals = {}
-    for colname in colnames:
-        if colname == 'time':
+    bads = np.zeros((len(times), len(colnames)), dtype=np.bool)
+    for i, colname in enumerate(colnames):
+        if colname == 'TIME':
             vals[colname] = times
+            bads[:, i] = False
         else:
             dp_class = getattr(Ska.engarchive.derived, colname.upper())
             dp = dp_class()
             dataset = dp.fetch(times[0] - 1000, times[-1] + 1000)
-            vals[colname] = dp.calc(dataset)
+            ok = (index0 <= dataset.indexes) & (dataset.indexes < index1)
+            vals[colname] = dp.calc(dataset)[ok]
+            bads[:, i] = dataset.bads[ok]
 
-    dat = structured_array(vals, colnames)
+    vals['QUALITY'] = bads
+    dat = structured_array(vals, list(colnames) + ['QUALITY'])
 
     # Accumlate relevant info about archfile that will be ingested into
     # MSID h5 files.  Commit info before h5 ingest so if there is a failure
@@ -530,6 +598,8 @@ def read_derived(i, filename, filetype, row, colnames, archfiles):
                          tstop=times[-1],
                          rowstart=row,
                          rowstop=row + len(dat),
+                         startmjf=index0,
+                         stopmjf=index1,
                          date=date)
 
     return dat, archfiles_row
@@ -553,11 +623,13 @@ def update_msid_files(filetype, archfiles):
     archfiles_rows = []
     dats = []
 
-    content_is_derived = (filetype['INSTRUM'] == 'DERIVED')
+    content_is_derived = (filetype['instrum'] == 'DERIVED')
 
     for i, f in enumerate(archfiles):
         get_data = (read_derived if content_is_derived else read_archfile)
-        dat, archfiles_row = get_data(i, f, filetype, row, colnames, archfiles)
+        dat, archfiles_row = get_data(i, f, filetype, row, colnames, archfiles, db)
+        if dat is None:
+            continue
 
         # Ensure that the time gap between the end of the last ingested archive
         # file and the start of this one is less than opt.max_gap (or
@@ -567,7 +639,7 @@ def update_msid_files(filetype, archfiles):
         time_gap = archfiles_row['tstart'] - last_archfile['tstop']
         max_gap = opt.max_gap
         if max_gap is None:
-            if filetype['instrum'] == 'EPHEM':
+            if filetype['instrum'] in ['EPHEM', 'DERIVED']:
                 max_gap = 601
             elif filetype['content'] == 'ACISDEAHK':
                 max_gap = 3600
@@ -589,9 +661,9 @@ def update_msid_files(filetype, archfiles):
         # This breaks things, so in this case just skip the file.  However
         # since last_archfile is set above the gap check considers this file to
         # have been ingested.
-        if not content_is_derived and dat.field('QUALITY').shape[1] != len(dat.dtype.names):
+        if not content_is_derived and dat['QUALITY'].shape[1] != len(dat.dtype.names):
             logging.warning('WARNING: skipping because of quality size mismatch: %d %d' %
-                            (dat.field('QUALITY').shape[1], len(dat.dtype.names)))
+                            (dat['QUALITY'].shape[1], len(dat.dtype.names)))
             continue
 
         # Mark the archfile as ingested in the database
@@ -709,7 +781,8 @@ def structured_array(vals, colnames):
     if len(lens) != 1:
         raise ValueError('Inconsistent length of input arrays')
 
-    dat = np.ndarray(lens.pop(), dtype=[(x, vals[x].dtype) for x in colnames])
+    dtypes = [(x, vals[x].dtype, vals[x].shape[1:]) for x in colnames]
+    dat = np.ndarray(lens.pop(), dtype=dtypes)
     for colname in colnames:
         dat[colname] = vals[colname]
 

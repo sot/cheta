@@ -18,7 +18,7 @@ DATA = archfiles_def.sql filetypes.dat filetypes_all.dat task_schedule*.cfg msid
 # telem_archive uses a number of dedicated perl and IDL scripts
 SHARE = update_archive.py transfer_stage.py fetch_tutorial.py
 
-.PHONY: doc
+.PHONY: doc clean_dp
 
 doc:
 	cd doc; make html
@@ -33,3 +33,10 @@ install: $(TEST_DEPS)
 	rsync --archive --cvs-exclude $(DATA)  $(INSTALL_DATA)/
 	rsync --times --cvs-exclude $(SHARE) $(INSTALL_SHARE)/
 	rsync --archive --times $(DOC)   $(INSTALL_DOC)/
+
+test_dp: clean_dp
+	./add_derived.py
+	./update_archive.py --content=dp_ --date-now=2000:030 --max-lookback-time=100
+
+clean_dp:
+	rm -rf data/dp_test*

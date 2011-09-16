@@ -23,24 +23,32 @@ def get_options():
                       help="Engineering archive root directory for MSID and arch files")
     return parser.parse_args()
 
-def make_archfiles_db(filename, content):
+def make_archfiles_db(filename, content_def):
     # Do nothing if it is already there
     if os.path.exists(filename):
         return
+
+    datestart = DateTime('1999:365:23:59:00')
+    tstart = datestart.secs
+    tstop = tstart
+    year, doy = datestart.date.split(':')[:2]
+    times, indexes = derived.times_indexes(tstart, tstop, content_def['time_step'])
 
     logger.info('Creating db {}'.format(filename))
     archfiles_def = open('archfiles_def.sql').read()
     db = Ska.DBI.DBI(dbi='sqlite', server=filename)
     db.execute(archfiles_def)
-    archfiles_row = dict(filename='{}_0_1'.format(content),
+    archfiles_row = dict(filename='{}:0:1'.format(content_def['content']),
                          filetime=0,
-                         year=1998,
-                         doy=1,
-                         tstart=0,
-                         tstop=1000,
-                         rowstart=-1,
+                         year=year,
+                         doy=doy,
+                         tstart=tstart,
+                         tstop=tstop,
+                         rowstart=0,
                          rowstop=0,
-                         date='1998:001:00:00:00')
+                         startmjf=indexes[0], # really index0
+                         stopmjf=indexes[-1],  # really index1
+                         date=datestart.date)
     db.insert(archfiles_row, 'archfiles')
 
 def add_colname(filename, colname):
@@ -109,12 +117,13 @@ def main():
     for dp_class in dp_classes:
         colname = dp_class.__name__.upper()
         dp = dp_class()
-        content = 'dp_{}{}'.format(dp.content, dp.mnf_step)
+        content = dp.content
         dpd = content_defs.setdefault(content, {})
         dpd.setdefault('classes', {'TIME': None})
+        dpd['content'] = content
         dpd['classes'][colname] = dp_class
         dpd['mnf_step'] = dp.mnf_step
-        dpd['time_step'] = dp.timestep
+        dpd['time_step'] = dp.time_step
 
     for content, content_def in content_defs.items():
         ft['content'] = content
@@ -126,7 +135,7 @@ def main():
             os.mkdir(msid_files['contentdir'].rel)
 
         # Make the archfiles.db3 file (if needed)
-        make_archfiles_db(msid_files['archfiles'].abs, content)
+        make_archfiles_db(msid_files['archfiles'].abs, content_def)
 
         for colname in content_def['classes']:
             ft['msid'] = colname

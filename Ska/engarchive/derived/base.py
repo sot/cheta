@@ -29,7 +29,7 @@ class DerivedParameter(object):
                 and set(data.vals) == set(('ON ', 'OFF'))):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
                     
-        times, indexes = times_indexes(start, stop, self.timestep)
+        times, indexes = times_indexes(start, stop, self.time_step)
         bads = np.zeros(len(times), dtype=np.bool)  # All data OK (false)
 
         for msidname, data in dataset.items():
@@ -62,37 +62,14 @@ class DerivedParameter(object):
                 and set(data.vals) == set(('ON ', 'OFF'))):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
                     
-        dataset.interpolate(dt=self.timestep)
+        dataset.interpolate(dt=self.time_step)
 
         return self.calc(dataset)
 
     @property
     def mnf_step(self):
-        return int(round(self.timestep / MNF_TIME))
-    
+        return int(round(self.time_step / MNF_TIME))
 
-class MockMSIDset(object):
-    pass
-
-class DerivedParameterTime(DerivedParameter):
-    content = 'time'
-    def calc(self, dataset):
-        return dataset.times
-
-    def fetch(self, start, stop):
-        dataset = MockMSIDset()
-                    
-        times, indexes = times_indexes(start, stop, self.timestep)
-        bads = np.zeros(len(times), dtype=np.bool)  # All data OK (false)
-
-        dataset.times = times
-        dataset.bads = bads
-        dataset.indexes = indexes
-
-        return dataset
-
-class DP_TIME1(DerivedParameterTime):
-    timestep = 0.25625
-
-class DP_TIME128(DerivedParameterTime):
-    timestep = 32.8
+    @property
+    def content(self):
+        return 'dp_{}{}'.format(self.content_root.lower(), self.mnf_step)
