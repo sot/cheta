@@ -336,11 +336,13 @@ def update_stats(colname, interval, msid=None):
             vals_stats = calc_stats_vals(msid.vals, rows, indexes, interval)
             if not opt.dry_run:
                 try:
-                    stats.root.data.append(vals_stats)
-                    logger.info('  Adding %d records', len(vals_stats))
+                    stats.root.data
                 except tables.NoSuchNodeError:
                     table = stats.createTable(stats.root, 'data', vals_stats,
                                               "%s sampling" % interval, expectedrows=2e7)
+                stats.root.data.append(vals_stats)
+                logger.info('  Adding %d records', len(vals_stats))
+
 
     stats.root.data.flush()
     stats.close()

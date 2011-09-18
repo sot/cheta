@@ -30,7 +30,7 @@ msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
-filetypes = asciitable.read(os.path.join(ENG_ARCHIVE, 'filetypes.dat'))
+filetypes = asciitable.read(msid_files['filetypes'].abs)
 content = dict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
@@ -88,7 +88,7 @@ def read_bad_times(table):
 # Set up bad times dict
 msid_bad_times = dict()
 try:
-    read_bad_times(os.path.join(ENG_ARCHIVE, 'msid_bad_times.dat'))
+    read_bad_times(msid_files['msid_bad_times'].abs)
 except IOError:
     pass
 

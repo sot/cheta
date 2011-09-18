@@ -35,8 +35,8 @@ install: $(TEST_DEPS)
 	rsync --archive --times $(DOC)   $(INSTALL_DOC)/
 
 test_dp: clean_dp
-	./add_derived.py
-	./update_archive.py --content=dp_ --date-now=2000:030 --max-lookback-time=100
+	env ENG_ARCHIVE=$(PWD) ./add_derived.py
+	env ENG_ARCHIVE=$(PWD) ./update_archive.py --content=dp_ --date-now=2000:061 --max-lookback-time=100
 
 clean_dp:
-	rm -rf data/dp_test*
+	rm -rf data/dp_*

@@ -18,6 +18,7 @@ SKA = os.environ.get('SKA') or '/proj/sot/ska'
 msid_root = os.path.join(SKA, 'data', 'eng_archive')
 msid_roots = [msid_root]
 msid_files = {'filetypes':    'filetypes.dat',
+              'msid_bad_times': 'msid_bad_times.dat',
               'contentdir':   'data/{{ft.content}}/',
               'headers':      'data/{{ft.content}}/headers.pickle',
               'archfiles':    'data/{{ft.content}}/archfiles.db3',
