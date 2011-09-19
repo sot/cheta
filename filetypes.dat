@@ -76,6 +76,7 @@ L0   THM       THM3ENG         THM_ENG_0{THM3ENG}           *.fits.gz
 L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
 L3   DERIVED   DP_TEST128      -                            -
 L3   DERIVED   DP_TEST256      -                            -
+L3   DERIVED   DP_THERMAL1     -                            -
 L3   DERIVED   DP_THERMAL128   -                            -
 # 
 # Candidate file types.

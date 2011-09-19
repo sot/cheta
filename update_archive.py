@@ -84,14 +84,18 @@ def get_options():
 opt, args = get_options()
 
 ft = fetch.ft
-
 msid_files = pyyaks.context.ContextDict('msid_files',
                                         basedir=(opt.data_root or file_defs.msid_root))
 msid_files.update(file_defs.msid_files)
-
 arch_files = pyyaks.context.ContextDict('arch_files',
                                         basedir=(opt.data_root or file_defs.arch_root))
 arch_files.update(file_defs.arch_files)
+
+# Set up fetch so it will first try to read from opt.data_root if that is
+# provided as an option and exists, and if not fall back to the default of
+# fetch.ENG_ARCHIVE.  Fetch is a read-only process so this is safe when testing.
+if opt.data_root:
+    fetch.msid_files.basedir = ':'.join([opt.data_root, fetch.ENG_ARCHIVE])
 
 # Set up logging
 loglevel = pyyaks.logger.VERBOSE

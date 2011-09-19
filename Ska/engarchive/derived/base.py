@@ -26,7 +26,7 @@ class DerivedParameter(object):
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
         for data in dataset.values():
             if (data.vals.dtype.name == 'string24'
-                and set(data.vals) == set(('ON ', 'OFF'))):
+                and set(data.vals).issubset(set(['ON ', 'OFF']))):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
                     
         times, indexes = times_indexes(start, stop, self.time_step)
