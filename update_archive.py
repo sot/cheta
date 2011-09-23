@@ -419,8 +419,6 @@ def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
     archive files.
     """
-    raise RunTimeError("SHOULD NOT BE HERE!!!")
-    
     if opt.occ:
         dirname = arch_files['stagedir'].abs
         if not os.path.exists(dirname):

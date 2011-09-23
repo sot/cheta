@@ -2,6 +2,7 @@ from Chandra.Time import DateTime
 import Ska.engarchive.fetch_eng as fetch_eng
 import Ska.Numpy
 import numpy as np
+from .. import cache
  
 __all__ = ['MNF_TIME', 'times_indexes', 'DerivedParameter']
 
@@ -13,6 +14,11 @@ def times_indexes(start, stop, dt):
     indexes = np.arange(index0, index1, dtype=np.int64)
     times = indexes * dt
     return times, indexes
+
+@cache.lru_cache(20)
+def interpolate_times(keyvals, len_data_times, data_times=None, times=None):
+    return Ska.Numpy.interpolate(np.arange(len_data_times),
+                                 data_times, times, method='nearest')
 
 class DerivedParameter(object):
     max_gap = 66.0              # Max allowed data gap (seconds)
@@ -33,8 +39,10 @@ class DerivedParameter(object):
         bads = np.zeros(len(times), dtype=np.bool)  # All data OK (false)
 
         for msidname, data in dataset.items():
-            idxs = Ska.Numpy.interpolate(np.arange(len(data.times)),
-                                         data.times, times, method='nearest')
+            keyvals = (data.content, data.times[0], data.times[-1],
+                       len(times), times[0], times[-1])
+            idxs = interpolate_times(keyvals, len(data.times), 
+                                     data_times=data.times, times=times)
             
             # Loop over data attributes like "bads", "times", "vals" etc and
             # perform near-neighbor interpolation by indexing

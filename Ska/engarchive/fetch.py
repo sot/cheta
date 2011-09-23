@@ -16,6 +16,8 @@ import pyyaks.context
 
 from . import file_defs
 from . import units
+from . import cache
+
 from Chandra.Time import DateTime
 
 SKA = os.getenv('SKA') or '/proj/sot/ska'
@@ -142,7 +144,8 @@ class MSID(object):
                 ft['interval'] = self.stat
                 self._get_stat_data()
             else:
-                self._get_msid_data()
+                self.vals, self.times, self.bads, self.colnames = self._get_msid_data(
+                    self.content, self.tstart, self.tstop, self.msid)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5 files"""
@@ -174,16 +177,19 @@ class MSID(object):
             setattr(self, colname_out, vals)
             self.colnames.append(colname_out)
 
-    def _get_msid_data(self):
+
+    @staticmethod
+    @cache.lru_cache(30)
+    def _get_msid_data(content, tstart, tstop, msid):
         """Do the actual work of getting time and values for an MSID from HDF5 files"""
 
         # Get a row slice into HDF5 file for this content type that picks out
         # the required time range plus a little padding on each end.
-        h5_slice = get_interval(self.content, self.tstart, self.tstop)
+        h5_slice = get_interval(content, tstart, tstop)
 
         # Read the TIME values either from cache or from disk.
-        if times_cache['key'] == (self.content, self.tstart, self.tstop):
-            logger.info('Using times_cache for %s %s to %s', self.content, self.datestart, self.datestop)
+        if times_cache['key'] == (content, tstart, tstop):
+            logger.info('Using times_cache for %s %s to %s', content, tstart, tstop)
             times = times_cache['val']    # Already filtered on times_ok
             times_ok = times_cache['ok']  # For filtering MSID.val and MSID.bad
             times_all_ok = times_cache['all_ok']
@@ -203,13 +209,13 @@ class MSID(object):
             if not times_all_ok:
                 times = times[times_ok]
 
-            times_cache.update(dict(key=(self.content, self.tstart, self.tstop),
+            times_cache.update(dict(key=(content, tstart, tstop),
                                    val=times,
                                    ok=times_ok,
                                    all_ok=times_all_ok))
 
         # Extract the actual MSID values and bad values mask
-        ft['msid'] = self.msid
+        ft['msid'] = msid
         filename = msid_files['msid'].abs
         logger.info('Reading %s', filename)
         h5 = tables.openFile(filename)
@@ -219,17 +225,18 @@ class MSID(object):
 
         # Filter bad times rows if needed
         if not times_all_ok:
-            logger.info('Filtering bad times values for %s', self.msid)
+            logger.info('Filtering bad times values for %s', msid)
             bads = bads[times_ok]
             vals = vals[times_ok]
 
         # Slice down to exact requested time range
-        row0, row1 = numpy.searchsorted(times, [self.tstart, self.tstop])
-        logger.info('Slicing %s arrays [%d:%d]', self.msid, row0, row1)
-        self.vals = units.convert(self.MSID, vals[row0:row1])
-        self.times = times[row0:row1]
-        self.bads = bads[row0:row1]
-        self.colnames = ['times', 'vals', 'bads']
+        row0, row1 = numpy.searchsorted(times, [tstart, tstop])
+        logger.info('Slicing %s arrays [%d:%d]', msid, row0, row1)
+        vals = units.convert(msid.upper(), vals[row0:row1])
+        times = times[row0:row1]
+        bads = bads[row0:row1]
+        colnames = ['times', 'vals', 'bads']
+        return (vals, times, bads, colnames)
 
     def filter_bad(self, bads=None):
         """Filter out any bad values.

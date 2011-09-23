@@ -146,6 +146,8 @@ def main():
 
             make_msid_file(colname, content, content_def)
 
+        add_colname(msid_files['colnames_all'].rel, 'QUALITY')
+
 if __name__ == '__main__':
     main()
     
