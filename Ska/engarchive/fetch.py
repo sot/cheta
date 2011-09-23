@@ -174,6 +174,12 @@ class MSID(object):
             setattr(self, colname_out, vals)
             self.colnames.append(colname_out)
 
+        # Redefine the 'vals' attribute to be 'means' if it exists.  This is a more
+        # consistent use of the 'vals' attribute and there is little use for the
+        # original sampled version.
+        if hasattr(self, 'means'):
+            self.vals = self.means
+
     def _get_msid_data(self):
         """Do the actual work of getting time and values for an MSID from HDF5 files"""
 
