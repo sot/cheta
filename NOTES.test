@@ -21,6 +21,7 @@ cd test
   ./get_regr_vals.py --start 2010:265 --stop 2010:285 --test 
   ./compare_regr_vals.py
 cd ..
+setenv ENG_ARCHIVE $PWD/test/eng_archive
 
 ## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df
 

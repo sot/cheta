@@ -1,5 +1,5 @@
 from Chandra.Time import DateTime
-import Ska.engarchive.fetch_eng as fetch_eng
+import Ska.engarchive.fetch as fetch
 import Ska.Numpy
 import numpy as np
 from .. import cache
@@ -22,12 +22,16 @@ def interpolate_times(keyvals, len_data_times, data_times=None, times=None):
 
 class DerivedParameter(object):
     max_gap = 66.0              # Max allowed data gap (seconds)
+    unit_system = 'eng'
 
     def calc(self, data):
         raise NotImplementedError
 
     def fetch(self, start, stop):
-        dataset = fetch_eng.MSIDset(self.rootparams, start, stop)
+        unit_system = fetch.get_units()  # cache current units and restore after fetch
+        fetch.set_units(self.unit_system)
+        dataset = fetch.MSIDset(self.rootparams, start, stop)
+        fetch.set_units(unit_system)
 
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
         for data in dataset.values():

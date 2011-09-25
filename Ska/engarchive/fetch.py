@@ -55,6 +55,11 @@ logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
 
+def get_units():
+    """Get the unit system currently being used for conversions.
+    """
+    return units.units['system']
+
 def set_units(unit_system):
     """Set the unit system used for output telemetry values.  The default
     is "cxc".  Allowed values for ``unit_system``  are:
@@ -109,7 +114,7 @@ class MSID(object):
     def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         self.msid = msid
         self.MSID = msid.upper()
-        self.unit = units.units_out.get(self.MSID)
+        self.unit = units.get_msid_unit(self.MSID)
         self.stat = stat
         if stat:
             self.dt = {'5min': 328, 'daily': 86400}[stat]

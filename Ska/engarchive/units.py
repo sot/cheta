@@ -9,6 +9,15 @@ logger = logging.getLogger('Ska.engarchive.units')
 logger.addHandler(NullHandler())
 logger.propagate = False
 
+# This is effectively a singleton class
+SYSTEMS = set(('cxc', 'eng', 'sci'))
+module_dir = os.path.dirname(__file__)
+
+units = {}
+units['system'] = 'cxc'
+units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl')))
+
+
 def K_to_C(vals, delta_val=False):
     if delta_val:
         return vals
@@ -26,30 +35,6 @@ def mult(scale_factor):
         return vals * scale_factor
     return convert
 
-def set_units(unit_system):
-    units_out.clear()
-    units_out.update(units_cxc)
-    try:
-        units_out.update(unit_system)
-    except ValueError:
-        filename = os.path.join(module_dir, 'units_{0}.pkl'.format(unit_system))
-        units_out.update(pickle.load(open(filename)))
-
-def convert(msid, vals, delta_val=False):
-    MSID = msid.upper()
-    conversion = (units_cxc.get(MSID), units_out.get(MSID))
-    try:
-        vals = converters[conversion](vals, delta_val)
-        logger.info('Converted {0} units: {1} (delta_val={2})'.format(msid, conversion, delta_val))
-    except KeyError:
-        logger.info('No conversion for {0}: {1}'.format(msid, conversion))
-        pass
-    return vals
-
-module_dir = os.path.dirname(__file__)
-units_cxc = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl')))
-units_out = units_cxc.copy()
-
 converters = {
     ('J', 'FTLB'): mult(0.7376),
     ('J*s', 'FTLBSEC'): mult(0.7376),
@@ -59,4 +44,28 @@ converters = {
     ('kPa', 'PSIA'): mult(0.145),
     ('kPa', 'TORR'): mult(7.501),
     }
+
+def set_units(unit_system):
+    """Set conversion unit system.  The input ``unit_system`` must be a string.
+    """
+    if unit_system not in SYSTEMS:
+        raise ValueError('unit_system must be in {}'.format(SYSTEMS))
+
+    units['system'] = unit_system
+    if unit_system not in units:
+        filename = os.path.join(module_dir, 'units_{0}.pkl'.format(unit_system))
+        units[unit_system] = pickle.load(open(filename))
+
+def get_msid_unit(msid):
+    MSID = msid.upper()
+    return units[units['system']].get(MSID)
+     
+def convert(msid, vals, delta_val=False):
+    MSID = msid.upper()
+    conversion = (units['cxc'].get(MSID), get_msid_unit(MSID))
+    try:
+        vals = converters[conversion](vals, delta_val)
+    except KeyError:
+        pass
+    return vals
 

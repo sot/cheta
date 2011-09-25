@@ -1,0 +1,118 @@
+####################################################
+## Develop and test
+####################################################
+
+git checkout -b derived
+
+- Update filetypes.dat
+- Update Ska/engarchive/derived/__init__.py
+- Update Ska/engarchive/derived/<new>.py
+
+# From dev directory or link to somewhere else, perhaps local disk
+
+set content=<new>
+mkdir data    
+
+# Make $PWD the default root in fetch for read but also allow fall-through to
+# $ska.  This is needed so that update_archive can read the needed data to
+# compute the derived.  ENG_ARCHIVE only affects fetch for reading so it is
+# safe to do this.  The --data-root value controls the write dir.
+
+setenv ENG_ARCHIVE ${PWD}:/proj/sot/ska/data/eng_archive
+
+# Add_derived.py checks for any new derived content types or columns.  Note
+# that you cannot just add a new column to an existing content type because the
+# ingest process (update_archive.py) does not currently handle this.
+
+./add_derived.py --data-root=$PWD
+
+# Update the archive, first in a small test.  --content takes a match regex.
+
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:030
+
+ipython
+impska
+
+figure()
+subplot(3, 1, 1)
+dat = fetch.MSID(<new>, '2000:001', '2000:030')
+plot_cxctime(dat.times, dat.vals)
+
+subplot(3, 1, 2)
+dat5 = fetch.MSID(<new>, '2000:001', '2000:030', stat='5min')
+plot_cxctime(dat5.times, dat5.vals)
+
+subplot(3, 1, 3)
+datd = fetch.MSID(<new>, '2000:001', '2000:030', stat=daily')
+plot_cxctime(datd.times, datd.vals)
+
+# Intermediate commits
+git commit -a
+git push origin derived:derived
+
+####################################################
+## Full ingest / update
+####################################################
+
+# CAREFULLY do this
+rm -rf data/*   
+
+set content=<new>
+./add_derived.py --data-root=$PWD
+
+For a quantity sampled at 32.8 sec or slower, this should work:
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2001:001 >&! run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2001:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2002:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2003:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2004:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2005:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2006:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2007:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2008:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2009:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2010:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2011:001 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2012:001 >>& run.log
+
+Otherwise see run_add_derived.csh.
+
+####################################################
+## Commit
+####################################################
+
+# commit new release:
+  - filetypes
+  - <new> derived classes
+  - setup.py version
+
+git commit -a
+git push origin derived:derived
+
+# merge feature into master
+git checkout master
+git merge derived --no-ff
+git push
+
+####################################################
+## Install
+####################################################
+
+# Think about permissions here, depending on who is running update_archive.
+
+# check what is in data/ and be sure that should be installed
+rsync [--dry-run] -av data/dp_${content}* /proj/sot/ska/data/eng_archive/data/
+
+python setup.py sdist
+cp dist/Ska.engarchive-<version>.tar.gz $ska/pkgs/
+
+# Update skare (pkgs.manifest)
+As user:
+ git commit -am "Update Ska.engarchive => ..."
+ git push
+
+As aca:
+ cd ~/git/skare
+ git pull
+ ./configure --prefix=/proj/sot/ska   # if needed
+ make python_modules

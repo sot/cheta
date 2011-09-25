@@ -40,11 +40,6 @@ def get_options():
                       dest="update_full",
                       default=True,
                       help="Do not fetch files from archive and update full-resolution MSID archive")
-    parser.add_option("--no-derived",
-                      action="store_false",
-                      dest="update_derived",
-                      default=True,
-                      help="Do not update derived parameter content types")
     parser.add_option("--no-stats",
                       action="store_false",
                       dest="update_stats",
@@ -78,7 +73,7 @@ def get_options():
                       help="Running on the OCC GRETA network (no arc5gl)")
     parser.add_option("--content",
                       action='append',
-                      help="Content type to process (default = all)")
+                      help="Content type to process [match regex] (default = all)")
     return parser.parse_args()
 
 opt, args = get_options()
@@ -587,7 +582,7 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
             bads[:, i] = dataset.bads[ok]
 
     vals['QUALITY'] = bads
-    dat = structured_array(vals, list(colnames) + ['QUALITY'])
+    dat = Ska.Numpy.structured_array(vals, list(colnames) + ['QUALITY'])
 
     # Accumlate relevant info about archfile that will be ingested into
     # MSID h5 files.  Commit info before h5 ingest so if there is a failure
@@ -779,18 +774,6 @@ def get_archive_files(filetype):
         arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
 
     return sorted(glob.glob(filetype['fileglob']))
-
-def structured_array(vals, colnames):
-    lens = set(len(vals[x]) for x in colnames)
-    if len(lens) != 1:
-        raise ValueError('Inconsistent length of input arrays')
-
-    dtypes = [(x, vals[x].dtype, vals[x].shape[1:]) for x in colnames]
-    dat = np.ndarray(lens.pop(), dtype=dtypes)
-    for colname in colnames:
-        dat[colname] = vals[colname]
-
-    return dat
 
 if __name__ == '__main__':
     main()
