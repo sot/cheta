@@ -455,6 +455,41 @@ class MSIDset(dict):
             msid.write_zip(filename, append=append)
             append = True
 
+
+class Msid(MSID):
+    """
+    Fetch data from the engineering telemetry archive into an MSID object.
+    Same as MSID class but with filter_bad=True by default.
+
+    :param msid: name of MSID (case-insensitive)
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry (current time if not supplied)
+    :param filter_bad: automatically filter out bad values
+    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+
+    :returns: MSID instance
+    """
+    def __init__(self, msid, start, stop=None, filter_bad=True, stat=None):
+        super(Msid, self).__init__(msid, start, stop=stop,
+                                   filter_bad=filter_bad, stat=stat)
+
+class Msidset(MSIDset):
+    """Fetch a set of MSIDs from the engineering telemetry archive.
+    Same as MSIDset class but with filter_bad=True by default.
+
+    :param msids: list of MSID names (case-insensitive)
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry (current time if not supplied)
+    :param filter_bad: automatically filter out bad values
+    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+
+    :returns: Dict-like object containing MSID instances keyed by MSID name
+    """
+    def __init__(self, msids, start, stop=None, filter_bad=True, stat=None):
+        super(Msidset, self).__init__(msids, start, stop=stop,
+                                      filter_bad=filter_bad, stat=stat)
+
+
 def fetch_records(start, stop, msids, dt=32.8):
     """
     Fetch data from the telemetry archive as a recarray at a uniform time spacing.
