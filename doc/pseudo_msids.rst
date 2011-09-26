@@ -8,6 +8,7 @@ stream are also available in the archive.  These are:
 * ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
 * Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
 * SIM telemetry: SIM position and moving status
+* Derived parameters: values computed from other MSIDs in the archive
 
 ACIS DEA housekeeping
 --------------------------------------------------
@@ -135,6 +136,65 @@ SIM_X_MOVED                  FA moved
 SIM_Z_MOVED                  TSC moved
 ==================== ====== =========================================
 
-Note that 3TSCPOS (steps) = SIM_Z (mm) * 397.7225924607.  No such simple
+Note that 3TSCPOS (steps) = SIM_Z (mm) * -397.7225924607.  No such simple
 conversion is available for 3FAPOS because the calibration is a 6th order
 polynomial.
+
+Derived Parameters
+------------------
+
+The engineering archive has pseudo-MSIDs that are derived via computation from
+telemetry MSIDs.  All derived parameter names begin with the characters "DP_"
+(not case sensitive as usual).  Otherwise there is no difference from standard
+MSIDs.  
+
+Definition
+^^^^^^^^^^^
+
+Derived parameters are defined by inheriting from the ``DerivedParameter`` base
+class.  Each class definition requires three class attributes:
+``content_root``, ``rootparams``, and ``time_step``.  The ``time_step`` should
+be an integral multiple of 0.25625.  In the example below a large number of
+definition classes have the same content root so another class
+``DerivedParameterThermal`` has been created to avoid repeating the
+``content_root`` definition every time.
+
+Each definition class also requires a ``calc(self, data)`` method.  The
+``data`` argument will be an MSIDset (dict of fetch MSID objects) with
+values for each of the ``rootparams`` MSIDs.  The data values in the 
+MSIDset will be filtered for bad values and aligned to a common time
+sequence with step size ``time_step``.
+::
+
+  class DerivedParameterThermal(base.DerivedParameter):
+      content_root = 'thermal'
+
+  class DP_EE_DIAM(DerivedParameterThermal):
+      """Kodak diametrical encircled energy"""
+      rootparams = ['OHRMGRD6', 'OHRMGRD3']
+      time_step = 32.8
+
+      def calc(self, data):
+          VAL2 = np.abs(1.0 * data['OHRMGRD6'].vals)
+          VAL1 = np.abs(1.0 * data['OHRMGRD3'].vals)
+          DTDIAM = np.max([VAL1, VAL2], axis=0)
+          EE_DIAM = DTDIAM * 0.401
+          return EE_DIAM
+
+  class DP_P01(DerivedParameterThermal):
+      """Zone 1 heater power"""
+      rootparams = ['ELBV', '4OHTRZ01']
+      time_step = 0.25625
+
+      def calc(self, data):
+          VSQUARED = data['ELBV'].vals * data['ELBV'].vals
+          P01 = data['4OHTRZ01'].vals * VSQUARED / 110.2
+          return P01
+
+
+Thermal
+^^^^^^^^^
+.. automodule:: Ska.engarchive.derived.thermal
+   :members:
+   :undoc-members:
+

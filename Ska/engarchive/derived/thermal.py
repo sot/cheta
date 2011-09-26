@@ -57,6 +57,7 @@ class DP_EE_BULK(DerivedParameterThermal):
 
 #--------------------------------------------
 class DP_EE_DIAM(DerivedParameterThermal):
+    """Kodak diametrical encircled energy"""
     rootparams = ['OHRMGRD6', 'OHRMGRD3']
     time_step = 32.8
 
@@ -475,6 +476,7 @@ class DP_OMIN34(DerivedParameterThermal):
 
 #--------------------------------------------
 class DP_P01(DerivedParameterThermal):
+    """Zone 1 heater power"""
     rootparams = ['ELBV', '4OHTRZ01']
     time_step = 0.25625
 

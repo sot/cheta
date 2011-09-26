@@ -17,6 +17,7 @@ import pyyaks.context
 from . import file_defs
 from . import units
 from . import cache
+from .version import version as __version__
 
 from Chandra.Time import DateTime
 
