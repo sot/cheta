@@ -78,6 +78,7 @@ L3   DERIVED   DP_TEST128      -                            -
 L3   DERIVED   DP_TEST256      -                            -
 L3   DERIVED   DP_THERMAL1     -                            -
 L3   DERIVED   DP_THERMAL128   -                            -
+L3   DERIVED   DP_ACISPOW128   -                            -
 # 
 # Candidate file types.
 # Arc5gl query <instrum>_<type>_<level> (or <instrum>_<level>if type is None)
