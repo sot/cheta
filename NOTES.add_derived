@@ -28,6 +28,8 @@ setenv ENG_ARCHIVE ${PWD}:/proj/sot/ska/data/eng_archive
 
 # Update the archive, first in a small test.  --content takes a match regex.
 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:010
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:020
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:030
 
 ipython -pylab
@@ -62,19 +64,22 @@ set content=<new>
 ./add_derived.py --data-root=$PWD
 
 For a quantity sampled at 32.8 sec or slower, this should work:
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2001:001 >&! run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2001:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2002:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2003:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2004:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2005:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2006:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2007:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2008:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2009:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2010:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2011:001 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2012:001 >>& run.log
+# First a couple of short ingests to seed the stats
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:010 --max-lookback-time=400 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:020 --max-lookback-time=400 
+# Now go
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2001:001 --max-lookback-time=400 >&! run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2002:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2003:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2004:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2005:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2006:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2007:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2008:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2009:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2010:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2011:001 --max-lookback-time=400 >>& run.log
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2012:001 --max-lookback-time=400 >>& run.log
 
 Otherwise see run_add_derived.csh.
 

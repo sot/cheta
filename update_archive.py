@@ -334,14 +334,16 @@ def update_stats(colname, interval, msid=None):
             rows = np.searchsorted(msid.times, times)
             vals_stats = calc_stats_vals(msid.vals, rows, indexes, interval)
             if not opt.dry_run:
+                # Don't change the following logic in order to add stats data
+                # on the same pass as creating the table.  Tried it and
+                # something got broken so that there was a single bad record
+                # after the first bunch.
                 try:
-                    stats.root.data
+                    stats.root.data.append(vals_stats)
+                    logger.info('  Adding %d records', len(vals_stats))
                 except tables.NoSuchNodeError:
                     table = stats.createTable(stats.root, 'data', vals_stats,
                                               "%s sampling" % interval, expectedrows=2e7)
-                stats.root.data.append(vals_stats)
-                logger.info('  Adding %d records', len(vals_stats))
-
 
     stats.root.data.flush()
     stats.close()
