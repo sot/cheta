@@ -191,6 +191,23 @@ sequence with step size ``time_step``.
           P01 = data['4OHTRZ01'].vals * VSQUARED / 110.2
           return P01
 
+  class DP_DPA_POWER(base.DerivedParameter):
+      """ACIS total DPA-A and DPA-B power"""
+      rootparams = ['1dp28avo', '1dpicacu', '1dp28bvo', '1dpicbcu']
+      time_step = 32.8
+      content_root = 'acispow'
+
+      def calc(self, data):
+          power = (data['1dp28avo'].vals * data['1dpicacu'].vals + 
+                   data['1dp28bvo'].vals * data['1dpicbcu'].vals)
+          return power
+
+
+ACIS Power
+^^^^^^^^^^^
+.. automodule:: Ska.engarchive.derived.acispow
+   :members:
+   :undoc-members:
 
 Thermal
 ^^^^^^^^^
