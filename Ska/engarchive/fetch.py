@@ -334,6 +334,58 @@ class MSID(object):
                    '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
         f.close()
 
+    def state_intervals(self, val):
+        """Determine state intervals during which the MSID is equal to ``val``.
+
+        Returns a structured array table with a row for each interval.
+        Columns are:
+        
+        * datestart: date of interval start
+        * datestop: date of interval stop
+        * duration: duration of interval (sec)
+
+        Example::
+
+          import Ska.engarchive.fetch as fetch
+          dat = fetch.MSID('aomanend', '2010:001', '2010:005')
+          manvs = dat.state_intervals('NEND')
+          manvs['duration']
+
+        :param val: state value for which intervals are returned.
+        :returns: structured array table of intervals
+        """
+        # Do local version of bad value filtering
+        if self.bads is not None and numpy.any(self.bads):
+            ok = ~self.bads
+            vals = self.vals[ok]
+            times = self.times[ok]
+        else:
+            vals = self.vals
+            times = self.times
+            
+        starts = (vals[:-1] != val) & (vals[1:] == val)
+        ends = (vals[:-1] == val) & (vals[1:] != val)
+
+        # If last telemetry point is not val then the data ends during that
+        # interval and there will be an extra start transition that must be
+        # removed.
+        i_starts = numpy.flatnonzero(starts)
+        if vals[-1] == val:
+            i_starts = i_starts[:-1]
+
+        # If first entry is val then the telemetry starts during an interval
+        # and there will be an extra end transition that must be removed.
+        i_ends = numpy.flatnonzero(ends)
+        if vals[0] == val:
+            i_ends = i_ends[1:]
+
+        intervals = {'datestart': DateTime(times[i_starts]).date,
+                     'datestop': DateTime(times[i_ends]).date,
+                     'duration': times[i_ends] - times[i_starts]}
+
+        import Ska.Numpy
+        return Ska.Numpy.structured_array(intervals)
+
 class MSIDset(dict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
 
