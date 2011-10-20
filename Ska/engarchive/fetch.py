@@ -8,6 +8,7 @@ import time
 import contextlib
 import cPickle as pickle
 import logging
+import operator
 
 import numpy
 import tables
@@ -334,26 +335,48 @@ class MSID(object):
                    '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
         f.close()
 
-    def state_intervals(self, val):
-        """Determine state intervals during which the MSID is equal to ``val``.
+    def logical_intervals(self, op, val):
+        """Determine contiguous intervals during which the logical comparison
+        expression "MSID.vals op val" is True.  Allowed values for ``op``
+        are::
 
+          ==  !=  >  <  >=  <=
+
+        The intervals are guaranteed to be complete so that the all reported
+        intervals had a transition before and after within the telemetry
+        interval.  
+        
         Returns a structured array table with a row for each interval.
         Columns are:
         
         * datestart: date of interval start
         * datestop: date of interval stop
         * duration: duration of interval (sec)
+        * tstart: time of interval start (CXC sec)
+        * tstop: time of interval stop (CXC sec)
 
         Example::
 
-          import Ska.engarchive.fetch as fetch
           dat = fetch.MSID('aomanend', '2010:001', '2010:005')
-          manvs = dat.state_intervals('NEND')
+          manvs = dat.logical_intervals('==', 'NEND')
           manvs['duration']
 
-        :param val: state value for which intervals are returned.
+        :param op: logical operator, one of ==  !=  >  <  >=  <=
+        :param val: comparison value
         :returns: structured array table of intervals
         """
+        ops = {'==': operator.eq,
+               '!=': operator.ne,
+               '>': operator.gt,
+               '<': operator.lt,
+               '>=': operator.ge,
+               '<=': operator.le}
+        try:
+            op = ops[op]
+        except KeyError:
+            raise ValueError('op = "{}" is not in allowed values: {}'.format(
+                    op, sorted(ops.keys())))
+
         # Do local version of bad value filtering
         if self.bads is not None and numpy.any(self.bads):
             ok = ~self.bads
@@ -363,25 +386,82 @@ class MSID(object):
             vals = self.vals
             times = self.times
             
-        starts = (vals[:-1] != val) & (vals[1:] == val)
-        ends = (vals[:-1] == val) & (vals[1:] != val)
+        starts = ~op(vals[:-1], val) & op(vals[1:], val)
+        ends = op(vals[:-1], val) & ~op(vals[1:], val)
 
         # If last telemetry point is not val then the data ends during that
         # interval and there will be an extra start transition that must be
         # removed.
         i_starts = numpy.flatnonzero(starts)
-        if vals[-1] == val:
+        if op(vals[-1], val):
             i_starts = i_starts[:-1]
 
         # If first entry is val then the telemetry starts during an interval
         # and there will be an extra end transition that must be removed.
         i_ends = numpy.flatnonzero(ends)
-        if vals[0] == val:
+        if op(vals[0], val):
             i_ends = i_ends[1:]
 
-        intervals = {'datestart': DateTime(times[i_starts]).date,
-                     'datestop': DateTime(times[i_ends]).date,
-                     'duration': times[i_ends] - times[i_starts]}
+        tstarts = times[i_starts]
+        tstop = times[i_ends]
+        intervals = {'datestart': DateTime(tstarts).date,
+                     'datestop': DateTime(tstops).date,
+                     'duration': times[i_ends] - times[i_starts],
+                     'tstart': tstarts,
+                     'tstop':  tstops}
+
+        import Ska.Numpy
+        return Ska.Numpy.structured_array(intervals)
+
+    def state_intervals(self):
+        """Determine contiguous intervals during which the MSID value
+        is unchanged.
+
+        Returns a structured array table with a row for each interval.
+        Columns are:
+        
+        * datestart: date of interval start
+        * datestop: date of interval stop
+        * duration: duration of interval (sec)
+        * tstart: time of interval start (CXC sec)
+        * tstop: time of interval stop (CXC sec)
+        * val: MSID value during the interval
+
+        Example::
+
+          dat = fetch.MSID('cobsrqid', '2010:001', '2010:005')
+          obsids = dat.state_intervals()
+
+        :param val: state value for which intervals are returned.
+        :returns: structured array table of intervals
+        """
+
+        # Do local version of bad value filtering
+        if self.bads is not None and numpy.any(self.bads):
+            ok = ~self.bads
+            vals = self.vals[ok]
+            times = self.times[ok]
+        else:
+            vals = self.vals
+            times = self.times
+
+        if len(self.vals) < 2:
+            raise ValueError('Filtered data length must be at least 2')
+
+        transitions = numpy.hstack([[True], vals[:-1] != vals[1:], [True]])
+        t0 = times[0] - (times[1] - times[0]) / 2
+        t1 = times[-1] + (times[-1] - times[-2]) / 2
+        midtimes = numpy.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
+
+        state_vals = vals[transitions[1:]]
+        state_times = midtimes[transitions]
+
+        intervals = {'datestart': DateTime(state_times[:-1]).date,
+                     'datestop': DateTime(state_times[1:]).date,
+                     'tstart': state_times[:-1],
+                     'tstop': state_times[1:],
+                     'duration': state_times[1:] - state_times[:-1],
+                     'val': state_vals}
 
         import Ska.Numpy
         return Ska.Numpy.structured_array(intervals)
