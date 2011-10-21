@@ -427,8 +427,8 @@ def update_archive(filetype):
     with Ska.File.chdir(dirname): 
         archfiles = get_archive_files(filetype)
         if archfiles:
-            update_msid_files(filetype, archfiles)
-            move_archive_files(filetype, archfiles)
+            archfiles_processed = update_msid_files(filetype, archfiles)
+            move_archive_files(filetype, archfiles_processed)
 
 def append_h5_col(dats, colname, files_overlaps):
     """Append new values to an HDF5 MSID data table.
@@ -623,6 +623,7 @@ def update_msid_files(filetype, archfiles):
     archfiles_overlaps = []
     archfiles_rows = []
     dats = []
+    archfiles_processed = []
 
     content_is_derived = (filetype['instrum'] == 'DERIVED')
 
@@ -667,7 +668,13 @@ def update_msid_files(filetype, archfiles):
                             (dat['QUALITY'].shape[1], len(dat.dtype.names)))
             continue
 
-        # Mark the archfile as ingested in the database
+        # Mark the archfile as ingested in the database and add to list for
+        # subsequent relocation into arch_files archive.  In the case of a gap
+        # where ingest is stopped before all archfiles are processed, this will
+        # leave files either in a tmp dir (HEAD) or in the stage dir (OCC).
+        # In the latter case this allows for successful processing later when the
+        # gap gets filled.
+        archfiles_processed.append(f)
         if not opt.dry_run:
             db.insert(archfiles_row, 'archfiles')
 
@@ -706,6 +713,7 @@ def update_msid_files(filetype, archfiles):
         if not opt.dry_run:
             pickle.dump(colnames_all, open(msid_files['colnames_all'].abs, 'w'))
 
+    return archfiles_processed
 
 def move_archive_files(filetype, archfiles):
     ft['content'] = filetype.content.lower()
