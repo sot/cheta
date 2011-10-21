@@ -1,11 +1,3 @@
-==================================
- Ska Engineering Telemetry Archive 
-==================================
-.. include:: references.rst
-
-Overview
---------
-
 The Ska engineering telemetry archive is a suite of tools and data products
 that make available the majority of all Chandra engineering telemetry since the
 start of year 2000.  This includes about 6300 MSIDs.  The telemetry are stored
@@ -23,28 +15,3 @@ The engineering telemetry archive consists of:
   - Daily statistics: min, max, mean, sampled value, standard deviation, percentiles (1,
     5, 16, 50, 84, 95, 99), number of samples.
 * A python module to retrieve telemetry values.
-
-Pseudo-MSIDs
-----------------------------
-
-A small selection of pseudo-MSIDs that do not come in the engineering telemetry
-stream are also available in the archive.  These are:
-
-* SIM telemetry: SIM position and moving status
-* ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
-* Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
-* Derived parameters: values computed from other MSIDs in the archive
-
-For details see the documentation on Pseudo-MSIDs in the engineering archive.
-
-Documentation
--------------
-
-.. toctree::
-   :maxdepth: 1
-
-   tutorial
-   fetch_tutorial
-   pseudo_msids
-   fetch
-   utils

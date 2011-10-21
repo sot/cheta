@@ -16,6 +16,9 @@ import pyyaks.context
 
 from . import file_defs
 from . import units
+from . import cache
+from .version import version as __version__
+
 from Chandra.Time import DateTime
 
 SKA = os.getenv('SKA') or '/proj/sot/ska'
@@ -30,7 +33,7 @@ msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
-filetypes = asciitable.read(os.path.join(ENG_ARCHIVE, 'filetypes.dat'))
+filetypes = asciitable.read(msid_files['filetypes'].abs)
 content = dict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
@@ -52,6 +55,11 @@ class NullHandler(logging.Handler):
 logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
+
+def get_units():
+    """Get the unit system currently being used for conversions.
+    """
+    return units.units['system']
 
 def set_units(unit_system):
     """Set the unit system used for output telemetry values.  The default
@@ -88,7 +96,7 @@ def read_bad_times(table):
 # Set up bad times dict
 msid_bad_times = dict()
 try:
-    read_bad_times(os.path.join(ENG_ARCHIVE, 'msid_bad_times.dat'))
+    read_bad_times(msid_files['msid_bad_times'].abs)
 except IOError:
     pass
 
@@ -107,7 +115,7 @@ class MSID(object):
     def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         self.msid = msid
         self.MSID = msid.upper()
-        self.unit = units.units_out.get(self.MSID)
+        self.unit = units.get_msid_unit(self.MSID)
         self.stat = stat
         if stat:
             self.dt = {'5min': 328, 'daily': 86400}[stat]
@@ -142,7 +150,8 @@ class MSID(object):
                 ft['interval'] = self.stat
                 self._get_stat_data()
             else:
-                self._get_msid_data()
+                self.vals, self.times, self.bads, self.colnames = self._get_msid_data(
+                    self.content, self.tstart, self.tstop, self.msid)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5 files"""
@@ -174,16 +183,19 @@ class MSID(object):
             setattr(self, colname_out, vals)
             self.colnames.append(colname_out)
 
-    def _get_msid_data(self):
+
+    @staticmethod
+    @cache.lru_cache(30)
+    def _get_msid_data(content, tstart, tstop, msid):
         """Do the actual work of getting time and values for an MSID from HDF5 files"""
 
         # Get a row slice into HDF5 file for this content type that picks out
         # the required time range plus a little padding on each end.
-        h5_slice = get_interval(self.content, self.tstart, self.tstop)
+        h5_slice = get_interval(content, tstart, tstop)
 
         # Read the TIME values either from cache or from disk.
-        if times_cache['key'] == (self.content, self.tstart, self.tstop):
-            logger.info('Using times_cache for %s %s to %s', self.content, self.datestart, self.datestop)
+        if times_cache['key'] == (content, tstart, tstop):
+            logger.info('Using times_cache for %s %s to %s', content, tstart, tstop)
             times = times_cache['val']    # Already filtered on times_ok
             times_ok = times_cache['ok']  # For filtering MSID.val and MSID.bad
             times_all_ok = times_cache['all_ok']
@@ -203,13 +215,13 @@ class MSID(object):
             if not times_all_ok:
                 times = times[times_ok]
 
-            times_cache.update(dict(key=(self.content, self.tstart, self.tstop),
+            times_cache.update(dict(key=(content, tstart, tstop),
                                    val=times,
                                    ok=times_ok,
                                    all_ok=times_all_ok))
 
         # Extract the actual MSID values and bad values mask
-        ft['msid'] = self.msid
+        ft['msid'] = msid
         filename = msid_files['msid'].abs
         logger.info('Reading %s', filename)
         h5 = tables.openFile(filename)
@@ -219,17 +231,18 @@ class MSID(object):
 
         # Filter bad times rows if needed
         if not times_all_ok:
-            logger.info('Filtering bad times values for %s', self.msid)
+            logger.info('Filtering bad times values for %s', msid)
             bads = bads[times_ok]
             vals = vals[times_ok]
 
         # Slice down to exact requested time range
-        row0, row1 = numpy.searchsorted(times, [self.tstart, self.tstop])
-        logger.info('Slicing %s arrays [%d:%d]', self.msid, row0, row1)
-        self.vals = units.convert(self.MSID, vals[row0:row1])
-        self.times = times[row0:row1]
-        self.bads = bads[row0:row1]
-        self.colnames = ['times', 'vals', 'bads']
+        row0, row1 = numpy.searchsorted(times, [tstart, tstop])
+        logger.info('Slicing %s arrays [%d:%d]', msid, row0, row1)
+        vals = units.convert(msid.upper(), vals[row0:row1])
+        times = times[row0:row1]
+        bads = bads[row0:row1]
+        colnames = ['times', 'vals', 'bads']
+        return (vals, times, bads, colnames)
 
     def filter_bad(self, bads=None):
         """Filter out any bad values.
@@ -442,6 +455,41 @@ class MSIDset(dict):
         for msid in self.values():
             msid.write_zip(filename, append=append)
             append = True
+
+
+class Msid(MSID):
+    """
+    Fetch data from the engineering telemetry archive into an MSID object.
+    Same as MSID class but with filter_bad=True by default.
+
+    :param msid: name of MSID (case-insensitive)
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry (current time if not supplied)
+    :param filter_bad: automatically filter out bad values
+    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+
+    :returns: MSID instance
+    """
+    def __init__(self, msid, start, stop=None, filter_bad=True, stat=None):
+        super(Msid, self).__init__(msid, start, stop=stop,
+                                   filter_bad=filter_bad, stat=stat)
+
+class Msidset(MSIDset):
+    """Fetch a set of MSIDs from the engineering telemetry archive.
+    Same as MSIDset class but with filter_bad=True by default.
+
+    :param msids: list of MSID names (case-insensitive)
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry (current time if not supplied)
+    :param filter_bad: automatically filter out bad values
+    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+
+    :returns: Dict-like object containing MSID instances keyed by MSID name
+    """
+    def __init__(self, msids, start, stop=None, filter_bad=True, stat=None):
+        super(Msidset, self).__init__(msids, start, stop=stop,
+                                      filter_bad=filter_bad, stat=stat)
+
 
 def fetch_records(start, stop, msids, dt=32.8):
     """

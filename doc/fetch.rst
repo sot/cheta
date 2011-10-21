@@ -16,11 +16,21 @@ Classes
    :show-inheritance:
    :members:
    
+.. autoclass:: Msid
+   :show-inheritance:
+   :members:
+   
+.. autoclass:: Msidset
+   :show-inheritance:
+   :members:
+   
 Functions
 -----------
 .. autofunction:: fetch_array
 
 .. autofunction:: fetch_arrays
+
+.. autofunction:: get_units
 
 .. autofunction:: read_bad_times
 
