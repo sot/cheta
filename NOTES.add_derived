@@ -5,6 +5,7 @@
 git checkout -b derived
 
 - Update filetypes.dat
+- Update Ska/engarchive/version.py (inc. version, add "dev" e.g. "0.13dev"
 - Update Ska/engarchive/derived/__init__.py
 - Update Ska/engarchive/derived/<new>.py
 
@@ -84,6 +85,15 @@ For a quantity sampled at 32.8 sec or slower, this should work:
 Otherwise see run_add_derived.csh.
 
 ####################################################
+## Update version and docs
+####################################################
+
+# Remove the "dev" from version string in version.py
+
+# Update the derived parameters section of doc/pseudo_msids.rst
+# and build docs locally.
+
+####################################################
 ## Commit
 ####################################################
 
@@ -107,8 +117,14 @@ git push
 # Think about permissions here, depending on who is running update_archive.
 
 # check what is in data/ and be sure that should be installed
-rsync [--dry-run] -av data/dp_${content}* /proj/sot/ska/data/eng_archive/data/
+rsync [--dry-run] -av data/dp_* /proj/sot/ska/data/eng_archive/data/
 
+# From mac terminal window
+cd ~/tmp
+scp ccosmos:/data/baffin/tom/git/eng_archive/data/dp_* ./
+scp dp_* SOT@131.142.113.102:/proj/sot/ska/data/eng_archive/data/
+
+# Back in linux git repo
 python setup.py sdist
 cp dist/Ska.engarchive-<version>.tar.gz $ska/pkgs/
 
@@ -122,3 +138,7 @@ As aca:
  git pull
  ./configure --prefix=/proj/sot/ska   # if needed
  make python_modules
+
+# Install scripts from git dev directory (probably as aldcroft)
+make install
+
