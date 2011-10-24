@@ -22,6 +22,9 @@ from .version import version as __version__
 
 from Chandra.Time import DateTime
 
+# Module-level control of whether MSID.fetch will cache the last 30 results
+CACHE = False
+
 SKA = os.getenv('SKA') or '/proj/sot/ska'
 ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
 IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
@@ -151,7 +154,8 @@ class MSID(object):
                 ft['interval'] = self.stat
                 self._get_stat_data()
             else:
-                self.vals, self.times, self.bads, self.colnames = self._get_msid_data(
+                get_msid_data = self._get_msid_data_cached if CACHE else self._get_msid_data
+                self.vals, self.times, self.bads, self.colnames = get_msid_data(
                     self.content, self.tstart, self.tstop, self.msid)
 
     def _get_stat_data(self):
@@ -190,9 +194,15 @@ class MSID(object):
         if hasattr(self, 'means'):
             self.vals = self.means
 
-
     @staticmethod
     @cache.lru_cache(30)
+    def _get_msid_data_cached(content, tstart, tstop, msid):
+        """Do the actual work of getting time and values for an MSID from HDF5 files
+        and cache recent results.  Caching is very beneficial for derived
+        parameter updates but not desirable for normal fetch usage."""
+        return MSID._get_msid_data(content, tstart, tstop, msid)
+
+    @staticmethod
     def _get_msid_data(content, tstart, tstop, msid):
         """Do the actual work of getting time and values for an MSID from HDF5 files"""
 

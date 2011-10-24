@@ -28,7 +28,9 @@ import Ska.engarchive.file_defs as file_defs
 import Ska.engarchive.derived as derived
 import Ska.arc5gl
 
-from IPython.Debugger import Tracer
+# Configure fetch.MSID to cache recent results for performance in
+# derived parameter updates.
+fetch.CACHE = True
 
 def get_options():
     parser = optparse.OptionParser()
