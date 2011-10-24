@@ -60,6 +60,10 @@ logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
 
+# Warn the user if ENG_ARCHIVE is set such that the data path is non-standard
+if os.getenv('ENG_ARCHIVE'):
+    print('fetch: using ENG_ARCHIVE={} for archive path'.format(os.getenv('ENG_ARCHIVE')))
+
 def get_units():
     """Get the unit system currently being used for conversions.
     """
