@@ -8,6 +8,7 @@ new features:
   Currently there are number of thermal values and ACIS power values.  
 
 - Two new `fetch.MSID <http://goo.gl/GBYvV>`_ methods:
+
   - logical_intervals() returns contiguous intervals during which a logical
     expression is true.
   - state_intervals() determines contiguous intervals during which the MSID
