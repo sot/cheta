@@ -68,7 +68,6 @@ def get_options():
                       default=100,
                       help="Maximum number of archive files to ingest at once")
     parser.add_option("--data-root",
-                      default=".",
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--occ",
                       action="store_true",
