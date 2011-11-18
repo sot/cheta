@@ -436,7 +436,7 @@ class MSID(object):
             i_ends = i_ends[1:]
 
         tstarts = times[i_starts]
-        tstop = times[i_ends]
+        tstops = times[i_ends]
         intervals = {'datestart': DateTime(tstarts).date,
                      'datestop': DateTime(tstops).date,
                      'duration': times[i_ends] - times[i_starts],
