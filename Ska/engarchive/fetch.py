@@ -196,6 +196,7 @@ class MSID(object):
         # consistent use of the 'vals' attribute and there is little use for the
         # original sampled version.
         if hasattr(self, 'means'):
+            self.midvals = self.vals
             self.vals = self.means
 
     @staticmethod
