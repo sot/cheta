@@ -646,7 +646,15 @@ def update_msid_files(filetype, archfiles):
             if filetype['instrum'] in ['EPHEM', 'DERIVED']:
                 max_gap = 601
             elif filetype['content'] == 'ACISDEAHK':
-                max_gap = 3600
+                max_gap = 10000
+                # From P.Plucinsky 2011-09-23
+                # If ACIS is executing an Event Histogram run while in FMT1,
+                # the telemetry stream will saturate.  The amount of time for
+                # an opening in the telemetry to appear such that DEA HKP
+                # packets can get out is a bit indeterminate.  The histograms
+                # integrate for 5400s and then they are telemetered.  I would
+                # suggest 6000s, but perhaps you would want to double that to
+                # 12000s.
             else:
                 max_gap = 32.9
         if time_gap > max_gap:
