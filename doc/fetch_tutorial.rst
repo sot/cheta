@@ -312,7 +312,8 @@ Name        5min   daily  Supported types   Column type       Description
 times         x      x    int,float,string  float             Time at midpoint
 indexes       x      x    int,float,string  int               Interval index
 samples       x      x    int,float,string  int16             Number of samples
-vals          x      x    int,float,string  int,float,string  Sample at midpoint
+midvals       x      x    int,float,string  int,float,string  Sample at midpoint
+vals          x      x    int,float         int,float         Mean
 mins          x      x    int,float         int,float         Minimum
 maxes         x      x    int,float         int,float         Maximum
 means         x      x    int,float         float             Mean
