@@ -1,3 +1,14 @@
+0.14
+====
+
+Minor updates and bug fixes:
+
+- Change max_gap for ACISDEAHK from 3600 to 10000 sec
+- Add midvals attr for stat fetch
+- Fix ss_vector() to use quaternion midvals and handle missing telemetry
+- Fix typo in fetch.logical_intervals
+- Explicitly set --data-root when calling update_archive.py in task_schedule.cfg
+
 0.13
 ====
 
