@@ -132,8 +132,8 @@ class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
         magnitude[data.bads] = 1.0
         css_aca = css_aca / magnitude
         #Compute the angle between the vectors
-        dot_prod = (css_aca * fss_aca).sum(axis=0).clip(0, 1)
-        fss_css_angle_diff = degrees(np.abs(arccos(dot_prod)))
+        dot_prod = (css_aca * fss_aca).sum(axis=0)
+        fss_css_angle_diff = degrees(np.abs(arccos_clip(dot_prod)))
         return fss_css_angle_diff
 
 
@@ -169,8 +169,8 @@ class DP_MAN_ANG(DerivedParameterPcad):
         # Normalize delta_quat due to roundoff errors.
         magnitude = sqrt((delta_quat * delta_quat).sum(axis=0))
         magnitude[data.bads] = 1.0
-        delta_quat_norm = delta_quat / magnitude
-        man_ang = 2.0 * degrees(arccos(np.abs(delta_quat_norm[3, :])))
+        delta_quat3 = np.abs(delta_quat[3, :] / magnitude)
+        man_ang = 2.0 * degrees(arccos_clip(delta_quat3))
 
         man = (data['aomanend'].vals == 'NEND')
         man_ang[~man] = 0
@@ -230,7 +230,7 @@ class DP_PITCH(DerivedParameterPcad):
         magnitude = sqrt((sun_vec_b * sun_vec_b).sum(axis=0))
         magnitude[data.bads] = 1.0
         sun_vec_norm = sun_vec_b / magnitude  # Normalize
-        pitch = degrees(arccos(sun_vec_norm[0, :]))
+        pitch = degrees(arccos_clip(sun_vec_norm[0, :]))
         return pitch
 
 
@@ -268,7 +268,7 @@ class DP_PITCH_PRED(DerivedParameterPcad):
         magnitude = sqrt((sun_vec_b * sun_vec_b).sum(axis=0))
         magnitude[data.bads] = 1.0
         sun_vec_norm = sun_vec_b / magnitude  # Normalize
-        pitch_pred = degrees(arccos(sun_vec_norm[0, :]))
+        pitch_pred = degrees(arccos_clip(sun_vec_norm[0, :]))
         return pitch_pred
 
 
@@ -300,7 +300,7 @@ class DP_PITCH_CSS(DerivedParameterPcad):
         magnitude = sqrt((css_aca * css_aca).sum(axis=0))
         magnitude[data.bads] = 1.0
         sun_vec_norm = css_aca / magnitude
-        pitch_css = degrees(arccos(sun_vec_norm[0]))
+        pitch_css = degrees(arccos_clip(sun_vec_norm[0]))
         return pitch_css
 
 
@@ -318,7 +318,7 @@ class DP_PITCH_CSS_SA(DerivedParameterPcad):
     time_step = 8.2
 
     def calc(self, data):
-        pitch_css_sa = 90.0 - degrees(arccos(data['aosunsa1'].vals))
+        pitch_css_sa = 90.0 - degrees(arccos_clip(data['aosunsa1'].vals))
         return pitch_css_sa
 
 
@@ -695,3 +695,6 @@ def qrotate(q, r):
               r[2] * (q[0] ** 2 + q[1] ** 2 - q[2] ** 2 - q[3] ** 2))
 
     return rot
+
+def arccos_clip(x):
+    return np.arccos(x.clip(-1, 1))
