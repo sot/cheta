@@ -5,7 +5,7 @@ Author: A. Arvai (Jan 2012 initial version)
 """
 
 import numpy as np
-from numpy import cos, sin, arccos, sqrt, degrees, radians, arctan2
+from numpy import cos, sin, sqrt, degrees, radians, arctan2
 from . import base
 
 
@@ -215,22 +215,8 @@ class DP_PITCH(DerivedParameterPcad):
     time_step = 1.025
 
     def calc(self, data):
-        chandra_eci = np.array([data['orbitephem1_x'].vals,
-                                data['orbitephem1_y'].vals,
-                                data['orbitephem1_y'].vals])
-        sun_eci = np.array([data['solarephem1_x'].vals,
-                            data['solarephem1_y'].vals,
-                            data['solarephem1_z'].vals])
-        sun_vec = -chandra_eci + sun_eci
-        est_quat = np.array([data['aoattqt1'].vals,
-                             data['aoattqt2'].vals,
-                             data['aoattqt3'].vals,
-                             data['aoattqt4'].vals])
-        sun_vec_b = qrotate(est_quat, sun_vec)  # Rotate into body frame
-        magnitude = sqrt((sun_vec_b * sun_vec_b).sum(axis=0))
-        magnitude[data.bads] = 1.0
-        sun_vec_norm = sun_vec_b / magnitude  # Normalize
-        pitch = degrees(arccos_clip(sun_vec_norm[0, :]))
+        sun_vec_b = sun_vector_body(data)
+        pitch = degrees(arccos_clip(sun_vec_b[0, :]))
         return pitch
 
 
@@ -253,22 +239,8 @@ class DP_PITCH_PRED(DerivedParameterPcad):
     time_step = 1.025
 
     def calc(self, data):
-        chandra_eci = np.array([data['orbitephem0_x'].vals,
-                                data['orbitephem0_y'].vals,
-                                data['orbitephem0_y'].vals])
-        sun_eci = np.array([data['solarephem0_x'].vals,
-                            data['solarephem0_y'].vals,
-                            data['solarephem0_z'].vals])
-        sun_vec = -chandra_eci + sun_eci
-        est_quat = np.array([data['aoattqt1'].vals,
-                             data['aoattqt2'].vals,
-                             data['aoattqt3'].vals,
-                             data['aoattqt4'].vals])
-        sun_vec_b = qrotate(est_quat, sun_vec)  # Rotate into body frame
-        magnitude = sqrt((sun_vec_b * sun_vec_b).sum(axis=0))
-        magnitude[data.bads] = 1.0
-        sun_vec_norm = sun_vec_b / magnitude  # Normalize
-        pitch_pred = degrees(arccos_clip(sun_vec_norm[0, :]))
+        sun_vec_b = sun_vector_body(data, predictive=True)
+        pitch_pred = degrees(arccos_clip(sun_vec_b[0, :]))
         return pitch_pred
 
 
@@ -344,6 +316,31 @@ class DP_PITCH_FSS(DerivedParameterPcad):
 
 
 #--------------------------------------------
+class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
+    """Angle between Sun and ACA X/Z plane [Deg]
+
+    Incidence angle of the Sun vector on the ACA X/Z plane.
+
+    Calculated using the four-quadrant arctan of the sun vector y and z
+    components in the ACA frame where the sun vector is from definitive
+    ephemeris [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from
+    the OBC's estimated quaternion [AOATTQT<n>].
+
+    http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
+    """
+    rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
+                  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
+                  'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
+    time_step = 1.025
+
+    def calc(self, data):
+        sun_vec_b = sun_vector_body(data)
+        roll = degrees(arctan2(sun_vec_b[1],
+                               sqrt(sun_vec_b[0] ** 2 + sun_vec_b[2] ** 2)))
+        return roll
+
+
+#--------------------------------------------
 class DP_ROLL(DerivedParameterPcad):
     """Off-Nominal Roll Angle in ACA Frame [Deg]
 
@@ -355,7 +352,8 @@ class DP_ROLL(DerivedParameterPcad):
     ephemeris [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from
     the OBC's estimated quaternion [AOATTQT<n>].
 
-    """	
+    http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
+    """
     rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
                   'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
                   'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
@@ -363,22 +361,8 @@ class DP_ROLL(DerivedParameterPcad):
     time_step = 1.025
 
     def calc(self, data):
-        chandra_eci = np.array([data['orbitephem1_x'].vals,
-                                data['orbitephem1_y'].vals,
-                                data['orbitephem1_y'].vals])
-        sun_eci = np.array([data['solarephem1_x'].vals,
-                            data['solarephem1_y'].vals,
-                            data['solarephem1_z'].vals])
-        sun_vec = -chandra_eci + sun_eci
-        est_quat = np.array([data['aoattqt1'].vals,
-                             data['aoattqt2'].vals,
-                             data['aoattqt3'].vals,
-                             data['aoattqt4'].vals])
-        sun_vec_b = qrotate(est_quat, sun_vec)  # Rotate into body frame
-        magnitude = sqrt((sun_vec_b * sun_vec_b).sum(axis=0))
-        magnitude[data.bads] = 1.0
-        sun_vec_norm = sun_vec_b / magnitude  # Normalize
-        roll = degrees(arctan2(-sun_vec_norm[1, :], -sun_vec_norm[2, :]))
+        sun_vec_b = sun_vector_body(data)
+        roll = degrees(arctan2(-sun_vec_b[1, :], -sun_vec_b[2, :]))
         return roll
 
 
@@ -402,22 +386,8 @@ class DP_ROLL_PRED(DerivedParameterPcad):
     time_step = 1.025
 
     def calc(self, data):
-        chandra_eci = np.array([data['orbitephem0_x'].vals,
-                                data['orbitephem0_y'].vals,
-                                data['orbitephem0_y'].vals])
-        sun_eci = np.array([data['solarephem0_x'].vals,
-                            data['solarephem0_y'].vals,
-                            data['solarephem0_z'].vals])
-        sun_vec = -chandra_eci + sun_eci
-        est_quat = np.array([data['aoattqt1'].vals,
-                             data['aoattqt2'].vals,
-                             data['aoattqt3'].vals,
-                             data['aoattqt4'].vals])
-        sun_vec_b = qrotate(est_quat, sun_vec)  # Rotate into body frame
-        magnitude = sqrt((sun_vec_b * sun_vec_b).sum(axis=0))
-        magnitude[data.bads] = 1.0
-        sun_vec_norm = sun_vec_b / magnitude  # Normalize
-        roll_pred = degrees(arctan2(-sun_vec_norm[1,:], -sun_vec_norm[2,:]))
+        sun_vec_b = sun_vector_body(data, predictive=True)
+        roll_pred = degrees(arctan2(-sun_vec_b[1,:], -sun_vec_b[2,:]))
         return roll_pred
 
 
@@ -680,7 +650,7 @@ def qrotate(q, r):
     :returns r rotated by q as an array with the same shape as r
     """
     if q.shape[0] != 4:
-        raise ValueError('Input quaternion must have shape (4,) or (4, N, ..).')
+        raise ValueError('Input quaternion must have shape (4,) or (4, N, ..)')
     if r.shape[0] != 3:
         raise ValueError('Input vector must have shape (3,) or (3, N, ..).')
     rot = np.zeros_like(r)
@@ -696,5 +666,36 @@ def qrotate(q, r):
 
     return rot
 
+
 def arccos_clip(x):
     return np.arccos(x.clip(-1, 1))
+
+
+def sun_vector_body(data, predictive=False):
+    """Calculate the normalized sun vector in body coordinates.
+
+    :param data: MSIDset with orbitephem, solarephem and aoattqt<N> MSIDs
+    :param predictive: use predictive ephemeris
+    :returns: 3 x N array of vectors
+    """
+    orbit = 'orbitephem{}_'.format('0' if predictive else '1')
+    solar = 'solarephem{}_'.format('0' if predictive else '1')
+
+    chandra_eci = np.array([data[orbit + 'x'].vals,
+                            data[orbit + 'y'].vals,
+                            data[orbit + 'z'].vals])
+    sun_eci = np.array([data[solar + 'x'].vals,
+                        data[solar + 'y'].vals,
+                        data[solar + 'z'].vals])
+    sun_vec = -chandra_eci + sun_eci
+    est_quat = np.array([data['aoattqt1'].vals,
+                         data['aoattqt2'].vals,
+                         data['aoattqt3'].vals,
+                         data['aoattqt4'].vals])
+
+    sun_vec_b = qrotate(est_quat, sun_vec)  # Rotate into body frame
+    magnitude = sqrt((sun_vec_b ** 2).sum(axis=0))
+    magnitude[data.bads] = 1.0
+    sun_vec_b = sun_vec_b / magnitude  # Normalize
+
+    return sun_vec_b
