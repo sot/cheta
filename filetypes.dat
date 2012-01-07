@@ -77,6 +77,10 @@ L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
 L3   DERIVED   DP_THERMAL1     -                            -
 L3   DERIVED   DP_THERMAL128   -                            -
 L3   DERIVED   DP_ACISPOW128   -                            -
+L3   DERIVED   DP_PCAD1        -                            -
+L3   DERIVED   DP_PCAD4        -                            -
+L3   DERIVED   DP_PCAD16       -                            -
+L3   DERIVED   DP_PCAD32       -                            -
 # 
 # Candidate file types.
 # Arc5gl query <instrum>_<type>_<level> (or <instrum>_<level>if type is None)

@@ -207,7 +207,11 @@ ACIS Power
 ^^^^^^^^^^^
 .. automodule:: Ska.engarchive.derived.acispow
    :members:
-   :undoc-members:
+
+PCAD
+^^^^^
+.. automodule:: Ska.engarchive.derived.pcad
+   :members:
 
 Thermal
 ^^^^^^^^^
