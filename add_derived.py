@@ -21,6 +21,12 @@ def get_options():
     parser.add_option("--data-root",
                       default=".",
                       help="Engineering archive root directory for MSID and arch files")
+    parser.add_option("--start",
+                      default="2000:001",
+                      help="Start for initial data fetch")
+    parser.add_option("--stop",
+                      default="2000:010",
+                      help="Stop for initial data fetch")
     return parser.parse_args()
 
 def make_archfiles_db(filename, content_def):
@@ -28,7 +34,7 @@ def make_archfiles_db(filename, content_def):
     if os.path.exists(filename):
         return
 
-    datestart = DateTime('1999:365:23:59:00')
+    datestart = DateTime(DateTime(opt.start).secs - 60)
     tstart = datestart.secs
     tstop = tstart
     year, doy = datestart.date.split(':')[:2]
@@ -77,11 +83,11 @@ def make_msid_file(colname, content, content_def):
     logger.info('Making MSID data file %s', filename)
 
     if colname == 'TIME':
-        dp_vals, indexes = derived.times_indexes('2010:001', '2010:010',
+        dp_vals, indexes = derived.times_indexes(opt.start, opt.stop,
                                                  content_def['time_step'])
     else:
         dp = content_def['classes'][colname]()
-        dataset = dp.fetch('2010:001', '2010:010')
+        dataset = dp.fetch(opt.start, opt.stop)
         dp_vals = dp.calc(dataset)
 
     # Finally make the actual MSID data file
