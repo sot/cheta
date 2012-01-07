@@ -213,9 +213,9 @@ class DP_PITCH(DerivedParameterPcad):
 
     """
     rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
-    		  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
-    		  'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
-    		  'aoattqt4']
+                  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
+                  'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
+                  'aoattqt4']
     time_step = 1.025
 
     def calc(self, data):
@@ -250,13 +250,13 @@ class DP_PITCH_PRED(DerivedParameterPcad):
 
     """
     rootparams = ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z',
-    		  'solarephem0_x', 'solarephem0_y', 'solarephem0_z',
-    		  'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
-    		  'aoattqt4']
+                  'solarephem0_x', 'solarephem0_y', 'solarephem0_z',
+                  'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
+                  'aoattqt4']
     time_step = 1.025
 
     def calc(self, data):
-	chandra_eci = np.array([data['orbitephem0_x'].vals,
+        chandra_eci = np.array([data['orbitephem0_x'].vals,
                                 data['orbitephem0_y'].vals,
                                 data['orbitephem0_y'].vals])
         sun_eci = np.array([data['solarephem0_x'].vals,
@@ -330,7 +330,7 @@ class DP_PITCH_FSS(DerivedParameterPcad):
     Defined as the angle between the sun vector and ACA X-axis.
 
     Calculated as:
-    90 - AOBETANG 	when in FSS FOV per AOSUNPRS
+    90 - AOBETANG     when in FSS FOV per AOSUNPRS
     <data>.bads = 1     when NOT in FSS FOV per AOSUNPRS
 
     """
@@ -356,7 +356,7 @@ class DP_ROLL(DerivedParameterPcad):
     ephemeris [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from
     the OBC's estimated quaternion [AOATTQT<n>].
 
-    """	
+    """
     rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
                   'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
                   'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
@@ -395,7 +395,7 @@ class DP_ROLL_PRED(DerivedParameterPcad):
     ephemeris [SOLAREPHEM0 and ORBITEPHEM0] and the estimated attitude from
     the OBC's estimated quaternion [AOATTQT<n>].
 
-    """	
+    """
     rootparams = ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z',
                   'solarephem0_x', 'solarephem0_y', 'solarephem0_z',
                   'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
@@ -438,17 +438,17 @@ class DP_ROLL_CSS(DerivedParameterPcad):
 
     def calc(self, data):
         sa_ang_avg = (1.0 * data['aosares1'].vals +
-	              1.0 * data['aosares2'].vals) / 2
-	sinang = np.sin(sa_ang_avg * np.pi / 180)
-	cosang = np.cos(sa_ang_avg * np.pi / 180)
-	#Rotate CSS sun vector from SA to ACA frame
-	css_aca = np.array([sinang * data['aosunsa1'].vals -
-	                    cosang * data['aosunsa3'].vals,
-	                    data['aosunsa2'].vals * 1.0,
-	                    cosang * data['aosunsa1'].vals +
-	                    sinang * data['aosunsa3'].vals])
-	#Normalize sun vec (again) and compute pitch
-	magnitude = np.sqrt((css_aca * css_aca).sum(axis=0))
+              1.0 * data['aosares2'].vals) / 2
+        sinang = np.sin(sa_ang_avg * np.pi / 180)
+        cosang = np.cos(sa_ang_avg * np.pi / 180)
+        #Rotate CSS sun vector from SA to ACA frame
+        css_aca = np.array([sinang * data['aosunsa1'].vals -
+                            cosang * data['aosunsa3'].vals,
+                            data['aosunsa2'].vals * 1.0,
+                            cosang * data['aosunsa1'].vals +
+                            sinang * data['aosunsa3'].vals])
+        #Normalize sun vec (again) and compute pitch
+        magnitude = np.sqrt((css_aca * css_aca).sum(axis=0))
         sun_vec_norm = css_aca / magnitude
         roll_css = (np.arctan2(-sun_vec_norm[1,:], -sun_vec_norm[2,:])
                     * 180 / np.pi)
@@ -483,7 +483,7 @@ class DP_ROLL_FSS(DerivedParameterPcad):
     vector with the ACA X/Z plane.
 
     Calculated as:
-    -AOALPANG	 	when in FSS FOV per AOSUNPRS
+    -AOALPANG         when in FSS FOV per AOSUNPRS
     <data>.bads = 1     when NOT in FSS FOV per AOSUNPRS
 
     """
