@@ -18,7 +18,7 @@ opt, args = get_options()
 flight = pickle.load(open(opt.root + '.flight'))
 test = pickle.load(open(opt.root + '.test'))
 
-msids = ('1crat', 'fptemp_11', 'orbitephem0_x', 'sim_z', 'tephin', 'cvcductr')
+msids = ('1crat', 'fptemp_11', 'orbitephem0_x', 'sim_z', 'tephin', 'cvcductr', 'dp_dpa_power')
 attrs = ('times', 'vals', 'quals', 'stds', 'mins', 'maxes', 'means',
          'p01s', 'p05s', 'p16s', 'p50s', 'p84s', 'p95s', 'p99s')
 

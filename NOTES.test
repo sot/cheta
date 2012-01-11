@@ -4,24 +4,30 @@
 
 # First make test data.  This sets ENG_ARCHIVE in that window.
 
-source make_test_eng_archive.csh
+[[ source make_test_eng_archive.csh ]]
+. make_test_eng_archive.sh
 
 # Basic sanity test with some plots
 
-setenv ENG_ARCHIVE $PWD/test/eng_archive
+[[ setenv ENG_ARCHIVE $PWD/test/eng_archive ]]
+export ENG_ARCHIVE=$PWD/test/eng_archive
+
 test/make_plots.py
 
 # Regression test.  Get_regr_vals.py uses the local ../Ska/engarchive/fetch.py
 # if --test is given, otherwise uses the installed Ska version.  It sets
 # ENG_ARCHIVE internally prior to importing fetch.
 
-unsetenv ENG_ARCHIVE
+[[ unsetenv ENG_ARCHIVE ]]
+unset ENG_ARCHIVE
+
 cd test
   ./get_regr_vals.py --start 2010:265 --stop 2010:285
   ./get_regr_vals.py --start 2010:265 --stop 2010:285 --test 
   ./compare_regr_vals.py
 cd ..
-setenv ENG_ARCHIVE $PWD/test/eng_archive
+[[ setenv ENG_ARCHIVE $PWD/test/eng_archive ]]
+export ENG_ARCHIVE=$PWD/test/eng_archive
 
 ## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df
 

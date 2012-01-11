@@ -39,7 +39,7 @@ def get_options():
                       default="test_eng_archive",
                       help="Engineering archive root directory for MSID files")
     parser.add_option("--contents",
-                      default="acis2eng,acisdeahk,orbitephem0,simcoor,thm1eng,ccdm4eng",
+                      default="acis2eng,acisdeahk,orbitephem0,simcoor,thm1eng,ccdm4eng,dp_acispow128",
                       help="Content type to process (default = all)")
     return parser.parse_args()
 
@@ -172,7 +172,8 @@ for content in contents:
     logger.info("Making content {0}".format(content.upper()))
     make_test_content_dir()
     file_records = get_interval_files(opt.start, opt.stop)
-    copy_archfiles_to_test(file_records)
+    if not content.lower().startswith('dp_'):
+        copy_archfiles_to_test(file_records)
 
     tstart = file_records[0]['tstart']
     tstop = file_records[-1]['tstop']
