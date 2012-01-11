@@ -1,3 +1,6 @@
+.. |fetch_MSID| replace:: :func:`~Ska.engarchive.fetch.MSID`
+.. |fetch_MSIDset| replace:: :func:`~Ska.engarchive.fetch.MSIDset`
+
 ================================
 Fetch Tutorial
 ================================
@@ -65,7 +68,9 @@ easy::
 
 .. image:: fetchplots/first.png
 
-The ``tephin`` variable returned by ``fetch.MSID()`` is an ``MSID`` object and
+
+
+The ``tephin`` variable returned by |fetch_MSID| is an ``MSID`` object and
 we can access the various object attributes with ``<object>.<attr>``.  The
 timestamps ``tephin.times`` and the telemetry values ``tephin.vals`` are both
 numpy arrays.  As such you can inspect them and perform numpy operations and
@@ -286,7 +291,7 @@ computed over 5 minute and daily intervals.  To be more precise, the intervals
 are 328 seconds (10 major frames) and 86400 seconds.  The daily intervals are
 not *exactly* lined up with the midnight boundary but are within a couple of minutes.  
 These data are accessed by specifying 
-``stat=<interval>`` in the ``fetch.MSID()`` call::
+``stat=<interval>`` in the |fetch_MSID| call::
 
   tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
   tephin_daily = fetch.MSID('tephin', '2000:001', stat='daily')
@@ -372,14 +377,12 @@ Say you want to calculate the spacecraft rates directly from telemetered gyro
 count values instead of relying on OBC rates.  To do this you need to have
 valid data for all 4 gyro channels at identical times.  In this case we know that 
 the gyro count MSIDs AOGYRCT<N> all come at the same rate so the only issue is with
-bad values.
-::
+bad values.  Taking advantage `MSID globs`_ to choose ``AOGYRCT1, 2, 3, 4`` we can write::
 
-  gyro_msids = ['aogyrct1', 'aogyrct2', 'aogyrct3', 'aogyrct4']
-  cts = fetch.MSIDset(gyro_msids, '2009:001', '2009:002')
+  cts = fetch.MSIDset(['aogyrct?'], '2009:001', '2009:002')
   cts.filter_bad()
   # OR equivalently
-  cts = fetch.MSIDset(gyro_msids, '2009:001', '2009:002', filter_bad=True)
+  cts = fetch.MSIDset(['aogyrct?'], '2009:001', '2009:002', filter_bad=True)
 
 Now we know that ``cts['aogyrct1']`` is exactly lined up with
 ``cts['aogyrct2']`` and so forth.  Any bad value among the 4 MSIDs will filter
@@ -484,6 +487,53 @@ Example::
   fetch.set_units('sci')
   mom1 = fetch.MSID('aosymom1', '2010:001', '2010:002')
   print mom1.unit  # print "J*s"
+
+MSID globs
+=============================
+
+Each input ``msid`` for |fetch_MSID| or |fetch_MSIDset| is
+case-insensitive and can include the linux file "glob" patterns "*", "?", and
+"[<characters>]".  See the `fnmatch
+<http://docs.python.org/library/fnmatch.html>`_ documentation for more details.
+
+In the case of fetching a single MSID with fetch.MSID, the pattern must match
+exactly one MSID.  The following are valid examples of the input MSID glob and
+the matched MSID::
+
+    "orb*1*_x": ORBITEPHEM1_X
+    "*pcadmd": AOPCADMD
+
+The real power of globbing is for |fetch_MSIDset| where you can easily
+choose a few related MSIDs::
+
+    "orb*1*_?": ORBITEPHEM1_X, Y and Z
+    "orb*1*_[xyz]": ORBITEPHEM1_X, Y and Z
+    "aoattqt[123]": AOATTQT1, 2, and 3
+    "aoattqt*": AOATTQT1, 2, 3, and 4
+
+    dat = fetch.MSIDset(['orb*1*_[xyz]', 'aoattqt*'], ...)
+
+The :func:`~Ska.engarchive.fetch.msid_glob` method will show you exactly what
+matches a given ``msid``::
+
+    >>> fetch.msid_glob('orb*1*_?')
+    (['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z'],
+     ['ORBITEPHEM1_X', 'ORBITEPHEM1_Y', 'ORBITEPHEM1_Z'])
+    
+    >>> fetch.msid_glob('dpa_power')
+    (['dpa_power'], ['DP_DPA_POWER'])
+
+If the MSID glob matches more than 10 MSIDs then an exception is raised to
+prevent accidentally trying to fetch too many MSIDs (e.g. if you provided "AO*"
+as an input).  This limit can be changed by setting the ``MAX_GLOB_MATCHES``
+module attribute::
+
+    fetch.MAX_GLOB_MATCHES = 20
+
+Finally, for derived parameters the initial ``DP_`` is optional::
+
+    "dpa_pow*": DP_DPA_POWER
+    "roll": DP_ROLL
 
 Pushing it to the limit
 ========================

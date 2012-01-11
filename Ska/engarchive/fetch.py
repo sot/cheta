@@ -9,6 +9,8 @@ import contextlib
 import cPickle as pickle
 import logging
 import operator
+import fnmatch
+import collections
 
 import numpy
 import tables
@@ -29,6 +31,10 @@ SKA = os.getenv('SKA') or '/proj/sot/ska'
 ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
 IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
 
+# Maximum number of MSIDs that should ever match an input MSID spec
+# (to prevent accidentally selecting a very large number of MSIDs)
+MAX_GLOB_MATCHES = 10
+
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
@@ -38,12 +44,12 @@ msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
 filetypes = asciitable.read(msid_files['filetypes'].abs)
-content = dict()
+content = collections.OrderedDict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
     try:
         colnames = pickle.load(open(msid_files['colnames'].abs))
-        content.update((x, ft['content'].val) for x in colnames
+        content.update((x, ft['content'].val) for x in sorted(colnames)
                        if x not in IGNORE_COLNAMES)
     except IOError:
         pass
@@ -108,9 +114,50 @@ try:
 except IOError:
     pass
 
-class MSID(object):
+
+def msid_glob(msid):
+    """Get the archive MSIDs matching ``msid``.  
+
+    The function returns a tuple of (msids, MSIDs) where ``msids`` is a
+    list of MSIDs that is all lower case and (where possible) matches the input
+    ``msid``.  The output ``MSIDs`` is all upper case and corresponds to the
+    exact MSID names stored in the archive HDF5 files.
+
+    :param msid: input MSID glob
+    :returns: tuple (msids, MSIDs)
     """
-    Fetch data from the engineering telemetry archive into an MSID object. 
+    
+    MSID = msid.upper()
+    # First try MSID or DP_<MSID>.  If success then return the upper
+    # case version and whatever the user supplied (could be any case).
+    for match in (MSID, 'DP_' + MSID):
+        if match in content:
+            return [msid], [match]
+
+    # Next try as a file glob.  If there is a match then return a
+    # list of matches, all lower case and all upper case.  Since the
+    # input was a glob the returned msids are just lower case versions
+    # of the matched upper case MSIDs.
+    for match in (MSID, 'DP_' + MSID):
+        matches = fnmatch.filter(content.keys(), match)
+        if matches:
+            if len(matches) > MAX_GLOB_MATCHES:
+                raise ValueError(
+                    'MSID spec {} matches more than {} MSIDs.  '
+                    'Refine the spec or increase fetch.MAX_GLOB_MATCHES'
+                    .format(msid, MAX_GLOB_MATCHES))
+            return [x.lower() for x in matches], matches
+
+    raise ValueError('MSID {} is not in Eng Archive'.format(MSID))
+
+
+class MSID(object):
+    """Fetch data from the engineering telemetry archive into an MSID object.
+
+    The input ``msid`` is case-insensitive and can include linux file "glob"
+    patterns, for instance ``orb*1*_x`` (ORBITEPHEM1_X) or ``*pcadmd`` (AOPCADMD).
+    For derived parameters the initial "DP_" is optional, for instance 
+    ``dpa_pow*`` (DP_DPA_POWER).
 
     :param msid: name of MSID (case-insensitive)
     :param start: start date of telemetry (Chandra.Time compatible)
@@ -121,8 +168,14 @@ class MSID(object):
     :returns: MSID instance
     """
     def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
-        self.msid = msid
-        self.MSID = msid.upper()
+        msids, MSIDs = msid_glob(msid)
+        if len(MSIDs) > 1:
+            raise ValueError('Multiple matches for {} in Eng Archive'
+                             .format(msid))
+        else:
+            self.msid = msids[0]
+            self.MSID = MSIDs[0]
+
         self.unit = units.get_msid_unit(self.MSID)
         self.stat = stat
         if stat:
@@ -160,7 +213,7 @@ class MSID(object):
             else:
                 get_msid_data = self._get_msid_data_cached if CACHE else self._get_msid_data
                 self.vals, self.times, self.bads, self.colnames = get_msid_data(
-                    self.content, self.tstart, self.tstop, self.msid)
+                    self.content, self.tstart, self.tstop, self.MSID)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5 files"""
@@ -500,8 +553,13 @@ class MSID(object):
         import Ska.Numpy
         return Ska.Numpy.structured_array(intervals)
 
-class MSIDset(dict):
+class MSIDset(collections.OrderedDict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
+
+    Each input ``msid`` is case-insensitive and can include linux file "glob"
+    patterns, for instance ``orb*1*_?`` (ORBITEPHEM1_X, Y and Z) or
+    ``aoattqt[1234]`` (AOATTQT1, 2, 3, and 4).  For derived parameters the
+    initial "DP_" is optional, for instance ``dpa_pow*`` (DP_DPA_POWER).
 
     :param msids: list of MSID names (case-insensitive)
     :param start: start date of telemetry (Chandra.Time compatible)
@@ -514,16 +572,18 @@ class MSIDset(dict):
     def __init__(self, msids, start, stop=None, filter_bad=False, stat=None):
         super(MSIDset, self).__init__()
 
-        self.msids = msids
         self.tstart = DateTime(start).secs
         self.tstop = DateTime(stop).secs if stop else DateTime(time.time(),
                                                                format='unix').secs
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
 
+        # Input ``msids`` may contain globs, so expand each and add to new list
+        new_msids = []
         for msid in msids:
+            new_msids.extend(msid_glob(msid)[0])
+        for msid in new_msids:
             self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False, stat=stat)
-
         if filter_bad:
             self.filter_bad()
 

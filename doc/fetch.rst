@@ -32,6 +32,8 @@ Functions
 
 .. autofunction:: get_units
 
+.. autofunction:: msid_glob
+
 .. autofunction:: read_bad_times
 
 .. autofunction:: set_units
