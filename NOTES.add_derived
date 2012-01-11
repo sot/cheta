@@ -9,17 +9,18 @@ git checkout -b derived
 - Update Ska/engarchive/derived/__init__.py
 - Update Ska/engarchive/derived/<new>.py
 
-# From dev directory or link to somewhere else, perhaps local disk
+# In top of dev directory (for bash)
 
-set content=<new>
-mkdir data    
+content=<new>
+mkdir -p /data/cosmos2/eng_archive/derived/data
+ln -s /data/cosmos2/eng_archive/derived/data ./
 
 # Make $PWD the default root in fetch for read but also allow fall-through to
 # $ska.  This is needed so that update_archive can read the needed data to
 # compute the derived.  ENG_ARCHIVE only affects fetch for reading so it is
 # safe to do this.  The --data-root value controls the write dir.
 
-setenv ENG_ARCHIVE ${PWD}:/proj/sot/ska/data/eng_archive
+export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 
 # Add_derived.py checks for any new derived content types or columns.  Note
 # that you cannot just add a new column to an existing content type because the
@@ -58,10 +59,10 @@ git push origin derived:derived
 ## Full ingest / update
 ####################################################
 
-# CAREFULLY do this
-rm -rf data/*   
-
+# CAREFULLY do this (don't remove everything, just the new bit)
 set content=<new>
+rm -rf data/dp_${content}*   
+
 ./add_derived.py --data-root=$PWD
 
 For a quantity sampled at 32.8 sec or slower, this should work:
