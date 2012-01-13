@@ -617,7 +617,8 @@ class MSIDset(collections.OrderedDict):
         for content in set(x.content for x in self.values()):
             bads = None
 
-            msids = [x for x in self.values() if x.content == content]
+            msids = [x for x in self.values()
+                     if x.content == content and x.bads is not None]
             for msid in msids:
                 if bads is None:
                     bads = msid.bads.copy()
