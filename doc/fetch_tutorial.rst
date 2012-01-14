@@ -1,5 +1,6 @@
 .. |fetch_MSID| replace:: :func:`~Ska.engarchive.fetch.MSID`
 .. |fetch_MSIDset| replace:: :func:`~Ska.engarchive.fetch.MSIDset`
+.. |fetch_MSIDset_interpolate| replace:: :func:`~Ska.engarchive.fetch.MSIDset.interpolate`
 
 ================================
 Fetch Tutorial
@@ -434,6 +435,55 @@ new centroid value every 2.05 sec.
   plot(aca_rate, gyr_rate, '.')
 
 .. image:: fetchplots/aca_gyro_rates.png
+
+Interpolation
+--------------
+
+The |fetch_MSIDset_interpolate| method has some subtleties related to bad
+values.  In order to understand this, first read the method documentation (the
+previous link), then run the following code in pylab.  It will make two
+figures, each with four subplots.  Bad valued points are plotted with a filled
+black circle.  Read the code and correlate with the plot outputs to understand
+the details.
+::
+
+  from Ska.Matplotlib import plot_cxctime
+  from Ska.engarchive import fetch_eng as fetch
+
+  def plot_both(x, title_str):
+      plot_cxctime(x['aosares1'].times, x['aosares1'].vals, 'b')
+      plot_cxctime(x['dp_pitch_fss'].times, x['dp_pitch_fss'].vals, 'r')
+      bads = x['dp_pitch_fss'].bads
+      if bads is not None:
+          plot_cxctime(x['dp_pitch_fss'].times[bads],
+                       x['dp_pitch_fss'].vals[bads], 'ko')
+      title(title_str)
+
+  stat = None  # or try with stat = '5min' for another variation
+  dat = fetch.MSIDset(['aosares1','dp_pitch_fss'],'2000:002:00:00:00','2000:003', 
+                      stat=stat)
+
+  for filter_bad in (False, True):
+      fb_str = ' filter_bad={}'.format(filter_bad)
+      figure(figsize=(8, 10))
+
+      subplot(4, 1, 1)
+      plot_both(dat, 'Original Timestamps' + fb_str)
+
+      dat.interpolate(dt=300, filter_bad=filter_bad)
+      subplot(4, 1, 2)
+      plot_both(dat, 'Interpolated Timestamps' + fb_str)
+
+      subplot(4, 1, 3)
+      plot(dat['aosares1'].times - dat['dp_pitch_fss'].times)
+      title('AOSARES1.times - DP_PITCH_FSS.times' + fb_str)
+
+      subplot(4, 1, 4)
+      plot(dat['aosares1'].times0 - dat['dp_pitch_fss'].times0)
+      title('AOSARES1.times0 - DP_PITCH_FSS.times0' + fb_str)
+      
+      tight_layout()
+
 
 Unit systems
 ==============

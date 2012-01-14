@@ -628,14 +628,34 @@ class MSIDset(collections.OrderedDict):
             for msid in msids:
                 msid.filter_bad(bads)
 
-    def interpolate(self, dt=328.0, start=None, stop=None):
-        """Nearest-neighbor interpolation of all MSID values in the set to a common time sequence.
-        The values are updated in-place.
+    def interpolate(self, dt=328.0, start=None, stop=None, filter_bad=True):
+        """Perform nearest-neighbor interpolation of all MSID values in the set
+        to a common time sequence.  The values are updated in-place.
 
-        The time sequence steps uniformly by ``dt`` seconds starting at the ``start`` time for
-        the set.
+        The time sequence steps uniformly by ``dt`` seconds starting at the
+        ``start`` time and ending at the ``stop`` time.  If not provided the
+        times default to the ``start`` and ``stop`` times for the MSID set.
+
+        For each MSID in the set the ``times`` attribute is set to the common
+        time sequence.  In addition a new attribute ``times0`` is defined that
+        stores the nearest neighbor interpolated time, providing the *original*
+        timestamps of each new interpolated value for that MSID.
+
+        By default ``filter_bad`` is True and each MSID has bad data filtered
+        *before* interpolation so that the nearest neighbor interpolation
+        only finds good data.  In this case (or for ``stat`` values which do
+        not have bad values), the ``times0`` attribute can be used to diagnose
+        whether the interpolation is meaningful.  For instance large numbers of 
+        identical time stamps in ``times0`` may be a problem.
+
+        If ``filter_bad`` is set to false then data are not filtered.  In this
+        case the MSID ``bads`` values are interpolated as well and provide an
+        indication if the interpolated values are bad. 
 
         :param dt: time step (sec)
+        :param start: start of interpolation period (DateTime format)
+        :param stop: end of interpolation period (DateTime format)
+        :param filter_bad: filter bad values before interpolating
         """
         # Speed could be improved by clever use of bad masking among common content types
         # (assuming no bad filtering to begin with) so that interpolation only gets done once.
@@ -647,7 +667,8 @@ class MSIDset(collections.OrderedDict):
         self.times = numpy.arange(tstart, tstop, dt)
 
         for msid in self.values():
-            msid.filter_bad()
+            if filter_bad:
+                msid.filter_bad()
             logger.info('Interpolating index for %s', msid.msid)
             indexes = Ska.Numpy.interpolate(numpy.arange(len(msid.times)),
                                             msid.times, self.times, method='nearest')
@@ -656,6 +677,11 @@ class MSIDset(collections.OrderedDict):
                 colvals = getattr(msid, colname)
                 if colvals is not None:
                     setattr(msid, colname, colvals[indexes])
+
+            # Make a new attribute times0 that stores the nearest neighbor interpolated times.
+            # Then set the MSID times to be the common interpolation times.
+            msid.times0 = msid.times
+            msid.times = self.times
 
     def write_zip(self, filename):
         """Write MSIDset to a zip file named ``filename``
