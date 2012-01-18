@@ -1,33 +1,33 @@
-rm run2.log
-
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:060 --max-lookback-time=80 > run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:120 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:180 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:240 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:300 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:360 --max-lookback-time=80 >> run2.log 2>&1 
-
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:060 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:120 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:180 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:240 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:300 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:360 --max-lookback-time=80 >> run2.log 2>&1 
-
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:060 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:120 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:180 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:240 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:300 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:360 --max-lookback-time=80 >> run2.log 2>&1 
-
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:060 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:120 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:180 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:240 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:300 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:360 --max-lookback-time=80 >> run2.log 2>&1 
-
+# rm run2.log
+# 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:060 --max-lookback-time=80 > run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:120 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:180 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:240 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:300 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2000:360 --max-lookback-time=80 >> run2.log 2>&1 
+# 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:060 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:120 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:180 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:240 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:300 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2001:360 --max-lookback-time=80 >> run2.log 2>&1 
+# 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:060 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:120 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:180 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:240 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:300 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2002:360 --max-lookback-time=80 >> run2.log 2>&1 
+# 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:060 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:120 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:180 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:240 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:300 --max-lookback-time=80 >> run2.log 2>&1 
+# ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2003:360 --max-lookback-time=80 >> run2.log 2>&1 
+# 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2004:060 --max-lookback-time=80 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2004:120 --max-lookback-time=80 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2004:180 --max-lookback-time=80 >> run2.log 2>&1 
@@ -65,7 +65,7 @@ rm run2.log
 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2009:060 --max-lookback-time=80 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2009:120 --max-lookback-time=80 >> run2.log 2>&1 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2009:180 --max-lookback-time=280 >> run2.log 2>&1 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2009:180 --max-lookback-time=80 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2009:240 --max-lookback-time=80 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2009:300 --max-lookback-time=80 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2009:360 --max-lookback-time=80 >> run2.log 2>&1 
@@ -84,3 +84,4 @@ rm run2.log
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2011:300 --max-lookback-time=80 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2011:360 --max-lookback-time=80 >> run2.log 2>&1 
 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2012:060 --max-lookback-time=80 >> run2.log 2>&1 

@@ -108,10 +108,11 @@ class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
                   'aosunac1', 'aosunac2', 'aosunac3',
                   'aosares1', 'aosares2', 'aosunprs']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         in_fss_fov = (data['aosunprs'].vals == 'SUN ')
-        data.bads = data.bads | ~in_fss_fov
+        data.bads |= ~in_fss_fov
         sa_ang_avg = (data['aosares1'].vals + data['aosares2'].vals) / 2
         sinang = sin(radians(sa_ang_avg))
         cosang = cos(radians(sa_ang_avg))
@@ -126,11 +127,15 @@ class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
                             sinang * data['aosunsa3'].vals])
         #Normalize the vectors (again)
         magnitude = sqrt((fss_aca * fss_aca).sum(axis=0))
+        data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
         fss_aca = fss_aca / magnitude
+
         magnitude = sqrt((css_aca * css_aca).sum(axis=0))
+        data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
         css_aca = css_aca / magnitude
+
         #Compute the angle between the vectors
         dot_prod = (css_aca * fss_aca).sum(axis=0)
         fss_css_angle_diff = degrees(np.abs(arccos_clip(dot_prod)))
@@ -152,11 +157,13 @@ class DP_MAN_ANG(DerivedParameterPcad):
     rootparams = ['aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4',
                   'aotarqt1', 'aotarqt2', 'aotarqt3', 'aomanend']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
-        aotarqt4 = sqrt(1.0 - (data['aotarqt1'].vals ** 2 +
-                               data['aotarqt2'].vals ** 2 +
-                               data['aotarqt3'].vals ** 2))
+        qt4_sqr = 1.0 - (data['aotarqt1'].vals ** 2 +
+                         data['aotarqt2'].vals ** 2 +
+                         data['aotarqt3'].vals ** 2)
+        aotarqt4 = sqrt(np.clip(qt4_sqr, 0, 1))
         est_quat_inv = np.array([-1 * data['aoattqt1'].vals,
                                  -1 * data['aoattqt2'].vals,
                                  -1 * data['aoattqt3'].vals,
@@ -168,6 +175,7 @@ class DP_MAN_ANG(DerivedParameterPcad):
         delta_quat = qmult(est_quat_inv, tar_quat)
         # Normalize delta_quat due to roundoff errors.
         magnitude = sqrt((delta_quat * delta_quat).sum(axis=0))
+        data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
         delta_quat3 = np.abs(delta_quat[3, :] / magnitude)
         man_ang = 2.0 * degrees(arccos_clip(delta_quat3))
@@ -187,6 +195,7 @@ class DP_ONE_SHOT(DerivedParameterPcad):
     """
     rootparams = ['aoatter2', 'aoatter3', 'aopcadmd']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         one_shot = degrees(sqrt(data['aoatter2'].vals ** 2 +
@@ -213,6 +222,7 @@ class DP_PITCH(DerivedParameterPcad):
                   'aoattqt1', 'aoattqt2', 'aoattqt3',
                   'aoattqt4']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         sun_vec_b = sun_vector_body(data)
@@ -237,6 +247,7 @@ class DP_PITCH_PRED(DerivedParameterPcad):
                   'aoattqt1', 'aoattqt2', 'aoattqt3',
                   'aoattqt4']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         sun_vec_b = sun_vector_body(data, predictive=True)
@@ -256,6 +267,7 @@ class DP_PITCH_CSS(DerivedParameterPcad):
     """
     rootparams = ['aosares1', 'aosares2', 'aosunsa1', 'aosunsa2', 'aosunsa3']
     time_step = 4.1
+    dtype = np.float32
 
     def calc(self, data):
         sa_ang_avg = (1.0 * data['aosares1'].vals +
@@ -270,6 +282,7 @@ class DP_PITCH_CSS(DerivedParameterPcad):
                             sinang * data['aosunsa3'].vals])
         #Normalize sun vec (again) and compute pitch
         magnitude = sqrt((css_aca * css_aca).sum(axis=0))
+        data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
         sun_vec_norm = css_aca / magnitude
         pitch_css = degrees(arccos_clip(sun_vec_norm[0]))
@@ -288,6 +301,7 @@ class DP_PITCH_CSS_SA(DerivedParameterPcad):
     """
     rootparams = ['aosunsa1']
     time_step = 8.2
+    dtype = np.float32
 
     def calc(self, data):
         pitch_css_sa = 90.0 - degrees(arccos_clip(data['aosunsa1'].vals))
@@ -307,6 +321,7 @@ class DP_PITCH_FSS(DerivedParameterPcad):
     """
     rootparams = ['aobetang', 'aosunprs']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         in_fss_fov = (data['aosunprs'].vals == 'SUN ')
@@ -332,6 +347,7 @@ class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
                   'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
                   'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         sun_vec_b = sun_vector_body(data)
@@ -359,6 +375,7 @@ class DP_ROLL(DerivedParameterPcad):
                   'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
                   'aoattqt4']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         sun_vec_b = sun_vector_body(data)
@@ -384,6 +401,7 @@ class DP_ROLL_PRED(DerivedParameterPcad):
                   'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
                   'aoattqt4']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         sun_vec_b = sun_vector_body(data, predictive=True)
@@ -404,6 +422,7 @@ class DP_ROLL_CSS(DerivedParameterPcad):
     """
     rootparams = ['aosares1', 'aosares2', 'aosunsa1', 'aosunsa2', 'aosunsa3']
     time_step = 4.1
+    dtype = np.float32
 
     def calc(self, data):
         sa_ang_avg = (data['aosares1'].vals + data['aosares2'].vals) / 2
@@ -417,6 +436,7 @@ class DP_ROLL_CSS(DerivedParameterPcad):
                             sinang * data['aosunsa3'].vals])
         #Normalize sun vec (again) and compute pitch
         magnitude = sqrt((css_aca * css_aca).sum(axis=0))
+        data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
         sun_vec_norm = css_aca / magnitude
         roll_css = degrees(arctan2(-sun_vec_norm[1, :], -sun_vec_norm[2, :]))
@@ -436,6 +456,7 @@ class DP_ROLL_CSS_SA(DerivedParameterPcad):
     """
     rootparams = ['aosunsa2', 'aosunsa3']
     time_step = 8.2
+    dtype = np.float32
 
     def calc(self, data):
         roll_css_sa = degrees(arctan2(-data['aosunsa2'].vals,
@@ -457,6 +478,7 @@ class DP_ROLL_FSS(DerivedParameterPcad):
     """
     rootparams = ['aoalpang', 'aosunprs']
     time_step = 1.025
+    dtype = np.float32
 
     def calc(self, data):
         in_fss_fov = (data['aosunprs'].vals == 'SUN ')
@@ -474,6 +496,7 @@ class DP_RW_MOM_TOT(DerivedParameterPcad):
     """
     rootparams = ['aorwmom1', 'aorwmom2', 'aorwmom3']
     time_step = 8.2
+    dtype = np.float32
 
     def calc(self, data):
         rw_mom_tot = sqrt(data['aorwmom1'].vals ** 2 +
@@ -695,6 +718,7 @@ def sun_vector_body(data, predictive=False):
 
     sun_vec_b = qrotate(est_quat, sun_vec)  # Rotate into body frame
     magnitude = sqrt((sun_vec_b ** 2).sum(axis=0))
+    data.bads |= magnitude == 0.0
     magnitude[data.bads] = 1.0
     sun_vec_b = sun_vec_b / magnitude  # Normalize
 
