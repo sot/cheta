@@ -12,7 +12,6 @@ import itertools
 
 from Chandra.Time import DateTime
 import Ska.File
-import Ska.Table
 import Ska.DBI
 import Ska.Numpy
 import pyyaks.logger
@@ -103,7 +102,7 @@ archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'sto
 
 def main():
     # Get the archive content filetypes
-    filetypes = Ska.Table.read_ascii_table(msid_files['filetypes'].abs)
+    filetypes = fetch.filetypes
     if opt.content:
         contents = [x.upper() for x in opt.content]
         filetypes = [x for x in filetypes

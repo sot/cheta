@@ -13,7 +13,7 @@ WWW  = $(INSTALL)/www
 DOC = doc/_build/html/*
 
 # Installed data.  These are template RDB files, mostly relevant for testing
-DATA = archfiles_def.sql filetypes.dat filetypes_all.dat task_schedule*.cfg msid_bad_times.dat
+DATA = archfiles_def.sql filetypes_all.dat task_schedule*.cfg
 
 # telem_archive uses a number of dedicated perl and IDL scripts
 SHARE = update_archive.py transfer_stage.py fetch_tutorial.py NOTES.*

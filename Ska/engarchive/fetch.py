@@ -30,6 +30,7 @@ CACHE = False
 SKA = os.getenv('SKA') or '/proj/sot/ska'
 ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
 IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
+DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Maximum number of MSIDs that should ever match an input MSID spec
 # (to prevent accidentally selecting a very large number of MSIDs)
@@ -43,7 +44,7 @@ msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
-filetypes = asciitable.read(msid_files['filetypes'].abs)
+filetypes = asciitable.read(os.path.join(DIR_PATH, 'filetypes.dat'))
 content = collections.OrderedDict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
@@ -109,11 +110,7 @@ def read_bad_times(table):
     
 # Set up bad times dict
 msid_bad_times = dict()
-try:
-    read_bad_times(msid_files['msid_bad_times'].abs)
-except IOError:
-    pass
-
+read_bad_times(os.path.join(DIR_PATH, 'msid_bad_times.dat'))
 
 def msid_glob(msid):
     """Get the archive MSIDs matching ``msid``.  
