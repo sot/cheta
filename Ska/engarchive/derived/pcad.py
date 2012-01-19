@@ -24,6 +24,7 @@ class DP_CSS1_NPM_SUN(DerivedParameterPcad):
     """
     rootparams = ['aocssi1', 'aopcadmd', 'aosaillm']
     time_step = 1.025
+    max_gap = 10.0
 
     def calc(self, data):
         npm_sun = ((data['aopcadmd'].vals == 'NPNT') &
@@ -44,6 +45,7 @@ class DP_CSS2_NPM_SUN(DerivedParameterPcad):
     """
     rootparams = ['aocssi2', 'aopcadmd', 'aosaillm']
     time_step = 1.025
+    max_gap = 10.0
 
     def calc(self, data):
         npm_sun = ((data['aopcadmd'].vals == 'NPNT') &
@@ -64,6 +66,7 @@ class DP_CSS3_NPM_SUN(DerivedParameterPcad):
     """
     rootparams = ['aocssi3', 'aopcadmd', 'aosaillm']
     time_step = 1.025
+    max_gap = 10.0
 
     def calc(self, data):
         npm_sun = ((data['aopcadmd'].vals == 'NPNT') &
@@ -84,6 +87,7 @@ class DP_CSS4_NPM_SUN(DerivedParameterPcad):
     """
     rootparams = ['aocssi4', 'aopcadmd', 'aosaillm']
     time_step = 1.025
+    max_gap = 10.0
 
     def calc(self, data):
         npm_sun = ((data['aopcadmd'].vals == 'NPNT') &
@@ -108,6 +112,7 @@ class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
                   'aosunac1', 'aosunac2', 'aosunac3',
                   'aosares1', 'aosares2', 'aosunprs']
     time_step = 1.025
+    max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
@@ -195,6 +200,7 @@ class DP_ONE_SHOT(DerivedParameterPcad):
     """
     rootparams = ['aoatter2', 'aoatter3', 'aopcadmd']
     time_step = 1.025
+    max_gap = 4.0
     dtype = np.float32
 
     def calc(self, data):
@@ -222,6 +228,8 @@ class DP_PITCH(DerivedParameterPcad):
                   'aoattqt1', 'aoattqt2', 'aoattqt3',
                   'aoattqt4']
     time_step = 1.025
+    max_gap = 4.0
+    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
     dtype = np.float32
 
     def calc(self, data):
@@ -247,6 +255,8 @@ class DP_PITCH_PRED(DerivedParameterPcad):
                   'aoattqt1', 'aoattqt2', 'aoattqt3',
                   'aoattqt4']
     time_step = 1.025
+    max_gap = 4.0
+    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
     dtype = np.float32
 
     def calc(self, data):
@@ -267,6 +277,7 @@ class DP_PITCH_CSS(DerivedParameterPcad):
     """
     rootparams = ['aosares1', 'aosares2', 'aosunsa1', 'aosunsa2', 'aosunsa3']
     time_step = 4.1
+    max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
@@ -301,6 +312,7 @@ class DP_PITCH_CSS_SA(DerivedParameterPcad):
     """
     rootparams = ['aosunsa1']
     time_step = 8.2
+    max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
@@ -321,6 +333,7 @@ class DP_PITCH_FSS(DerivedParameterPcad):
     """
     rootparams = ['aobetang', 'aosunprs']
     time_step = 1.025
+    max_gap = 10.0
     dtype = np.float32
 
     def calc(self, data):
@@ -328,32 +341,6 @@ class DP_PITCH_FSS(DerivedParameterPcad):
         data.bads = data.bads | ~in_fss_fov
         pitch_fss = 90.0 - data['aobetang'].vals
         return pitch_fss
-
-
-#--------------------------------------------
-class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
-    """Angle between Sun and ACA X/Z plane [Deg]
-
-    Incidence angle of the Sun vector on the ACA X/Z plane.
-
-    Calculated using the four-quadrant arctan of the sun vector y and z
-    components in the ACA frame where the sun vector is from definitive
-    ephemeris [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from
-    the OBC's estimated quaternion [AOATTQT<n>].
-
-    http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
-    """
-    rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
-                  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
-                  'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
-    time_step = 1.025
-    dtype = np.float32
-
-    def calc(self, data):
-        sun_vec_b = sun_vector_body(data)
-        roll = degrees(arctan2(sun_vec_b[1],
-                               sqrt(sun_vec_b[0] ** 2 + sun_vec_b[2] ** 2)))
-        return roll
 
 
 #--------------------------------------------
@@ -372,9 +359,10 @@ class DP_ROLL(DerivedParameterPcad):
     """
     rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
                   'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
-                  'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
-                  'aoattqt4']
+                  'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
     time_step = 1.025
+    max_gap = 4.0
+    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
     dtype = np.float32
 
     def calc(self, data):
@@ -395,17 +383,18 @@ class DP_ROLL_PRED(DerivedParameterPcad):
     ephemeris [SOLAREPHEM0 and ORBITEPHEM0] and the estimated attitude from
     the OBC's estimated quaternion [AOATTQT<n>].
 
-    """	
+    """
     rootparams = ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z',
                   'solarephem0_x', 'solarephem0_y', 'solarephem0_z',
-                  'aoattqt1'     , 'aoattqt2'     , 'aoattqt3'     ,
-                  'aoattqt4']
+                  'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
     time_step = 1.025
+    max_gap = 4.0
+    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
     dtype = np.float32
 
     def calc(self, data):
         sun_vec_b = sun_vector_body(data, predictive=True)
-        roll_pred = degrees(arctan2(-sun_vec_b[1,:], -sun_vec_b[2,:]))
+        roll_pred = degrees(arctan2(-sun_vec_b[1, :], -sun_vec_b[2, :]))
         return roll_pred
 
 
@@ -422,6 +411,7 @@ class DP_ROLL_CSS(DerivedParameterPcad):
     """
     rootparams = ['aosares1', 'aosares2', 'aosunsa1', 'aosunsa2', 'aosunsa3']
     time_step = 4.1
+    max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
@@ -456,6 +446,7 @@ class DP_ROLL_CSS_SA(DerivedParameterPcad):
     """
     rootparams = ['aosunsa2', 'aosunsa3']
     time_step = 8.2
+    max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
@@ -478,6 +469,7 @@ class DP_ROLL_FSS(DerivedParameterPcad):
     """
     rootparams = ['aoalpang', 'aosunprs']
     time_step = 1.025
+    max_gap = 10.0
     dtype = np.float32
 
     def calc(self, data):
@@ -610,11 +602,41 @@ class DP_SA_ANG_AVG(DerivedParameterPcad):
     """
     rootparams = ['aosares1', 'aosares2']
     time_step = 4.1
+    max_gap = 10.0
 
     def calc(self, data):
         sa_ang_avg = (1.0 * data['aosares1'].vals +
                       1.0 * data['aosares2'].vals) / 2
         return sa_ang_avg
+
+
+#--------------------------------------------
+class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
+    """Angle between Sun and ACA X/Z plane [Deg]
+
+    Incidence angle of the Sun vector on the ACA X/Z plane.
+
+    Calculated using the four-quadrant arctan of the sun vector y and z
+    components in the ACA frame where the sun vector is from definitive
+    ephemeris [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from
+    the OBC's estimated quaternion [AOATTQT<n>].
+
+    http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
+    """
+    rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
+                  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
+                  'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
+    time_step = 1.025
+    max_gap = 4.0
+    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
+    dtype = np.float32
+
+    def calc(self, data):
+        sun_vec_b = sun_vector_body(data)
+        sun_xz_angle = degrees(arctan2(sun_vec_b[1],
+                                       sqrt(sun_vec_b[0] ** 2 + 
+                                            sun_vec_b[2] ** 2)))
+        return sun_xz_angle
 
 
 #--------------------------------------------
@@ -629,6 +651,7 @@ class DP_SYS_MOM_TOT(DerivedParameterPcad):
     """
     rootparams = ['aosymom1', 'aosymom2', 'aosymom3']
     time_step = 8.2
+    max_gap = 18.0
 
     def calc(self, data):
         sys_mom_tot = sqrt(data['aosymom1'].vals ** 2 +
