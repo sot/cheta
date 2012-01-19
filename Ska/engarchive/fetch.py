@@ -40,7 +40,7 @@ MAX_GLOB_MATCHES = 10
 ft = pyyaks.context.ContextDict('ft')
 
 # Global (eng_archive) definition of file names
-msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE) 
+msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
@@ -59,22 +59,27 @@ for filetype in filetypes:
 # The key is (content_type, tstart, tstop).
 times_cache = dict(key=None)
 
+
 # Set up logging.
 class NullHandler(logging.Handler):
     def emit(self, record):
         pass
+
 logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
 
 # Warn the user if ENG_ARCHIVE is set such that the data path is non-standard
 if os.getenv('ENG_ARCHIVE'):
-    print('fetch: using ENG_ARCHIVE={} for archive path'.format(os.getenv('ENG_ARCHIVE')))
+    print('fetch: using ENG_ARCHIVE={} for archive path'
+          .format(os.getenv('ENG_ARCHIVE')))
+
 
 def get_units():
     """Get the unit system currently being used for conversions.
     """
     return units.units['system']
+
 
 def set_units(unit_system):
     """Set the unit system used for output telemetry values.  The default
@@ -90,6 +95,7 @@ def set_units(unit_system):
     """
     units.set_units(unit_system)
 
+
 def read_bad_times(table):
     """Include a list of bad times from ``table`` in the fetch module
     ``bad_times`` registry.  This routine can be called multiple times with
@@ -99,11 +105,13 @@ def read_bad_times(table):
     e.g.::
 
       aogbias1  2008:292:00:00:00  2008:297:00:00:00
-      
-    The MSID name is not case sensitive and the time values can be in any ``DateTime`` format.
-    Blank lines and any line starting with the # character are ignored.
+
+    The MSID name is not case sensitive and the time values can be in any
+    ``DateTime`` format.  Blank lines and any line starting with the #
+    character are ignored.
     """
-    bad_times = asciitable.read(table, Reader=asciitable.NoHeader, names=['msid', 'start', 'stop'])
+    bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
+                                names=['msid', 'start', 'stop'])
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
@@ -112,18 +120,19 @@ def read_bad_times(table):
 msid_bad_times = dict()
 read_bad_times(os.path.join(DIR_PATH, 'msid_bad_times.dat'))
 
-def msid_glob(msid):
-    """Get the archive MSIDs matching ``msid``.  
 
-    The function returns a tuple of (msids, MSIDs) where ``msids`` is a
-    list of MSIDs that is all lower case and (where possible) matches the input
+def msid_glob(msid):
+    """Get the archive MSIDs matching ``msid``.
+
+    The function returns a tuple of (msids, MSIDs) where ``msids`` is a list of
+    MSIDs that is all lower case and (where possible) matches the input
     ``msid``.  The output ``MSIDs`` is all upper case and corresponds to the
     exact MSID names stored in the archive HDF5 files.
 
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
-    
+
     MSID = msid.upper()
     # First try MSID or DP_<MSID>.  If success then return the upper
     # case version and whatever the user supplied (could be any case).
@@ -152,9 +161,9 @@ class MSID(object):
     """Fetch data from the engineering telemetry archive into an MSID object.
 
     The input ``msid`` is case-insensitive and can include linux file "glob"
-    patterns, for instance ``orb*1*_x`` (ORBITEPHEM1_X) or ``*pcadmd`` (AOPCADMD).
-    For derived parameters the initial "DP_" is optional, for instance 
-    ``dpa_pow*`` (DP_DPA_POWER).
+    patterns, for instance ``orb*1*_x`` (ORBITEPHEM1_X) or ``*pcadmd``
+    (AOPCADMD).  For derived parameters the initial "DP_" is optional, for
+    instance ``dpa_pow*`` (DP_DPA_POWER).
 
     :param msid: name of MSID (case-insensitive)
     :param start: start date of telemetry (Chandra.Time compatible)
@@ -177,10 +186,10 @@ class MSID(object):
         self.stat = stat
         if stat:
             self.dt = {'5min': 328, 'daily': 86400}[stat]
-            
+
         self.tstart = DateTime(start).secs
-        self.tstop = DateTime(stop).secs if stop else DateTime(time.time(),
-                                                               format='unix').secs
+        self.tstop = (DateTime(stop).secs if stop else
+                      DateTime(time.time(), format='unix').secs)
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
         try:
@@ -193,11 +202,12 @@ class MSID(object):
 
         # If requested filter out bad values and set self.bad = None
         if filter_bad:
-            self.filter_bad()               
+            self.filter_bad()
 
     def _get_data(self):
         """Get data from the Eng archive"""
-        logger.info('Getting data for %s between %s to %s', self.msid, self.datestart, self.datestop)
+        logger.info('Getting data for %s between %s to %s',
+                    self.msid, self.datestart, self.datestop)
 
         # Avoid stomping on caller's filetype 'ft' values with _cache_ft()
         with _cache_ft():
@@ -208,19 +218,22 @@ class MSID(object):
                 ft['interval'] = self.stat
                 self._get_stat_data()
             else:
-                get_msid_data = self._get_msid_data_cached if CACHE else self._get_msid_data
-                self.vals, self.times, self.bads, self.colnames = get_msid_data(
-                    self.content, self.tstart, self.tstop, self.MSID)
+                get_msid_data = (self._get_msid_data_cached if CACHE else
+                                 self._get_msid_data)
+                self.vals, self.times, self.bads, self.colnames = \
+                    get_msid_data(self.content, self.tstart, self.tstop,
+                                  self.MSID)
 
     def _get_stat_data(self):
-        """Do the actual work of getting stats values for an MSID from HDF5 files"""
+        """Do the actual work of getting stats values for an MSID from HDF5
+        files"""
         filename = msid_files['stats'].abs
         logger.info('Opening %s', filename)
         h5 = tables.openFile(filename)
         table = h5.root.data
         times = (table.col('index') + 0.5) * self.dt
         row0, row1 = numpy.searchsorted(times, [self.tstart, self.tstop])
-        table_rows = table[row0:row1]   # returns np.ndarray (structured array)
+        table_rows = table[row0:row1]  # returns np.ndarray (structured array)
         h5.close()
         logger.info('Closed %s', filename)
 
@@ -228,23 +241,26 @@ class MSID(object):
         self.times = times[row0:row1]
         self.colnames = ['times']
         for colname in table_rows.dtype.names:
-            # Don't like the way columns were named in the stats tables.  Fix that here.
-            colname_out = _plural(colname) if colname != 'n' else 'samples' 
+            # Don't like the way columns were named in the stats tables.
+            # Fix that here.
+            colname_out = _plural(colname) if colname != 'n' else 'samples'
 
             if colname_out in ('vals', 'mins', 'maxes', 'means',
-                               'p01s', 'p05s', 'p16s', 'p50s', 'p84s', 'p95s', 'p99s'):
+                               'p01s', 'p05s', 'p16s', 'p50s',
+                               'p84s', 'p95s', 'p99s'):
                 vals = units.convert(self.MSID, table_rows[colname])
             elif colname_out == 'stds':
-                vals = units.convert(self.MSID, table_rows[colname], delta_val=True)
+                vals = units.convert(self.MSID, table_rows[colname],
+                                     delta_val=True)
             else:
                 vals = table_rows[colname]
-                
+
             setattr(self, colname_out, vals)
             self.colnames.append(colname_out)
 
-        # Redefine the 'vals' attribute to be 'means' if it exists.  This is a more
-        # consistent use of the 'vals' attribute and there is little use for the
-        # original sampled version.
+        # Redefine the 'vals' attribute to be 'means' if it exists.  This is a
+        # more consistent use of the 'vals' attribute and there is little use
+        # for the original sampled version.
         if hasattr(self, 'means'):
             self.midvals = self.vals
             self.vals = self.means
@@ -252,14 +268,15 @@ class MSID(object):
     @staticmethod
     @cache.lru_cache(30)
     def _get_msid_data_cached(content, tstart, tstop, msid):
-        """Do the actual work of getting time and values for an MSID from HDF5 files
-        and cache recent results.  Caching is very beneficial for derived
+        """Do the actual work of getting time and values for an MSID from HDF5
+        files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
         return MSID._get_msid_data(content, tstart, tstop, msid)
 
     @staticmethod
     def _get_msid_data(content, tstart, tstop, msid):
-        """Do the actual work of getting time and values for an MSID from HDF5 files"""
+        """Do the actual work of getting time and values for an MSID from HDF5
+        files"""
 
         # Get a row slice into HDF5 file for this content type that picks out
         # the required time range plus a little padding on each end.
@@ -267,8 +284,9 @@ class MSID(object):
 
         # Read the TIME values either from cache or from disk.
         if times_cache['key'] == (content, tstart, tstop):
-            logger.info('Using times_cache for %s %s to %s', content, tstart, tstop)
-            times = times_cache['val']    # Already filtered on times_ok
+            logger.info('Using times_cache for %s %s to %s',
+                        content, tstart, tstop)
+            times = times_cache['val']  # Already filtered on times_ok
             times_ok = times_cache['ok']  # For filtering MSID.val and MSID.bad
             times_all_ok = times_cache['all_ok']
         else:
@@ -280,9 +298,9 @@ class MSID(object):
             times = h5.root.data[h5_slice]
             h5.close()
 
-            # Filter bad times.  Last instance of bad times in archive is 2004 so
-            # don't do this unless needed.  Creating a new 'times' array is much
-            # more expensive than checking for numpy.all(times_ok).
+            # Filter bad times.  Last instance of bad times in archive is 2004
+            # so don't do this unless needed.  Creating a new 'times' array is
+            # much more expensive than checking for numpy.all(times_ok).
             times_all_ok = numpy.all(times_ok)
             if not times_all_ok:
                 times = times[times_ok]
@@ -319,16 +337,16 @@ class MSID(object):
     def filter_bad(self, bads=None):
         """Filter out any bad values.
 
-        After applying this method the "bads" column will be set to None to indicate
-        that there are no bad values.  
+        After applying this method the "bads" column will be set to None to
+        indicate that there are no bad values.
 
         :param bads: Bad values mask.  If not supplied then self.bads is used.
         """
-        # If a bad mask is provided then override any existing bad mask for the MSID
+        # If bad mask is provided then override any existing bad mask for MSID
         if bads is not None:
             self.bads = bads
-            
-        # Nothing to do if bads is None (indicating bad values already filtered)
+
+        # Nothing to do if bads is None (i.e. bad values already filtered)
         if self.bads is None:
             return
 
@@ -348,11 +366,11 @@ class MSID(object):
 
         - Supply no arguments.  This will use the global list of bad times read
           in with fetch.read_bad_times().
-        - Supply both ``start`` and ``stop`` values where each is a single value
-          in a valid DateTime format.
+        - Supply both ``start`` and ``stop`` values where each is a single
+          value in a valid DateTime format.
         - Supply an ``table`` parameter in the form of a 2-column table of
-          start and stop dates (space-delimited) or the name of a file with data
-          in the same format.
+          start and stop dates (space-delimited) or the name of a file with
+          data in the same format.
 
         The ``table`` parameter must be supplied as a table or the name of a
         table file, for example::
@@ -363,24 +381,27 @@ class MSID(object):
           msid.filter_bad_times(table=bad_times)
           msid.filter_bad_times(table='msid_bad_times.dat')
 
-        :param start: Start of time interval to exclude (any DateTime format is acceptable)
-        :param stop: End of time interval to exclude (any DateTime format is acceptable)
+        :param start: Start of time interval to exclude (any DateTime format)
+        :param stop: End of time interval to exclude (any DateTime format)
         :param table: Two-column table (start, stop) of bad time intervals
         """
         if table is not None:
-            bad_times = asciitable.read(table, Reader=asciitable.NoHeader, names=['start', 'stop'])
+            bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
+                                        names=['start', 'stop'])
         elif start is None and stop is None:
             bad_times = msid_bad_times.get(self.MSID, [])
         elif start is None or stop is None:
-            raise ValueError('filter_times requires either 2 args (start, stop) or no args')
+            raise ValueError('filter_times requires either 2 args '
+                             '(start, stop) or no args')
         else:
             bad_times = [(start, stop)]
-            
+
         for start, stop in bad_times:
             tstart = DateTime(start).secs
             tstop = DateTime(stop).secs
             if tstart > tstop:
-                raise ValueError("Start time %s must be less than stop time %s" % (start, stop))
+                raise ValueError("Start time %s must be less than stop time %s"
+                                 % (start, stop))
 
             if tstop < self.times[0] or tstart > self.times[-1]:
                 continue
@@ -394,8 +415,8 @@ class MSID(object):
     def write_zip(self, filename, append=False):
         """Write MSID to a zip file named ``filename``
 
-        Within the zip archive the data for this MSID will be stored in csv format with
-        the name <msid_name>.csv.
+        Within the zip archive the data for this MSID will be stored in csv
+        format with the name <msid_name>.csv.
 
         :param filename: output zipfile name
         :param append: append to an existing zipfile
@@ -409,13 +430,15 @@ class MSID(object):
         colvals = tuple(getattr(self, x) for x in colnames)
         fmt = ",".join("%s" for x in colnames)
 
-        f = zipfile.ZipFile(filename, ('a' if append and os.path.exists(filename) else 'w')) 
+        f = zipfile.ZipFile(filename, ('a' if append
+                                       and os.path.exists(filename)
+                                       else 'w'))
         info = zipfile.ZipInfo(self.msid + '.csv')
-        info.external_attr = 0664 << 16L # Set permissions 
+        info.external_attr = 0664 << 16L  # Set permissions
         info.date_time = time.localtime()[:7]
         info.compress_type = zipfile.ZIP_DEFLATED
         f.writestr(info,
-                   ",".join(colnames) + '\n' + 
+                   ",".join(colnames) + '\n' +
                    '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
         f.close()
 
@@ -428,11 +451,11 @@ class MSID(object):
 
         The intervals are guaranteed to be complete so that the all reported
         intervals had a transition before and after within the telemetry
-        interval.  
-        
+        interval.
+
         Returns a structured array table with a row for each interval.
         Columns are:
-        
+
         * datestart: date of interval start
         * datestop: date of interval stop
         * duration: duration of interval (sec)
@@ -469,7 +492,7 @@ class MSID(object):
         else:
             vals = self.vals
             times = self.times
-            
+
         starts = ~op(vals[:-1], val) & op(vals[1:], val)
         ends = op(vals[:-1], val) & ~op(vals[1:], val)
 
@@ -550,6 +573,7 @@ class MSID(object):
         import Ska.Numpy
         return Ska.Numpy.structured_array(intervals)
 
+
 class MSIDset(collections.OrderedDict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
 
@@ -570,8 +594,8 @@ class MSIDset(collections.OrderedDict):
         super(MSIDset, self).__init__()
 
         self.tstart = DateTime(start).secs
-        self.tstop = DateTime(stop).secs if stop else DateTime(time.time(),
-                                                               format='unix').secs
+        self.tstop = (DateTime(stop).secs if stop else
+                      DateTime(time.time(), format='unix').secs
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
 
@@ -580,7 +604,8 @@ class MSIDset(collections.OrderedDict):
         for msid in msids:
             new_msids.extend(msid_glob(msid)[0])
         for msid in new_msids:
-            self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False, stat=stat)
+            self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False,
+                              stat=stat)
         if filter_bad:
             self.filter_bad()
 
@@ -597,16 +622,16 @@ class MSIDset(collections.OrderedDict):
           msids = fetch.MSIDset(['aorate1', 'aorate2', 'aogyrct1', 'aogyrct2'],
                                 '2009:001', '2009:002')
           msids.filter_bad()
-                                
-        Since ``aorate1`` and ``aorate2`` both have content type of ``pcad3eng`` they
-        will be filtered as a group and will remain with the same sampling.  This
-        will allow something like::
+
+        Since ``aorate1`` and ``aorate2`` both have content type of
+        ``pcad3eng`` they will be filtered as a group and will remain with the
+        same sampling.  This will allow something like::
 
           plot(msids['aorate1'].vals, msids['aorate2'].vals)
 
-        Likewise the two gyro count MSIDs would be filtered as a group.  If this
-        group-filtering is not the desired behavior one can always call the individual
-        MSID.filter_bad() function for each MSID in the set::
+        Likewise the two gyro count MSIDs would be filtered as a group.  If
+        this group-filtering is not the desired behavior one can always call
+        the individual MSID.filter_bad() function for each MSID in the set::
 
           for msid in msids.values():
               msid.filter_bad()
@@ -639,24 +664,25 @@ class MSIDset(collections.OrderedDict):
         timestamps of each new interpolated value for that MSID.
 
         By default ``filter_bad`` is True and each MSID has bad data filtered
-        *before* interpolation so that the nearest neighbor interpolation
-        only finds good data.  In this case (or for ``stat`` values which do
-        not have bad values), the ``times0`` attribute can be used to diagnose
-        whether the interpolation is meaningful.  For instance large numbers of 
+        *before* interpolation so that the nearest neighbor interpolation only
+        finds good data.  In this case (or for ``stat`` values which do not
+        have bad values), the ``times0`` attribute can be used to diagnose
+        whether the interpolation is meaningful.  For instance large numbers of
         identical time stamps in ``times0`` may be a problem.
 
         If ``filter_bad`` is set to false then data are not filtered.  In this
         case the MSID ``bads`` values are interpolated as well and provide an
-        indication if the interpolated values are bad. 
+        indication if the interpolated values are bad.
 
         :param dt: time step (sec)
         :param start: start of interpolation period (DateTime format)
         :param stop: end of interpolation period (DateTime format)
         :param filter_bad: filter bad values before interpolating
         """
-        # Speed could be improved by clever use of bad masking among common content types
-        # (assuming no bad filtering to begin with) so that interpolation only gets done once.
-        # For now just brute-force it for every MSID.
+        # Speed could be improved by clever use of bad masking among common
+        # content types (assuming no bad filtering to begin with) so that
+        # interpolation only gets done once.  For now just brute-force it for
+        # every MSID.
         import Ska.Numpy
         
         tstart = DateTime(start).secs if start else self.tstart
@@ -668,15 +694,17 @@ class MSIDset(collections.OrderedDict):
                 msid.filter_bad()
             logger.info('Interpolating index for %s', msid.msid)
             indexes = Ska.Numpy.interpolate(numpy.arange(len(msid.times)),
-                                            msid.times, self.times, method='nearest')
+                                            msid.times, self.times,
+                                            method='nearest')
             logger.info('Slicing on indexes')
             for colname in msid.colnames:
                 colvals = getattr(msid, colname)
                 if colvals is not None:
                     setattr(msid, colname, colvals[indexes])
 
-            # Make a new attribute times0 that stores the nearest neighbor interpolated times.
-            # Then set the MSID times to be the common interpolation times.
+            # Make a new attribute times0 that stores the nearest neighbor
+            # interpolated times.  Then set the MSID times to be the common
+            # interpolation times.
             msid.times0 = msid.times
             msid.times = self.times
 
@@ -730,11 +758,12 @@ class Msidset(MSIDset):
 
 def fetch_records(start, stop, msids, dt=32.8):
     """
-    Fetch data from the telemetry archive as a recarray at a uniform time spacing.
+    Fetch data from the telemetry archive as a recarray at a uniform time
+    spacing.
 
-    Only records where all columns have good quality get included.  This routine
-    can be substantially slower than fetch_arrays because of the interpolation
-    onto a common time sequence.
+    Only records where all columns have good quality get included.  This
+    routine can be substantially slower than fetch_arrays because of the
+    interpolation onto a common time sequence.
 
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry
@@ -753,9 +782,10 @@ def fetch_records(start, stop, msids, dt=32.8):
     bad = numpy.zeros(len_times, dtype=bool)
     for msid in msids:
         MSID = msid.upper()
-        index = Ska.Numpy.interpolate(numpy.arange(len(times[MSID])), times[MSID], dt_times, 'nearest')
-        # Include also some interpolation validation check, something like (but not exactly)
-        # (abs(dt_times - times[MSID][index]) > 1.05 * dt) 
+        index = Ska.Numpy.interpolate(numpy.arange(len(times[MSID])),
+                                      times[MSID], dt_times, 'nearest')
+        # Include also some interpolation validation check, something like (but
+        # not exactly) (abs(dt_times - times[MSID][index]) > 1.05 * dt)
         bad |= quals[MSID][index]
         values[msid] = values[MSID][index]
 
@@ -774,9 +804,9 @@ def fetch_arrays(start, stop, msids):
     This routine is deprecated and is retained only for back-compatibility with
     old plotting analysis scripts.
 
-    The telemetry values are returned in three dictionaries: ``times``, ``values``,
-    and ``quals``.  Each of these dictionaries contains key-value pairs for each
-    of the input ``msids``.
+    The telemetry values are returned in three dictionaries: ``times``,
+    ``values``, and ``quals``.  Each of these dictionaries contains key-value
+    pairs for each of the input ``msids``.
 
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry
@@ -798,13 +828,13 @@ def fetch_arrays(start, stop, msids):
 
 def fetch_array(start, stop, msid):
     """
-    Fetch data for single ``msid`` from the telemetry archive as an array.  
+    Fetch data for single ``msid`` from the telemetry archive as an array.
 
     This routine is deprecated and is retained only for back-compatibility with
     old plotting analysis scripts.
 
     The telemetry values are returned in three arrays: ``times``, ``values``,
-    and ``quals``.  
+    and ``quals``.
 
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry
@@ -812,7 +842,7 @@ def fetch_array(start, stop, msid):
 
     :returns: times, values, quals
     """
-    
+
     m = MSID(msid, start, stop)
     times = m.times
     values = m.vals
@@ -860,16 +890,20 @@ def get_interval(content, tstart, tstop):
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
 
     query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
-                            'WHERE filetime < ? order by filetime desc', (tstart,))
+                            'WHERE filetime < ? order by filetime desc',
+                            (tstart,))
     if not query_row:
-        query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles order by filetime asc')
+        query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
+                                'order by filetime asc')
 
     rowstart = query_row['rowstart']
 
     query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
-                            'WHERE filetime > ? order by filetime asc', (tstop,))
+                            'WHERE filetime > ? order by filetime asc',
+                            (tstop,))
     if not query_row:
-        query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles order by filetime desc')
+        query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
+                                'order by filetime desc')
 
     rowstop = query_row['rowstop']
 
@@ -879,7 +913,7 @@ def get_interval(content, tstart, tstop):
 def _cache_ft():
     """
     Cache the global filetype ``ft`` context variable so that fetch operations
-    do not corrupt user values of ``ft``.  
+    do not corrupt user values of ``ft``.
     """
     ft_cache_pickle = pickle.dumps(ft)
     try:
@@ -916,4 +950,3 @@ def _plural(x):
     known small set of cases within fetch where it will get applied.
     """
     return x + 'es' if (x.endswith('x')  or x.endswith('s')) else x + 's'
-
