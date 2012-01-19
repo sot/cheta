@@ -34,7 +34,7 @@ export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:020
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:030
 
-ipython -pylab
+ipython --pylab
 impska
 
 msid = 'newmsid'

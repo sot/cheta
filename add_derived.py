@@ -88,7 +88,7 @@ def make_msid_file(colname, content, content_def):
     else:
         dp = content_def['classes'][colname]()
         dataset = dp.fetch(opt.start, opt.stop)
-        dp_vals = dp.calc(dataset)
+        dp_vals = np.asarray(dp.calc(dataset), dtype=dp.dtype)
 
     # Finally make the actual MSID data file
     filters = tables.Filters(complevel=5, complib='zlib')

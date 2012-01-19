@@ -22,7 +22,9 @@ def interpolate_times(keyvals, len_data_times, data_times=None, times=None):
 
 class DerivedParameter(object):
     max_gap = 66.0              # Max allowed data gap (seconds)
+    max_gaps = {}
     unit_system = 'eng'
+    dtype = None  # If not None then cast to this dtype
 
     def calc(self, data):
         raise NotImplementedError
@@ -57,7 +59,12 @@ class DerivedParameter(object):
 
             bads = bads | data.bads
             # Reject near-neighbor points more than max_gap secs from available data
-            bads = bads | (abs(data.times - times) > self.max_gap)
+            max_gap = self.max_gaps.get(msidname, self.max_gap)
+            gap_bads = abs(data.times - times) > max_gap
+            if np.any(gap_bads):
+                print "Setting bads because of gaps in {} at {}".format(
+                    msidname, str(times[gap_bads]))
+            bads = bads | gap_bads
 
         dataset.times = times
         dataset.bads = bads
@@ -76,7 +83,11 @@ class DerivedParameter(object):
                     
         dataset.interpolate(dt=self.time_step)
 
-        return self.calc(dataset)
+        # Return calculated values.  Np.asarray will copy the array only if
+        # dtype is not None and different from vals.dtype; otherwise a
+        # reference is returned.
+        vals = self.calc(dataset)
+        return np.asarray(vals, dtype=self.dtype)
 
     @property
     def mnf_step(self):
