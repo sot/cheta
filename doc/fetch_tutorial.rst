@@ -167,9 +167,50 @@ function of the ``Ska.Matplotlib`` module::
   clf()
   plot_cxctime(tephin.times, tephin.vals)
 
+An even simpler way to make the same plot is with the
+:func:`~Ska.engarchive.fetch.MSID.plot` function::
+
+  tephin.plot()
+
 That looks better:
 
 .. image:: fetchplots/plot_cxctime.png
+
+Interactive plotting
+=====================
+
+The :func:`~Ska.engarchive.fetch.MSID.iplot` function is a handy way to quickly
+explore MSID data over a wide range of time scales, from seconds to the entire
+mission in a few key presses.  The function automatically fetches data from
+the archive as needed.
+
+When called this method opens a new plot figure (or clears the current figure)
+and plots the MSID ``vals`` versus ``times``.  This plot can be panned or
+zoomed arbitrarily and the data values will be fetched from the archive as
+needed.  Depending on the time scale, ``iplot`` will display either full
+resolution, 5-minute, or daily values.  For 5-minute and daily values the min
+and max values are also plotted.
+
+Once the plot is displayed and the window is selected by clicking in it, the
+plot limits can be controlled by the usual methods (window selection, pan /
+zoom).  In addition following key commands are recognized::
+
+  a: autoscale for full data range in x and y
+  m: toggle plotting of min/max values
+  p: pan at cursor x
+  y: toggle autoscaling of y-axis
+  z: zoom at cursor x
+  ?: print help
+
+Example::
+
+  dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
+  iplot = Ska.engarchive.MsidPlot(dat)
+
+Caveat: the ``MsidPlot()`` class is not meant for use within scripts, and
+may give unexpected results if used in combination with other plotting
+commands directed at the same plot figure.
+
 
 Bad data
 =========
@@ -563,7 +604,7 @@ choose a few related MSIDs::
 
     dat = fetch.MSIDset(['orb*1*_[xyz]', 'aoattqt*'], ...)
 
-The :func:`~Ska.engarchive.fetch.msid_glob` method will show you exactly what
+The :func:`~Ska.engarchive.fetch.msid_glob()` method will show you exactly what
 matches a given ``msid``::
 
     >>> fetch.msid_glob('orb*1*_?')

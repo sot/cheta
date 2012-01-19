@@ -46,5 +46,13 @@ Documentation
    tutorial
    fetch_tutorial
    pseudo_msids
+
+API docs
+--------
+
+.. toctree::
+   :maxdepth: 1
+
    fetch
+   plot
    utils

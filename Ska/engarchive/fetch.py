@@ -573,6 +573,66 @@ class MSID(object):
         import Ska.Numpy
         return Ska.Numpy.structured_array(intervals)
 
+    def iplot(self, fmt='-b', fmt_minmax='-c', **plot_kwargs):
+        """Make an interactive plot for exploring the MSID data.
+
+        This method opens a new plot figure (or clears the current figure) and
+        plots the MSID ``vals`` versus ``times``.  This plot can be panned or
+        zoomed arbitrarily and the data values will be fetched from the archive
+        as needed.  Depending on the time scale, ``iplot`` displays either full
+        resolution, 5-minute, or daily values.  For 5-minute and daily values
+        the min and max values are also plotted.
+
+        Once the plot is displayed and the window is selected by clicking in
+        it, the following key commands are recognized::
+
+          a: autoscale for full data range in x and y
+          m: toggle plotting of min/max values
+          p: pan at cursor x
+          y: toggle autoscaling of y-axis
+          z: zoom at cursor x
+          ?: print help
+
+        Example::
+
+          dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
+          dat.iplot()
+          dat.iplot('.b', '.c', markersize=0.5)
+
+        Caveat: the ``iplot()`` method is not meant for use within scripts, and
+        may give unexpected results if used in combination with other plotting
+        commands directed at the same plot figure.
+
+        :param fmt: plot format for values (default="-b")
+        :param fmt_minmax: plot format for mins and maxes (default="-c")
+        :param plot_kwargs: additional plotting keyword args
+
+        """
+
+        from .plot import MsidPlot
+        self._iplot = MsidPlot(self, fmt, fmt_minmax, **plot_kwargs)
+
+    def plot(self, *args, **kwargs):
+        """Plot the MSID ``vals`` using Ska.Matplotlib.plot_cxctime()
+
+        This is a convenience function for plotting the MSID values.  It
+        is equivalent to::
+
+          plot_cxctime(self.times, self.vals, *args, **kwargs)
+
+        where ``*args`` are additional arguments and ``**kwargs`` are
+        additional keyword arguments that are accepted by ``plot_cxctime()``.
+
+        Example::
+
+          dat = fetch.Msid('tephin', '2011:001', '2012:001', stat='5min')
+          dat.plot('-r', linewidth=2)
+
+        """
+
+        from Ska.Matplotlib import plot_cxctime
+        plot_cxctime(self.times, self.vals, *args, **kwargs)
+
 
 class MSIDset(collections.OrderedDict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
@@ -595,7 +655,7 @@ class MSIDset(collections.OrderedDict):
 
         self.tstart = DateTime(start).secs
         self.tstop = (DateTime(stop).secs if stop else
-                      DateTime(time.time(), format='unix').secs
+                      DateTime(time.time(), format='unix').secs)
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
 

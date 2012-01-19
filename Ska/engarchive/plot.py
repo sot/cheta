@@ -1,9 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import Ska.engarchive.fetch as fetch
-from Ska.Matplotlib import cxctime2plotdate, plot_cxctime
-from Chandra.Time import DateTime
 from matplotlib.dates import num2epoch, epoch2num
+
+from Ska.Matplotlib import plot_cxctime
+from Chandra.Time import DateTime
+
+from . import fetch
+from .version import version as __version__
 
 MIN_TSTART_UNIX = DateTime('1999:100').unix
 MAX_TSTOP_UNIX = DateTime().unix + 1e7
@@ -24,16 +27,64 @@ def get_stat(t0, t1, npix):
 
 
 class MsidPlot(object):
-    def __init__(self, msid):
+    """Make an interactive plot for exploring the MSID data.
+
+    This method opens a new plot figure (or clears the current figure)
+    and plots the MSID ``vals`` versus ``times``.  This plot can be
+    panned or zoomed arbitrarily and the data values will be fetched
+    from the archive as needed.  Depending on the time scale, ``iplot``
+    will display either full resolution, 5-minute, or daily values.
+    For 5-minute and daily values the min and max values are also
+    plotted.
+
+    Once the plot is displayed and the window is selected by clicking in
+    it, the plot limits can be controlled by the usual methods (window
+    selection, pan / zoom).  In addition following key commands are
+    recognized::
+
+      a: autoscale for full data range in x and y
+      m: toggle plotting of min/max values
+      p: pan at cursor x
+      y: toggle autoscaling of y-axis
+      z: zoom at cursor x
+      ?: print help
+
+    Example::
+
+      dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
+      iplot = Ska.engarchive.MsidPlot(dat)
+
+    Caveat: the ``MsidPlot()`` class is not meant for use within scripts, and
+    may give unexpected results if used in combination with other plotting
+    commands directed at the same plot figure.
+
+    :param msid: MSID object
+    :param fmt: plot format for values (default="-b")
+    :param fmt_minmax: plot format for mins and maxes (default="-c")
+    :param plot_kwargs: additional plotting keyword args
+
+    """
+
+    def __init__(self, msid, fmt='-b', fmt_minmax='-c', **plot_kwargs):
         self.fig = plt.gcf()
+        self.fig.clf()
         self.ax = self.fig.gca()
         self.zoom = 4.0
         self.msid = msid
+        self.fmt = fmt
+        self.fmt_minmax = fmt_minmax
+        self.plot_kwargs = plot_kwargs
         self.msidname = self.msid.msid
         self.plot_mins = True
         self.tstart = self.msid.times[0]
         self.tstop = self.msid.times[-1]
         self.scaley = True
+
+        # Make sure MSID is sampled at the correct density for initial plot
+        stat = get_stat(self.tstart, self.tstop, self.npix)
+        if stat != self.msid.stat:
+            self.msid = fetch.Msid(self.msidname, self.tstart, self.tstop,
+                                   stat=stat)
 
         self.ax.set_autoscale_on(True)
         self.draw_plot()
@@ -118,16 +169,16 @@ Interactive MSID plot keys:
                   (self.msid.times <= self.tstop))
 
         if self.plot_mins and hasattr(self.msid, 'mins'):
-            plot_cxctime(self.msid.times, self.msid.mins, '-c',
-                         ax=self.ax, fig=self.fig)
-            plot_cxctime(self.msid.times, self.msid.maxes, '-c',
-                         ax=self.ax, fig=self.fig)
+            plot_cxctime(self.msid.times, self.msid.mins, self.fmt_minmax,
+                         ax=self.ax, fig=self.fig, **self.plot_kwargs)
+            plot_cxctime(self.msid.times, self.msid.maxes, self.fmt_minmax,
+                         ax=self.ax, fig=self.fig, **self.plot_kwargs)
             if scaley:
                 ymin = np.min(self.msid.mins[ok])
                 ymax = np.max(self.msid.maxes[ok])
 
-        plot_cxctime(self.msid.times, self.msid.vals, '-b',
-                     ax=self.ax, fig=self.fig)
+        plot_cxctime(self.msid.times, self.msid.vals, self.fmt,
+                     ax=self.ax, fig=self.fig, **self.plot_kwargs)
 
         if scaley:
             plotvals = self.msid.vals[ok]
@@ -137,21 +188,9 @@ Interactive MSID plot keys:
                 ymax = np.max(plotvals)
             self.ax.set_ylim(ymin, ymax)
 
-        self.ax.set_title(self.msid.MSID)
+        self.ax.set_title('{} {}'.format(self.msid.MSID, self.msid.stat or ''))
         if self.msid.unit:
             self.ax.set_ylabel(self.msid.unit)
 
         # Update the image object with our new data and extent
         self.ax.figure.canvas.draw_idle()
-
-
-# if 'dat' not in globals():
-#    dat = fetch.Msid('tephin', '2011:001', '2011:010')
-# fig = plt.figure()
-# ax = fig.add_subplot(1, 1, 1)
-# MsidPlot('tephin')
-
-# Connect for changing the view limits
-# ax.callbacks.connect('xlim_changed', md.ax_update)
-
-# plt.show()
