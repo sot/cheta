@@ -1,6 +1,7 @@
+import numpy as np
 import matplotlib.pyplot as plt
 import Ska.engarchive.fetch as fetch
-from Ska.Matplotlib import cxctime2plotdate
+from Ska.Matplotlib import cxctime2plotdate, plot_cxctime
 from Chandra.Time import DateTime
 from matplotlib.dates import num2epoch, epoch2num
 
@@ -23,21 +24,17 @@ def get_stat(t0, t1, npix):
 
 
 class MsidPlot(object):
-    def __init__(self, msid,
-                 start='2011:001', stop='2011:010',
-                 fig=None, ax=None):
-        self.fig = fig or plt.gcf()
-        self.ax = ax or self.fig.gca()
-        self.fig.autofmt_xdate()
+    def __init__(self, msid):
+        self.fig = plt.gcf()
+        self.ax = self.fig.gca()
         self.zoom = 4.0
-
-        if isinstance(msid, fetch.MSID):
-            self.msid = msid
-        else:
-            stat = get_stat(start, stop, self.npix)
-            self.msid = fetch.Msid(msid, start, stop, stat=stat)
-
+        self.msid = msid
         self.msidname = self.msid.msid
+        self.plot_mins = True
+        self.tstart = self.msid.times[0]
+        self.tstop = self.msid.times[-1]
+        self.scaley = True
+
         self.ax.set_autoscale_on(True)
         self.draw_plot()
         self.ax.set_autoscale_on(False)
@@ -57,46 +54,92 @@ class MsidPlot(object):
             zoom = self.zoom if event.key == 'p' else 1.0 / self.zoom
             new_x1 = zoom * (x1 - xc) + xc
             new_x0 = new_x1 - zoom * dx
-            # print 'x0, x1', x0, x1, num2epoch(x0), num2epoch(x1)
             tstart = max(num2epoch(new_x0), MIN_TSTART_UNIX)
             tstop = min(num2epoch(new_x1), MAX_TSTOP_UNIX)
             new_x0 = epoch2num(tstart)
             new_x1 = epoch2num(tstop)
-            # print 'x0, x1', x0, x1, num2epoch(x0), num2epoch(x1)
 
             self.ax.set_xlim(new_x0, new_x1)
             self.ax.figure.canvas.draw_idle()
+        elif event.key == 'm':
+            for _ in range(len(self.ax.lines)):
+                self.ax.lines.pop()
+            self.plot_mins = not self.plot_mins
+            print '\nPlotting mins and maxes is {}'.format(
+                'enabled' if self.plot_mins else 'disabled')
+            self.draw_plot()
+        elif event.key == 'a':
+            self.ax.set_autoscale_on(True)
+            self.draw_plot()
+            self.ax.set_autoscale_on(False)
+        elif event.key == 'y':
+            self.scaley = not self.scaley
+            print 'Autoscaling y axis is {}'.format(
+                'enabled' if self.scaley else 'disabled')
+            self.draw_plot()
+        elif event.key == '?':
+            print """
+Interactive MSID plot keys:
+
+  a: autoscale for full data range in x and y
+  m: toggle plotting of min/max values
+  p: pan at cursor x
+  y: toggle autoscaling of y-axis
+  z: zoom at cursor x
+  ?: print help
+"""
 
     def xlim_changed(self, event):
         x0, x1 = self.ax.get_xlim()
-        tstart = DateTime(num2epoch(x0), format='unix').secs
-        tstop = DateTime(num2epoch(x1), format='unix').secs
-        stat = get_stat(tstart, tstop, self.npix)
-        print 'XLIM', x0, x1
+        self.tstart = DateTime(num2epoch(x0), format='unix').secs
+        self.tstop = DateTime(num2epoch(x1), format='unix').secs
+        stat = get_stat(self.tstart, self.tstop, self.npix)
 
-        if (tstart < self.msid.tstart or
-            tstop > self.msid.tstop or
+        if (self.tstart < self.msid.tstart or
+            self.tstop > self.msid.tstop or
             stat != self.msid.stat):
-            dt = tstop - tstart
-            tstart -= dt / 4
-            tstop += dt / 4
-            print 'Fetching', DateTime(tstart).date, DateTime(tstop).date
-            self.msid = fetch.Msid(self.msidname, tstart, tstop,
+            dt = self.tstop - self.tstart
+            self.tstart -= dt / 4
+            self.tstop += dt / 4
+            self.msid = fetch.Msid(self.msidname, self.tstart, self.tstop,
                                    stat=stat)
-            self.ax.set_autoscale_on(False)
-            for _ in range(len(self.ax.lines)):
-                self.ax.lines.pop()
-            self.draw_plot()
+        self.draw_plot()
 
     def draw_plot(self):
-        self.plot_dates = cxctime2plotdate(self.msid.times)
-        if hasattr(self.msid, 'p84s'):
-            self.ax.plot_date(self.plot_dates, self.msid.p84s, '-m')
-            self.ax.plot_date(self.plot_dates, self.msid.p16s, '-m')
-        if hasattr(self.msid, 'mins'):
-            self.ax.plot_date(self.plot_dates, self.msid.mins, '-c')
-            self.ax.plot_date(self.plot_dates, self.msid.maxes, '-c')
-        self.ax.plot_date(self.plot_dates, self.msid.vals, '-b')
+        for _ in range(len(self.ax.lines)):
+            self.ax.lines.pop()
+
+        # Force manual y scaling
+        scaley = self.scaley and not self.ax.get_autoscaley_on()
+        if scaley:
+            ymin = None
+            ymax = None
+            ok = ((self.msid.times >= self.tstart) &
+                  (self.msid.times <= self.tstop))
+
+        if self.plot_mins and hasattr(self.msid, 'mins'):
+            plot_cxctime(self.msid.times, self.msid.mins, '-c',
+                         ax=self.ax, fig=self.fig)
+            plot_cxctime(self.msid.times, self.msid.maxes, '-c',
+                         ax=self.ax, fig=self.fig)
+            if scaley:
+                ymin = np.min(self.msid.mins[ok])
+                ymax = np.max(self.msid.maxes[ok])
+
+        plot_cxctime(self.msid.times, self.msid.vals, '-b',
+                     ax=self.ax, fig=self.fig)
+
+        if scaley:
+            plotvals = self.msid.vals[ok]
+            if ymin is None:
+                ymin = np.min(plotvals)
+            if ymax is None:
+                ymax = np.max(plotvals)
+            self.ax.set_ylim(ymin, ymax)
+
+        self.ax.set_title(self.msid.MSID)
+        if self.msid.unit:
+            self.ax.set_ylabel(self.msid.unit)
 
         # Update the image object with our new data and extent
         self.ax.figure.canvas.draw_idle()
