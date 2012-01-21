@@ -670,7 +670,9 @@ class MSID(object):
         """
 
         from Ska.Matplotlib import plot_cxctime
-        plot_cxctime(self.times, self.vals, *args, **kwargs)
+        vals = self.raw_vals if self.state_codes else self.vals
+        plot_cxctime(self.times, vals, *args, state_codes=self.state_codes,
+                     **kwargs)
 
 
 class MSIDset(collections.OrderedDict):

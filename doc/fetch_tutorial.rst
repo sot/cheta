@@ -205,11 +205,24 @@ zoom).  In addition following key commands are recognized::
 Example::
 
   dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
-  iplot = Ska.engarchive.MsidPlot(dat)
+  dat.iplot()
 
-Caveat: the ``MsidPlot()`` class is not meant for use within scripts, and
-may give unexpected results if used in combination with other plotting
-commands directed at the same plot figure.
+The :func:`~Ska.engarchive.fetch.MSID.iplot` and
+:func:`~Ska.engarchive.fetch.MSID.plot` functions support plotting
+state-valued MSIDs such as ``AOPCADMD`` or ``AOUNLOAD``::
+
+  dat = fetch.Msid('aopcadmd', '2011:185', '2011:195')
+  dat.iplot()
+  grid()
+
+.. image:: fetchplots/iplot_aopcadmd.png
+
+.. Attention::
+
+   The ``MsidPlot()`` class is not meant for use within scripts, and
+   may give unexpected results if used in combination with other plotting
+   commands directed at the same plot figure.  Instead one should use the
+   MSID :func:`~Ska.engarchive.fetch.MSID.plot` method in this case.
 
 
 Bad data
@@ -625,6 +638,80 @@ Finally, for derived parameters the initial ``DP_`` is optional::
 
     "dpa_pow*": DP_DPA_POWER
     "roll": DP_ROLL
+
+State-valued MSIDs
+==================
+
+MSIDs that are state-valued such as ``AOPCADMD`` or ``AOECLIPS`` have the full
+state code values stored in the ``vals`` attribute.  The raw count values can
+be accessed with the ``raw_vals`` attribute::
+
+  >>> dat = fetch.Msid('aopcadmd', '2011:185', '2011:195', stat='daily')
+  >>> dat.vals
+  array(['NMAN', 'NMAN', 'STBY', 'STBY', 'STBY', 'NSUN', 'NPNT', 'NPNT',
+  'NPNT', 'NPNT'], 
+  dtype='|S4')
+  >>> dat.raw_vals
+  array([2, 2, 0, 0, 0, 3, 1, 1, 1, 1], dtype=int8)
+
+This is handy for plotting or other analysis that benefits from a numeric
+representation of the values.  The mapping of raw values to state code is available
+in the ``state_codes`` attribute::
+
+  >>> dat.state_codes
+  [(0, 'STBY'),
+   (1, 'NPNT'),
+   (2, 'NMAN'),
+   (3, 'NSUN'),
+   (4, 'PWRF'),
+   (5, 'RMAN'),
+   (6, 'NULL')]
+
+.. Note::
+   
+   Be aware that the ``stat='daily'`` and ``stat='5min'`` values
+   for state-valued MSIDs represent a single sample of the MSID at the specified
+   interval.  There is no available information for the set of values which
+   occurred during the interval.  For this you eed to use the full resolution
+   sampling.
+
+Telemetry database
+==================
+
+With an |fetch_MSID| object you can directly access all the information
+in the Chandra Telemetry Database which relates to that MSID.  This is
+done through the 
+`Ska.tdb <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html>`_
+module.  For example::
+
+  >>> dat = fetch.Msid('aopcadmd', '2011:187', '2011:190')
+
+  >>> dat.tdb  # Top level summary of TDB info for AOPCADMD
+  <MsidView msid="AOPCADMD" technical_name="PCAD MODE">
+
+  >>> dat.tdb.Tsc  # full state codes table
+  rec.array([('AOPCADMD', 1, 1, 0, 0, 'STBY'), ('AOPCADMD', 1, 7, 6, 6, 'NULL'),
+             ('AOPCADMD', 1, 6, 5, 5, 'RMAN'), ('AOPCADMD', 1, 5, 4, 4, 'PWRF'),
+             ('AOPCADMD', 1, 4, 3, 3, 'NSUN'), ('AOPCADMD', 1, 2, 1, 1, 'NPNT'),
+             ('AOPCADMD', 1, 3, 2, 2, 'NMAN')], 
+            dtype=[('MSID', '|S15'), ('CALIBRATION_SET_NUM', '<i8'), 
+                   ('SEQUENCE_NUM', '<i8'), ('LOW_RAW_COUNT', '<i8'),
+                   ('HIGH_RAW_COUNT', '<i8'), ('STATE_CODE', '|S4')])
+
+  >>> dat.tdb.Tsc['STATE_CODE']  # STATE_CODE column
+  rec.array(['STBY', 'NULL', 'RMAN', 'PWRF', 'NSUN', 'NPNT', 'NMAN'], 
+            dtype='|S4')
+
+  >>> dat.tdb.technical_name
+  'PCAD MODE'
+
+  >>> dat.tdb.description
+  'LR/15/SD/10 PCAD_MODE'
+
+Note that the ``tdb`` attribute is equivalent to ``Ska.tdb.msids[MSID]``,
+so refer to the
+`Ska.tdb <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html>`_
+documentation for further information.
 
 Pushing it to the limit
 ========================

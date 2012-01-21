@@ -89,7 +89,6 @@ class MsidPlot(object):
         self.ax.set_autoscale_on(True)
         self.draw_plot()
         self.ax.set_autoscale_on(False)
-        self.ax.callbacks.connect('xlim_changed', self.xlim_changed)
         self.fig.canvas.mpl_connect('key_press_event', self.key_press)
 
     @property
@@ -120,6 +119,8 @@ class MsidPlot(object):
                 'enabled' if self.plot_mins else 'disabled')
             self.draw_plot()
         elif event.key == 'a':
+            # self.fig.clf()
+            # self.ax = self.fig.gca()
             self.ax.set_autoscale_on(True)
             self.draw_plot()
             self.ax.set_autoscale_on(False)
@@ -157,40 +158,55 @@ Interactive MSID plot keys:
         self.draw_plot()
 
     def draw_plot(self):
+        msid = self.msid
         for _ in range(len(self.ax.lines)):
             self.ax.lines.pop()
 
         # Force manual y scaling
-        scaley = self.scaley and not self.ax.get_autoscaley_on()
+        scaley = self.scaley
+
         if scaley:
             ymin = None
             ymax = None
-            ok = ((self.msid.times >= self.tstart) &
-                  (self.msid.times <= self.tstop))
+            ok = ((msid.times >= self.tstart) &
+                  (msid.times <= self.tstop))
+
+        try:
+            self.ax.callbacks.disconnect(self.xlim_callback)
+        except AttributeError:
+            pass
 
         if self.plot_mins and hasattr(self.msid, 'mins'):
-            plot_cxctime(self.msid.times, self.msid.mins, self.fmt_minmax,
+            plot_cxctime(msid.times, msid.mins, self.fmt_minmax,
                          ax=self.ax, fig=self.fig, **self.plot_kwargs)
-            plot_cxctime(self.msid.times, self.msid.maxes, self.fmt_minmax,
+            plot_cxctime(msid.times, msid.maxes, self.fmt_minmax,
                          ax=self.ax, fig=self.fig, **self.plot_kwargs)
             if scaley:
-                ymin = np.min(self.msid.mins[ok])
-                ymax = np.max(self.msid.maxes[ok])
+                ymin = np.min(msid.mins[ok])
+                ymax = np.max(msid.maxes[ok])
 
-        plot_cxctime(self.msid.times, self.msid.vals, self.fmt,
-                     ax=self.ax, fig=self.fig, **self.plot_kwargs)
+        vals = msid.raw_vals if msid.state_codes else msid.vals
+        plot_cxctime(msid.times, vals, self.fmt,
+                     ax=self.ax, fig=self.fig,
+                     state_codes=msid.state_codes, **self.plot_kwargs)
 
         if scaley:
-            plotvals = self.msid.vals[ok]
+            plotvals = vals[ok]
             if ymin is None:
                 ymin = np.min(plotvals)
             if ymax is None:
                 ymax = np.max(plotvals)
-            self.ax.set_ylim(ymin, ymax)
+            dy = (ymax - ymin) * 0.05
+            if dy == 0.0:
+                dy = min(ymin + ymax, 1e-12) * 0.05
+            self.ax.set_ylim(ymin - dy, ymax + dy)
 
-        self.ax.set_title('{} {}'.format(self.msid.MSID, self.msid.stat or ''))
-        if self.msid.unit:
-            self.ax.set_ylabel(self.msid.unit)
+        self.ax.set_title('{} {}'.format(msid.MSID, msid.stat or ''))
+        if msid.unit:
+            self.ax.set_ylabel(msid.unit)
 
         # Update the image object with our new data and extent
         self.ax.figure.canvas.draw_idle()
+
+        self.xlim_callback = self.ax.callbacks.connect('xlim_changed',
+                                                       self.xlim_changed)
