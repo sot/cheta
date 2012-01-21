@@ -28,7 +28,7 @@ API Changes
   to the new (linearly-spaced) interpolated times.  Previously
   times was set to the nearest-neighbor times, which is not generally
   useful.  See https://github.com/sot/eng_archive/issues/20 and
-    Interpolation (http://goo.gl/kQbLV)
+  Interpolation (http://goo.gl/kQbLV)
 
 Bug fixes
 ---------
