@@ -89,6 +89,7 @@ class MsidPlot(object):
         self.ax.set_autoscale_on(True)
         self.draw_plot()
         self.ax.set_autoscale_on(False)
+        plt.grid()
         self.fig.canvas.mpl_connect('key_press_event', self.key_press)
 
     @property
@@ -124,6 +125,7 @@ class MsidPlot(object):
             self.ax.set_autoscale_on(True)
             self.draw_plot()
             self.ax.set_autoscale_on(False)
+            self.xlim_changed(None)
         elif event.key == 'y':
             self.scaley = not self.scaley
             print 'Autoscaling y axis is {}'.format(
