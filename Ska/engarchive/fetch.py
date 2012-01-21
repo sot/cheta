@@ -171,12 +171,10 @@ class MSID(object):
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
     :param stat: return 5-minute or daily statistics ('5min' or 'daily')
-    :param convert_states: convert state MSIDS (strings) to int vals
 
     :returns: MSID instance
     """
-    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None,
-                 convert_states=False):
+    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         msids, MSIDs = msid_glob(msid)
         if len(MSIDs) > 1:
             raise ValueError('Multiple matches for {} in Eng Archive'
@@ -185,8 +183,8 @@ class MSID(object):
             self.msid = msids[0]
             self.MSID = MSIDs[0]
 
-        self.convert_states = convert_states  # convert state MSIDs to int vals
-        self.states = None  # set to [(index, state_code), ..] where applicable
+        self.raw_vals = None  # No raw values available
+        self.states = None  # set to [(raw_count, state_code), ..] if possible
 
         self.unit = units.get_msid_unit(self.MSID)
         self.stat = stat
@@ -226,9 +224,9 @@ class MSID(object):
             else:
                 get_msid_data = (self._get_msid_data_cached if CACHE else
                                  self._get_msid_data)
-                self.vals, self.times, self.bads, self.colnames, self.states =\
-                    get_msid_data(self.content, self.tstart, self.tstop,
-                                  self.MSID, self.convert_states)
+                (self.vals, self.times, self.bads, self.colnames,
+                 self.raw_vals, self.states) = \
+                get_msid_data(self.content, self.tstart, self.tstop, self.MSID)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -273,15 +271,14 @@ class MSID(object):
 
     @staticmethod
     @cache.lru_cache(30)
-    def _get_msid_data_cached(content, tstart, tstop, msid, convert_states):
+    def _get_msid_data_cached(content, tstart, tstop, msid):
         """Do the actual work of getting time and values for an MSID from HDF5
         files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
-        return MSID._get_msid_data(content, tstart, tstop, msid,
-                                   convert_states)
+        return MSID._get_msid_data(content, tstart, tstop, msid)
 
     @staticmethod
-    def _get_msid_data(content, tstart, tstop, msid, convert_states):
+    def _get_msid_data(content, tstart, tstop, msid):
         """Do the actual work of getting time and values for an MSID from HDF5
         files"""
 
@@ -340,13 +337,11 @@ class MSID(object):
         bads = bads[row0:row1]
         colnames = ['times', 'vals', 'bads']
 
-        # If requested translate state values to integers
-        if convert_states and 'S' in vals.dtype.str:
-            vals, states = _convert_states(msid, vals)
-        else:
-            states = None
+        # If possible translate state values to raw integer values.
+        # This returns None, None if not possible.
+        raw_vals, states = _get_raw_vals(msid, vals)
 
-        return (vals, times, bads, colnames, states)
+        return (vals, times, bads, colnames, raw_vals, states)
 
     def filter_bad(self, bads=None):
         """Filter out any bad values.
@@ -806,15 +801,12 @@ class Msid(MSID):
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
     :param stat: return 5-minute or daily statistics ('5min' or 'daily')
-    :param convert_states: convert state MSIDS (strings) to int vals
 
     :returns: MSID instance
     """
-    def __init__(self, msid, start, stop=None, filter_bad=True, stat=None,
-                 convert_states=False):
+    def __init__(self, msid, start, stop=None, filter_bad=True, stat=None):
         super(Msid, self).__init__(msid, start, stop=stop,
-                                   filter_bad=filter_bad, stat=stat,
-                                   convert_states=convert_states)
+                                   filter_bad=filter_bad, stat=stat)
 
 class Msidset(MSIDset):
     """Fetch a set of MSIDs from the engineering telemetry archive.
@@ -825,7 +817,6 @@ class Msidset(MSIDset):
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
     :param stat: return 5-minute or daily statistics ('5min' or 'daily')
-    :param convert_states: convert state MSIDS (strings) to int vals
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
@@ -1029,28 +1020,22 @@ def _plural(x):
     """
     return x + 'es' if (x.endswith('x')  or x.endswith('s')) else x + 's'
 
+def _get_raw_vals(msid, vals):
+    if 'S' not in vals.dtype.str:
+        return (None, None)
 
-def _convert_states(msid, vals):
     import Ska.tdb
-
     states = Ska.tdb.msids[msid].Tsc
-    if states is None:
-        warnings.warn('MSID {} has string values but no state codes'
-                      .format(msid))
-        return vals, None
-
-    if len(set(states['CALIBRATION_SET_NUM'])) != 1:
-        warnings.warn('MSID {} has multiple CALIBRATION_SET_NUM values'
-                      .format(msid))
-        return vals, None
+    if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
+        return None, None
 
     # NOTE: any plot values of -1 imply unknown state
-    int_vals = numpy.zeros(len(vals), dtype='int8') - 1
+    raw_vals = numpy.zeros(len(vals), dtype='int8') - 1
 
     state_vals = [(state['LOW_RAW_COUNT'], state['STATE_CODE'])
                   for state in states]
     for state in states.data:
         ok = vals == state['STATE_CODE']
-        int_vals[ok] = state['LOW_RAW_COUNT']
+        raw_vals[ok] = state['LOW_RAW_COUNT']
 
-    return int_vals, state_vals
+    return raw_vals, state_vals
