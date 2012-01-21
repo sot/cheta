@@ -176,6 +176,13 @@ That looks better:
 
 .. image:: fetchplots/plot_cxctime.png
 
+.. tip:: 
+
+   The :func:`~Ska.engarchive.fetch.MSID.plot` method accepts any arguments
+   work with the Matplotlib `plot_date()
+   <http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot_date>`_
+   function
+
 Interactive plotting
 =====================
 
@@ -215,14 +222,15 @@ state-valued MSIDs such as ``AOPCADMD`` or ``AOUNLOAD``::
   dat.iplot()
   grid()
 
-.. image:: fetchplots/iplot_aopcadmd.png
+.. image:: fetchplots/iplot_aopcadmode.png
 
-.. Attention::
+.. Note::
 
-   The ``MsidPlot()`` class is not meant for use within scripts, and
-   may give unexpected results if used in combination with other plotting
-   commands directed at the same plot figure.  Instead one should use the
-   MSID :func:`~Ska.engarchive.fetch.MSID.plot` method in this case.
+   The :func:`~Ska.engarchive.fetch.MSID.iplot` method is not meant for use
+   within scripts, and may give unexpected results if used in combination with
+   other plotting commands directed at the same plot figure.  Instead one
+   should use the MSID :func:`~Ska.engarchive.fetch.MSID.plot` method in this
+   case.
 
 
 Bad data
@@ -538,6 +546,11 @@ the details.
       
       tight_layout()
 
+.. image:: fetchplots/interpolation_filter_false.png
+   :width: 400 px
+
+.. image:: fetchplots/interpolation_filter_true.png
+   :width: 400 px
 
 Unit systems
 ==============
