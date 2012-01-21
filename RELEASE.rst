@@ -5,20 +5,20 @@ A number of major new features are available in the release 0.16 of the
 Ska engineering archive:
 
 - Built-in plotting capability and an interactive plot browser that
-  allows arbitrary zooming and panning.  See tutorial sections:
-  - Plotting time data (http://goo.gl/6tGNZ)
-  - Interactive plotting (http://goo.gl/2dG4c)
+  allows arbitrary zooming and panning.  See tutorial sections
+    Plotting time data (http://goo.gl/6tGNZ) and 
+    Interactive plotting (http://goo.gl/2dG4c)
 
 - Support for plotting state-valued MSIDs and for accessing
-  the raw count values.  See:
-  - State valued MSIDs (http://goo.gl/9R0Tz)
+  the raw count values.  See
+    State valued MSIDs (http://goo.gl/9R0Tz)
 
 - Support for accessing Telemetry Database attributes related
-  to an MSID.  See:
-  - Telemetry database (http://goo.gl/pPo0s)
+  to an MSID.  See
+    Telemetry database (http://goo.gl/pPo0s)
 
-- PCAD derived parameters (main code from A. Arvai).  See:
-  - Derived PCAD parameters (http://goo.gl/iKDUK)
+- PCAD derived parameters (main code from A. Arvai).  See
+    Derived PCAD parameters (http://goo.gl/iKDUK)
 
 API Changes
 -----------
@@ -28,7 +28,7 @@ API Changes
   to the new (linearly-spaced) interpolated times.  Previously
   times was set to the nearest-neighbor times, which is not generally
   useful.  See https://github.com/sot/eng_archive/issues/20 and
-  - Interpolation (http://goo.gl/kQbLV)
+    Interpolation (http://goo.gl/kQbLV)
 
 Bug fixes
 ---------
