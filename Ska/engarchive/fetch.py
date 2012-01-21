@@ -183,9 +183,6 @@ class MSID(object):
             self.msid = msids[0]
             self.MSID = MSIDs[0]
 
-        self.raw_vals = None  # No raw values available
-        self.states = None  # set to [(raw_count, state_code), ..] if possible
-
         self.unit = units.get_msid_unit(self.MSID)
         self.stat = stat
         if stat:
@@ -222,11 +219,10 @@ class MSID(object):
                 ft['interval'] = self.stat
                 self._get_stat_data()
             else:
-                get_msid_data = (self._get_msid_data_cached if CACHE else
-                                 self._get_msid_data)
-                (self.vals, self.times, self.bads, self.colnames,
-                 self.raw_vals, self.states) = \
-                get_msid_data(self.content, self.tstart, self.tstop, self.MSID)
+                gmd = (self._get_msid_data_cached if CACHE else
+                       self._get_msid_data)
+                self.vals, self.times, self.bads, self.colnames = \
+                    gmd(self.content, self.tstart, self.tstop, self.MSID)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -337,11 +333,45 @@ class MSID(object):
         bads = bads[row0:row1]
         colnames = ['times', 'vals', 'bads']
 
-        # If possible translate state values to raw integer values.
-        # This returns None, None if not possible.
-        raw_vals, states = _get_raw_vals(msid, vals)
+        return (vals, times, bads, colnames)
 
-        return (vals, times, bads, colnames, raw_vals, states)
+    @property
+    def state_codes(self):
+        """List of state codes tuples (raw_count, state_code) for state-valued
+        MSIDs
+        """
+        if 'S' not in self.vals.dtype.str:
+            self._state_codes = None
+
+        if not hasattr(self, '_state_codes'):
+            import Ska.tdb
+            states = Ska.tdb.msids[self.MSID].Tsc
+            if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
+                warnings.warn('MSID {} has string vals but no state codes '
+                              'or multiple calibration sets'.format(self.msid))
+                self._state_codes = None
+            else:
+                states = numpy.sort(states.data, order='LOW_RAW_COUNT')
+                self._state_codes = [(state['LOW_RAW_COUNT'],
+                                      state['STATE_CODE']) for state in states]
+        return self._state_codes
+
+    @property
+    def raw_vals(self):
+        """Raw counts corresponding to the string state-code values that are
+        stored in ``self.vals``
+        """
+        # If this is not a string-type value then there are no raw values
+        if 'S' not in self.vals.dtype.str or self.state_codes is None:
+            self._raw_vals = None
+
+        if not hasattr(self, '_raw_vals'):
+            self._raw_vals = numpy.zeros(len(self.vals), dtype='int8') - 1
+            for raw_val, state_code in self.state_codes:
+                ok = self.vals == state_code
+                self._raw_vals[ok] = raw_val
+
+        return self._raw_vals
 
     def filter_bad(self, bads=None):
         """Filter out any bad values.
@@ -1019,23 +1049,3 @@ def _plural(x):
     known small set of cases within fetch where it will get applied.
     """
     return x + 'es' if (x.endswith('x')  or x.endswith('s')) else x + 's'
-
-def _get_raw_vals(msid, vals):
-    if 'S' not in vals.dtype.str:
-        return (None, None)
-
-    import Ska.tdb
-    states = Ska.tdb.msids[msid].Tsc
-    if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
-        return None, None
-
-    # NOTE: any plot values of -1 imply unknown state
-    raw_vals = numpy.zeros(len(vals), dtype='int8') - 1
-
-    state_vals = [(state['LOW_RAW_COUNT'], state['STATE_CODE'])
-                  for state in states]
-    for state in states.data:
-        ok = vals == state['STATE_CODE']
-        raw_vals[ok] = state['LOW_RAW_COUNT']
-
-    return raw_vals, state_vals
