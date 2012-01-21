@@ -101,6 +101,11 @@ archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'sto
                       'tlmver', 'ascdsver', 'revision', 'date')
 
 def main():
+    logger.info('Run time options: \n{}'.format(opt))
+    logger.info('Update_archive file: {}'.format(os.path.abspath(__file__)))
+    logger.info('Fetch module file: {}'.format(os.path.abspath(fetch.__file__)))
+    logger.info('')
+
     # Get the archive content filetypes
     filetypes = fetch.filetypes
     if opt.content:
