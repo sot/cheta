@@ -11,7 +11,5 @@ setup(name='Ska.engarchive',
       namespace_packages=['Ska'],
       packages=['Ska', 'Ska.engarchive', 'Ska.engarchive.derived'],
       package_dir={'Ska' : 'Ska'},
-      package_data={'': ['units_*.pkl'],
-                    '': ['*.dat'],
-                    'Ska.engarchive': ['msid_bad_times.dat']},
+      package_data={'Ska.engarchive': ['*.dat', 'units_*.pkl']},
       )
