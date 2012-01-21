@@ -373,6 +373,13 @@ class MSID(object):
 
         return self._raw_vals
 
+    @property
+    def tdb(self):
+        """Access the Telemetry database entries for this MSID
+        """
+        import Ska.tdb
+        return Ska.tdb.msids[self.MSID]
+
     def filter_bad(self, bads=None):
         """Filter out any bad values.
 
