@@ -5,7 +5,7 @@
 # First make test data.  This sets ENG_ARCHIVE in that window.
 
 [[ source make_test_eng_archive.csh ]]
-. make_test_eng_archive.sh
+. make_test_eng_archive.sh   # THIS actually works now
 
 # Basic sanity test with some plots
 
@@ -22,7 +22,10 @@ test/make_plots.py
 unset ENG_ARCHIVE
 
 cd test
-  ./get_regr_vals.py --start 2010:265 --stop 2010:285
+  # ./get_regr_vals.py --start 2010:265 --stop 2010:285
+  ###  OR NORMALLY USE THE EXISTING  ###
+  # cp /proj/sot/ska/data/eng_archive/regr/regr_vals.flight ./
+
   ./get_regr_vals.py --start 2010:265 --stop 2010:285 --test 
   ./compare_regr_vals.py
 cd ..
@@ -30,6 +33,7 @@ cd ..
 export ENG_ARCHIVE=$PWD/test/eng_archive
 
 ## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df
+## 2012-Jan-21: All tests pass for 0.16dev e359acd5 !!
 
 ########################################################################################################
 ######## Regression test for new skare (updated Python, NumPy, tables, etc) in $ska/dev/

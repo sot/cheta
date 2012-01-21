@@ -1,0 +1,8 @@
+test/plot*.png
+test/eng_archive
+test/*.tar.gz
+test/regr_vals.*
+build
+data
+dist
+doc/_build
