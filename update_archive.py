@@ -783,6 +783,11 @@ def get_archive_files(filetype):
     # End time for archive queries (minimum of start + max_query_days and NOW)
     datestop = DateTime(opt.date_now)
 
+    # For *ephem0 the query needs to extend well into the future
+    # to guarantee getting all available files.  This is the archives fault.
+    if filetype['level'] == 'L0' and filetype['instrum'] == 'EPHEM':
+        datestop = datestop + 50
+
     # For instrum==EPHEM break queries into time ranges no longer than
     # 100000 sec each.  EPHEM files are at least 7 days long and generated
     # no more often than every ~3 days so this should work.
