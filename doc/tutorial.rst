@@ -11,8 +11,8 @@ This document gives a tutorial introduction to analysis using the Ska analysis
 environment, including basic configuration and a number
 of examples.
 
-The Ska analysis environment consists of a full-featured Python installation (with
-interactive analysis, plotting and numeric capability) along with the Ska engineering
+The Ska analysis environment consists of a full-featured Python installation with
+interactive analysis, plotting and numeric capability along with the Ska engineering
 telemetry archive.
 
 The telemetry archive consists of:
@@ -24,8 +24,6 @@ The telemetry archive consists of:
   - 5-minute statistics: min, max, mean, sampled value, number of samples
   - Daily statistics: min, max, mean, sampled value, standard deviation, percentiles (1,
     5, 16, 50, 84, 95, 99), number of samples.
-
-* A python module to retrieve telemetry values.
 
 
 Configure 
@@ -42,11 +40,16 @@ To set up and to use the archive it is best to start with a "clean" environment
 by opening a new X-terminal window.  It is assumed you are using ``csh`` or
 ``tcsh``.
 
-The first step is to log in to the machine ``ccosmos`` on the HEAD LAN and
-configure the Ska runtime environment and make a new xterm window with a black
-background::
+The first step is to log in to a linux machine on either the HEAD LAN
+(e.g. ``ccosmos``) or on the GRETA LAN (``chimchim``).  On the GRETA network
+the Ska analysis environment is available from any GRETA machine, but the
+64-bit machine ``chimchim`` will run analysis and telemetry access tasks much
+faster.
 
-  ssh -Y <username>@ccosmos.cfa.harvard.edu
+To configure the Ska runtime environment and make a new xterm window with a black
+background do the following::
+
+  ssh -Y <username>@<hostname>  # where <username> and <hostname> are filled in
    <Enter password>
   xterm -bg black -fg green &
 
@@ -55,11 +58,27 @@ variables so all the tools are accessible and use the correct libraries.::
 
   source /proj/sot/ska/bin/ska_envs.csh
 
-If you have not used Python and matplotlib on the HEAD LAN before you should do the 
-following setup to ensure that the right plotting backend (Tk) is used::
+Initial file setup
+~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have not used Python and matplotlib before you should do the 
+following setup::
 
   mkdir -p ~/.matplotlib
-  cp /proj/sot/ska/data/eng_archive/matplotlibrc ~/.matplotlib/
+  cp $SKA/include/cfg/matplotlibrc ~/.matplotlib/
+  
+Next setup the interactive Python tool.  If you already have a ``~/.ipython``
+directory then rename it for safekeeping::
+
+  mv ~/.ipython ~/.ipython.bak
+
+Now make a new default IPython profile and copy the Ska customizations::
+
+  mkdir -p ~/.ipython
+  ipython profile create
+  cp $SKA/include/cfg/ipython_startup.py ~/.ipython/profile_default/
+  cp $SKA/include/cfg/10_define_impska ~/.ipython/profile_default/startup/
+  
 
 Basic Functionality Test
 ----------------------------------------------
@@ -69,23 +88,23 @@ shell prompt.  In this tutorial all shell commands are shown with a "% "
 to indicate the shell prompt.  Your prompt may be different and you should
 not include the "% " when copying the examples.::
 
-  % ipython -pylab
+  % ipython --pylab
   
 You should see something that looks like::
 
-  Python 2.6.2 (r262:71600, Nov  2 2009, 16:06:12) 
-  Type "copyright", "credits" or "license" for more information.
+    Python 2.7.1 (r271:86832, Feb  7 2011, 11:30:54) 
+    Type "copyright", "credits" or "license" for more information.
 
-  IPython 0.10 -- An enhanced Interactive Python.
-  ?         -> Introduction and overview of IPython's features.
-  %quickref -> Quick reference.
-  help      -> Python's own help system.
-  object?   -> Details about 'object'. ?object also works, ?? prints more.
+    IPython 0.12 -- An enhanced Interactive Python.
+    ?         -> Introduction and overview of IPython's features.
+    %quickref -> Quick reference.
+    help      -> Python's own help system.
+    object?   -> Details about 'object', use 'object??' for extra details.
 
-    Welcome to pylab, a matplotlib-based Python environment.
+    Welcome to pylab, a matplotlib-based Python environment [backend: Qt4Agg].
     For more information, type 'help(pylab)'.
 
-  In [1]: 
+    In [1]: 
 
 Now read some data and make a simple plot by copying the following lines in ``ipython``::
 
@@ -122,8 +141,7 @@ data analysis environment.  `IPython`_ is similar in many ways to the command-li
 
 **Links**
 
-* `Main documentation page <http://ipython.scipy.org/doc/manual/html/index.html>`_
-* `Tutorial (newer) <http://ipython.scipy.org/doc/manual/html/interactive/tutorial.html>`_
+* `Main documentation page <http://ipython.org/ipython-doc/rel-0.12/interactive/index.html>`_
 * `Tutorial (older but good) <http://onlamp.com/pub/a/python/2005/01/27/ipython.html>`_
 
 .. include:: ipython_tutorial.rst

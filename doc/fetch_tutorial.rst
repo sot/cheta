@@ -740,7 +740,7 @@ This brings up a text-based process monitor.  Focus on that window and hit "M"
 to tell it to order by memory usage.  Now go back to your main window and get
 all the ``TEIO`` data for the mission::
 
-  ipython -pylab
+  ipython --pylab
   import Ska.engarchive.fetch as fetch
   from Ska.Matplotlib import plot_cxctime
   time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)

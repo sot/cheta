@@ -1,11 +1,11 @@
 **Pylab**
 
-For interactive data analysis IPython has a special ``-pylab`` command line
+For interactive data analysis IPython has a special ``--pylab`` command line
 option which automatically imports elements of the Numpy and the Matplotlib 
 environments.  This provides a Matlab-like environment allowing very simple
 and direct commands like::
 
-  % ipython -pylab
+  % ipython --pylab
   
   x = arange(0, 10, 0.2)
   y = sin(x)
@@ -74,20 +74,11 @@ and methods.  For instance try to create a list of 3 numbers::
 This will show the available methods for ``a``::
 
   In [17]: a.<TAB>
-  a.__add__           a.__ge__            a.__iter__          a.__repr__          a.append
-  a.__class__         a.__getattribute__  a.__le__            a.__reversed__      a.count
-  a.__contains__      a.__getitem__       a.__len__           a.__rmul__          a.extend
-  a.__delattr__       a.__getslice__      a.__lt__            a.__setattr__       a.index
-  a.__delitem__       a.__gt__            a.__mul__           a.__setitem__       a.insert
-  a.__delslice__      a.__hash__          a.__ne__            a.__setslice__      a.pop
-  a.__doc__           a.__iadd__          a.__new__           a.__sizeof__        a.remove
-  a.__eq__            a.__imul__          a.__reduce__        a.__str__           a.reverse
-  a.__format__        a.__init__          a.__reduce_ex__     a.__subclasshook__  a.sort
+  a.append   a.extend   a.insert   a.remove   a.sort     
+  a.count    a.index    a.pop      a.reverse  
 
-In general you can ignore all the ones that begin with ``__`` since these are
-internal methods that are not usually called directly.  However at the end you
-see useful looking functions like ``append`` or ``sort`` which you can get help
-for and use::
+Here you see useful looking functions like ``append`` or ``sort`` which you can
+get help for and use::
 
   help a.sort
   a.sort()
@@ -101,18 +92,19 @@ help and TAB completion to remind yourself::
   help fetch  
   tephin = fetch.MSID('tephin', '2009:001', '2009:002', stat='daily')
   tephin.<TAB>
-    tephin.MSID              tephin.__reduce_ex__     tephin.datestart         tephin.p50s
-    tephin.__class__         tephin.__repr__          tephin.datestop          tephin.p84s
-    tephin.__delattr__       tephin.__setattr__       tephin.dt                tephin.p95s
-    tephin.__dict__          tephin.__sizeof__        tephin.filter_bad        tephin.p99s
-    tephin.__doc__           tephin.__str__           tephin.indexes           tephin.samples
-    tephin.__format__        tephin.__subclasshook__  tephin.maxes             tephin.stat
-    tephin.__getattribute__  tephin.__weakref__       tephin.means             tephin.stds
-    tephin.__hash__          tephin._get_data         tephin.mins              tephin.times
-    tephin.__init__          tephin._get_msid_data    tephin.msid              tephin.tstart
-    tephin.__module__        tephin._get_stat_data    tephin.p01s              tephin.tstop
-    tephin.__new__           tephin.colnames          tephin.p05s              tephin.vals
-    tephin.__reduce__        tephin.content           tephin.p16s              
+   tephin.bads               tephin.midvals            tephin.samples
+   tephin.colnames           tephin.mins               tephin.stat
+   tephin.content            tephin.msid               tephin.state_codes
+   tephin.datestart          tephin.MSID               tephin.state_intervals
+   tephin.datestop           tephin.p01s               tephin.stds
+   tephin.dt                 tephin.p05s               tephin.tdb
+   tephin.filter_bad         tephin.p16s               tephin.times
+   tephin.filter_bad_times   tephin.p50s               tephin.tstart
+   tephin.indexes            tephin.p84s               tephin.tstop
+   tephin.iplot              tephin.p95s               tephin.unit
+   tephin.logical_intervals  tephin.p99s               tephin.vals
+   tephin.maxes              tephin.plot               tephin.write_zip
+   tephin.means              tephin.raw_vals           
 
 OK, now you remember you wanted ``times`` and ``maxes``.  But look, there are
 other tidbits there for free that look interesting.  So go ahead and print a few::
