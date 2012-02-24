@@ -14,6 +14,11 @@ if len(sys.argv) == 2:
     filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
 
 for filetype in filetypes:
+    if filetype['content'] in ('ORBITEPHEM', 'LUNAREPHEM', 'SOLAREPHEM'):
+        doys = range(1, 372, 5)
+    else:
+        doys = (1, 367)
+
     try:
         content = filetype['content'].lower()
         arc5gl_query = filetype['arc5gl_query'].lower()
@@ -26,35 +31,28 @@ for filetype in filetypes:
             os.makedirs(outdir)
 
         os.chdir(outdir)
-        arc5 = arc5gl.Arc5gl(echo=True)
+        arc5 = arc5gl.Arc5gl()
 
         print '**********', content, time.ctime(), '***********'
         print '  cd ' + outdir
         arc5.sendline('cd ' + outdir)
         arc5.sendline('version = last')
 
-        if filetype['content'] in ('ORBITEPHEM0', 'LUNAREPHEM0', 'SOLAREPHEM0',
-                                   'ORBITEPHEM1', 'LUNAREPHEM1', 'SOLAREPHEM1',):
-            arc5.sendline('obsid=8008')
-            arc5.sendline('get %s' % arc5gl_query.lower())
-            arc5.sendline('obsid=')
-            arc5.sendline('go')
-        else:
-            for year in range(2000, 2011):
-                if os.path.exists('/pool14/wink/stoptom'):
-                    raise RuntimeError('Stopped by sherry')
-                for doy0, doy1 in zip(doys[:-1], doys[1:]):
-                    datestart = '%d:%03d:00:00:00' % (year, doy0)
-                    datestop = '%d:%03d:00:00:00' % (year, doy1)
+        for year in range(2000, 2011):
+            if os.path.exists('/pool14/wink/stoptom'):
+                raise RuntimeError('Stopped by sherry')
+            for doy0, doy1 in zip(doys[:-1], doys[1:]):
+                datestart = '%d:%03d:00:00:00' % (year, doy0)
+                datestop = '%d:%03d:00:00:00' % (year, doy1)
 
-                    sys.stdout.flush()
-                    print '  tstart=%s' % datestart
-                    print '  tstop=%s' % datestop
-                    print '  get %s' % arc5gl_query
+                sys.stdout.flush()
+                print '  tstart=%s' % datestart
+                print '  tstop=%s' % datestop
+                print '  get %s' % arc5gl_query
 
-                    arc5.sendline('tstart=%s' % datestart)
-                    arc5.sendline('tstop=%s;' % datestop)
-                    arc5.sendline('get %s' % arc5gl_query.lower())
+                arc5.sendline('tstart=%s' % datestart)
+                arc5.sendline('tstop=%s;' % datestop)
+                arc5.sendline('get %s' % arc5gl_query.lower())
 
         open('.process', 'w')
 
