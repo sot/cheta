@@ -76,9 +76,56 @@ Now make a new default IPython profile and copy the Ska customizations::
 
   mkdir -p ~/.ipython
   ipython profile create
-  cp $SKA/include/cfg/ipython_startup.py ~/.ipython/profile_default/
-  cp $SKA/include/cfg/10_define_impska ~/.ipython/profile_default/startup/
+  cp $SKA/include/cfg/ipython_config.py ~/.ipython/profile_default/
+  cp $SKA/include/cfg/10_define_impska.py ~/.ipython/profile_default/startup/
   
+Finally it is quite useful to define aliases to get into one of the Ska
+environments and adjust your prompt to indicate that you are using Ska.  The
+command and file to modify depends on the shell you are using and the network.
+First if you don't know what shell you are using then do::
+
+  echo $0
+
+This should say either ``csh`` or ``tcsh`` or ``bash``.
+
+=================== =============  =============
+Shell               Network        File
+=================== =============  =============
+``csh`` or ``tcsh`` HEAD           ~/.cshrc.user
+``csh`` or ``tcsh`` GRETA          ~/.cshrc
+``bash``            HEAD or GRETA  ~/.bashrc
+=================== =============  =============
+
+Now put the appropriate lines at the end of the indicated file::
+
+  # Csh or tcsh
+  alias ska  'unsetenv PERL5LIB; source /proj/sot/ska/bin/ska_envs.csh; set prompt="ska-$prompt"'
+  alias skadev  'unsetenv PERL5LIB; source /proj/sot/ska/dev/bin/ska_envs.csh; set prompt="ska-dev-$prompt"'
+  alias skatest  'unsetenv PERL5LIB; source /proj/sot/ska/test/bin/ska_envs.csh; set prompt="ska-test-$prompt"'
+  alias pylab "ipython --pylab"
+
+  # Bash
+  alias ska='unset PERL5LIB; . /proj/sot/ska/bin/ska_envs.sh; export PS1="ska-$PS1"'
+  alias skadev='unset PERL5LIB; . /proj/sot/ska/dev/bin/ska_envs.sh; export PS1="ska-dev-$PS1"'
+  alias skatest='unset PERL5LIB; . /proj/sot/ska/test/bin/ska_envs.sh; export PS1="ska-test-$PS1"'
+  alias pylab='ipython --pylab'
+
+The ``ska``, ``skadev`` and ``skatest`` aliases are a one-way ticket.  Once you
+get into a Ska environment the recommended way to get out or change to a
+different version is to start a new window.
+
+The ``pylab`` alias is just a quicker way to get into ``ipython --pylab``.
+
+Ska, Ska-dev, and Ska-test
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On the GRETA network the Ska-test environment will typically
+correspond to the Ska environment on the HEAD network.  The GRETA Ska
+environment is tied to the FOT Matlab tools and may lag behind the
+latest updates to the HEAD Ska environment.  
+
+The Ska-dev environment is potentially unstable and should not normally be used
+unless you are developing the Ska environment.
 
 Basic Functionality Test
 ----------------------------------------------
