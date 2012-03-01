@@ -75,7 +75,7 @@ directory then rename it for safekeeping::
 Now make a new default IPython profile and copy the Ska customizations::
 
   mkdir -p ~/.ipython
-  ipython profile create
+  ipython profile create --ipython-dir=~/.ipython
   cp $SKA/include/cfg/ipython_config.py ~/.ipython/profile_default/
   cp $SKA/include/cfg/10_define_impska.py ~/.ipython/profile_default/startup/
   
