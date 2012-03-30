@@ -1,17 +1,17 @@
 ﻿"""
 Derived parameter MSIDs related to PCAD subsystem.
 
-Author: A. Arvai 
+Author: A. Arvai
 
 Revision History:
-  Jan 2012       Initial version
-1 Mar 2012       Modified all ephemeris-based parameters to use predictive 
-                     ephemeris
-
+   Jan 2012       Initial version
+ 1 Mar 2012       Modified all ephemeris-based parameters to use predictive
+                  ephemeris
+26 Mar 2012       Re-defined DP_ROLL_FSS and DP_PITCH_FSS to improve accuracy
 """
 
 import numpy as np
-from numpy import cos, sin, sqrt, degrees, radians, arctan2
+from numpy import sin, cos, tan, arctan2, sqrt, degrees, radians
 from . import base
 
 
@@ -305,12 +305,16 @@ class DP_PITCH_FSS(DerivedParameterPcad):
 
     Defined as the angle between the sun vector and ACA X-axis.
 
-    Calculated as:
-    90 - AOBETANG 	when in FSS FOV per AOSUNPRS
-    <data>.bads = 1     when NOT in FSS FOV per AOSUNPRS
+    When in FSS FOV per AOSUNPRS:
+    Calculated using the FSS alpha and beta angles to compute the sun vector
+    in the FSS frame.  The sun vector is then rotated into the ACA frame
+    using the rotation matrix (an OBC k-constant).  Pitch is computed using the
+    arccos function.
 
+    When NOT in FSS FOV per AOSUNPRS:
+    <data>.bads = 1
     """
-    rootparams = ['aobetang', 'aosunprs']
+    rootparams = ['aoalpang', 'aobetang', 'aosunprs']
     time_step = 1.025
     max_gap = 10.0
     dtype = np.float32
@@ -318,7 +322,26 @@ class DP_PITCH_FSS(DerivedParameterPcad):
     def calc(self, data):
         in_fss_fov = (data['aosunprs'].vals == 'SUN ')
         data.bads = data.bads | ~in_fss_fov
-        pitch_fss = 90.0 - data['aobetang'].vals
+        # rotation matrix from FSS to ACA frame
+        A_AF = np.array([[9.999990450374580e-01,
+                           0.0,
+                          -1.382000062241829e-03],
+                         [-5.327615067743422e-07,
+                           9.999999256947376e-01,
+                          -3.854999811959735e-04],
+                         [1.381999959551952e-03,
+                           3.855003493343671e-04,
+                           9.999989707322665e-01]])
+        # FSS's sun vector in FSS frame
+        alpha = radians(data['aoalpang'].vals)
+        beta = radians(data['aobetang'].vals)
+        sun_fss = np.array([tan(beta), tan(alpha), -np.ones(len(alpha))])
+        sun_aca = A_AF.dot(sun_fss)
+        magnitude = sqrt((sun_aca * sun_aca).sum(axis=0))
+        data.bads |= magnitude == 0.0
+        magnitude[data.bads] = 1.0
+        sun_vec_norm = sun_aca / magnitude
+        pitch_fss = degrees(arccos_clip(sun_vec_norm[0]))
         return pitch_fss
 
 
@@ -414,12 +437,16 @@ class DP_ROLL_FSS(DerivedParameterPcad):
     Defined as the rotation about the ACA X-axis required to align the sun
     vector with the ACA X/Z plane.
 
-    Calculated as:
-    -AOALPANG	 	when in FSS FOV per AOSUNPRS
-    <data>.bads = 1     when NOT in FSS FOV per AOSUNPRS
+    When in FSS FOV per AOSUNPRS:
+    Calculated using the FSS alpha and beta angles to compute the sun vector
+    in the FSS frame.  The sun vector is then rotated into the ACA frame
+    using the rotation matrix (an OBC k-constant).  Roll is computed using the
+    arctan function.
 
+    When NOT in FSS FOV per AOSUNPRS:
+    <data>.bads = 1
     """
-    rootparams = ['aoalpang', 'aosunprs']
+    rootparams = ['aoalpang', 'aobetang', 'aosunprs']
     time_step = 1.025
     max_gap = 10.0
     dtype = np.float32
@@ -427,7 +454,26 @@ class DP_ROLL_FSS(DerivedParameterPcad):
     def calc(self, data):
         in_fss_fov = (data['aosunprs'].vals == 'SUN ')
         data.bads = data.bads | ~in_fss_fov
-        roll_fss = -data['aoalpang'].vals
+        # rotation matrix from FSS to ACA frame
+        A_AF = np.array([[9.999990450374580e-01,
+                           0.0,
+                          -1.382000062241829e-03],
+                         [-5.327615067743422e-07,
+                           9.999999256947376e-01,
+                          -3.854999811959735e-04],
+                         [1.381999959551952e-03,
+                           3.855003493343671e-04,
+                           9.999989707322665e-01]])
+        # FSS's sun vector in FSS frame
+        alpha = radians(data['aoalpang'].vals)
+        beta = radians(data['aobetang'].vals)
+        sun_fss = np.array([tan(beta), tan(alpha), -np.ones(len(alpha))])
+        sun_aca = A_AF.dot(sun_fss)
+        magnitude = sqrt((sun_aca * sun_aca).sum(axis=0))
+        data.bads |= magnitude == 0.0
+        magnitude[data.bads] = 1.0
+        sun_vec_norm = sun_aca / magnitude
+        roll_fss = degrees(arctan2(-sun_vec_norm[1, :], -sun_vec_norm[2, :]))
         return roll_fss
 
 
@@ -586,7 +632,7 @@ class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
     def calc(self, data):
         sun_vec_b = sun_vector_body(data)
         sun_xz_angle = degrees(arctan2(sun_vec_b[1],
-                                       sqrt(sun_vec_b[0] ** 2 + 
+                                       sqrt(sun_vec_b[0] ** 2 +
                                             sun_vec_b[2] ** 2)))
         return sun_xz_angle
 
