@@ -1,7 +1,13 @@
-"""
+﻿"""
 Derived parameter MSIDs related to PCAD subsystem.
 
-Author: A. Arvai (Jan 2012 initial version)
+Author: A. Arvai 
+
+Revision History:
+  Jan 2012       Initial version
+1 Mar 2012       Modified all ephemeris-based parameters to use predictive 
+                     ephemeris
+
 """
 
 import numpy as np
@@ -213,33 +219,6 @@ class DP_ONE_SHOT(DerivedParameterPcad):
 
 #--------------------------------------------
 class DP_PITCH(DerivedParameterPcad):
-    """Sun Pitch Angle from Definitive Ephemeris in ACA Frame [deg]
-
-    Defined as the angle between the sun vector and ACA X-axis.
-
-    Calculated using arccos of the sun vector x component in the body frame
-    where the sun vector is from definitive ephemeris
-    [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from the OBC's
-    estimated quaternion [AOATTQT<n>].
-
-    """
-    rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
-                  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
-                  'aoattqt1', 'aoattqt2', 'aoattqt3',
-                  'aoattqt4']
-    time_step = 1.025
-    max_gap = 4.0
-    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
-    dtype = np.float32
-
-    def calc(self, data):
-        sun_vec_b = sun_vector_body(data)
-        pitch = degrees(arccos_clip(sun_vec_b[0, :]))
-        return pitch
-
-
-#--------------------------------------------
-class DP_PITCH_PRED(DerivedParameterPcad):
     """Sun Pitch Angle from Predictive Ephemeris in ACA Frame [deg]
 
     Defined as the angle between the sun vector and ACA X-axis.
@@ -260,9 +239,9 @@ class DP_PITCH_PRED(DerivedParameterPcad):
     dtype = np.float32
 
     def calc(self, data):
-        sun_vec_b = sun_vector_body(data, predictive=True)
-        pitch_pred = degrees(arccos_clip(sun_vec_b[0, :]))
-        return pitch_pred
+        sun_vec_b = sun_vector_body(data)
+        pitch = degrees(arccos_clip(sun_vec_b[0, :]))
+        return pitch
 
 
 #--------------------------------------------
@@ -351,38 +330,11 @@ class DP_ROLL(DerivedParameterPcad):
     vector with the ACA X/Z plane.
 
     Calculated using the four-quadrant arctan of the sun vector y and z
-    components in the ACA frame where the sun vector is from definitive
-    ephemeris [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from
-    the OBC's estimated quaternion [AOATTQT<n>].
-
-    http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
-    """
-    rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
-                  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
-                  'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
-    time_step = 1.025
-    max_gap = 4.0
-    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
-    dtype = np.float32
-
-    def calc(self, data):
-        sun_vec_b = sun_vector_body(data)
-        roll = degrees(arctan2(-sun_vec_b[1, :], -sun_vec_b[2, :]))
-        return roll
-
-
-#--------------------------------------------
-class DP_ROLL_PRED(DerivedParameterPcad):
-    """Off-Nominal Roll Angle from Predictive Ephemeris in ACA Frame [Deg]
-
-    Defined as the rotation about the ACA X-axis required to align the sun
-    vector with the ACA X/Z plane.
-
-    Calculated using the four-quadrant arctan of the sun vector y and z
     components in the ACA frame where the sun vector is from predictive
     ephemeris [SOLAREPHEM0 and ORBITEPHEM0] and the estimated attitude from
     the OBC's estimated quaternion [AOATTQT<n>].
 
+    http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
     """
     rootparams = ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z',
                   'solarephem0_x', 'solarephem0_y', 'solarephem0_z',
@@ -393,9 +345,9 @@ class DP_ROLL_PRED(DerivedParameterPcad):
     dtype = np.float32
 
     def calc(self, data):
-        sun_vec_b = sun_vector_body(data, predictive=True)
-        roll_pred = degrees(arctan2(-sun_vec_b[1, :], -sun_vec_b[2, :]))
-        return roll_pred
+        sun_vec_b = sun_vector_body(data)
+        roll = degrees(arctan2(-sun_vec_b[1, :], -sun_vec_b[2, :]))
+        return roll
 
 
 #--------------------------------------------
@@ -618,13 +570,13 @@ class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
 
     Calculated using the four-quadrant arctan of the sun vector y and z
     components in the ACA frame where the sun vector is from definitive
-    ephemeris [SOLAREPHEM1 and ORBITEPHEM1] and the estimated attitude from
+    ephemeris [SOLAREPHEM0 and ORBITEPHEM0] and the estimated attitude from
     the OBC's estimated quaternion [AOATTQT<n>].
 
     http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
     """
-    rootparams = ['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z',
-                  'solarephem1_x', 'solarephem1_y', 'solarephem1_z',
+    rootparams = ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z',
+                  'solarephem0_x', 'solarephem0_y', 'solarephem0_z',
                   'aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4']
     time_step = 1.025
     max_gap = 4.0
@@ -717,7 +669,7 @@ def arccos_clip(x):
     return np.arccos(x.clip(-1, 1))
 
 
-def sun_vector_body(data, predictive=False):
+def sun_vector_body(data, predictive=True):
     """Calculate the normalized sun vector in body coordinates.
 
     :param data: MSIDset with orbitephem, solarephem and aoattqt<N> MSIDs
