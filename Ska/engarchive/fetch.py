@@ -456,7 +456,9 @@ class MSID(object):
             ok = (self.times < tstart) | (self.times > tstop)
             colnames = (x for x in self.colnames)
             for colname in colnames:
-                setattr(self, colname, getattr(self, colname)[ok])
+                attr = getattr(self, colname)
+                if isinstance(attr, numpy.ndarray):
+                    setattr(self, colname, attr[ok])
 
     def write_zip(self, filename, append=False):
         """Write MSID to a zip file named ``filename``
