@@ -27,6 +27,9 @@ def get_options():
     parser.add_option("--stop",
                       default="2000:010",
                       help="Stop for initial data fetch")
+    parser.add_option("--content",
+                      action='append',
+                      help="Content type to process [match regex] (default = all)")
     return parser.parse_args()
 
 def make_archfiles_db(filename, content_def):
@@ -124,12 +127,13 @@ def main():
         colname = dp_class.__name__.upper()
         dp = dp_class()
         content = dp.content
-        dpd = content_defs.setdefault(content, {})
-        dpd.setdefault('classes', {'TIME': None})
-        dpd['content'] = content
-        dpd['classes'][colname] = dp_class
-        dpd['mnf_step'] = dp.mnf_step
-        dpd['time_step'] = dp.time_step
+        if opt.content and content in opt.content:
+            dpd = content_defs.setdefault(content, {})
+            dpd.setdefault('classes', {'TIME': None})
+            dpd['content'] = content
+            dpd['classes'][colname] = dp_class
+            dpd['mnf_step'] = dp.mnf_step
+            dpd['time_step'] = dp.time_step
 
     for content, content_def in content_defs.items():
         ft['content'] = content
