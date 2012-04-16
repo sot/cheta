@@ -34,6 +34,9 @@ install: $(TEST_DEPS)
 	rsync --times --cvs-exclude $(SHARE) $(INSTALL_SHARE)/
 	rsync --archive --times $(DOC)   $(INSTALL_DOC)/
 
+install_doc:
+	rsync --archive --times $(DOC)   $(INSTALL_DOC)/
+
 test_dp: clean_dp
 	./add_derived.py --data-root=$(PWD)
 	./update_archive.py --data-root=$(PWD) --content=dp_ --date-now=2000:021 --max-lookback-time=100
