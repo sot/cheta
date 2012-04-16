@@ -51,15 +51,18 @@ background do the following::
 
   ssh -Y <username>@<hostname>  # where <username> and <hostname> are filled in
    <Enter password>
+
+Initial file setup
+~~~~~~~~~~~~~~~~~~~~~~~
+
+First make a new xterm window, for instance with the following command::
+
   xterm -bg black -fg green &
 
 Now focus on the new xterm window and set up your path and various environment
 variables so all the tools are accessible and use the correct libraries.::
 
   source /proj/sot/ska/bin/ska_envs.csh
-
-Initial file setup
-~~~~~~~~~~~~~~~~~~~~~~~
 
 If you have not used Python and matplotlib before you should do the 
 following setup::
@@ -99,9 +102,9 @@ Shell               Network        File
 Now put the appropriate lines at the end of the indicated file::
 
   # Csh or tcsh
-  alias ska  'unsetenv PERL5LIB; source /proj/sot/ska/bin/ska_envs.csh; set prompt="ska-$prompt"'
-  alias skadev  'unsetenv PERL5LIB; source /proj/sot/ska/dev/bin/ska_envs.csh; set prompt="ska-dev-$prompt"'
-  alias skatest  'unsetenv PERL5LIB; source /proj/sot/ska/test/bin/ska_envs.csh; set prompt="ska-test-$prompt"'
+  alias ska  'unsetenv PERL5LIB; source /proj/sot/ska/bin/ska_envs.csh; set prompt="ska-$prompt:q"'
+  alias skadev  'unsetenv PERL5LIB; source /proj/sot/ska/dev/bin/ska_envs.csh; set prompt="ska-dev-$prompt:q"'
+  alias skatest  'unsetenv PERL5LIB; source /proj/sot/ska/test/bin/ska_envs.csh; set prompt="ska-test-$prompt:q"'
   alias pylab "ipython --pylab"
 
   # Bash
@@ -129,6 +132,11 @@ unless you are developing the Ska environment.
 
 Basic Functionality Test
 ----------------------------------------------
+
+Once you have done the configuration setup that was just described, open a new
+xterm window and get into the Ska environment by use the ``ska`` or ``skatest`` alias::
+
+  % ska
 
 To test the basic functionality of your setup, try the following at the linux
 shell prompt.  In this tutorial all shell commands are shown with a "% "
