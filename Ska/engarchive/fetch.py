@@ -177,8 +177,9 @@ class MSID(object):
 
     :returns: MSID instance
     """
-    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None,
-                 units=UNITS):
+    units = UNITS
+
+    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         msids, MSIDs = msid_glob(msid)
         if len(MSIDs) > 1:
             raise ValueError('Multiple matches for {} in Eng Archive'
@@ -188,7 +189,7 @@ class MSID(object):
             self.MSID = MSIDs[0]
 
         # Capture the current module units
-        self.units = Units(units['system'])
+        self.units = Units(self.units['system'])
         self.unit = self.units.get_msid_unit(self.MSID)
         self.stat = stat
         if stat:
@@ -707,8 +708,9 @@ class MSIDset(collections.OrderedDict):
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
-    def __init__(self, msids, start, stop=None, filter_bad=False, stat=None,
-                 units=UNITS):
+    MSID = MSID
+
+    def __init__(self, msids, start, stop=None, filter_bad=False, stat=None):
         super(MSIDset, self).__init__()
 
         self.tstart = DateTime(start).secs
@@ -722,8 +724,8 @@ class MSIDset(collections.OrderedDict):
         for msid in msids:
             new_msids.extend(msid_glob(msid)[0])
         for msid in new_msids:
-            self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False,
-                              stat=stat, units=units)
+            self[msid] = self.MSID(msid, self.tstart, self.tstop, filter_bad=False,
+                                   stat=stat)
         if filter_bad:
             self.filter_bad()
 
@@ -854,11 +856,11 @@ class Msid(MSID):
 
     :returns: MSID instance
     """
-    def __init__(self, msid, start, stop=None, filter_bad=True, stat=None,
-                 units=UNITS):
+    units = UNITS
+
+    def __init__(self, msid, start, stop=None, filter_bad=True, stat=None):
         super(Msid, self).__init__(msid, start, stop=stop,
-                                   filter_bad=filter_bad, stat=stat,
-                                   units=UNITS)
+                                   filter_bad=filter_bad, stat=stat)
 
 
 class Msidset(MSIDset):
@@ -874,11 +876,11 @@ class Msidset(MSIDset):
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
-    def __init__(self, msids, start, stop=None, filter_bad=True, stat=None,
-                 units=UNITS):
+    MSID = MSID
+
+    def __init__(self, msids, start, stop=None, filter_bad=True, stat=None):
         super(Msidset, self).__init__(msids, start, stop=stop,
-                                      filter_bad=filter_bad, stat=stat,
-                                      units=units)
+                                      filter_bad=filter_bad, stat=stat)
 
 
 def fetch_records(start, stop, msids, dt=32.8):
