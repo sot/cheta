@@ -1,20 +1,20 @@
 """
-Version numbering for Ska.engarchive. The `major`, `minor`, and `bugfix` varaibles hold
-the respective parts of the version number (bugfix is '0' if absent). The 
-`release` variable is True if this is a release, and False if this is a 
-development version. For the actual version string, use::
+Version numbering for Ska.engarchive. The `major`, `minor`, and `bugfix`
+variables hold the respective parts of the version number (bugfix is '0' if
+absent). The `release` variable is True if this is a release, and False if this
+is a development version. For the actual version string, use::
 
     from Ska.engarchive.version import version
-    
+
 or::
 
     from Ska.engarchive import __version__
-    
+
 NOTE: this code copied from astropy and modified.  Any license restrictions
 therein are applicable.
 """
 
-version = '0.17'
+version = '0.18dev'
 
 _versplit = version.replace('dev', '').split('.')
 major = int(_versplit[0])
@@ -27,37 +27,31 @@ del _versplit
 
 release = not version.endswith('dev')
 
+
 def _get_git_devstr():
-    """Determines the number of revisions in this repository.
+    """Determines the number of revisions in this repository and returns "" if
+    this is not possible.
 
     Returns
     -------
     devstr : str
-        A string that begins with 'dev' to be appended to the version number string.
-        
+        A string that begins with 'dev' to be appended to the version number
+        string.
     """
     from os import path
     from subprocess import Popen, PIPE
-    from warnings import warn
-    
-    if release:
-        raise ValueError('revision devstring should not be used in a release version')
 
     currdir = path.abspath(path.split(__file__)[0])
-    
+
     p = Popen(['git', 'rev-list', 'HEAD'], cwd=currdir,
               stdout=PIPE, stderr=PIPE, stdin=PIPE)
     stdout, stderr = p.communicate()
-        
-    if p.returncode == 128:
-        # warn('No git repository present! Using default dev version.')
+
+    if p.returncode != 0:
         return ''
-    elif p.returncode != 0:
-        # warn('Git failed while determining revision count: '+stderr)
-        return ''
-    
-    nrev = stdout.count('\n')
-    return  '-r%i' % nrev
-    
+    else:
+        revs = stdout.decode('ascii').split('\n')
+        return  '-r%s-%s' % (len(revs), revs[0][:7])
+
 if not release:
     version = version + _get_git_devstr()
