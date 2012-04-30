@@ -124,7 +124,9 @@ class Units(dict):
     def get_msid_unit(self, msid):
         MSID = msid.upper()
         system = self['system']
-        return self[system].get(MSID)
+        cxc_unit = self['cxc'].get(MSID)
+        system_unit = self[system].get(MSID, cxc_unit)
+        return system_unit
 
     def convert(self, msid, vals, delta_val=False):
         MSID = msid.upper()
