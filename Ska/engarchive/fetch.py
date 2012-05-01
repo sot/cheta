@@ -19,11 +19,14 @@ import asciitable
 import pyyaks.context
 
 from . import file_defs
-from . import units
+from .units import Units
 from . import cache
 from .version import version as __version__
 
 from Chandra.Time import DateTime
+
+# Module-level units, defaults to CXC units (e.g. Kelvins etc)
+UNITS = Units(system='cxc')
 
 # Module-level control of whether MSID.fetch will cache the last 30 results
 CACHE = False
@@ -79,7 +82,7 @@ if os.getenv('ENG_ARCHIVE'):
 def get_units():
     """Get the unit system currently being used for conversions.
     """
-    return units.units['system']
+    return UNITS['system']
 
 
 def set_units(unit_system):
@@ -94,7 +97,7 @@ def set_units(unit_system):
 
     :param unit_system: system of units (cxc, sci, eng)
     """
-    units.set_units(unit_system)
+    UNITS.set_units(unit_system)
 
 
 def read_bad_times(table):
@@ -116,7 +119,7 @@ def read_bad_times(table):
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
-    
+
 # Set up bad times dict
 msid_bad_times = dict()
 read_bad_times(os.path.join(DIR_PATH, 'msid_bad_times.dat'))
@@ -174,6 +177,8 @@ class MSID(object):
 
     :returns: MSID instance
     """
+    units = UNITS
+
     def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         msids, MSIDs = msid_glob(msid)
         if len(MSIDs) > 1:
@@ -183,7 +188,9 @@ class MSID(object):
             self.msid = msids[0]
             self.MSID = MSIDs[0]
 
-        self.unit = units.get_msid_unit(self.MSID)
+        # Capture the current module units
+        self.units = Units(self.units['system'])
+        self.unit = self.units.get_msid_unit(self.MSID)
         self.stat = stat
         if stat:
             self.dt = {'5min': 328, 'daily': 86400}[stat]
@@ -222,7 +229,8 @@ class MSID(object):
                 gmd = (self._get_msid_data_cached if CACHE else
                        self._get_msid_data)
                 self.vals, self.times, self.bads, self.colnames = \
-                    gmd(self.content, self.tstart, self.tstop, self.MSID)
+                    gmd(self.content, self.tstart, self.tstop, self.MSID,
+                        self.units['system'])
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -248,9 +256,9 @@ class MSID(object):
             if colname_out in ('vals', 'mins', 'maxes', 'means',
                                'p01s', 'p05s', 'p16s', 'p50s',
                                'p84s', 'p95s', 'p99s'):
-                vals = units.convert(self.MSID, table_rows[colname])
+                vals = self.units.convert(self.MSID, table_rows[colname])
             elif colname_out == 'stds':
-                vals = units.convert(self.MSID, table_rows[colname],
+                vals = self.units.convert(self.MSID, table_rows[colname],
                                      delta_val=True)
             else:
                 vals = table_rows[colname]
@@ -267,14 +275,14 @@ class MSID(object):
 
     @staticmethod
     @cache.lru_cache(30)
-    def _get_msid_data_cached(content, tstart, tstop, msid):
+    def _get_msid_data_cached(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
-        return MSID._get_msid_data(content, tstart, tstop, msid)
+        return MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
 
     @staticmethod
-    def _get_msid_data(content, tstart, tstop, msid):
+    def _get_msid_data(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files"""
 
@@ -328,7 +336,7 @@ class MSID(object):
         # Slice down to exact requested time range
         row0, row1 = numpy.searchsorted(times, [tstart, tstop])
         logger.info('Slicing %s arrays [%d:%d]', msid, row0, row1)
-        vals = units.convert(msid.upper(), vals[row0:row1])
+        vals = Units(unit_system).convert(msid.upper(), vals[row0:row1])
         times = times[row0:row1]
         bads = bads[row0:row1]
         colnames = ['times', 'vals', 'bads']
@@ -700,6 +708,8 @@ class MSIDset(collections.OrderedDict):
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
+    MSID = MSID
+
     def __init__(self, msids, start, stop=None, filter_bad=False, stat=None):
         super(MSIDset, self).__init__()
 
@@ -714,8 +724,8 @@ class MSIDset(collections.OrderedDict):
         for msid in msids:
             new_msids.extend(msid_glob(msid)[0])
         for msid in new_msids:
-            self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False,
-                              stat=stat)
+            self[msid] = self.MSID(msid, self.tstart, self.tstop, filter_bad=False,
+                                   stat=stat)
         if filter_bad:
             self.filter_bad()
 
@@ -794,7 +804,7 @@ class MSIDset(collections.OrderedDict):
         # interpolation only gets done once.  For now just brute-force it for
         # every MSID.
         import Ska.Numpy
-        
+
         tstart = DateTime(start).secs if start else self.tstart
         tstop = DateTime(stop).secs if stop else self.tstop
         self.times = numpy.arange(tstart, tstop, dt)
@@ -842,12 +852,16 @@ class Msid(MSID):
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
     :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+    :param unit_system: Unit system (cxc|eng|sci, default=current units)
 
     :returns: MSID instance
     """
+    units = UNITS
+
     def __init__(self, msid, start, stop=None, filter_bad=True, stat=None):
         super(Msid, self).__init__(msid, start, stop=stop,
                                    filter_bad=filter_bad, stat=stat)
+
 
 class Msidset(MSIDset):
     """Fetch a set of MSIDs from the engineering telemetry archive.
@@ -858,9 +872,12 @@ class Msidset(MSIDset):
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
     :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+    :param unit_system: Unit system (cxc|eng|sci, default=current units)
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
+    MSID = MSID
+
     def __init__(self, msids, start, stop=None, filter_bad=True, stat=None):
         super(Msidset, self).__init__(msids, start, stop=stop,
                                       filter_bad=filter_bad, stat=stat)
@@ -907,6 +924,7 @@ def fetch_records(start, stop, msids, dt=32.8):
     out = numpy.rec.fromarrays(records, titles=['time'] + msids)
     return out
 
+
 def fetch_arrays(start, stop, msids):
     """
     Fetch data for ``msids`` from the telemetry archive as arrays.
@@ -936,6 +954,7 @@ def fetch_arrays(start, stop, msids):
 
     return times, values, quals
 
+
 def fetch_array(start, stop, msid):
     """
     Fetch data for single ``msid`` from the telemetry archive as an array.
@@ -960,6 +979,7 @@ def fetch_array(start, stop, msid):
 
     return times, values, quals
 
+
 class memoized(object):
     """Decorator that caches a function's return value each time it is called.
     If called later with the same arguments, the cached value is returned, and
@@ -968,6 +988,7 @@ class memoized(object):
     def __init__(self, func):
         self.func = func
         self.cache = {}
+
     def __call__(self, *args):
         try:
             return self.cache[args]
@@ -978,9 +999,11 @@ class memoized(object):
             # uncachable -- for instance, passing a list as an argument.
             # Better to not cache than to blow up entirely.
             return self.func(*args)
+
     def __repr__(self):
         """Return the function's docstring."""
         return self.func.__doc__
+
 
 @memoized
 def get_interval(content, tstart, tstop):
@@ -1019,6 +1042,7 @@ def get_interval(content, tstart, tstop):
 
     return slice(rowstart, rowstop)
 
+
 @contextlib.contextmanager
 def _cache_ft():
     """
@@ -1034,6 +1058,7 @@ def _cache_ft():
         delkeys = [x for x in ft if x not in ft_cache]
         for key in delkeys:
             del ft[key]
+
 
 def add_logging_handler(level=logging.INFO,
                         formatter=None,
@@ -1054,6 +1079,7 @@ def add_logging_handler(level=logging.INFO,
     handler.setFormatter(formatter)
     logger.setLevel(level)
     logger.addHandler(handler)
+
 
 def _plural(x):
     """Return English plural of ``x``.  Super-simple and only valid for the

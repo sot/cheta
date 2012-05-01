@@ -1,4 +1,36 @@
 from .fetch import *
+from . import fetch
 from .version import version as __version__
 
-set_units('eng')
+# Module-level units, defaults to CXC units (e.g. Kelvins etc)
+UNITS = Units('eng')
+
+
+def get_units():
+    return UNITS['system']
+get_units.__doc__ = fetch.get_units.__doc__
+
+
+def set_units(unit_system):
+    UNITS.set_units(unit_system)
+set_units.__doc__ = fetch.set_units.__doc__
+
+
+class MSID(fetch.MSID):
+    __doc__ = fetch.MSID.__doc__
+    units = UNITS
+
+
+class Msid(fetch.Msid):
+    __doc__ = fetch.Msid.__doc__
+    units = UNITS
+
+
+class MSIDset(fetch.MSIDset):
+    __doc__ = fetch.MSIDset.__doc__
+    MSID = MSID
+
+
+class Msidset(fetch.Msidset):
+    __doc__ = fetch.Msidset.__doc__
+    MSID = MSID
