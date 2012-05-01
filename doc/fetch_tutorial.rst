@@ -573,37 +573,39 @@ eng    OCC engineering units (TDB P009, e.g. degF, ft-lb-sec, PSI)
 ====== ==============================================================
 
 The simplest way to select a different unit system is to alter the
-canonical command for importing the ``fetch`` module.  To use OCC 
+canonical command for importing the ``fetch`` module.  To always use OCC 
 engineering units use the following command::
 
   from Ska.engarchive import fetch_eng as fetch
 
 This uses a special Python syntax to import the ``fetch_eng`` module
 but then refer to it as ``fetch``.  In this way there is no need to
-change existing codes (except one line) or habits.  To use "science"
+change existing codes (except one line) or habits.  To always use "science"
 units use the command::
 
   from Ska.engarchive import fetch_sci as fetch
 
-The two modules ``fetch_eng`` and ``fetch_sci`` are just very thin wrappers
-around ``fetch``.  Underneath what they do is use the ``fetch.set_units()``
-command to set the unit system.  So an alternate to the above methods is to
-explicitly set the unit system.  This can be done at any time and you can
-switch between unit systems as desired.  (But the units for previously
-fetched telemetry will *not* change).  In addition the actual unit for any
-MSID telemetry can be obtained with the ``unit`` attribute.
+Mixing units
+---------------
+
+Beginning with version 0.18 of the engineering archive it is possible to
+reliably use the import mechanism to select different unit systems within the
+same script or Python process.
 
 Example::
 
-  from Ska.engarchive import fetch
+  import Ska.engarchive.fetch as fetch_cxc  # CXC units
+  import Ska.engarchive.fetch_eng as fetch_eng
+  import Ska.engarchive.fetch_sci as fetch_sci
+
+  t1 = fetch_cxc.MSID('tephin', '2010:001', '2010:002')
+  print t1.unit  # prints "K"
   
-  fetch.set_units('eng')
-  mom1 = fetch.MSID('aosymom1', '2010:001', '2010:002')
-  print mom1.unit  # prints "FTLBSEC"
-  
-  fetch.set_units('sci')
-  mom1 = fetch.MSID('aosymom1', '2010:001', '2010:002')
-  print mom1.unit  # print "J*s"
+  t2 = fetch_eng.MSID('tephin', '2010:001', '2010:002')
+  print t2.unit  # prints "DEGF"
+
+  t3 = fetch_sci.MSID('tephin', '2010:001', '2010:002')
+  print t3.unit  # prints "DEGC"
 
 MSID globs
 =============================
