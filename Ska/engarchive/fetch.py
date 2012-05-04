@@ -377,8 +377,12 @@ class MSID(object):
 
         if not hasattr(self, '_raw_vals'):
             self._raw_vals = numpy.zeros(len(self.vals), dtype='int8') - 1
+            # CXC state code telem all has same length with trailing spaces
+            # so find max length for formatting below.
+            max_len = max(len(x[1]) for x in self.state_codes)
+            fmtstr = '{:' + str(max_len) + 's}'
             for raw_val, state_code in self.state_codes:
-                ok = self.vals == state_code
+                ok = self.vals == fmtstr.format(state_code)
                 self._raw_vals[ok] = raw_val
 
         return self._raw_vals
