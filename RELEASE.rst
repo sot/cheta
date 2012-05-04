@@ -1,3 +1,25 @@
+0.19 - 2012-05-04
+=================
+
+- Fix MSID.raw_vals() so it handles state codes with different lengths
+- Fix problem in iplot where units not tied to fetched MSID
+- Add units to DEA housekeeping MSIDs
+
+0.18 - 2012-04-30
+=================
+
+- Make it possible to reliably use the import mechanism to select different
+  unit systems within the same script or Python process with no interactions.
+
+0.17 - 2012-04-17
+=================
+
+- Improve tutorial documentation
+- Modify PCAD derived parameters to use only predictive ephemeris
+- Redefine DP_ROLL_FSS and DP_PITCH_FSS to improve accuracy
+- Allow for filter_bad_times to function for data that have already been
+  filtered.
+
 0.16 and 0.15
 =============
 

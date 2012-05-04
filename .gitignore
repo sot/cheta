@@ -6,3 +6,5 @@ build
 data
 dist
 doc/_build
+www
+MANIFEST
