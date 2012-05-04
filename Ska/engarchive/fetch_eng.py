@@ -19,11 +19,13 @@ set_units.__doc__ = fetch.set_units.__doc__
 class MSID(fetch.MSID):
     __doc__ = fetch.MSID.__doc__
     units = UNITS
+    fetch = sys.modules[__name__]
 
 
 class Msid(fetch.Msid):
     __doc__ = fetch.Msid.__doc__
     units = UNITS
+    fetch = sys.modules[__name__]
 
 
 class MSIDset(fetch.MSIDset):

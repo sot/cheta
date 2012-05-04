@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.dates import num2epoch, epoch2num
@@ -5,7 +7,6 @@ from matplotlib.dates import num2epoch, epoch2num
 from Ska.Matplotlib import plot_cxctime
 from Chandra.Time import DateTime
 
-from . import fetch
 from .version import version as __version__
 
 MIN_TSTART_UNIX = DateTime('1999:100').unix
@@ -71,6 +72,7 @@ class MsidPlot(object):
         self.ax = self.fig.gca()
         self.zoom = 4.0
         self.msid = msid
+        self.fetch = msid.fetch
         self.fmt = fmt
         self.fmt_minmax = fmt_minmax
         self.plot_kwargs = plot_kwargs
@@ -83,8 +85,8 @@ class MsidPlot(object):
         # Make sure MSID is sampled at the correct density for initial plot
         stat = get_stat(self.tstart, self.tstop, self.npix)
         if stat != self.msid.stat:
-            self.msid = fetch.Msid(self.msidname, self.tstart, self.tstop,
-                                   stat=stat)
+            self.msid = self.fetch.Msid(self.msidname, self.tstart, self.tstop,
+                                        stat=stat)
 
         self.ax.set_autoscale_on(True)
         self.draw_plot()
@@ -155,8 +157,8 @@ Interactive MSID plot keys:
             dt = self.tstop - self.tstart
             self.tstart -= dt / 4
             self.tstop += dt / 4
-            self.msid = fetch.Msid(self.msidname, self.tstart, self.tstop,
-                                   stat=stat)
+            self.msid = self.fetch.Msid(self.msidname, self.tstart, self.tstop,
+                                        stat=stat)
         self.draw_plot()
 
     def draw_plot(self):

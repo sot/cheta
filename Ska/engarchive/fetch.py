@@ -3,6 +3,7 @@
 Fetch values from the Ska engineering telemetry archive.
 """
 __docformat__ = 'restructuredtext'
+import sys
 import os
 import time
 import contextlib
@@ -178,6 +179,7 @@ class MSID(object):
     :returns: MSID instance
     """
     units = UNITS
+    fetch = sys.modules[__name__]
 
     def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         msids, MSIDs = msid_glob(msid)
