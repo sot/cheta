@@ -65,27 +65,8 @@ popd
 ############
 # Now update using devska
 skadev
-setenv ENG_ARCHIVE $PWD/test/eng_archive
-./update_archive.py --date-now 2010:271 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:272 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:273 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:274 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:275 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:276 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:277 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:278 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:279 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:280 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:281 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:282 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:283 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:284 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:285 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:286 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:287 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:288 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:289 --data-root test/eng_archive >>& test/make_eng_archive.log
-./update_archive.py --date-now 2010:290 --data-root test/eng_archive >>& test/make_eng_archive.log
+
+. make_test_eng_archive.sh   # THIS actually works now
 
 # Basic sanity test with some plots
 test/make_plots.py
