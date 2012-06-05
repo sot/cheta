@@ -415,7 +415,8 @@ def update_derived(filetype):
         archfiles.append('{}:{}:{}'.format(filetype['content'], index0, index1))
         if len(archfiles) == max_archfiles or index1 == indexes[-1]:
             update_msid_files(filetype, archfiles)
-            logger.verbose('update_msid_files(filetype={}, archfiles={})'.format(filetype, archfiles))
+            logger.verbose('update_msid_files(filetype={}, archfiles={})'
+                           .format(str(filetype), archfiles))
             archfiles = []
 
 def update_archive(filetype):
@@ -536,7 +537,7 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
     # MSID h5 files.  Commit info before h5 ingest so if there is a failure
     # the needed info will be available to do the repair.
     archfiles_row = dict((x, hdu.header.get(x.upper())) for x in archfiles_hdr_cols)
-    archfiles_row['checksum'] = hdu._checksum
+    archfiles_row['checksum'] = hdu.header.get('checksum') or hdu._checksum
     archfiles_row['rowstart'] = row
     archfiles_row['rowstop'] = row + len(dat)
     archfiles_row['filename'] = filename
