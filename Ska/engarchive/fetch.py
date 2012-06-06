@@ -821,7 +821,7 @@ class MSIDset(collections.OrderedDict):
             logger.info('Interpolating index for %s', msid.msid)
             indexes = Ska.Numpy.interpolate(numpy.arange(len(msid.times)),
                                             msid.times, self.times,
-                                            method='nearest')
+                                            method='nearest', sorted=True)
             logger.info('Slicing on indexes')
             for colname in msid.colnames:
                 colvals = getattr(msid, colname)
