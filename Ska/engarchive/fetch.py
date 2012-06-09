@@ -449,7 +449,10 @@ class MSID(object):
             bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
                                         names=['start', 'stop'])
         elif start is None and stop is None:
-            bad_times = msid_bad_times.get(self.MSID, [])
+            bad_times = []
+            for msid_glob, times in msid_bad_times.items():
+                if fnmatch.fnmatch(self.MSID, msid_glob):
+                    bad_times.extend(times)
         elif start is None or stop is None:
             raise ValueError('filter_times requires either 2 args '
                              '(start, stop) or no args')
@@ -781,6 +784,36 @@ class MSIDset(collections.OrderedDict):
 
             for msid in msids:
                 msid.filter_bad(bads)
+
+    def filter_bad_times(self, start=None, stop=None, table=None):
+        """Filter out intervals of bad data in the MSIDset object.
+
+        There are three usage options:
+
+        - Supply no arguments.  This will use the global list of bad times read
+          in with fetch.read_bad_times().
+        - Supply both ``start`` and ``stop`` values where each is a single
+          value in a valid DateTime format.
+        - Supply an ``table`` parameter in the form of a 2-column table of
+          start and stop dates (space-delimited) or the name of a file with
+          data in the same format.
+
+        The ``table`` parameter must be supplied as a table or the name of a
+        table file, for example::
+
+          msidset.filter_bad_times()
+          bad_times = ['2008:292:00:00:00 2008:297:00:00:00',
+                       '2008:305:00:12:00 2008:305:00:12:03',
+                       '2010:101:00:01:12 2010:101:00:01:25']
+          msidset.filter_bad_times(table=bad_times)
+          msidset.filter_bad_times(table='msid_bad_times.dat')
+
+        :param start: Start of time interval to exclude (any DateTime format)
+        :param stop: End of time interval to exclude (any DateTime format)
+        :param table: Two-column table (start, stop) of bad time intervals
+        """
+        for msid in self.values():
+            msid.filter_bad_times(start, stop, table)
 
     def interpolate(self, dt=328.0, start=None, stop=None, filter_bad=True):
         """Perform nearest-neighbor interpolation of all MSID values in the set
