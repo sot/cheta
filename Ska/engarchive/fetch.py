@@ -14,7 +14,7 @@ import fnmatch
 import collections
 import warnings
 
-import numpy
+import numpy as np
 import tables
 import asciitable
 import pyyaks.context
@@ -242,7 +242,7 @@ class MSID(object):
         h5 = tables.openFile(filename)
         table = h5.root.data
         times = (table.col('index') + 0.5) * self.dt
-        row0, row1 = numpy.searchsorted(times, [self.tstart, self.tstop])
+        row0, row1 = np.searchsorted(times, [self.tstart, self.tstop])
         table_rows = table[row0:row1]  # returns np.ndarray (structured array)
         h5.close()
         logger.info('Closed %s', filename)
@@ -310,8 +310,8 @@ class MSID(object):
 
             # Filter bad times.  Last instance of bad times in archive is 2004
             # so don't do this unless needed.  Creating a new 'times' array is
-            # much more expensive than checking for numpy.all(times_ok).
-            times_all_ok = numpy.all(times_ok)
+            # much more expensive than checking for np.all(times_ok).
+            times_all_ok = np.all(times_ok)
             if not times_all_ok:
                 times = times[times_ok]
 
@@ -336,7 +336,7 @@ class MSID(object):
             vals = vals[times_ok]
 
         # Slice down to exact requested time range
-        row0, row1 = numpy.searchsorted(times, [tstart, tstop])
+        row0, row1 = np.searchsorted(times, [tstart, tstop])
         logger.info('Slicing %s arrays [%d:%d]', msid, row0, row1)
         vals = Units(unit_system).convert(msid.upper(), vals[row0:row1])
         times = times[row0:row1]
@@ -361,7 +361,7 @@ class MSID(object):
                               'or multiple calibration sets'.format(self.msid))
                 self._state_codes = None
             else:
-                states = numpy.sort(states.data, order='LOW_RAW_COUNT')
+                states = np.sort(states.data, order='LOW_RAW_COUNT')
                 self._state_codes = [(state['LOW_RAW_COUNT'],
                                       state['STATE_CODE']) for state in states]
         return self._state_codes
@@ -376,7 +376,7 @@ class MSID(object):
             self._raw_vals = None
 
         if not hasattr(self, '_raw_vals'):
-            self._raw_vals = numpy.zeros(len(self.vals), dtype='int8') - 1
+            self._raw_vals = np.zeros(len(self.vals), dtype='int8') - 1
             # CXC state code telem all has same length with trailing spaces
             # so find max length for formatting below.
             max_len = max(len(x[1]) for x in self.state_codes)
@@ -410,7 +410,7 @@ class MSID(object):
         if self.bads is None:
             return
 
-        if numpy.any(self.bads):
+        if np.any(self.bads):
             logger.info('Filtering bad values for %s', self.msid)
             ok = ~self.bads
             colnames = (x for x in self.colnames if x != 'bads')
@@ -456,7 +456,7 @@ class MSID(object):
         else:
             bad_times = [(start, stop)]
 
-        ok = numpy.ones(len(self.times), dtype=bool)
+        ok = np.ones(len(self.times), dtype=bool)
         for start, stop in bad_times:
             tstart = DateTime(start).secs
             tstop = DateTime(stop).secs
@@ -470,14 +470,14 @@ class MSID(object):
             # Find the indexes of bad data.  Using side=left,right respectively
             # will exclude points exactly equal to the bad_times values
             # (though in reality an exact tie is extremely unlikely).
-            i0 = numpy.searchsorted(self.times, tstart, side='left')
-            i1 = numpy.searchsorted(self.times, tstop, side='right')
+            i0 = np.searchsorted(self.times, tstart, side='left')
+            i1 = np.searchsorted(self.times, tstop, side='right')
             ok[i0:i1] = False
 
         colnames = (x for x in self.colnames)
         for colname in colnames:
             attr = getattr(self, colname)
-            if isinstance(attr, numpy.ndarray):
+            if isinstance(attr, np.ndarray):
                 setattr(self, colname, attr[ok])
 
     def write_zip(self, filename, append=False):
@@ -553,7 +553,7 @@ class MSID(object):
                     op, sorted(ops.keys())))
 
         # Do local version of bad value filtering
-        if self.bads is not None and numpy.any(self.bads):
+        if self.bads is not None and np.any(self.bads):
             ok = ~self.bads
             vals = self.vals[ok]
             times = self.times[ok]
@@ -567,13 +567,13 @@ class MSID(object):
         # If last telemetry point is not val then the data ends during that
         # interval and there will be an extra start transition that must be
         # removed.
-        i_starts = numpy.flatnonzero(starts)
+        i_starts = np.flatnonzero(starts)
         if op(vals[-1], val):
             i_starts = i_starts[:-1]
 
         # If first entry is val then the telemetry starts during an interval
         # and there will be an extra end transition that must be removed.
-        i_ends = numpy.flatnonzero(ends)
+        i_ends = np.flatnonzero(ends)
         if op(vals[0], val):
             i_ends = i_ends[1:]
 
@@ -594,7 +594,7 @@ class MSID(object):
 
         Returns a structured array table with a row for each interval.
         Columns are:
-        
+
         * datestart: date of interval start
         * datestop: date of interval stop
         * duration: duration of interval (sec)
@@ -612,7 +612,7 @@ class MSID(object):
         """
 
         # Do local version of bad value filtering
-        if self.bads is not None and numpy.any(self.bads):
+        if self.bads is not None and np.any(self.bads):
             ok = ~self.bads
             vals = self.vals[ok]
             times = self.times[ok]
@@ -623,10 +623,10 @@ class MSID(object):
         if len(self.vals) < 2:
             raise ValueError('Filtered data length must be at least 2')
 
-        transitions = numpy.hstack([[True], vals[:-1] != vals[1:], [True]])
+        transitions = np.hstack([[True], vals[:-1] != vals[1:], [True]])
         t0 = times[0] - (times[1] - times[0]) / 2
         t1 = times[-1] + (times[-1] - times[-2]) / 2
-        midtimes = numpy.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
+        midtimes = np.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
 
         state_vals = vals[transitions[1:]]
         state_times = midtimes[transitions]
@@ -736,8 +736,8 @@ class MSIDset(collections.OrderedDict):
         for msid in msids:
             new_msids.extend(msid_glob(msid)[0])
         for msid in new_msids:
-            self[msid] = self.MSID(msid, self.tstart, self.tstop, filter_bad=False,
-                                   stat=stat)
+            self[msid] = self.MSID(msid, self.tstart, self.tstop,
+                                   filter_bad=False, stat=stat)
         if filter_bad:
             self.filter_bad()
 
@@ -815,13 +815,13 @@ class MSIDset(collections.OrderedDict):
 
         tstart = DateTime(start).secs if start else self.tstart
         tstop = DateTime(stop).secs if stop else self.tstop
-        self.times = numpy.arange(tstart, tstop, dt)
+        self.times = np.arange(tstart, tstop, dt)
 
         for msid in self.values():
             if filter_bad:
                 msid.filter_bad()
             logger.info('Interpolating index for %s', msid.msid)
-            indexes = Ska.Numpy.interpolate(numpy.arange(len(msid.times)),
+            indexes = Ska.Numpy.interpolate(np.arange(len(msid.times)),
                                             msid.times, self.times,
                                             method='nearest', sorted=True)
             logger.info('Slicing on indexes')
@@ -911,13 +911,13 @@ def fetch_records(start, stop, msids, dt=32.8):
 
     with _cache_ft():
         tstart, tstop, times, values, quals = _fetch(start, stop, msids)
-    dt_times = numpy.arange(tstart, tstop, dt)
+    dt_times = np.arange(tstart, tstop, dt)
 
     len_times = len(dt_times)
-    bad = numpy.zeros(len_times, dtype=bool)
+    bad = np.zeros(len_times, dtype=bool)
     for msid in msids:
         MSID = msid.upper()
-        index = Ska.Numpy.interpolate(numpy.arange(len(times[MSID])),
+        index = Ska.Numpy.interpolate(np.arange(len(times[MSID])),
                                       times[MSID], dt_times, 'nearest')
         # Include also some interpolation validation check, something like (but
         # not exactly) (abs(dt_times - times[MSID][index]) > 1.05 * dt)
@@ -929,7 +929,7 @@ def fetch_records(start, stop, msids, dt=32.8):
     for msid in msids:
         records.append(values[msid][ok].copy())
 
-    out = numpy.rec.fromarrays(records, titles=['time'] + msids)
+    out = np.rec.fromarrays(records, titles=['time'] + msids)
     return out
 
 
