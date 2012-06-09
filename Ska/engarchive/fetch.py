@@ -394,6 +394,45 @@ class MSID(object):
         import Ska.tdb
         return Ska.tdb.msids[self.MSID]
 
+    def interpolate(self, dt=328.0, start=None, stop=None):
+        """Perform nearest-neighbor interpolation of the MSID to the specified
+        time sequence.
+
+        The time sequence steps uniformly by ``dt`` seconds starting at the
+        ``start`` time and ending at the ``stop`` time.  If not provided the
+        times default to the first and last times for the MSID.
+
+        The MSID ``times`` attribute is set to the common time sequence.  In
+        addition a new attribute ``times0`` is defined that stores the nearest
+        neighbor interpolated time, providing the *original* timestamps of each
+        new interpolated value for that MSID.
+
+        :param dt: time step (sec)
+        :param start: start of interpolation period (DateTime format)
+        :param stop: end of interpolation period (DateTime format)
+        """
+        import Ska.Numpy
+
+        tstart = DateTime(start).secs if start else self.times[0]
+        tstop = DateTime(stop).secs if stop else self.times[-1]
+        times = np.arange(tstart, tstop, dt)
+
+        logger.info('Interpolating index for %s', self.msid)
+        indexes = Ska.Numpy.interpolate(np.arange(len(self.times)),
+                                        self.times, times,
+                                        method='nearest', sorted=True)
+        logger.info('Slicing on indexes')
+        for colname in self.colnames:
+            colvals = getattr(self, colname)
+            if colvals is not None:
+                setattr(self, colname, colvals[indexes])
+
+        # Make a new attribute times0 that stores the nearest neighbor
+        # interpolated times.  Then set the MSID times to be the common
+        # interpolation times.
+        self.times0 = self.times
+        self.times = times
+
     def filter_bad(self, bads=None):
         """Filter out any bad values.
 
