@@ -456,6 +456,7 @@ class MSID(object):
         else:
             bad_times = [(start, stop)]
 
+        ok = numpy.ones(len(self.times), dtype=bool)
         for start, stop in bad_times:
             tstart = DateTime(start).secs
             tstop = DateTime(stop).secs
@@ -466,13 +467,18 @@ class MSID(object):
             if tstop < self.times[0] or tstart > self.times[-1]:
                 continue
 
-            logger.info('Filtering times between %s and %s' % (start, stop))
-            ok = (self.times < tstart) | (self.times > tstop)
-            colnames = (x for x in self.colnames)
-            for colname in colnames:
-                attr = getattr(self, colname)
-                if isinstance(attr, numpy.ndarray):
-                    setattr(self, colname, attr[ok])
+            # Find the indexes of bad data.  Using side=left,right respectively
+            # will exclude points exactly equal to the bad_times values
+            # (though in reality an exact tie is extremely unlikely).
+            i0 = numpy.searchsorted(self.times, tstart, side='left')
+            i1 = numpy.searchsorted(self.times, tstop, side='right')
+            ok[i0:i1] = False
+
+        colnames = (x for x in self.colnames)
+        for colname in colnames:
+            attr = getattr(self, colname)
+            if isinstance(attr, numpy.ndarray):
+                setattr(self, colname, attr[ok])
 
     def write_zip(self, filename, append=False):
         """Write MSID to a zip file named ``filename``
@@ -805,10 +811,6 @@ class MSIDset(collections.OrderedDict):
         :param stop: end of interpolation period (DateTime format)
         :param filter_bad: filter bad values before interpolating
         """
-        # Speed could be improved by clever use of bad masking among common
-        # content types (assuming no bad filtering to begin with) so that
-        # interpolation only gets done once.  For now just brute-force it for
-        # every MSID.
         import Ska.Numpy
 
         tstart = DateTime(start).secs if start else self.tstart
