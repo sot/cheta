@@ -287,13 +287,27 @@ locate and filter it out as follows (but also see the next section)::
 
 **Filtering out bad time intervals of data**
 
-If you want to remove an interval of time known to have bad values there is an
-easy way with the ``filter_bad_times`` method::
+There are many periods of time where the spacecraft was in an anomalous state
+and telemetry values may be unreliable.  For example during safemode the OBC
+values (AO*) may be meaningless.  There is a simple mechanism to remove these
+times of known bad data in either a |fetch_MSID| or |fetch_MSIDset| object::
 
-  aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
+  aorates = fetch.MSIDset(['aorate*'], '2007:001', '2008:001')
+  aorates.filter_bad_times()
+
+  aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001')
+  aorates.filter_bad_times()
+
+You can view the default bad times using::
+
+  fetch.msid_bad_times
+
+If you want to remove a different interval of time known to have bad values you
+can specify the start and stop time as follows::
+
   aorate1.filter_bad_times('2007:025:12:13:00', '2007:026:09:00:00')
 
-As expected this will remove all data from the aorate1 MSID between the
+As expected this will remove all data from the ``aorate1`` MSID between the
 specified times.  Multiple bad time filters can be specified at once using the
 ``table`` parameter option for ``filter_bad_times``::
 
@@ -342,9 +356,6 @@ can always be filtered by all users of fetch then send an email to Tom Aldcroft
 with the interval and MSID and that will be added to the global registry.
 After that there will be no need to explicitly run the
 ``fetch.read_bad_times(filename)`` command to exclude that interval.
-
-At the present time this filtering only applies to MSID objects and not for MSIDset 
-objects.  Upon request this can be implemented.
 
 Five minute and daily stats
 ===========================
