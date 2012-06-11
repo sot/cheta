@@ -1,3 +1,26 @@
+# Make baseline (seed) test data using flight Ska.
+#
+# NORMALLY THIS IS NOT DONE, just use available flight regression data.
+#
+############
+ska
+
+setenv ENG_ARCHIVE $PWD/test/eng_archive
+mkdir -p test/eng_archive
+rm -rf test/eng_archive/*
+
+rm -f test/make_eng_archive.log
+touch test/make_eng_archive.log
+
+echo "Making regr data..."
+./make_regr_data.py --start 2010:260 --stop 2010:270 --data-root test/eng_archive >>& test/make_eng_archive.log
+
+echo "Tarring..."
+pushd test
+tar zcf eng_archive.tar.gz eng_archive
+popd
+
+
 ########################################################################################################
 ######## Regression test for primary (HEAD) update_archive.py and fetch.py
 ########################################################################################################
@@ -39,27 +62,6 @@ export ENG_ARCHIVE=$PWD/test/eng_archive
 ########################################################################################################
 ######## Regression test for new skare (updated Python, NumPy, tables, etc) in $ska/dev/
 ########################################################################################################
-
-# Make baseline (seed) test data using flight Ska. 
-
-## WINDOW 1
-############
-ska
-
-setenv ENG_ARCHIVE $PWD/test/eng_archive
-mkdir -p test/eng_archive
-rm -rf test/eng_archive/*
-
-rm -f test/make_eng_archive.log
-touch test/make_eng_archive.log
-
-echo "Making regr data..."
-./make_regr_data.py --start 2010:260 --stop 2010:270 --data-root test/eng_archive >>& test/make_eng_archive.log
-
-echo "Tarring..."
-pushd test
-tar zcf eng_archive.tar.gz eng_archive
-popd
 
 ## WINDOW 2
 ############
