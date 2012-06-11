@@ -415,6 +415,11 @@ class MSID(object):
 
         tstart = DateTime(start).secs if start else self.times[0]
         tstop = DateTime(stop).secs if stop else self.times[-1]
+
+        # Don't allow extrapolation
+        tstart = max(tstart, self.times[0])
+        tstop = min(tstop, self.times[-1])
+
         times = np.arange(tstart, tstop, dt)
 
         logger.info('Interpolating index for %s', self.msid)
@@ -768,8 +773,7 @@ class MSIDset(collections.OrderedDict):
         super(MSIDset, self).__init__()
 
         self.tstart = DateTime(start).secs
-        self.tstop = (DateTime(stop).secs if stop else
-                      DateTime(time.time(), format='unix').secs)
+        self.tstop = (DateTime(stop).secs if stop else DateTime().secs)
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
 
@@ -885,11 +889,22 @@ class MSIDset(collections.OrderedDict):
         """
         import Ska.Numpy
 
+        msids = self.values()  # MSID objects in the MSIDset
+
+        # Get the nominal tstart / tstop range
         tstart = DateTime(start).secs if start else self.tstart
         tstop = DateTime(stop).secs if stop else self.tstop
+
+        # Ensure that tstart / tstop is entirely within the range of available
+        # data fetched from the archive.
+        max_fetch_tstart = max(msid.times[0] for msid in msids)
+        min_fetch_tstop = min(msid.times[-1] for msid in msids)
+        tstart = max(tstart, max_fetch_tstart)
+        tstop = min(tstop, min_fetch_tstop)
+
         self.times = np.arange(tstart, tstop, dt)
 
-        for msid in self.values():
+        for msid in msids:
             if filter_bad:
                 msid.filter_bad()
             logger.info('Interpolating index for %s', msid.msid)
