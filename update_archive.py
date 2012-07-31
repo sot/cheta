@@ -270,7 +270,7 @@ def calc_stats_vals(msid_vals, rows, indexes, interval):
     msid_is_numeric = not msid_dtype.name.startswith('string')
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = dict(index=np.ndarray((n_out,), dtype=np.int32),
-               n=np.ndarray((n_out,), dtype=np.int16),
+               n=np.ndarray((n_out,), dtype=np.int32),
                val=np.ndarray((n_out,), dtype=msid_dtype),
                )
     if msid_is_numeric:
@@ -293,7 +293,7 @@ def calc_stats_vals(msid_vals, rows, indexes, interval):
             if msid_is_numeric:
                 out['min'][i] = np.min(vals)
                 out['max'][i] = np.max(vals)
-                out['mean'][i] = np.mean(vals)
+                out['mean'][i] = np.mean(vals.astype(np.double))
                 if interval == 'daily':
                     out['std'][i] = np.std(vals)
                     quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
