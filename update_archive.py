@@ -262,11 +262,11 @@ def del_stats(colname, time0, interval):
     logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0, DateTime(indexes[row0] * dt).date)
     stats.close()
 
-def calc_stats_vals(msid_vals, rows, indexes, interval):
+def calc_stats_vals(msid, rows, indexes, interval):
     quantiles = (1, 5, 16, 50, 84, 95, 99)
     cols_stats = ('index', 'n', 'val')
     n_out = len(rows) - 1
-    msid_dtype = msid_vals.dtype
+    msid_dtype = msid.vals.dtype
     msid_is_numeric = not msid_dtype.name.startswith('string')
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = dict(index=np.ndarray((n_out,), dtype=np.int32),
@@ -284,18 +284,38 @@ def calc_stats_vals(msid_vals, rows, indexes, interval):
             out.update(('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles)
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
-        vals = msid_vals[row0:row1]
+        vals = msid.vals[row0:row1]
+        times = msid.times[row0:row1]
         n_vals = len(vals)
         if n_vals > 0:
             out['index'][i] = index
             out['n'][i] = n_vals
             out['val'][i] = vals[n_vals // 2]
             if msid_is_numeric:
+                if n_vals <= 2:
+                    weights = np.ones(n_vals, dtype=np.float64)
+                else:
+                    weights = np.empty(n_vals, dtype=np.float64)
+                    weights[0] = times[1] - times[0]
+                    weights[-1] = times[-1] - times[-2]
+                    weights[1:-1] = ((times[1:-1] - times[:-2])
+                                     + (times[2:] - times[1:-1])) / 2.0
+                    # Clip to range 0.001 to 300.0.  The low bound is just there
+                    # for data with identical time stamps.  This shouldn't happen
+                    # but in practice might.  The 300.0 represents 5 minutes and
+                    # is the largest normal time interval.  Data near large gaps
+                    # will get a weight of 5 mins.
+                    weights.clip(0.001, 300.0)
+                sum_weights = np.sum(weights)
+
                 out['min'][i] = np.min(vals)
                 out['max'][i] = np.max(vals)
-                out['mean'][i] = np.mean(vals.astype(np.double))
+                out['mean'][i] = np.sum(weights * vals) / sum_weights
                 if interval == 'daily':
-                    out['std'][i] = np.std(vals)
+                    # biased weighted estimator of variance (N should be big enough)
+                    # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
+                    sigma_sq = np.sum(weights * (vals - out['mean'][i]) ** 2) / sum_weights
+                    out['std'][i] = np.sqrt(sigma_sq)
                     quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
                     for quant_val, quantile in zip(quant_vals, quantiles):
                         out['p%02d' % quantile][i] = quant_val
@@ -338,7 +358,7 @@ def update_stats(colname, interval, msid=None):
 
         if len(times) > 2:
             rows = np.searchsorted(msid.times, times)
-            vals_stats = calc_stats_vals(msid.vals, rows, indexes, interval)
+            vals_stats = calc_stats_vals(msid, rows, indexes, interval)
             if not opt.dry_run:
                 # Don't change the following logic in order to add stats data
                 # on the same pass as creating the table.  Tried it and
