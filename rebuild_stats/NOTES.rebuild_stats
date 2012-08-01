@@ -1,0 +1,18 @@
+# Make initial dir
+cd ~/git/eng_archive
+mkdir -p /proj/sot/ska/tmp/eng_archive/data
+ln -s /proj/sot/ska/tmp/eng_archive/data ./
+
+# Copy column headers and basic directory structure
+rsync -av --exclude='*.h5' --exclude='headers.pickle' --exclude='arch' \
+   /proj/sot/ska/data/eng_archive/data/ /proj/sot/ska/tmp/eng_archive/data/
+
+# Rebuild stats
+source run_rebuild_stats.csh
+
+# Validate (do this for stat='5min' and stat='daily' in following code)
+python validate_stats.py  # stat='5min'
+python validate_stats.py  # stat='daily'
+
+# Swap in the new values, putting the old values in a backup location
+python move_stats.py
