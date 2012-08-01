@@ -4,7 +4,7 @@ mkdir -p /proj/sot/ska/tmp/eng_archive/data
 ln -s /proj/sot/ska/tmp/eng_archive/data ./
 
 # Copy column headers and basic directory structure
-rsync -av --exclude='*.h5' --exclude='headers.pickle' --exclude='arch' \
+rsync -av --exclude='*.h5*' --exclude='headers.pickle' --exclude='arch' \
    /proj/sot/ska/data/eng_archive/data/ /proj/sot/ska/tmp/eng_archive/data/
 
 # Rebuild stats
