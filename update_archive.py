@@ -45,7 +45,7 @@ def get_options():
                       action="store_false",
                       dest="update_stats",
                       default=True,
-                      help="Do not update 5 minute and daily stats archive")
+                      help="Do not update 5min, daily and 30day stats archive")
     parser.add_option("--fix-misorders",
                       action="store_true",
                       default=False,  
@@ -137,6 +137,7 @@ def main():
             misorder_time = fix_misorders(filetype)
             if misorder_time:
                 for colname in colnames:
+                    del_stats(colname, misorder_time, '30day')
                     del_stats(colname, misorder_time, 'daily')
                     del_stats(colname, misorder_time, '5min')
             continue
@@ -150,6 +151,7 @@ def main():
         if opt.update_stats:
             for colname in colnames:
                 msid = update_stats(colname, 'daily')
+                update_stats(colname, '30day', msid)
                 update_stats(colname, '5min', msid)
 
 def fix_misorders(filetype):
@@ -242,8 +244,7 @@ def del_stats(colname, time0, interval):
     that result from a file misorder.  Subsequent runs of update_stats will
     refresh the values correctly.
     """
-    dt = {'5min': 328,
-          'daily': 86400}[interval]
+    dt = STAT_DTS[interval]  # length of interval, e.g. 300, 86400 or 86400*30 secs
 
     ft['msid'] = colname
     ft['interval'] = interval
@@ -278,7 +279,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
         out.update(dict(min=np.ndarray((n_out,), dtype=msid_dtype),
                         max=np.ndarray((n_out,), dtype=msid_dtype),
                         mean=np.ndarray((n_out,), dtype=np.float32),))
-        if interval == 'daily':
+        if interval in ('daily', '30day'):
             cols_stats += ('std',) + tuple('p%02d' % x for x in quantiles)
             out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
             out.update(('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles)
@@ -311,7 +312,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
                 out['min'][i] = np.min(vals)
                 out['max'][i] = np.max(vals)
                 out['mean'][i] = np.sum(weights * vals) / sum_weights
-                if interval == 'daily':
+                if interval in ('daily', '30day'):
                     # biased weighted estimator of variance (N should be big enough)
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
                     sigma_sq = np.sum(weights * (vals - out['mean'][i]) ** 2) / sum_weights
@@ -324,8 +325,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
     return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
 def update_stats(colname, interval, msid=None):
-    dt = {'5min': 328,
-          'daily': 86400}[interval]
+    dt = fetch.STAT_DTS[interval]
 
     ft['msid'] = colname
     ft['interval'] = interval
@@ -528,6 +528,7 @@ def truncate_archive(filetype, date):
         # Delete the 5min and daily stats, with a little extra margin
         del_stats(colname, time0, '5min')
         del_stats(colname, time0, 'daily')
+        del_stats(colname, time0, '30day')
 
     if not opt.dry_run:
         db.execute('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
