@@ -238,6 +238,7 @@ def fix_misorders(filetype):
 
     return np.min(archfiles['tstart'][bads])
 
+
 def del_stats(colname, time0, interval):
     """Delete all rows in ``interval`` stats file for column ``colname`` that
     occur after time ``time0`` - ``interval``.  This is used to fix problems
@@ -262,6 +263,7 @@ def del_stats(colname, time0, interval):
         n_del = stats.root.data.removeRows(row0, len(stats.root.data))
     logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0, DateTime(indexes[row0] * dt).date)
     stats.close()
+
 
 def calc_stats_vals(msid, rows, indexes, interval):
     quantiles = (1, 5, 16, 50, 84, 95, 99)
@@ -294,28 +296,35 @@ def calc_stats_vals(msid, rows, indexes, interval):
             out['val'][i] = vals[n_vals // 2]
             if msid_is_numeric:
                 if n_vals <= 2:
-                    weights = np.ones(n_vals, dtype=np.float64)
+                    dts = np.ones(n_vals, dtype=np.float64)
                 else:
-                    weights = np.empty(n_vals, dtype=np.float64)
-                    weights[0] = times[1] - times[0]
-                    weights[-1] = times[-1] - times[-2]
-                    weights[1:-1] = ((times[1:-1] - times[:-2])
-                                     + (times[2:] - times[1:-1])) / 2.0
+                    dts = np.empty(n_vals, dtype=np.float64)
+                    dts[0] = times[1] - times[0]
+                    dts[-1] = times[-1] - times[-2]
+                    dts[1:-1] = ((times[1:-1] - times[:-2])
+                                 + (times[2:] - times[1:-1])) / 2.0
+                    negs = dts < 0.0
+                    if np.any(negs):
+                        times_dts = [(DateTime(t).date, dt)
+                                     for t, dt in zip(times[negs], dts[negs])]
+                        logger.warning('WARNING - negative dts in {} at {}'
+                                       .format(msid.MSID, times_dts))
+
                     # Clip to range 0.001 to 300.0.  The low bound is just there
                     # for data with identical time stamps.  This shouldn't happen
                     # but in practice might.  The 300.0 represents 5 minutes and
                     # is the largest normal time interval.  Data near large gaps
                     # will get a weight of 5 mins.
-                    weights.clip(0.001, 300.0)
-                sum_weights = np.sum(weights)
+                    dts.clip(0.001, 300.0, out=dts)
+                sum_dts = np.sum(dts)
 
                 out['min'][i] = np.min(vals)
                 out['max'][i] = np.max(vals)
-                out['mean'][i] = np.sum(weights * vals) / sum_weights
+                out['mean'][i] = np.sum(dts * vals) / sum_dts
                 if interval in ('daily', '30day'):
                     # biased weighted estimator of variance (N should be big enough)
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
-                    sigma_sq = np.sum(weights * (vals - out['mean'][i]) ** 2) / sum_weights
+                    sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
                     out['std'][i] = np.sqrt(sigma_sq)
                     quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
                     for quant_val, quantile in zip(quant_vals, quantiles):
