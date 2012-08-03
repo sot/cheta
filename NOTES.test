@@ -90,7 +90,8 @@ cp -p regr_vals.flight regr_vals.7cb31b.flight  # git commit ID of current fligh
 popd
 
 ## 2011-Jun-20 All tests pass for devska (skare 0.10)
-
+## 2012-Jun-12 All tests pass in skatest (skare 0.13) + new eng archive ddc63d2
+## 2012-Jun-20 All tests pass in skatest skare 0.13-r241-427bb9c + eng_arch ddc63d2
 
 ########################################################################################################
 ######## Regression test for new skare in /proj/sot/ska
