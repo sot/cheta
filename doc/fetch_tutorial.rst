@@ -357,18 +357,19 @@ with the interval and MSID and that will be added to the global registry.
 After that there will be no need to explicitly run the
 ``fetch.read_bad_times(filename)`` command to exclude that interval.
 
-Five minute and daily stats
-===========================
+Five minute, daily and 30-day stats
+===================================
 
 The engineering telemetry archive also hosts tables of telemetry statistics
-computed over 5 minute and daily intervals.  To be more precise, the intervals
-are 328 seconds (10 major frames) and 86400 seconds.  The daily intervals are
-not *exactly* lined up with the midnight boundary but are within a couple of minutes.  
+computed over 5 minute, daily, and 30 day intervals.  To be more precise, the intervals
+are 328 seconds (10 major frames), 86400 seconds, and 86400 * 30 seconds.  The daily intervals are
+not *exactly* lined up with the midnight boundary but are within a couple of minutes.
 These data are accessed by specifying 
 ``stat=<interval>`` in the |fetch_MSID| call::
 
   tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
   tephin_daily = fetch.MSID('tephin', '2000:001', stat='daily')
+  tephin_30day = fetch.MSID('tephin', '2000:001', stat='30day')
   figure(1)
   clf()
   plot_cxctime(tephin_daily.times, tephin_daily.mins, '-b')
@@ -385,29 +386,26 @@ available data in the archive.  The start time, however, is always required.
 The MSID object returned for a telemetry statistics query has a number of array 
 attributes, depending on the statistic and the MSID data type.
 
-==========  =====  =====  ================= ================  ===================
-Name        5min   daily  Supported types   Column type       Description
-==========  =====  =====  ================= ================  ===================
-times         x      x    int,float,string  float             Time at midpoint
-indexes       x      x    int,float,string  int               Interval index
-samples       x      x    int,float,string  int16             Number of samples
-midvals       x      x    int,float,string  int,float,string  Sample at midpoint
-vals          x      x    int,float         int,float         Mean
-mins          x      x    int,float         int,float         Minimum
-maxes         x      x    int,float         int,float         Maximum
-means         x      x    int,float         float             Mean
-stds                 x    int,float         float             Standard deviation
-p01s                 x    int,float         float             1% percentile
-p05s                 x    int,float         float             5% percentile
-p16s                 x    int,float         float             16% percentile
-p50s                 x    int,float         float             50% percentile
-p84s                 x    int,float         float             84% percentile
-p95s                 x    int,float         float             95% percentile
-p99s                 x    int,float         float             99% percentile
-==========  =====  =====  ================= ================  ===================
-
-Note: the inadvertent use of int16 for the daily stat ``samples`` column means
-that it rolls over at 32767.  This column should not be trusted at this time.
+==========  =====  ===== =====  ================= ================  ======================
+Name        5min   daily 30day  Supported types   Column type       Description
+==========  =====  ===== =====  ================= ================  ======================
+times         x      x     x    int,float,string  float             Time at midpoint
+indexes       x      x     x    int,float,string  int               Interval index
+samples       x      x     x    int,float,string  int16             Number of samples
+midvals       x      x     x    int,float,string  int,float,string  Sample at midpoint
+vals          x      x     x    int,float         int,float         Time-weighted mean
+mins          x      x     x    int,float         int,float         Minimum
+maxes         x      x     x    int,float         int,float         Maximum
+means         x      x     x    int,float         float             Mean
+stds                 x     x    int,float         float             Time-weighted std dev
+p01s                 x     x    int,float         float             1% percentile
+p05s                 x     x    int,float         float             5% percentile
+p16s                 x     x    int,float         float             16% percentile
+p50s                 x     x    int,float         float             50% percentile
+p84s                 x     x    int,float         float             84% percentile
+p95s                 x     x    int,float         float             95% percentile
+p99s                 x     x    int,float         float             99% percentile
+==========  =====  ===== =====  ================= ================  ======================
 
 As an example a daily statistics query for the PCAD mode ``AOPCADMD``
 (``NPNT``, ``NMAN``, etc) yields an object with only the ``times``,

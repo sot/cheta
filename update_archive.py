@@ -45,7 +45,7 @@ def get_options():
                       action="store_false",
                       dest="update_stats",
                       default=True,
-                      help="Do not update 5 minute and daily stats archive")
+                      help="Do not update 5min, daily and 30day stats archive")
     parser.add_option("--fix-misorders",
                       action="store_true",
                       default=False,  
@@ -137,6 +137,7 @@ def main():
             misorder_time = fix_misorders(filetype)
             if misorder_time:
                 for colname in colnames:
+                    del_stats(colname, misorder_time, '30day')
                     del_stats(colname, misorder_time, 'daily')
                     del_stats(colname, misorder_time, '5min')
             continue
@@ -150,6 +151,7 @@ def main():
         if opt.update_stats:
             for colname in colnames:
                 msid = update_stats(colname, 'daily')
+                update_stats(colname, '30day', msid)
                 update_stats(colname, '5min', msid)
 
 def fix_misorders(filetype):
@@ -236,14 +238,14 @@ def fix_misorders(filetype):
 
     return np.min(archfiles['tstart'][bads])
 
+
 def del_stats(colname, time0, interval):
     """Delete all rows in ``interval`` stats file for column ``colname`` that
     occur after time ``time0`` - ``interval``.  This is used to fix problems
     that result from a file misorder.  Subsequent runs of update_stats will
     refresh the values correctly.
     """
-    dt = {'5min': 328,
-          'daily': 86400}[interval]
+    dt = STAT_DTS[interval]  # length of interval, e.g. 300, 86400 or 86400*30 secs
 
     ft['msid'] = colname
     ft['interval'] = interval
@@ -262,15 +264,16 @@ def del_stats(colname, time0, interval):
     logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0, DateTime(indexes[row0] * dt).date)
     stats.close()
 
-def calc_stats_vals(msid_vals, rows, indexes, interval):
+
+def calc_stats_vals(msid, rows, indexes, interval):
     quantiles = (1, 5, 16, 50, 84, 95, 99)
     cols_stats = ('index', 'n', 'val')
     n_out = len(rows) - 1
-    msid_dtype = msid_vals.dtype
+    msid_dtype = msid.vals.dtype
     msid_is_numeric = not msid_dtype.name.startswith('string')
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = dict(index=np.ndarray((n_out,), dtype=np.int32),
-               n=np.ndarray((n_out,), dtype=np.int16),
+               n=np.ndarray((n_out,), dtype=np.int32),
                val=np.ndarray((n_out,), dtype=msid_dtype),
                )
     if msid_is_numeric:
@@ -278,24 +281,51 @@ def calc_stats_vals(msid_vals, rows, indexes, interval):
         out.update(dict(min=np.ndarray((n_out,), dtype=msid_dtype),
                         max=np.ndarray((n_out,), dtype=msid_dtype),
                         mean=np.ndarray((n_out,), dtype=np.float32),))
-        if interval == 'daily':
+        if interval in ('daily', '30day'):
             cols_stats += ('std',) + tuple('p%02d' % x for x in quantiles)
             out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
             out.update(('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles)
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
-        vals = msid_vals[row0:row1]
+        vals = msid.vals[row0:row1]
+        times = msid.times[row0:row1]
         n_vals = len(vals)
         if n_vals > 0:
             out['index'][i] = index
             out['n'][i] = n_vals
             out['val'][i] = vals[n_vals // 2]
             if msid_is_numeric:
+                if n_vals <= 2:
+                    dts = np.ones(n_vals, dtype=np.float64)
+                else:
+                    dts = np.empty(n_vals, dtype=np.float64)
+                    dts[0] = times[1] - times[0]
+                    dts[-1] = times[-1] - times[-2]
+                    dts[1:-1] = ((times[1:-1] - times[:-2])
+                                 + (times[2:] - times[1:-1])) / 2.0
+                    negs = dts < 0.0
+                    if np.any(negs):
+                        times_dts = [(DateTime(t).date, dt)
+                                     for t, dt in zip(times[negs], dts[negs])]
+                        logger.warning('WARNING - negative dts in {} at {}'
+                                       .format(msid.MSID, times_dts))
+
+                    # Clip to range 0.001 to 300.0.  The low bound is just there
+                    # for data with identical time stamps.  This shouldn't happen
+                    # but in practice might.  The 300.0 represents 5 minutes and
+                    # is the largest normal time interval.  Data near large gaps
+                    # will get a weight of 5 mins.
+                    dts.clip(0.001, 300.0, out=dts)
+                sum_dts = np.sum(dts)
+
                 out['min'][i] = np.min(vals)
                 out['max'][i] = np.max(vals)
-                out['mean'][i] = np.mean(vals)
-                if interval == 'daily':
-                    out['std'][i] = np.std(vals)
+                out['mean'][i] = np.sum(dts * vals) / sum_dts
+                if interval in ('daily', '30day'):
+                    # biased weighted estimator of variance (N should be big enough)
+                    # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
+                    sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
+                    out['std'][i] = np.sqrt(sigma_sq)
                     quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
                     for quant_val, quantile in zip(quant_vals, quantiles):
                         out['p%02d' % quantile][i] = quant_val
@@ -304,8 +334,7 @@ def calc_stats_vals(msid_vals, rows, indexes, interval):
     return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
 def update_stats(colname, interval, msid=None):
-    dt = {'5min': 328,
-          'daily': 86400}[interval]
+    dt = fetch.STAT_DTS[interval]
 
     ft['msid'] = colname
     ft['interval'] = interval
@@ -338,7 +367,7 @@ def update_stats(colname, interval, msid=None):
 
         if len(times) > 2:
             rows = np.searchsorted(msid.times, times)
-            vals_stats = calc_stats_vals(msid.vals, rows, indexes, interval)
+            vals_stats = calc_stats_vals(msid, rows, indexes, interval)
             if not opt.dry_run:
                 # Don't change the following logic in order to add stats data
                 # on the same pass as creating the table.  Tried it and
@@ -508,6 +537,7 @@ def truncate_archive(filetype, date):
         # Delete the 5min and daily stats, with a little extra margin
         del_stats(colname, time0, '5min')
         del_stats(colname, time0, 'daily')
+        del_stats(colname, time0, '30day')
 
     if not opt.dry_run:
         db.execute('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))

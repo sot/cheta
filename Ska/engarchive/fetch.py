@@ -32,6 +32,11 @@ UNITS = Units(system='cxc')
 # Module-level control of whether MSID.fetch will cache the last 30 results
 CACHE = False
 
+# Statistic time intervals
+STAT_DTS = {'5min': 328,
+            'daily': 86400,
+            '30day': 86400 * 30}
+
 SKA = os.getenv('SKA') or '/proj/sot/ska'
 ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
 IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
@@ -174,7 +179,7 @@ class MSID(object):
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
-    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+    :param stat: return 5-minute, daily or 30-day stats ('5min'|'daily'|'30day')
 
     :returns: MSID instance
     """
@@ -195,7 +200,7 @@ class MSID(object):
         self.unit = self.units.get_msid_unit(self.MSID)
         self.stat = stat
         if stat:
-            self.dt = {'5min': 328, 'daily': 86400}[stat]
+            self.dt = STAT_DTS[stat]
 
         self.tstart = DateTime(start).secs
         self.tstop = (DateTime(stop).secs if stop else
@@ -763,7 +768,7 @@ class MSIDset(collections.OrderedDict):
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
-    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+    :param stat: return 5-minute, daily or 30-day stats ('5min'|'daily'|'30day')
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
@@ -946,7 +951,7 @@ class Msid(MSID):
     :param start: start date of telemetry (Chandra.Time compatible)
     :param stop: stop date of telemetry (current time if not supplied)
     :param filter_bad: automatically filter out bad values
-    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+    :param stat: return 5-minute, daily or 30-day stats ('5min'|'daily'|'30day')
     :param unit_system: Unit system (cxc|eng|sci, default=current units)
 
     :returns: MSID instance
