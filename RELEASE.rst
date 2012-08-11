@@ -4,8 +4,9 @@
 - Use weighted mean and stddev for calculating stats.
 - Use float64 to accumulate sum for computing stats mean.
 - Rebuild stats files for the full mission.
+- Fix bug that number of samples for daily stats was incorrect.
 - Add notes and regression testing code for re-building stats files.
-- This release fixes issues #39, #40 and #41.
+- This release fixes issues #38, #39, and #41.
 
 0.19.1 2012-06-22
 =================
@@ -17,7 +18,6 @@
 - Speed up `filter_bad_times()` by using a single mask array over
   all bad time filters.
 - Add some unit / regression tests.
-
 
 0.19 - 2012-05-04
 =================
