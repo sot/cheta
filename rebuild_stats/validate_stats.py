@@ -1,19 +1,38 @@
 """Check that the 5min and daily stats are consistent between two different
 builds of the stats archive.
 """
-
+import sys
+import optparse
+import re
 
 import numpy as np
 import tables
 import matplotlib.pyplot as plt
 from Ska.engarchive import fetch
+from Chandra.Time import DateTime
 
-stat ='5min'  # or set to 'daily'
-IMAX = {'daily': 4000, '5min': 10000}[stat]
+def get_options():
+    parser = optparse.OptionParser()
+    parser.add_option("--stat",
+                      default='daily',
+                      help="stat to check")
+    parser.add_option("--content",
+                      action='append',
+                      help="Content type to process [match regex] (default = all)")
+    return parser.parse_args()
+
+opt, args = get_options()
+
+stat = opt.stat
+IMAX = {'5min': 20000, 'daily': 4000}[stat]
+DT = {'5min': 328, 'daily': 86400}[stat]
 
 content = fetch.content
-
 content_types = sorted(set(content.values()))
+if opt.content:
+    contents = [x.lower() for x in opt.content]
+    content_types = [x for x in content_types
+                     if any(re.match(y, x) for y in contents)]
 
 def getstats(filename):
     try:
@@ -24,15 +43,18 @@ def getstats(filename):
         vals = h5f.root.data.col('val')[:IMAX]
         mins = h5f.root.data.col('min')[:IMAX]
         maxes = h5f.root.data.col('max')[:IMAX]
+        indexes = h5f.root.data.col('index')[:IMAX]
     except Exception as err:
         raise ValueError(err)
     finally:
         h5f.close()
-    return means, vals, mins, maxes
+    return means, vals, mins, maxes, indexes
 
 for content_type in reversed(content_types):
     if content_type.startswith('dp_therm') or content_type in ('pcad13eng', 'pcad8eng', 'pcad7eng'):
         # These have known and OK issues.
+        # dp_therm* (original flight database) had a repeat of 60 days which causes fail here.
+        # The pcad ones are about missing data.
         print 'Skipping', content_type
         continue
     print content_type
@@ -41,21 +63,39 @@ for content_type in reversed(content_types):
     for msid in msids:
         # print msid,
         h5f = '/proj/sot/ska/data/eng_archive/data/{}/{}/{}.h5'.format(content[msid], stat, msid.upper())
-        h5n = '/proj/sot/ska/tmp/eng_archive/data/{}/{}/{}.h5'.format(content[msid], stat, msid.upper())
+        h5n = 'data/{}/{}/{}.h5'.format(content[msid], stat, msid.upper())
         try:
-            fmeans, fvals, fmins, fmaxes = getstats(h5f)  # flight
-            nmeans, nvals, nmins, nmaxes = getstats(h5n)  # new
+            fmeans, fvals, fmins, fmaxes, fidxs = getstats(h5f)  # flight
+            nmeans, nvals, nmins, nmaxes, nidxs = getstats(h5n)  # new
         except Exception as err:
             continue
+        idx_mismatch = fidxs != nidxs
+        if np.any(idx_mismatch):
+            print 'Index mismatch at {}:{} {}'.format(
+                DateTime(fidxs[idx_mismatch][0] * DT).date,
+                fidxs[idx_mismatch][:3], nidxs[idx_mismatch][:3])
         means_med = abs(np.median(fmeans))
         range = max([means_med, np.max(fmaxes) - np.min(fmins)])
-        dvals = np.max(np.abs(nvals - fvals) / range)
-        dmeans = np.max(np.abs(nmeans - fmeans) / range)
-        dmaxes = np.max(np.abs(nmaxes - fmaxes) / range)
-        dmins = np.max(np.abs(nmins - fmins) / range)
-        if dmeans > 0.005 or dvals > 1e-5 or dmaxes > 1e-5 or dmins > 1e-5:
-            print '{:14s} {:.6f} {:.8f} {:.8f} {:.8f} {} {}'.format(msid,
-                dmeans, dvals, dmins, dmaxes, means_med, range)
+        if range <= 0:
+            range = 1.0
+        dvals = np.abs(nvals - fvals) / range
+        dmeans = np.abs(nmeans - fmeans) / range
+        dmaxes = np.abs(nmaxes - fmaxes) / range
+        dmins =  np.abs(nmins - fmins) / range
+        viol = False
+        for name, vals, limit in (('vals', dvals, 0.01),
+                                  ('means', dmeans, 0.01),
+                                  ('maxes', dmaxes, 1e-5),
+                                  ('mins', dmins, 1e-5)):
+            if np.max(vals) > limit:
+                if not viol:
+                    print '{:14s}'.format(msid),
+                    viol = True
+                time_of_max = fidxs[np.argmax(vals)] * DT
+                date = DateTime(time_of_max).date
+                print '{}={:.8f} {}'.format(name, np.max(vals), date),
+        if viol:
+            print '{} {}'.format(means_med, range)
 
 def plot_stats(msid,
                nmeans, nvals, nmins, nmaxes,
