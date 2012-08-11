@@ -10,9 +10,19 @@ rsync -av --exclude='*.h5*' --exclude='headers.pickle' --exclude='arch' \
 # Rebuild stats
 source run_rebuild_stats.csh
 
+# Check AWDxTQI where x=1..6
+setenv ENG_ARCHIVE $PWD
+ipython --pylab
+impska
+dat = fetch.Msid('awd1tqi', '2000:001', stat='daily')
+dat.plot()
+dat = fetch.Msid('awd1tqi', '2010:001', '2012:001', stat='5min')
+clf()
+dat.plot()
+
 # Validate (do this for stat='5min' and stat='daily' in following code)
-python validate_stats.py  # stat='5min'
-python validate_stats.py  # stat='daily'
+python rebuild_stats/validate_stats.py '5min'
+python rebuild_stats/validate_stats.py 'daily'
 
 # Swap in the new values, putting the old values in a backup location
 python move_stats.py

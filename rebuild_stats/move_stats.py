@@ -7,6 +7,7 @@ old = '/proj/sot/ska/data/eng_archive/data'
 bak = '/proj/sot/ska/data/eng_archive/data_stats_bak'
 new = '/proj/sot/ska/tmp/eng_archive/data'
 
+# For testing
 #old = '/home/SOT/git/eng_archive/dataold'
 #new = '/home/SOT/git/eng_archive/datanew'
 #bak = '/home/SOT/git/eng_archive/databak'
