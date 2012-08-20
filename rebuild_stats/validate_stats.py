@@ -4,12 +4,16 @@ builds of the stats archive.
 import sys
 import optparse
 import re
-
+import os
 import numpy as np
 import tables
 import matplotlib.pyplot as plt
 from Ska.engarchive import fetch
 from Chandra.Time import DateTime
+
+if ('ENG_ARCHIVE' in os.environ
+    and os.environ['ENG_ARCHIVE'] != '/proj/sot/ska/data/eng_archive'):
+    raise ValueError('ENG_ARCHIVE must be set to /proj/sot/ska/data/eng_archive')
 
 def get_options():
     parser = optparse.OptionParser()
@@ -34,21 +38,25 @@ if opt.content:
     content_types = [x for x in content_types
                      if any(re.match(y, x) for y in contents)]
 
+class NotEnoughRows(ValueError):
+    pass
+
 def getstats(filename):
     try:
         h5f = tables.openFile(filename, 'r')
         if len(h5f.root.data) < IMAX:
-            raise ValueError('Not enough rows')
+            raise NotEnoughRows
         means = h5f.root.data.col('mean')[:IMAX]
+        stds = h5f.root.data.col('std')[:IMAX]
         vals = h5f.root.data.col('val')[:IMAX]
         mins = h5f.root.data.col('min')[:IMAX]
         maxes = h5f.root.data.col('max')[:IMAX]
         indexes = h5f.root.data.col('index')[:IMAX]
-    except Exception as err:
-        raise ValueError(err)
+    except:
+        raise
     finally:
         h5f.close()
-    return means, vals, mins, maxes, indexes
+    return means, vals, mins, maxes, indexes, stds
 
 for content_type in reversed(content_types):
     if content_type.startswith('dp_therm') or content_type in ('pcad13eng', 'pcad8eng', 'pcad7eng'):
@@ -65,10 +73,16 @@ for content_type in reversed(content_types):
         h5f = '/proj/sot/ska/data/eng_archive/data/{}/{}/{}.h5'.format(content[msid], stat, msid.upper())
         h5n = 'data/{}/{}/{}.h5'.format(content[msid], stat, msid.upper())
         try:
-            fmeans, fvals, fmins, fmaxes, fidxs = getstats(h5f)  # flight
-            nmeans, nvals, nmins, nmaxes, nidxs = getstats(h5n)  # new
+            fmeans, fvals, fmins, fmaxes, fidxs, fstds = getstats(h5f)  # flight
+            nmeans, nvals, nmins, nmaxes, nidxs, nstds = getstats(h5n)  # new
+        except NotEnoughRows:
+            print '{}: ERROR - not enough rows'.format(content_type)
+            break
         except Exception as err:
-            continue
+            if 'does not have a column named' in str(err):
+                continue
+            print '{}: ERROR - {}'.format(msid, err)
+
         idx_mismatch = fidxs != nidxs
         if np.any(idx_mismatch):
             print 'Index mismatch at {}:{} {}'.format(
@@ -82,9 +96,11 @@ for content_type in reversed(content_types):
         dmeans = np.abs(nmeans - fmeans) / range
         dmaxes = np.abs(nmaxes - fmaxes) / range
         dmins =  np.abs(nmins - fmins) / range
+        dstds =  np.abs(nstds - fstds) / range
         viol = False
         for name, vals, limit in (('vals', dvals, 0.01),
                                   ('means', dmeans, 0.01),
+                                  ('stds', dstds, 0.01),
                                   ('maxes', dmaxes, 1e-5),
                                   ('mins', dmins, 1e-5)):
             if np.max(vals) > limit:
