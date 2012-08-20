@@ -1,0 +1,28 @@
+# Make initial dir
+cd ~/git/eng_archive
+mkdir -p /proj/sot/ska/tmp/eng_archive/data
+ln -s /proj/sot/ska/tmp/eng_archive/data ./
+
+# Copy column headers and basic directory structure
+rsync -av --exclude='*.h5*' --exclude='headers.pickle' --exclude='arch' \
+   /proj/sot/ska/data/eng_archive/data/ /proj/sot/ska/tmp/eng_archive/data/
+
+# Rebuild stats
+source run_rebuild_stats.csh
+
+# Check AWDxTQI where x=1..6
+setenv ENG_ARCHIVE $PWD
+ipython --pylab
+impska
+dat = fetch.Msid('awd1tqi', '2000:001', stat='daily')
+dat.plot()
+dat = fetch.Msid('awd1tqi', '2010:001', '2012:001', stat='5min')
+clf()
+dat.plot()
+
+# Validate (do this for stat='5min' and stat='daily' in following code)
+python rebuild_stats/validate_stats.py '5min'
+python rebuild_stats/validate_stats.py 'daily'
+
+# Swap in the new values, putting the old values in a backup location
+python move_stats.py

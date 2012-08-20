@@ -8,3 +8,5 @@ dist
 doc/_build
 www
 MANIFEST
+*.pyc
+*~
