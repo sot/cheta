@@ -1,3 +1,24 @@
+0.20 - 2012-08-11
+=================
+
+- Use weighted mean and stddev for calculating stats.
+- Use float64 to accumulate sum for computing stats mean.
+- Rebuild stats files for the full mission.
+- Fix bug that number of samples for daily stats was incorrect.
+- Add notes and regression testing code for re-building stats files.
+- This release fixes issues #38, #39, and #41.
+
+0.19.1 2012-06-22
+=================
+
+- Add ``MSID.interpolate()`` method which is like ``MSIDset.interpolate()``
+- Speed up ``interpolate()`` methods using the new ``Ska.Numpy.interpolate``.
+- Add ``MSIDset.filter_bad_times()`` method that applies the bad
+  times filter to all MSIDs in a set.
+- Speed up `filter_bad_times()` by using a single mask array over
+  all bad time filters.
+- Add some unit / regression tests.
+
 0.19 - 2012-05-04
 =================
 
