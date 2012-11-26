@@ -74,7 +74,9 @@ L0   THM       THM1ENG         THM_ENG_0{THM1ENG}           *.fits.gz
 L0   THM       THM2ENG         THM_ENG_0{THM2ENG}           *.fits.gz
 L0   THM       THM3ENG         THM_ENG_0{THM3ENG}           *.fits.gz
 L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
-L3   DERIVED   DP_THERMAL1     -                            -
+L0.5 SIM       SIM_MRG         SIM_0.5{SIM_MRG}             *.fits.gz
+L0   EPHIN     EPHHK           EPHIN_0{EPHHK}               *.fits.gz
+L0   CPE       CPE1ENG         CPE_ENG_0{CPE1ENG}           *.fits.gz
 L3   DERIVED   DP_THERMAL128   -                            -
 L3   DERIVED   DP_ACISPOW128   -                            -
 L3   DERIVED   DP_PCAD1        -                            -
