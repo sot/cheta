@@ -3,6 +3,7 @@ import tables
 import pyfits
 import numpy as np
 import Ska.Table
+import asciitable
 import re
 import os
 import sys
@@ -44,13 +45,14 @@ def append_h5_col(dats, content, colname):
     h5.root.quality.append(np.hstack([x.field('QUALITY')[:,i_colname(x)] for x in dats]))
     h5.close()
 
-filetypes = Ska.Table.read_ascii_table('filetypes.dat')
-if len(sys.argv) == 2:
-    filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
+filetypes = asciitable.read('Ska/engarchive/filetypes.dat')
+if len(sys.argv) >= 2:
+    filetypes = filetypes[filetypes['content'] == sys.argv[1].upper()]
+outroot = sys.argv[2] if len(sys.argv) >= 3 else '/data/cosmos2/eng_archive/tlm'
 
 for filetype in filetypes:
     content = filetype['content'].lower()
-    fitsdir = os.path.abspath(os.path.join('/data/cosmos2/tlm', content))
+    fitsdir = os.path.abspath(os.path.join(outroot, content))
 
     if os.path.exists(os.path.join('data', content)):
         print "Skipping", filetype
@@ -105,6 +107,7 @@ for filetype in filetypes:
             continue
         headers[os.path.basename(f)] = header
         dats.append(dat)
+        del hdu
         hdus.close()
 
         colnames_all.update(dat.dtype.names)
@@ -114,12 +117,18 @@ for filetype in filetypes:
         dats_size += dat.itemsize * len(dat)
         if dats_size > max_size or i == len(fitsfiles) - 1:
             print 'Writing accumulated column data to h5 file at', time.ctime()
+            sys.stdout.flush()
             for colname in colnames:
                 append_h5_col(dats, content, colname)
+                sys.stdout.flush()
             print
             dats = []
             dats_size = 0
 
-    pickle.dump(headers, open(os.path.join('data', content, 'headers.pickle'), 'w'), protocol=2)
-    pickle.dump(colnames, open(os.path.join('data', content, 'colnames.pickle'), 'w'))
-    pickle.dump(colnames_all, open(os.path.join('data', content, 'colnames_all.pickle'), 'w'))
+            # Not really necessary to write each time, but helps in case of problems
+            print 'Writing pickle files'
+            pickle.dump(headers, open(os.path.join('data', content, 'headers.pickle'), 'w'), protocol=2)
+            pickle.dump(colnames, open(os.path.join('data', content, 'colnames.pickle'), 'w'))
+            pickle.dump(colnames_all, open(os.path.join('data', content, 'colnames_all.pickle'), 'w'))
+            print 'Done writing pickle files'
+            sys.stdout.flush()
