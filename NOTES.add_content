@@ -1,73 +1,77 @@
 *********************************************************************************
+Log in to a machine with at least 16 Gb RAM and get into ska environment
+*********************************************************************************
+
+ssh ccosmos
+cd ~/git/eng_archive
+ska
+export ENG_ARCHIVE=$PWD
+export CONTENT=<CONTENT>
+
+*********************************************************************************
 Add a new content type to eng_archive
 *********************************************************************************
 
 * Add content definition to filestypes.dat.  The CONTENT value must be upper case
 
 *********************************************************************************
-* Get FITS archive files from 2000 through 2010 inclusive
+* Get FITS archive files from 2000:001 through 2001:001
 *********************************************************************************
-python ingest_fits_archive.py <CONTENT>
+python ingest_fits_archive.py $CONTENT
+
+This puts files into /data/cosmos2/eng_archive/tlm/$CONTENT
 
 *********************************************************************************
-* Ingest to a local H5 repo for <CONTENT>
-*********************************************************************************
-python ingest_h5_archive.py <CONTENT>
+* Ingest to a local H5 repo for $CONTENT
+***************************************b******************************************
+python ingest_h5_archive.py $CONTENT
+
+This puts files into data/ which should be a link to a local disk.
 
 *********************************************************************************
 * Generate sql archfiles file
 *********************************************************************************
-python convert_headers.py <CONTENT>
+python convert_headers.py $CONTENT
 
-*********************************************************************************
-* Get into skadev environment and set up a link in $SKA/data/eng_archive
-*********************************************************************************
-devska
-cd $SKA/data/eng_archive
-ln -s ~/hg/eng_archive/data
-cp -p filetypes.dat $SKA/data/eng_archive/
- 
 *********************************************************************************
 * Fix file overlaps.  Do a dry run perhaps.
 *********************************************************************************
-python fix_ingest_h5.py <CONTENT> --dry-run
-python fix_ingest_h5.py <CONTENT>
+python fix_ingest_h5.py $CONTENT --dry-run
+python fix_ingest_h5.py $CONTENT
 
 # For EPHEM content (and others in future??) use the --overwrite-partial
 # flag to make it overwrite overlapping rows instead of tossing the
 # entire archive file:
-python fix_ingest_h5.py <CONTENT> --overwrite-partial
+python fix_ingest_h5.py $CONTENT --overwrite-partial
 
 *********************************************************************************
-* Test in skadev
+* Test in ska env within git/eng_archive
 *********************************************************************************
 
 pylab
-import Ska.engarchive.fetch as fetch
-from Ska.Matplotlib import plot_cxctime
+impska
 dat = fetch.MSID(<msid>, '2010:001', '2010:002')  # etc
-plot_cxctime(dat.times, dat.vals, '.')  # etc
+dat.iplot()
 
 *********************************************************************************
-* Update/create the stats files in skadev
+* Update/create the stats files in ska
 *********************************************************************************
-python update_archive.py --no-full --content <CONTENT> --max-lookback-time 1e20
+python update_archive.py --no-full --content $CONTENT --max-lookback-time 1e20
 
 *********************************************************************************
-* Bring archive up to current date in skadev
+* Bring archive up to current date
 *********************************************************************************
-python update_archive.py --content <CONTENT> --max-lookback-time 1e20
-python update_archive.py  --max-lookback-time 1e20 >& log.20 &
+python update_archive.py --content $CONTENT --date-start 2000:010 > $CONTENT.log 2>&1 &
 
 *********************************************************************************
 * Move FITS files into archive
 *********************************************************************************
-python move_fits_archive.py <CONTENT>
+python move_fits_archive.py $CONTENT
 
 *********************************************************************************
 * Copy h5 files into Ska
 *********************************************************************************
-cp -rp data/<CONTENT> $SKA/data/eng_archive/data/
+cp -rp data/$CONTENT $SKA/data/eng_archive/data/
 
 *********************************************************************************
 * Install new filetypes.dat.  For testing may need to edit to remove 
