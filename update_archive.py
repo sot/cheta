@@ -40,7 +40,8 @@ def get_options(args=None):
                         action="store_false",
                         dest="update_full",
                         default=True,
-                        help="Do not fetch files from archive and update full-resolution MSID archive")
+                        help=("Do not fetch files from archive and update "
+                              "full-resolution MSID archive"))
     parser.add_argument("--no-stats",
                         action="store_false",
                         dest="update_stats",
@@ -61,7 +62,8 @@ def get_options(args=None):
                         help="Set effective processing date for testing (default=NOW)")
     parser.add_argument("--date-start",
                         default=None,
-                        help="Processing start date (loops by max-lookback-time until date-now if set)")
+                        help=("Processing start date (loops by max-lookback-time "
+                              "until date-now if set)"))
     parser.add_argument("--max-gap",
                         type=float,
                         help="Maximum time gap between archive files")
@@ -98,10 +100,12 @@ if opt.data_root:
 
 # Set up logging
 loglevel = pyyaks.logger.VERBOSE
-logger = pyyaks.logger.get_logger(name='engarchive', level=loglevel, format="%(asctime)s %(message)s")
+logger = pyyaks.logger.get_logger(name='engarchive', level=loglevel,
+                                  format="%(asctime)s %(message)s")
 
 archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',
                       'tlmver', 'ascdsver', 'revision', 'date')
+
 
 def main():
     logger.info('Run time options: \n{}'.format(opt))
@@ -127,7 +131,7 @@ def main():
                     if x not in fetch.IGNORE_COLNAMES]
 
         if not os.path.exists(msid_files['archfiles'].abs):
-            logger.info('No archfiles.db3 for %s - skipping'  % ft['content'])
+            logger.info('No archfiles.db3 for %s - skipping' % ft['content'])
             continue
 
         logger.info('Processing %s content type', ft['content'])
@@ -154,6 +158,7 @@ def main():
             for colname in colnames:
                 msid = update_stats(colname, 'daily')
                 update_stats(colname, '5min', msid)
+
 
 def fix_misorders(filetype):
     """Fix problems in the eng archive where archive files were ingested out of
@@ -190,8 +195,8 @@ def fix_misorders(filetype):
         return
 
     for bad in np.flatnonzero(bads):
-        i2_0, i1_0 = archfiles['rowstart'][bad:bad+2]
-        i2_1, i1_1 = archfiles['rowstop'][bad:bad+2]
+        i2_0, i1_0 = archfiles['rowstart'][bad:bad + 2]
+        i2_1, i1_1 = archfiles['rowstop'][bad:bad + 2]
 
         # Update hdf5 file for each column (MSIDs + TIME, MJF, etc)
         for colname in colnames:
@@ -204,12 +209,12 @@ def fix_misorders(filetype):
 
                 hrd1 = hrd[i1_0:i1_1]
                 hrd2 = hrd[i2_0:i2_1]
-                hrd[i1_0 : i1_0 + len(hrd2)] = hrd2
+                hrd[i1_0:i1_0 + len(hrd2)] = hrd2
                 hrd[i1_0 + len(hrd2): i2_1] = hrd1
 
                 hrq1 = hrq[i1_0:i1_1]
                 hrq2 = hrq[i2_0:i2_1]
-                hrq[i1_0 : i1_0 + len(hrq2)] = hrq2
+                hrq[i1_0:i1_0 + len(hrq2)] = hrq2
                 hrq[i1_0 + len(hrq2): i2_1] = hrq1
 
                 h5.close()
@@ -224,12 +229,12 @@ def fix_misorders(filetype):
         rowstart2 = rowstop1 + 1
         rowstop2 = i2_1
         vals1 = [rowstart1, rowstop1, archfiles['filename'][bad]]
-        vals2 = [rowstart2, rowstop2, archfiles['filename'][bad+1]]
+        vals2 = [rowstart2, rowstop2, archfiles['filename'][bad + 1]]
         logger.info('Running %s %s', cmd, vals1)
         logger.info('Running %s %s', cmd, vals2)
 
         logger.info('Swapping rows %s for %s', [i1_0, i1_1, i2_0, i2_1], filetype.content)
-        logger.info('%s', archfiles[bad-3:bad+5])
+        logger.info('%s', archfiles[bad - 3:bad + 5])
         logger.info('')
 
         if not opt.dry_run:
@@ -263,7 +268,8 @@ def del_stats(colname, time0, interval):
         n_del = len(stats.root.data) - row0
     else:
         n_del = stats.root.data.removeRows(row0, len(stats.root.data))
-    logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0, DateTime(indexes[row0] * dt).date)
+    logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0,
+                DateTime(indexes[row0] * dt).date)
     stats.close()
 
 
@@ -335,6 +341,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
     return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
+
 def update_stats(colname, interval, msid=None):
     dt = {'5min': 328,
           'daily': 86400}[interval]
@@ -380,13 +387,14 @@ def update_stats(colname, interval, msid=None):
                     stats.root.data.append(vals_stats)
                     logger.info('  Adding %d records', len(vals_stats))
                 except tables.NoSuchNodeError:
-                    table = stats.createTable(stats.root, 'data', vals_stats,
-                                              "%s sampling" % interval, expectedrows=2e7)
+                    stats.createTable(stats.root, 'data', vals_stats,
+                                      "%s sampling" % interval, expectedrows=2e7)
 
     stats.root.data.flush()
     stats.close()
 
     return msid
+
 
 def update_derived(filetype):
     """Update full resolution MSID archive files for derived parameters with ``filetype``
@@ -451,6 +459,7 @@ def update_derived(filetype):
                            .format(str(filetype), archfiles))
             archfiles = []
 
+
 def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
     archive files.
@@ -468,6 +477,7 @@ def update_archive(filetype):
         if archfiles:
             archfiles_processed = update_msid_files(filetype, archfiles)
             move_archive_files(filetype, archfiles_processed)
+
 
 def append_h5_col(dats, colname, files_overlaps):
     """Append new values to an HDF5 MSID data table.
@@ -521,7 +531,8 @@ def truncate_archive(filetype, date):
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
 
     # Get the earliest row number from the archfiles table where year>=year and doy=>doy
-    out = db.fetchall('SELECT rowstart FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+    out = db.fetchall('SELECT rowstart FROM archfiles '
+                      'WHERE year>={0} AND doy>={1}'.format(year, doy))
     if len(out) == 0:
         return
     rowstart = out['rowstart'].min()
@@ -660,7 +671,6 @@ def update_msid_files(filetype, archfiles):
     last_archfile = db.fetchone('SELECT * FROM archfiles where rowstop=?', (row,))
 
     archfiles_overlaps = []
-    archfiles_rows = []
     dats = []
     archfiles_processed = []
 
@@ -714,8 +724,8 @@ def update_msid_files(filetype, archfiles):
         # since last_archfile is set above the gap check considers this file to
         # have been ingested.
         if not content_is_derived and dat['QUALITY'].shape[1] != len(dat.dtype.names):
-            logging.warning('WARNING: skipping because of quality size mismatch: %d %d' %
-                            (dat['QUALITY'].shape[1], len(dat.dtype.names)))
+            logger.warning('WARNING: skipping because of quality size mismatch: %d %d' %
+                           (dat['QUALITY'].shape[1], len(dat.dtype.names)))
             continue
 
         # Mark the archfile as ingested in the database and add to list for
@@ -765,6 +775,7 @@ def update_msid_files(filetype, archfiles):
 
     return archfiles_processed
 
+
 def move_archive_files(filetype, archfiles):
     ft['content'] = filetype.content.lower()
 
@@ -796,6 +807,7 @@ def move_archive_files(filetype, archfiles):
         if os.path.exists(f):
             logger.verbose('Unlinking %s' % os.path.abspath(f))
             os.unlink(f)
+
 
 def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
