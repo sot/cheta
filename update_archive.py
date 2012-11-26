@@ -2,11 +2,10 @@
 
 import re
 import os
-import sys
 import glob
 import time
 import cPickle as pickle
-import optparse
+import argparse
 import shutil
 import itertools
 
@@ -31,53 +30,57 @@ import Ska.arc5gl
 # derived parameter updates.
 fetch.CACHE = True
 
-def get_options():
-    parser = optparse.OptionParser()
-    parser.add_option("--dry-run",
-                      action="store_true",
-                      help="Dry run (no actual file or database updatees)")
-    parser.add_option("--no-full",
-                      action="store_false",
-                      dest="update_full",
-                      default=True,
-                      help="Do not fetch files from archive and update full-resolution MSID archive")
-    parser.add_option("--no-stats",
-                      action="store_false",
-                      dest="update_stats",
-                      default=True,
-                      help="Do not update 5 minute and daily stats archive")
-    parser.add_option("--fix-misorders",
-                      action="store_true",
-                      default=False,  
-                      help="Fix errors in ingest file order")
-    parser.add_option("--truncate",
-                      help="Truncate archive after <date> (CAUTION!!)")
-    parser.add_option("--max-lookback-time",
-                      type='float',
-                      default=60,
-                      help="Maximum look back time for updating statistics (days)")
-    parser.add_option("--date-now",
-                      default=DateTime().date,
-                      help="Set effective processing date for testing (default=NOW)")
-    parser.add_option("--max-gap",
-                      type='float',
-                      help="Maximum time gap between archive files")
-    parser.add_option("--max-arch-files",
-                      type='int',
-                      default=100,
-                      help="Maximum number of archive files to ingest at once")
-    parser.add_option("--data-root",
-                      default=".",
-                      help="Engineering archive root directory for MSID and arch files")
-    parser.add_option("--occ",
-                      action="store_true",
-                      help="Running on the OCC GRETA network (no arc5gl)")
-    parser.add_option("--content",
-                      action='append',
-                      help="Content type to process [match regex] (default = all)")
-    return parser.parse_args()
 
-opt, args = get_options()
+def get_options(args=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dry-run",
+                        action="store_true",
+                        help="Dry run (no actual file or database updatees)")
+    parser.add_argument("--no-full",
+                        action="store_false",
+                        dest="update_full",
+                        default=True,
+                        help="Do not fetch files from archive and update full-resolution MSID archive")
+    parser.add_argument("--no-stats",
+                        action="store_false",
+                        dest="update_stats",
+                        default=True,
+                        help="Do not update 5 minute and daily stats archive")
+    parser.add_argument("--fix-misorders",
+                        action="store_true",
+                        default=False,
+                        help="Fix errors in ingest file order")
+    parser.add_argument("--truncate",
+                        help="Truncate archive after <date> (CAUTION!!)")
+    parser.add_argument("--max-lookback-time",
+                        type=float,
+                        default=60,
+                        help="Maximum look back time for updating statistics (days)")
+    parser.add_argument("--date-now",
+                        default=DateTime().date,
+                        help="Set effective processing date for testing (default=NOW)")
+    parser.add_argument("--date-start",
+                        default=None,
+                        help="Processing start date (loops by max-lookback-time until date-now if set)")
+    parser.add_argument("--max-gap",
+                        type=float,
+                        help="Maximum time gap between archive files")
+    parser.add_argument("--max-arch-files",
+                        type=int,
+                        default=100,
+                        help="Maximum number of archive files to ingest at once")
+    parser.add_argument("--data-root",
+                        default=".",
+                        help="Engineering archive root directory for MSID and arch files")
+    parser.add_argument("--occ",
+                        action="store_true",
+                        help="Running on the OCC GRETA network (no arc5gl)")
+    parser.add_argument("--content",
+                        action='append',
+                        help="Content type to process [match regex] (default = all)")
+    return parser.parse_args(args)
+
+opt = get_options()
 
 ft = fetch.ft
 msid_files = pyyaks.context.ContextDict('msid_files',
@@ -97,7 +100,7 @@ if opt.data_root:
 loglevel = pyyaks.logger.VERBOSE
 logger = pyyaks.logger.get_logger(name='engarchive', level=loglevel, format="%(asctime)s %(message)s")
 
-archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',   
+archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',
                       'tlmver', 'ascdsver', 'revision', 'date')
 
 def main():
@@ -140,7 +143,7 @@ def main():
                     del_stats(colname, misorder_time, 'daily')
                     del_stats(colname, misorder_time, '5min')
             continue
-        
+
         if opt.update_full:
             if filetype['instrum'] == 'DERIVED':
                 update_derived(filetype)
@@ -163,8 +166,8 @@ def fix_misorders(filetype):
     Example::
 
       update_archive.py --dry-run --fix-misorders --content misc3eng
-      update_archive.py --fix-misorders --content misc3eng >& fix_misc3.log 
-      update_archive.py --content misc3eng --max-lookback-time 100 >>& fix_misc3.log 
+      update_archive.py --fix-misorders --content misc3eng >& fix_misc3.log
+      update_archive.py --content misc3eng --max-lookback-time 100 >>& fix_misc3.log
 
     In the --dry-run it is important to verify that the gap is really just from
     two mis-ordered files that can be swapped.  Look at the rowstart,rowstop values
@@ -174,7 +177,7 @@ def fix_misorders(filetype):
     :returns: minimum time for all misorders found
     """
     colnames = pickle.load(open(msid_files['colnames'].abs))
-    
+
     # Setup db handle with autocommit=False so that error along the way aborts insert transactions
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
 
@@ -215,7 +218,7 @@ def fix_misorders(filetype):
         cmd = 'UPDATE archfiles SET '
         cols = ['rowstart', 'rowstop']
         cmd += ', '.join(['%s=?' % x for x in cols])
-        cmd += ' WHERE filename=?' 
+        cmd += ' WHERE filename=?'
         rowstart1 = i1_0
         rowstop1 = rowstart1 + i2_1 - i2_0
         rowstart2 = rowstop1 + 1
@@ -251,7 +254,7 @@ def del_stats(colname, time0, interval):
     stats_file = msid_files['stats'].abs
     logger.info('Fixing stats file %s after time %s', stats_file, DateTime(time0).date)
 
-    stats = tables.openFile(stats_file, mode='a', 
+    stats = tables.openFile(stats_file, mode='a',
                             filters=tables.Filters(complevel=5, complib='zlib'))
     index0 = time0 // dt - 1
     indexes = stats.root.data.col('index')[:]
@@ -329,7 +332,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     for quant_val, quantile in zip(quant_vals, quantiles):
                         out['p%02d' % quantile][i] = quant_val
             i += 1
-        
+
     return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
 def update_stats(colname, interval, msid=None):
@@ -343,12 +346,12 @@ def update_stats(colname, interval, msid=None):
 
     if not os.path.exists(msid_files['statsdir'].abs):
         os.makedirs(msid_files['statsdir'].abs)
-    stats = tables.openFile(stats_file, mode='a', 
+    stats = tables.openFile(stats_file, mode='a',
                             filters=tables.Filters(complevel=5, complib='zlib'))
     try:
         index0 = stats.root.data.cols.index[-1] + 1
     except tables.NoSuchNodeError:
-        index0 = DateTime('2000:001:00:00:00').secs // dt
+        index0 = DateTime('1999:204:00:00:00').secs // dt
 
     # Get all new data. time0 is the fetch start time which nominally starts at
     # 500 sec before the last available record.  However some MSIDs may not
@@ -357,7 +360,7 @@ def update_stats(colname, interval, msid=None):
     if msid is None:
         # fetch telemetry plus a little extra
         time0 = max(DateTime(opt.date_now).secs - opt.max_lookback_time * 86400,
-                    index0 * dt - 500)  
+                    index0 * dt - 500)
         time1 = DateTime(opt.date_now).secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
@@ -395,9 +398,9 @@ def update_derived(filetype):
     # Set the starting index from the last row in archfiles.  This
     # uses Python slicing conventions so that the previous "end"
     # value is exactly the next "start" values, e.g. [index0:index1]
-    # For derived parameters we have stopmjf <==> index1 
-    index0 = last_row['stopmjf']  
-    
+    # For derived parameters we have stopmjf <==> index1
+    index0 = last_row['stopmjf']
+
     # Get the full set of rootparams for all colnames
     colnames = pickle.load(open(msid_files['colnames'].abs))
     colnames = [x for x in colnames if x.startswith('DP_')]
@@ -428,7 +431,7 @@ def update_derived(filetype):
     # the time range covered by an ingest, but is needed by fetch to roughly
     # locate rows in the H5 file for fast queries.  Each archfile is 50000 sec
     # long, and when updating the database no more than 1000000 seconds of
-    # telemetry will be read at one time.  
+    # telemetry will be read at one time.
     archfile_time_step = 200000.0
     max_archfiles = int(1000000.0 / archfile_time_step)
 
@@ -460,7 +463,7 @@ def update_archive(filetype):
         tmpdir = Ska.File.TempDir(dir=file_defs.arch_root)
         dirname = tmpdir.name
 
-    with Ska.File.chdir(dirname): 
+    with Ska.File.chdir(dirname):
         archfiles = get_archive_files(filetype)
         if archfiles:
             archfiles_processed = update_msid_files(filetype, archfiles)
@@ -510,7 +513,7 @@ def truncate_archive(filetype, date):
     year:doy)
     """
     colnames = pickle.load(open(msid_files['colnames'].abs))
-    
+
     date = DateTime(date).date
     year, doy = date[0:4], date[5:8]
 
@@ -533,7 +536,7 @@ def truncate_archive(filetype, date):
             h5.close()
         logger.verbose('Removed rows from {0} for filetype {1}:{2}'.format(
             rowstart, filetype['content'], colname))
-        
+
         # Delete the 5min and daily stats, with a little extra margin
         del_stats(colname, time0, '5min')
         del_stats(colname, time0, 'daily')
@@ -603,7 +606,7 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
     mnf_step = int(re.search(r'(\d+)$', content).group(1))
     time_step = mnf_step * derived.MNF_TIME
     times = time_step * np.arange(index0, index1)
-    
+
     logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
     vals = {}
     bads = np.zeros((len(times), len(colnames)), dtype=np.bool)
@@ -647,7 +650,7 @@ def update_msid_files(filetype, archfiles):
     colnames_all = pickle.load(open(msid_files['colnames_all'].abs))
     old_colnames = colnames.copy()
     old_colnames_all = colnames_all.copy()
-    
+
     # Setup db handle with autocommit=False so that error along the way aborts insert transactions
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
 
@@ -689,6 +692,9 @@ def update_msid_files(filetype, archfiles):
                 # integrate for 5400s and then they are telemetered.  I would
                 # suggest 6000s, but perhaps you would want to double that to
                 # 12000s.
+            elif filetype['content'] == 'CPE1ENG':
+                # 100 years => no max gap for safe mode telemetry
+                max_gap = 100 * 3.1e7
             else:
                 max_gap = 32.9
         if time_gap > max_gap:
@@ -699,7 +705,7 @@ def update_msid_files(filetype, archfiles):
             # Overlapping archfiles - deal with this in append_h5_col
             archfiles_overlaps.append((last_archfile, archfiles_row))
 
-        # Update the last_archfile values. 
+        # Update the last_archfile values.
         last_archfile = archfiles_row
 
         # A very small number of archive files (a few) have a problem where the
@@ -793,7 +799,7 @@ def move_archive_files(filetype, archfiles):
 
 def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
-    
+
     # If running on the OCC GRETA network the cwd is a staging directory that
     # could already have files.  Also used in testing.
     # Don't return more than opt.max_arch_files files at once because of memory
@@ -805,13 +811,15 @@ def get_archive_files(filetype):
     # Retrieve CXC archive files in a temp directory with arc5gl
     arc5 = Ska.arc5gl.Arc5gl(echo=True)
 
-    # Get datestart as the most-recent file time from archfiles table
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
-    vals = db.fetchone("select max(filetime) from archfiles")
-    datestart = DateTime(vals['max(filetime)'])
-
     # End time for archive queries (minimum of start + max_query_days and NOW)
     datestop = DateTime(opt.date_now)
+
+    # Get datestart as the most-recent file time from archfiles table.  However,
+    # do not look back further than --max-lookback-time
+    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
+    vals = db.fetchone("select max(filetime) from archfiles")
+    datestart = DateTime(max(vals['max(filetime)'],
+                             datestop.secs - opt.max_lookback_time * 86400))
 
     # For *ephem0 the query needs to extend well into the future
     # to guarantee getting all available files.  This is the archives fault.
@@ -822,7 +830,7 @@ def get_archive_files(filetype):
     # 100000 sec each.  EPHEM files are at least 7 days long and generated
     # no more often than every ~3 days so this should work.
     n_queries = (1 if filetype['instrum'] != 'EPHEM'
-          else 1 + round((datestop.secs - datestart.secs) / 100000.))
+                 else 1 + round((datestop.secs - datestart.secs) / 100000.))
     times = np.linspace(datestart.secs, datestop.secs, n_queries + 1)
 
     logger.info('********** %s %s **********' % (ft['content'], time.ctime()))
@@ -835,4 +843,18 @@ def get_archive_files(filetype):
     return sorted(glob.glob(filetype['fileglob']))
 
 if __name__ == '__main__':
-    main()
+    # Allow for a cmd line option --date-start.  If supplied then loop the
+    # effective value of opt.date_now from date_start to the cmd line
+    # --date-now in steps of --max-lookback-time * 0.75
+    if opt.date_start is None:
+        date_nows = [opt.date_now]
+    else:
+        t_starts = np.arange(DateTime(opt.date_start).secs,
+                             DateTime(opt.date_now).secs,
+                             opt.max_lookback_time * 86400. * 0.75)
+        date_nows = [DateTime(t).date for t in t_starts]
+        date_nows.append(opt.date_now)
+
+    for date_now in date_nows:
+        opt.date_now = date_now
+        main()
