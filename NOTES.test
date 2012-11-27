@@ -4,8 +4,8 @@
 #
 ############
 ska
-
-setenv ENG_ARCHIVE $PWD/test/eng_archive
+cd /proj/sot/ska/share/eng_archive
+export ENG_ARCHIVE=$PWD/test/eng_archive
 mkdir -p test/eng_archive
 rm -rf test/eng_archive/*
 
