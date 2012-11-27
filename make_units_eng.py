@@ -7,7 +7,7 @@ import pickle
 
 import Ska.engarchive.converters
 
-dat = asciitable.read('/data/evans_i/IPCL/TDB/tdb_p009/tmsrment.txt',
+dat = asciitable.read('tmsrment.txt',
                       Reader=asciitable.NoHeader, delimiter=",",
                       quotechar='"')
 
@@ -26,5 +26,7 @@ for col in Ska.engarchive.converters._get_deahk_cols():
 units_eng['3LDRTPOS'] = 'TSCSTEP'
 units_eng['3TSCPOS'] = 'TSCSTEP'
 units_eng['3FAPOS'] = 'FASTEP'
+
+units_eng['HKEBOXTEMP'] = 'DEGF'
 
 pickle.dump(units_eng, open('units_eng.pkl', 'w'))
