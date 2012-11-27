@@ -47,6 +47,9 @@ def get_options(args=None):
                         dest="update_stats",
                         default=True,
                         help="Do not update 5 minute and daily stats archive")
+    parser.add_argument("--create",
+                        action="store_true",
+                        help="Create the MSID H5 files from scratch")
     parser.add_argument("--fix-misorders",
                         action="store_true",
                         default=False,
@@ -107,6 +110,40 @@ archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'sto
                       'tlmver', 'ascdsver', 'revision', 'date')
 
 
+def get_colnames():
+    """Get column names for the current content type (defined by ft['content'])"""
+    colnames = [x for x in pickle.load(open(msid_files['colnames'].abs))
+                if x not in fetch.IGNORE_COLNAMES]
+    return colnames
+
+
+def create_content_dir():
+    """
+    Make empty files for colnames.pkl, colnames_all.pkl and archfiles.db3
+    for the current content type ft['content'].
+
+    This only works within the development (git) directory in conjunction
+    with the --create option.
+    """
+    dirname = msid_files['contentdir'].abs
+    if not os.path.exists(dirname):
+        logger.info('Making directory {}'.format(dirname))
+        os.makedirs(dirname)
+
+    empty = set()
+    with open(msid_files['colnames'].abs, 'w') as f:
+        pickle.dump(empty, f)
+    with open(msid_files['colnames_all'].abs, 'w') as f:
+        pickle.dump(empty, f)
+
+    archfiles_def = open('archfiles_def.sql').read()
+    filename = msid_files['archfiles'].abs
+    logger.info('Creating db {}'.format(filename))
+    db = Ska.DBI.DBI(dbi='sqlite', server=filename, autocommit=False)
+    db.execute(archfiles_def)
+    db.commit()
+
+
 def main():
     logger.info('Run time options: \n{}'.format(opt))
     logger.info('Update_archive file: {}'.format(os.path.abspath(__file__)))
@@ -127,6 +164,10 @@ def main():
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
         ft['content'] = filetype.content.lower()
+
+        if opt.create:
+            create_content_dir()
+
         colnames = [x for x in pickle.load(open(msid_files['colnames'].abs))
                     if x not in fetch.IGNORE_COLNAMES]
 
@@ -352,13 +393,18 @@ def update_stats(colname, interval, msid=None):
     logger.info('Updating stats file %s', stats_file)
 
     if not os.path.exists(msid_files['statsdir'].abs):
+        logger.info('Making stats dir {}'.format(msid_files['statsdir'].abs))
         os.makedirs(msid_files['statsdir'].abs)
+
     stats = tables.openFile(stats_file, mode='a',
                             filters=tables.Filters(complevel=5, complib='zlib'))
+
+    # INDEX0 is somewhat before any CXC archive data (which starts around 1999:205)
+    INDEX0 = DateTime('1999:200:00:00:00').secs // dt
     try:
         index0 = stats.root.data.cols.index[-1] + 1
     except tables.NoSuchNodeError:
-        index0 = DateTime('1999:204:00:00:00').secs // dt
+        index0 = INDEX0
 
     # Get all new data. time0 is the fetch start time which nominally starts at
     # 500 sec before the last available record.  However some MSIDs may not
@@ -372,6 +418,9 @@ def update_stats(colname, interval, msid=None):
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
 
     if len(msid.times) > 0:
+        if index0 == INDEX0:
+            # Must be creating the file, so back up a bit from earliest MSID data
+            index0 = msid.times[0] // dt - 2
         indexes = np.arange(index0, msid.times[-1] / dt, dtype=np.int32)
         times = indexes * dt
 
@@ -387,8 +436,9 @@ def update_stats(colname, interval, msid=None):
                     stats.root.data.append(vals_stats)
                     logger.info('  Adding %d records', len(vals_stats))
                 except tables.NoSuchNodeError:
+                    logger.info('  Creating table with %d records ...', len(vals_stats))
                     stats.createTable(stats.root, 'data', vals_stats,
-                                      "%s sampling" % interval, expectedrows=2e7)
+                                      "{} sampling".format(interval), expectedrows=2e7)
 
     stats.root.data.flush()
     stats.close()
@@ -477,6 +527,35 @@ def update_archive(filetype):
         if archfiles:
             archfiles_processed = update_msid_files(filetype, archfiles)
             move_archive_files(filetype, archfiles_processed)
+
+
+def make_h5_col_file(dats, colname):
+    """Make a new h5 table to hold column from ``dat``."""
+    filename = msid_files['msid'].abs
+    if os.path.exists(filename):
+        raise IOError('make_h5_col_file called for an existing h5 file {}'.format(filename))
+    filedir = os.path.dirname(filename)
+    if not os.path.exists(filedir):
+        os.makedirs(filedir)
+
+    # Estimate the number of rows for 20 years based on available data
+    times = np.hstack([x['TIME'] for x in dats])
+    dt = np.median(times[1:] - times[:-1])
+    n_rows = int(86400 * 365 * 20 / dt)
+
+    filters = tables.Filters(complevel=5, complib='zlib')
+    h5 = tables.openFile(filename, mode='w', filters=filters)
+
+    col = dats[0][colname]
+    h5shape = (0,) + col.shape[1:]
+    h5type = tables.Atom.from_dtype(col.dtype)
+    h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
+                    expectedrows=n_rows)
+    h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
+                    expectedrows=n_rows)
+    logger.info('Made {} shape={} with n_rows(1e6)={}'
+                .format(colname, h5shape, n_rows / 1.0e6))
+    h5.close()
 
 
 def append_h5_col(dats, colname, files_overlaps):
@@ -667,7 +746,7 @@ def update_msid_files(filetype, archfiles):
 
     # Get the last row number from the archfiles table
     out = db.fetchone('SELECT max(rowstop) FROM archfiles')
-    row = out['max(rowstop)']
+    row = out['max(rowstop)'] or 0
     last_archfile = db.fetchone('SELECT * FROM archfiles where rowstop=?', (row,))
 
     archfiles_overlaps = []
@@ -682,12 +761,26 @@ def update_msid_files(filetype, archfiles):
         if dat is None:
             continue
 
+        # If creating new content type and this is the first dataset, then
+        # define the column names now.  Filter out any multidimensional
+        # columns, including (typically) QUALITY.
+        if opt.create and i == 0:
+            colnames = set(dat.dtype.names)
+            for colname in dat.dtype.names:
+                if len(dat.field(colname).shape) > 1:
+                    logger.info('Removing column {} from colnames because shape = {}'
+                                .format(colname, dat.field(colname).shape))
+                    colnames.remove(colname)
+
         # Ensure that the time gap between the end of the last ingested archive
         # file and the start of this one is less than opt.max_gap (or
         # filetype-based defaults).  If this fails then break out of the
         # archfiles processing but continue on to ingest any previously
         # successful archfiles
-        time_gap = archfiles_row['tstart'] - last_archfile['tstop']
+        if last_archfile is None:
+            time_gap = 0
+        else:
+            time_gap = archfiles_row['tstart'] - last_archfile['tstop']
         max_gap = opt.max_gap
         if max_gap is None:
             if filetype['instrum'] in ['EPHEM', 'DERIVED']:
@@ -754,6 +847,8 @@ def update_msid_files(filetype, archfiles):
         logger.verbose('Writing accumulated column data to h5 file at ' + time.ctime())
         for colname in colnames:
             ft['msid'] = colname
+            if opt.create:
+                make_h5_col_file(dats, colname)
             append_h5_col(dats, colname, archfiles_overlaps)
 
     # Assuming everything worked now commit the db inserts that signify the
