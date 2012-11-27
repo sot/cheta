@@ -17,50 +17,50 @@ The ACIS DEA telemeters a variety of useful information that is sent
 in an event-based format via queries to the processor.  The engineering
 archive reformats those telemetry queries (one per psuedo-MSID) into
 records that match the engineering archive format where all queries with the
-same time stamp are place in a single record.  
+same time stamp are place in a single record.
 
 The time sample of these data vary but are typically around once per 16 seconds.
 Because of what appears to be an issue with CXCDS decom there are frequently
-bad values at the beginning of an archive file.  For this reason it is 
+bad values at the beginning of an archive file.  For this reason it is
 especially important to perform a fetch with the ``filter_bad=True`` setting.
 
 ==================== ====== =======================================
-MSID                 Unit   Description                                                 
+MSID                 Unit   Description
 ==================== ====== =======================================
-tmp_bep_pcb          K      DPA Thermistor 1 - BEP PC Board                             
-tmp_bep_osc          K      DPA Thermistor 2 - BEP Oscillator                           
-tmp_fep0_mong        K      DPA Thermistor 3 - FEP 0 Mongoose                           
-tmp_fep0_pcb         K      DPA Thermistor 4 - FEP 0 PC Board                           
-tmp_fep0_actel       K      DPA Thermistor 5 - FEP 0 ACTEL                              
-tmp_fep0_ram         K      DPA Thermistor 6 - FEP 0 RAM                                
-tmp_fep0_fb          K      DPA Thermistor 7 - FEP 0 Frame Buf                          
-tmp_fep1_mong        K      DPA Thermistor 8 - FEP 1 Mongoose                           
-tmp_fep1_pcb         K      DPA Thermistor 9 - FEP 1 PC Board                           
-tmp_fep1_actel       K      DPA Thermistor 10 - FEP 1 ACTEL                             
-tmp_fep1_ram         K      DPA Thermistor 11 - FEP 1 RAM                               
-tmp_fep1_fb          K      DPA Thermistor 12 - FEP 1 Frame Buf                         
-fptemp_12            K      Focal Plane Temp. Board 12                                  
-fptemp_11            K      Focal Plane Temp. Board 11                                  
-dpagndref1           V      DPA Ground Reference 1                                      
-dpa5vhka             V      DPA 5V Housekeeping A                                       
-dpagndref2           V      DPA Ground Reference 2                                      
-dpa5vhkb             V      DPA 5V Housekeeping B                                       
-dea28volta           V      Primary Raw DEA 28V DC                                      
-dea24volta           V      Primary Raw DEA 24V DC                                      
-deam15volta          V      Primary Raw DEA -15.5V                                      
-deap15volta          V      Primary Raw DEA +15.5V                                      
-deam6volta           V      Primary Raw DEA -6V DC                                      
-deap6volta           V      Primary Raw DEA +6V DC                                      
-rad_pcb_a                   Relative Dose Rad. Monitor Side A                           
-gnd_1                V      Interface Ground Reference                                  
-dea28voltb           V      Backup Raw DEA 28V DC                                       
-dea24voltb           V      Backup DEA 24V DC                                           
-deam15voltb          V      Backup DEA -15.5V DC                                        
-deap15voltb          V      Backup DEA +15.5V DC                                        
-deam6voltb           V      Backup DEA -6V DC                                           
-deap6voltb           V      Backup DEA +6V DC                                           
-rad_pcb_b                   Relative Dose Rad. Monitor Side B                           
-gnd_2                V      Ground                                                      
+tmp_bep_pcb          K      DPA Thermistor 1 - BEP PC Board
+tmp_bep_osc          K      DPA Thermistor 2 - BEP Oscillator
+tmp_fep0_mong        K      DPA Thermistor 3 - FEP 0 Mongoose
+tmp_fep0_pcb         K      DPA Thermistor 4 - FEP 0 PC Board
+tmp_fep0_actel       K      DPA Thermistor 5 - FEP 0 ACTEL
+tmp_fep0_ram         K      DPA Thermistor 6 - FEP 0 RAM
+tmp_fep0_fb          K      DPA Thermistor 7 - FEP 0 Frame Buf
+tmp_fep1_mong        K      DPA Thermistor 8 - FEP 1 Mongoose
+tmp_fep1_pcb         K      DPA Thermistor 9 - FEP 1 PC Board
+tmp_fep1_actel       K      DPA Thermistor 10 - FEP 1 ACTEL
+tmp_fep1_ram         K      DPA Thermistor 11 - FEP 1 RAM
+tmp_fep1_fb          K      DPA Thermistor 12 - FEP 1 Frame Buf
+fptemp_12            K      Focal Plane Temp. Board 12
+fptemp_11            K      Focal Plane Temp. Board 11
+dpagndref1           V      DPA Ground Reference 1
+dpa5vhka             V      DPA 5V Housekeeping A
+dpagndref2           V      DPA Ground Reference 2
+dpa5vhkb             V      DPA 5V Housekeeping B
+dea28volta           V      Primary Raw DEA 28V DC
+dea24volta           V      Primary Raw DEA 24V DC
+deam15volta          V      Primary Raw DEA -15.5V
+deap15volta          V      Primary Raw DEA +15.5V
+deam6volta           V      Primary Raw DEA -6V DC
+deap6volta           V      Primary Raw DEA +6V DC
+rad_pcb_a                   Relative Dose Rad. Monitor Side A
+gnd_1                V      Interface Ground Reference
+dea28voltb           V      Backup Raw DEA 28V DC
+dea24voltb           V      Backup DEA 24V DC
+deam15voltb          V      Backup DEA -15.5V DC
+deap15voltb          V      Backup DEA +15.5V DC
+deam6voltb           V      Backup DEA -6V DC
+deap6voltb           V      Backup DEA +6V DC
+rad_pcb_b                   Relative Dose Rad. Monitor Side B
+gnd_2                V      Ground
 ==================== ====== =======================================
 
 Ephemeris
@@ -84,7 +84,7 @@ lunarephem1  Moon     Definitive
 solarephem1  Sun      Definitive
 ============ ======== ===========
 
-The psuedo-MSIDs for each of the ephemeris elements is given in the 
+The psuedo-MSIDs for each of the ephemeris elements is given in the
 following table, where <CONTENT> is replaced by the appropriate Content value
 from the previous table.
 
@@ -123,6 +123,10 @@ Point_RamVectorAng   deg    Pointing-Ram angle
 Science Instrument Module
 -------------------------
 
+.. Note::  These pseudo-MSIDs are deprecated in favor of the standard
+   versions such as 3TSCPOS, 3FAPOS, 3TSCMOV, 3TRMTRAT, etc. which
+   are available in the ``sim_mrg`` content type.
+
 Information about the SIM is available via the following pseudo-MSIDs:
 
 ==================== ====== =========================================
@@ -131,14 +135,119 @@ MSID                 Unit   Description
 SEAIDENT                     SEA identification
 SIM_X                mm      X position (FA)
 SIM_Y                mm      Y position (not meaningful)
-SIM_Z                mm      Z position (TSC) 
+SIM_Z                mm      Z position (TSC)
 SIM_X_MOVED                  FA moved
 SIM_Z_MOVED                  TSC moved
 ==================== ====== =========================================
 
-Note that 3TSCPOS (steps) = SIM_Z (mm) * -397.7225924607.  No such simple
-conversion is available for 3FAPOS because the calibration is a 6th order
-polynomial.
+EPHIN
+------
+
+Information about the EPHIN instrument is available via the following pseudo-MSIDs:
+
+==================== ====== =========================================
+MSID                 Unit   Description
+==================== ====== =========================================
+TLMBLKCNT                    EIO TLMBLK count
+EIOBITCNT                    EIO bit counter
+HKOPMODE                     HK operational Mode
+HKRESET                      HK reset Flag
+HKDOWNLOAD                   HK down load flag
+HKUPLOAD                     HK upload Flag
+HKFRAMECNTR                  HK internal frame Counter
+HKRINGSEGW                   HK ring segment auto switching
+HKFAILMODEA                  HK failure mode detector A
+HKFAILMODEB                  HK failure mode detector B
+HKHVDETG                     HK high voltage detector G
+HKHVDETAF                    HK high voltage detectors A-F
+HKANALOGPWR                  HK analog power switchs
+HKFAILMODEGC                 HK failure mode detectors G-C
+HKP5V                 V      HK +5V rail voltage
+HKP27V                V      HK +27V rail voltage
+HKP6V                 V      HK +6V rail voltage
+HKN6V                 V      HK -6V rail voltage
+HKP5I                 mA     HK +5V rail current
+HKP27I                mA     HK +27V rail current
+HKP6I                 mA     HK +6V rail current
+HKN6I                 mA     HK -6V rail current
+HKEBOXTEMP            K      HK EBox temperature (5EHSE300)
+HKABIASLEAKI          uA     HK A bias leakage current
+HKBBIASLEAKI          uA     HK B bias leakage current
+HKCBIASLEAKI          uA     HK C bias leakage current
+HKDBIASLEAKI          uA     HK D bias leakage current
+HKEBIASLEAKI          uA     HK E bias leakage current
+HKFBIASLEAKI          uA     HK F bias leakage current
+HKGHV                 V      HK G high voltage
+SCOPMODE                     Sci operational mode
+SCSTATUS                     Sci status flags
+SCFRAMECNTR                  Sci internal Frame Counter
+SCCONTROL                    Sci control flags
+SCRINGSEGSW                  Sci ring segment auto switching
+SCFAILMODEA                  Sci failure mode detectors A
+SCFAILMODEB                  Sci failure mode detectors B
+SCHVDETG                     Sci high voltage detector G
+SCHVDETAF                    Sci high voltage detectors A-F
+SCANALOGPWR                  Sci analog power switches
+SCFAILMODEGC                 Sci failure mode detectors G-C
+SCPHAPRIPTR                  Sci PHA Priority pointer
+SCG0                         Sci single detector counter G0
+SCA00                        Sci single detector counter A00
+SCA01                        Sci single detector counter A01
+SCA02                        Sci single detector counter A02
+SCA03                        Sci single detector counter A03
+SCA04                        Sci single detector counter A04
+SCA05                        Sci single detector counter A05
+SCB00                        Sci single detector counter B00
+SCB01                        Sci single detector counter B01
+SCB02                        Sci single detector counter B02
+SCB03                        Sci single detector counter B03
+SCB04                        Sci single detector counter B04
+SCB05                        Sci single detector counter B05
+SCC0                         Sci single detector counter C0
+SCD0                         Sci single detector counter D0
+SCE0                         Sci single detector counter E0
+SCF0                         Sci single detector counter F0
+SCP4GM                       Sci single detector counter P4GM
+SCP4GR                       Sci single detector counter P4GR
+SCP4S                        Sci single detector counter P4S
+SCP8GM                       Sci single detector counter P8GM
+SCP8GR                       Sci single detector counter P8GR
+SCP8S                        Sci single detector counter P8S
+SCH4GM                       Sci single detector counter H4GM
+SCH4GR                       Sci single detector counter H4GR
+SCH4S1                       Sci single detector counter H4S1
+SCH4S23                      Sci single detector counter H4S23
+SCH8GM                       Sci single detector counter H8GM
+SCH8GR                       Sci single detector counter H8GR
+SCH8S1                       Sci single detector counter H8S1
+SCH8S23                      Sci single detector counter H8S23
+SCE150                       Sci single detector counter E150
+SCE300                       Sci single detector counter E300
+SCE1300                      Sci single detector counter E1300
+SCE3000                      Sci single detector counter E3000
+SCINT                        Sci single detector counter INT
+SCP25GM                      Sci single detector counter P25GM
+SCP25GR                      Sci single detector counter P25GR
+SCP25S                       Sci single detector counter P25S
+SCP41GM                      Sci single detector counter P41GM
+SCP41GR                      Sci single detector counter P41GR
+SCP41S                       Sci single detector counter P41S
+SCH25GM                      Sci single detector counter H25GM
+SCH25GR                      Sci single detector counter H25GR
+SCH25S1                      Sci single detector counter H25S1
+SCH25S23                     Sci single detector counter H25S23
+SCH41GM                      Sci single detector counter H41GM
+SCH41GR                      Sci single detector counter H41GR
+SCH41S1                      Sci single detector counter H41S1
+SCH41S23                     Sci single detector counter H41S23
+SCCT0                        Sci single detector counter CT0
+SCCT1                        Sci single detector counter CT1
+SCCT2                        Sci single detector counter CT2
+SCCT3                        Sci single detector counter CT3
+SCCT4                        Sci single detector counter CT4
+SCCT5                        Sci single detector counter CT5
+==================== ====== =========================================
+
 
 Derived Parameters
 ------------------
@@ -146,7 +255,7 @@ Derived Parameters
 The engineering archive has pseudo-MSIDs that are derived via computation from
 telemetry MSIDs.  All derived parameter names begin with the characters "DP_"
 (not case sensitive as usual).  Otherwise there is no difference from standard
-MSIDs.  
+MSIDs.
 
 Definition
 ^^^^^^^^^^^
@@ -161,7 +270,7 @@ definition classes have the same content root so another class
 
 Each definition class also requires a ``calc(self, data)`` method.  The
 ``data`` argument will be an MSIDset (dict of fetch MSID objects) with
-values for each of the ``rootparams`` MSIDs.  The data values in the 
+values for each of the ``rootparams`` MSIDs.  The data values in the
 MSIDset will be filtered for bad values and aligned to a common time
 sequence with step size ``time_step``.
 ::
@@ -198,7 +307,7 @@ sequence with step size ``time_step``.
       content_root = 'acispow'
 
       def calc(self, data):
-          power = (data['1dp28avo'].vals * data['1dpicacu'].vals + 
+          power = (data['1dp28avo'].vals * data['1dpicacu'].vals +
                    data['1dp28bvo'].vals * data['1dpicbcu'].vals)
           return power
 
@@ -218,4 +327,3 @@ Thermal
 .. automodule:: Ska.engarchive.derived.thermal
    :members:
    :undoc-members:
-

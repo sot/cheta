@@ -30,7 +30,8 @@ Pseudo-MSIDs
 A small selection of pseudo-MSIDs that do not come in the engineering telemetry
 stream are also available in the archive.  These are:
 
-* SIM telemetry: SIM position and moving status
+* SIM telemetry: SIM position and moving status (deprecated)
+* EPHIN telemetry: level-0 science telemetry from EPHIN
 * ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
 * Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
 * Derived parameters: values computed from other MSIDs in the archive
