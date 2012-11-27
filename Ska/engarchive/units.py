@@ -47,6 +47,7 @@ converters = {
     ('deltaK', 'DEGF'): mult(1.8),
     ('kPa', 'PSIA'): mult(0.145),
     ('kPa', 'TORR'): mult(7.501),
+    ('mm', 'TSCSTEP'): mult(1.0 / 0.00251431530156),
     }
 
 

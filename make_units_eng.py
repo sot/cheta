@@ -22,4 +22,9 @@ for col in Ska.engarchive.converters._get_deahk_cols():
     if 'unit' in col and col['unit'] == 'K':
         units_eng[col['name'].upper()] = 'DEGC'
 
+# Make STEP unique for SIM MSIDs
+units_eng['3LDRTPOS'] = 'TSCSTEP'
+units_eng['3TSCPOS'] = 'TSCSTEP'
+units_eng['3FAPOS'] = 'FASTEP'
+
 pickle.dump(units_eng, open('units_eng.pkl', 'w'))
