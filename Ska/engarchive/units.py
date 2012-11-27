@@ -2,6 +2,8 @@ import os
 import cPickle as pickle
 import logging
 
+import numpy as np
+
 
 class NullHandler(logging.Handler):
     def emit(self, record):
@@ -34,9 +36,28 @@ def K_to_F(vals, delta_val=False):
         return vals * 1.8 - 459.67  # (vals - 273.15) * 1.8 + 32
 
 
-def mult(scale_factor):
+def mm_to_FASTEP(vals, delta_val=False):
+    """
+    # compute mm from simulated integral step values and invert the CXC calibration
+    # given below:
+    x = np.arange(-5000.0, 0.0)  # step
+    y = (1.47906994e-3  *   x +  3.5723322e-8 *   x**2 +  -1.08492544e-12  *   x**3 +
+         3.9803832e-17  *   x**4 +  5.29336e-21  *  x**5 +  1.020064e-25  *   x**6)
+    r = np.polyfit(y, x, 8)
+    """
+    r = np.array([-1.26507734e-05, -2.02499464e-04, -1.86504522e-03,
+                  -5.25689124e-03, -5.75639912e-02, 5.60935786e-01,
+                  -1.10595209e+01, 6.76094720e+02, -4.34121454e-04])
+    x_step = np.round(np.polyval(r, vals), decimals=2)
+    return x_step
+
+
+def mult(scale_factor, decimals=None):
     def convert(vals, delta_val=False):
-        return vals * scale_factor
+        result = vals * scale_factor
+        if decimals is not None:
+            result = np.round(result, decimals=decimals)
+        return result
     return convert
 
 converters = {
@@ -47,8 +68,10 @@ converters = {
     ('deltaK', 'DEGF'): mult(1.8),
     ('kPa', 'PSIA'): mult(0.145),
     ('kPa', 'TORR'): mult(7.501),
-    ('mm', 'TSCSTEP'): mult(1.0 / 0.00251431530156),
+    ('mm', 'TSCSTEP'): mult(1.0 / 0.00251431530156, decimals=3),
+    ('mm', 'FASTEP'): mm_to_FASTEP,
     }
+
 
 
 def load_units(unit_system):
