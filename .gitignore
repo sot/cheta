@@ -10,3 +10,7 @@ www
 MANIFEST
 *.pyc
 *~
+*.log
+*.fits.gz
+stage
+Ska.engarchive.egg-info
