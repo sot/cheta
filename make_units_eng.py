@@ -26,6 +26,7 @@ for col in Ska.engarchive.converters._get_deahk_cols():
 units_eng['3LDRTPOS'] = 'TSCSTEP'
 units_eng['3TSCPOS'] = 'TSCSTEP'
 units_eng['3FAPOS'] = 'FASTEP'
+units_eng['3MRMMXMV'] = 'PWMSTEP'
 
 units_eng['HKEBOXTEMP'] = 'DEGF'
 

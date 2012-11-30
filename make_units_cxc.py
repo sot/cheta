@@ -58,6 +58,8 @@ relative_temp_msids = (
 for msid in relative_temp_msids:
     units[msid] = 'deltaK'
 
+units['3MRMMXMV'] = 'PWM'
+
 # Use info about DEA HK telemetry from converters to add units
 for col in _get_deahk_cols():
     if 'unit' in col:

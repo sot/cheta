@@ -70,8 +70,8 @@ converters = {
     ('kPa', 'TORR'): mult(7.501),
     ('mm', 'TSCSTEP'): mult(1.0 / 0.00251431530156, decimals=3),
     ('mm', 'FASTEP'): mm_to_FASTEP,
+    ('PWM', 'PWMSTEP'): mult(16),
     }
-
 
 
 def load_units(unit_system):
