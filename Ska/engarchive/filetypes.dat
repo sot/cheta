@@ -77,6 +77,7 @@ L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
 L0.5 SIM       SIM_MRG         SIM_0.5{SIM_MRG}             *.fits.gz
 L0   EPHIN     EPHHK           EPHIN_0{EPHHK}               *.fits.gz
 L0   CPE       CPE1ENG         CPE_ENG_0{CPE1ENG}           *.fits.gz
+L3   DERIVED   DP_THERMAL1     -                            -
 L3   DERIVED   DP_THERMAL128   -                            -
 L3   DERIVED   DP_ACISPOW128   -                            -
 L3   DERIVED   DP_PCAD1        -                            -
