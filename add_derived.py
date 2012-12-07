@@ -127,7 +127,7 @@ def main():
         colname = dp_class.__name__.upper()
         dp = dp_class()
         content = dp.content
-        if opt.content and content in opt.content:
+        if not opt.content or (opt.content and content in opt.content):
             dpd = content_defs.setdefault(content, {})
             dpd.setdefault('classes', {'TIME': None})
             dpd['content'] = content
@@ -137,7 +137,7 @@ def main():
 
     for content, content_def in content_defs.items():
         ft['content'] = content
-        logger.debug('CONTENT = {}'.format(content))
+        logger.info('CONTENT = {}'.format(content))
 
         # Make content directory
         if not os.path.exists(msid_files['contentdir'].rel):
