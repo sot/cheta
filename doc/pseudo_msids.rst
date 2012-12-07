@@ -165,6 +165,7 @@ MSID         Unit      Description
 3TRMTRAT     K [degC]  SEA a translation drive motor temp             
 3TSCMOVE               SEA TSC in motion flag                         
 3TSCPOS      mm [step] SEA TSC position                               
+TLMSTATUS              SEA telemetry status (updated or not updated)
 ============ ========= ===============================================
 
 SIMCOOR (CXC high-level values)
