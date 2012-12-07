@@ -26,10 +26,6 @@ import Ska.engarchive.file_defs as file_defs
 import Ska.engarchive.derived as derived
 import Ska.arc5gl
 
-# Configure fetch.MSID to cache recent results for performance in
-# derived parameter updates.
-fetch.CACHE = True
-
 
 def get_options(args=None):
     parser = argparse.ArgumentParser()
@@ -85,7 +81,13 @@ def get_options(args=None):
                         help="Content type to process [match regex] (default = all)")
     return parser.parse_args(args)
 
+# Configure fetch.MSID to cache recent results for performance in
+# derived parameter updates.
+fetch.CACHE = True
+
 opt = get_options()
+if opt.create:
+    opt.no_stats = True
 
 ft = fetch.ft
 msid_files = pyyaks.context.ContextDict('msid_files',
@@ -131,17 +133,20 @@ def create_content_dir():
         os.makedirs(dirname)
 
     empty = set()
-    with open(msid_files['colnames'].abs, 'w') as f:
-        pickle.dump(empty, f)
-    with open(msid_files['colnames_all'].abs, 'w') as f:
-        pickle.dump(empty, f)
+    if not os.path.exists(msid_files['colnames'].abs):
+        with open(msid_files['colnames'].abs, 'w') as f:
+            pickle.dump(empty, f)
+    if not os.path.exists(msid_files['colnames_all'].abs):
+        with open(msid_files['colnames_all'].abs, 'w') as f:
+            pickle.dump(empty, f)
 
-    archfiles_def = open('archfiles_def.sql').read()
-    filename = msid_files['archfiles'].abs
-    logger.info('Creating db {}'.format(filename))
-    db = Ska.DBI.DBI(dbi='sqlite', server=filename, autocommit=False)
-    db.execute(archfiles_def)
-    db.commit()
+    if not os.path.exists(msid_files['archfiles'].abs):
+        archfiles_def = open('archfiles_def.sql').read()
+        filename = msid_files['archfiles'].abs
+        logger.info('Creating db {}'.format(filename))
+        db = Ska.DBI.DBI(dbi='sqlite', server=filename, autocommit=False)
+        db.execute(archfiles_def)
+        db.commit()
 
 
 def main():
@@ -440,7 +445,8 @@ def update_stats(colname, interval, msid=None):
                     stats.createTable(stats.root, 'data', vals_stats,
                                       "{} sampling".format(interval), expectedrows=2e7)
 
-    stats.root.data.flush()
+                stats.root.data.flush()
+
     stats.close()
 
     return msid
@@ -532,8 +538,6 @@ def update_archive(filetype):
 def make_h5_col_file(dats, colname):
     """Make a new h5 table to hold column from ``dat``."""
     filename = msid_files['msid'].abs
-    if os.path.exists(filename):
-        raise IOError('make_h5_col_file called for an existing h5 file {}'.format(filename))
     filedir = os.path.dirname(filename)
     if not os.path.exists(filedir):
         os.makedirs(filedir)
@@ -572,6 +576,7 @@ def append_h5_col(dats, colname, files_overlaps):
     stacked_data = np.hstack([x[colname] for x in dats])
     stacked_quality = np.hstack([x['QUALITY'][:, i_colname(x)] for x in dats])
     logger.verbose('Appending %d items to %s' % (len(stacked_data), msid_files['msid'].abs))
+
     if not opt.dry_run:
         h5.root.data.append(stacked_data)
         h5.root.quality.append(stacked_quality)
@@ -653,7 +658,16 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
     logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
     hdus = pyfits.open(f)
     hdu = hdus[1]
-    dat = converters.convert(hdu.data, filetype['content'])
+    try:
+        dat = converters.convert(hdu.data, filetype['content'])
+    except converters.NoValidDataError:
+        # When creating files allow NoValidDataError
+        hdus.close()
+        logger.warning('WARNING: no valid data in data file {}'.format(filename))
+        if opt.create:
+            return None, None
+        else:
+            raise
 
     # Accumlate relevant info about archfile that will be ingested into
     # MSID h5 files.  Commit info before h5 ingest so if there is a failure
@@ -761,15 +775,15 @@ def update_msid_files(filetype, archfiles):
         if dat is None:
             continue
 
-        # If creating new content type and this is the first dataset, then
+        # If creating new content type and there are no existing colnames, then
         # define the column names now.  Filter out any multidimensional
         # columns, including (typically) QUALITY.
-        if opt.create and i == 0:
+        if opt.create and not colnames:
             colnames = set(dat.dtype.names)
             for colname in dat.dtype.names:
-                if len(dat.field(colname).shape) > 1:
+                if len(dat[colname].shape) > 1:
                     logger.info('Removing column {} from colnames because shape = {}'
-                                .format(colname, dat.field(colname).shape))
+                                .format(colname, dat[colname].shape))
                     colnames.remove(colname)
 
         # Ensure that the time gap between the end of the last ingested archive
@@ -803,7 +817,10 @@ def update_msid_files(filetype, archfiles):
         if time_gap > max_gap:
             logger.warning('WARNING: found gap of %.2f secs between archfiles %s and %s',
                            time_gap, last_archfile['filename'], archfiles_row['filename'])
-            break
+            if opt.create:
+                logger.warning('       Allowing gap because of opt.create=True')
+            else:
+                break
         elif time_gap < 0:
             # Overlapping archfiles - deal with this in append_h5_col
             archfiles_overlaps.append((last_archfile, archfiles_row))
@@ -847,7 +864,7 @@ def update_msid_files(filetype, archfiles):
         logger.verbose('Writing accumulated column data to h5 file at ' + time.ctime())
         for colname in colnames:
             ft['msid'] = colname
-            if opt.create:
+            if opt.create and not os.path.exists(msid_files['msid'].abs):
                 make_h5_col_file(dats, colname)
             append_h5_col(dats, colname, archfiles_overlaps)
 
@@ -943,9 +960,13 @@ def get_archive_files(filetype):
     logger.info('********** %s %s **********' % (ft['content'], time.ctime()))
 
     for t0, t1 in zip(times[:-1], times[1:]):
-        arc5.sendline('tstart=%s' % DateTime(t0).date)
-        arc5.sendline('tstop=%s' % DateTime(t1).date)
-        arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
+        if t1 > t0:
+            arc5.sendline('tstart=%s' % DateTime(t0).date)
+            arc5.sendline('tstop=%s' % DateTime(t1).date)
+            arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
+        else:
+            logger.info('INFO: Skipping archive query because datestop={} < datestart={}'
+                        .format(DateTime(t1).date, DateTime(t0).date))
 
     return sorted(glob.glob(filetype['fileglob']))
 
