@@ -87,7 +87,7 @@ fetch.CACHE = True
 
 opt = get_options()
 if opt.create:
-    opt.no_stats = True
+    opt.update_stats = False
 
 ft = fetch.ft
 msid_files = pyyaks.context.ContextDict('msid_files',
@@ -162,8 +162,9 @@ def main():
         filetypes = [x for x in filetypes
                      if any(re.match(y, x.content) for y in contents)]
 
-    # (THINK about robust error handling.  Directory cleanup?  arc5gl stopping?)
-    # debug()
+    # Update archive currently cannot create derived parameter content types
+    if opt.create:
+        filetypes = [x for x in filetypes if not x.content.startswith('DP_')]
 
     for filetype in filetypes:
         # Update attributes of global ContextValue "ft".  This is needed for
@@ -973,15 +974,16 @@ def get_archive_files(filetype):
 if __name__ == '__main__':
     # Allow for a cmd line option --date-start.  If supplied then loop the
     # effective value of opt.date_now from date_start to the cmd line
-    # --date-now in steps of --max-lookback-time * 0.75
+    # --date-now in steps of --max-lookback-time
     if opt.date_start is None:
         date_nows = [opt.date_now]
     else:
         t_starts = np.arange(DateTime(opt.date_start).secs,
                              DateTime(opt.date_now).secs,
-                             opt.max_lookback_time * 86400. * 0.75)
+                             opt.max_lookback_time * 86400.)
         date_nows = [DateTime(t).date for t in t_starts]
         date_nows.append(opt.date_now)
+        opt.max_lookback_time += 10
 
     for date_now in date_nows:
         opt.date_now = date_now
