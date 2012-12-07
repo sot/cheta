@@ -28,26 +28,7 @@ DATAROOT="--data-root=test/eng_archive"
 UPDATE_OPTS="$DATAROOT $CONTENTS"
 
 echo "Updating archive..."
-./update_archive.py --date-now 2012:301 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:302 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:303 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:304 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:305 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:306 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:307 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:308 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:309 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:310 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:311 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:312 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:313 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:314 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:315 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:316 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:317 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:318 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:319 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2012:320 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
+./update_archive.py --date-now 2012:315 --date-start 2012:300 --max-lookback-time=2 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
 
 
 
