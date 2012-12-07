@@ -1,22 +1,30 @@
 from itertools import izip
 import logging
-import os
 import numpy
 import sys
+
+import Ska.Numpy
 
 MODULE = sys.modules[__name__]
 logger = logging.getLogger('engarchive')
 
+
 class NoValidDataError(Exception):
     pass
+
+
+def numpy_converter(dat):
+    return Ska.Numpy.structured_array(dat, colnames=dat.dtype.names)
+
 
 def convert(dat, content):
     try:
         converter = getattr(MODULE, content.lower())
     except AttributeError:
-        converter = lambda x: x.copy()
+        converter = numpy_converter
 
     return converter(dat)
+
 
 def generic_converter(prefix=None, add_quality=False, aliases=None):
     """Convert an input FITS recarray assuming that it has a TIME column.
@@ -40,7 +48,7 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
         arrays = [dat.field(x) for x in colnames]
 
         if add_quality:
-            descrs = [(x,) +  y[1:] for x, y in zip(colnames_out, dat.dtype.descr)]
+            descrs = [(x,) + y[1:] for x, y in zip(colnames_out, dat.dtype.descr)]
             quals = numpy.zeros((len(dat), len(colnames) + 1), dtype=numpy.bool)
             descrs += [('QUALITY', numpy.bool, (len(colnames) + 1,))]
             arrays += [quals]
@@ -59,6 +67,7 @@ orbitephem1 = generic_converter('orbitephem1', add_quality=True)
 lunarephem1 = generic_converter('lunarephem1', add_quality=True)
 solarephem1 = generic_converter('solarephem1', add_quality=True)
 angleephem = generic_converter(add_quality=True)
+
 
 def parse_alias_str(alias_str):
     aliases = {}
