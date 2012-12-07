@@ -168,6 +168,26 @@ MSID         Unit      Description
 TLMSTATUS              SEA telemetry status (updated or not updated)
 ============ ========= ===============================================
 
+The state codes for these MSIDs (where applicable) are defined by the CXC `SIM level-0
+decom specification <http://icxc.harvard.edu/icd/Sim/Level0/1.2/l0icd.ps>`_ and differ
+from the values found in the TDB.  The engineering archive state codes are:
+
+======== ======= ========
+MSID     Raw=0   Raw=1
+======== ======= ========
+3TSCMOVE F       T
+3FAMOVE  F       T
+3SEAID   SEA-A   SEA-B
+3SEARSET F       T
+3SEAROMF F       T
+3SEAINCM F       T
+3STAB2EN DISABLE ENABLE
+3SMOTPEN ENABLE  DISABLE
+3SMOTSEL TSC     FA
+3SHTREN  DISABLE ENABLE
+3SEARAMF F       T
+======== ======= ========
+
 SIMCOOR (CXC high-level values)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. Note::  These pseudo-MSIDs are deprecated in favor of the standard
