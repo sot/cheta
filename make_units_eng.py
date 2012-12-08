@@ -7,7 +7,7 @@ import pickle
 
 import Ska.engarchive.converters
 
-dat = asciitable.read('/data/evans_i/IPCL/TDB/tdb_p009/tmsrment.txt',
+dat = asciitable.read('tmsrment.txt',
                       Reader=asciitable.NoHeader, delimiter=",",
                       quotechar='"')
 
@@ -21,5 +21,13 @@ units_eng = dict((msid.upper(), unit)
 for col in Ska.engarchive.converters._get_deahk_cols():
     if 'unit' in col and col['unit'] == 'K':
         units_eng[col['name'].upper()] = 'DEGC'
+
+# Make STEP unique for SIM MSIDs
+units_eng['3LDRTPOS'] = 'TSCSTEP'
+units_eng['3TSCPOS'] = 'TSCSTEP'
+units_eng['3FAPOS'] = 'FASTEP'
+units_eng['3MRMMXMV'] = 'PWMSTEP'
+
+units_eng['HKEBOXTEMP'] = 'DEGF'
 
 pickle.dump(units_eng, open('units_eng.pkl', 'w'))

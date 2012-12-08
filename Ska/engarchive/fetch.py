@@ -41,6 +41,20 @@ DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 # (to prevent accidentally selecting a very large number of MSIDs)
 MAX_GLOB_MATCHES = 10
 
+# Special-case state codes that override those in the TDB
+STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
+               '3FAMOVE': [(0, 'F'), (1, 'T')],
+               '3SEAID': [(0, 'SEA-A'), (1, 'SEA-B')],
+               '3SEARSET': [(0, 'F'), (1, 'T')],
+               '3SEAROMF': [(0, 'F'), (1, 'T')],
+               '3SEAINCM': [(0, 'F'), (1, 'T')],
+               '3STAB2EN': [(0, 'DISABLE'), (1, 'ENABLE')],
+               '3SMOTPEN': [(0, 'ENABLE'), (1, 'DISABLE')],
+               '3SMOTSEL': [(0, 'TSC'), (1, 'FA')],
+               '3SHTREN': [(0, 'DISABLE'), (1, 'ENABLE')],
+               '3SEARAMF': [(0, 'F'), (1, 'T')],
+               }
+
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
@@ -352,6 +366,9 @@ class MSID(object):
         """
         if 'S' not in self.vals.dtype.str:
             self._state_codes = None
+
+        if self.MSID in STATE_CODES:
+            self._state_codes = STATE_CODES[self.MSID]
 
         if not hasattr(self, '_state_codes'):
             import Ska.tdb

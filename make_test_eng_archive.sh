@@ -12,7 +12,7 @@ touch test/make_eng_archive.log
 # existing copy of the flight eng archive as the baseline start point.
 
 # echo "Making regr data..."
-# ./make_regr_data.py --start 2010:260 --stop 2010:270 --data-root test/eng_archive >>& test/make_eng_archive.log
+# ./make_regr_data.py --start 2012:290 --stop 2012:300 --data-root test/eng_archive >>& test/make_eng_archive.log
 # 
 # echo "Tarring..."
 # cd test
@@ -28,26 +28,7 @@ DATAROOT="--data-root=test/eng_archive"
 UPDATE_OPTS="$DATAROOT $CONTENTS"
 
 echo "Updating archive..."
-./update_archive.py --date-now 2010:271 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:272 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:273 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:274 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:275 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:276 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:277 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:278 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:279 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:280 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:281 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:282 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:283 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:284 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:285 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:286 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:287 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:288 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:289 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-./update_archive.py --date-now 2010:290 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
+./update_archive.py --date-now 2012:315 --date-start 2012:300 --max-lookback-time=2 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
 
 
 
