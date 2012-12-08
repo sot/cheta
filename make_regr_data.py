@@ -39,7 +39,7 @@ def get_options():
                       default="test_eng_archive",
                       help="Engineering archive root directory for MSID files")
     parser.add_option("--contents",
-                      default="acis2eng,acisdeahk,orbitephem0,simcoor,thm1eng,ccdm4eng,dp_acispow128",
+                      default="acis2eng,acis3eng,acisdeahk,orbitephem0,simcoor,thm1eng,ccdm4eng,dp_acispow128",
                       help="Content type to process (default = all)")
     return parser.parse_args()
 

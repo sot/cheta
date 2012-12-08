@@ -1,17 +1,15 @@
 import time
-import re, os , sys
-import glob
+import os
+import sys
 
-import numpy as np
-import pexpect
-
-import Ska.Table
-from Chandra.Time import DateTime
+import asciitable
 import Ska.arc5gl as arc5gl
 
-filetypes = Ska.Table.read_ascii_table('filetypes.dat')
-if len(sys.argv) == 2:
-    filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
+filetypes = asciitable.read('Ska/engarchive/filetypes.dat')
+if len(sys.argv) >= 2:
+    filetypes = filetypes[filetypes['content'] == sys.argv[1].upper()]
+outroot = sys.argv[2] if len(sys.argv) >= 3 else '/data/cosmos2/eng_archive/tlm'
+
 
 for filetype in filetypes:
     if filetype['content'] in ('ORBITEPHEM', 'LUNAREPHEM', 'SOLAREPHEM'):
@@ -23,11 +21,12 @@ for filetype in filetypes:
         content = filetype['content'].lower()
         arc5gl_query = filetype['arc5gl_query'].lower()
 
-        outdir = os.path.abspath(os.path.join('/data/cosmos2/tlm', content))
+        outdir = os.path.abspath(os.path.join(outroot, content))
         if os.path.exists(outdir):
             print 'Skipping', content, 'at', time.ctime()
             continue
         else:
+            print 'Making dir', outdir
             os.makedirs(outdir)
 
         os.chdir(outdir)
@@ -38,7 +37,7 @@ for filetype in filetypes:
         arc5.sendline('cd ' + outdir)
         arc5.sendline('version = last')
 
-        for year in range(2000, 2011):
+        for year in range(1999, 2000):
             if os.path.exists('/pool14/wink/stoptom'):
                 raise RuntimeError('Stopped by sherry')
             for doy0, doy1 in zip(doys[:-1], doys[1:]):
@@ -48,7 +47,7 @@ for filetype in filetypes:
                 sys.stdout.flush()
                 print '  tstart=%s' % datestart
                 print '  tstop=%s' % datestop
-                print '  get %s' % arc5gl_query
+                print '  get %s at %s' % (arc5gl_query, time.ctime())
 
                 arc5.sendline('tstart=%s' % datestart)
                 arc5.sendline('tstop=%s;' % datestop)
@@ -60,6 +59,3 @@ for filetype in filetypes:
         # explicitly close connection to archive
         if 'arc5' in globals():
             del arc5
-
-
-        

@@ -4,8 +4,8 @@
 #
 ############
 ska
-
-setenv ENG_ARCHIVE $PWD/test/eng_archive
+cd /proj/sot/ska/share/eng_archive
+export ENG_ARCHIVE=$PWD/test/eng_archive
 mkdir -p test/eng_archive
 rm -rf test/eng_archive/*
 
@@ -13,11 +13,12 @@ rm -f test/make_eng_archive.log
 touch test/make_eng_archive.log
 
 echo "Making regr data..."
-./make_regr_data.py --start 2010:260 --stop 2010:270 --data-root test/eng_archive >>& test/make_eng_archive.log
+./make_regr_data.py --start 2012:290 --stop 2012:300 --data-root test/eng_archive > test/make_eng_archive.log 2>&1
 
 echo "Tarring..."
 pushd test
 tar zcf eng_archive.tar.gz eng_archive
+cp eng_archive.tar.gz /proj/sot/ska/data/eng_archive/regr/flight_eng_archive.tar.gz
 popd
 
 
@@ -45,11 +46,8 @@ test/make_plots.py
 unset ENG_ARCHIVE
 
 cd test
-  # ./get_regr_vals.py --start 2010:265 --stop 2010:285
-  ###  OR NORMALLY USE THE EXISTING  ###
-  # cp /proj/sot/ska/data/eng_archive/regr/regr_vals.flight ./
-
-  ./get_regr_vals.py --start 2010:265 --stop 2010:285 --test 
+  ./get_regr_vals.py --start 2012:302 --stop 2012:310
+  ./get_regr_vals.py --start 2012:302 --stop 2012:310 --test
   ./compare_regr_vals.py
 cd ..
 [[ setenv ENG_ARCHIVE $PWD/test/eng_archive ]]
@@ -58,6 +56,7 @@ export ENG_ARCHIVE=$PWD/test/eng_archive
 ## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df
 ## 2012-Jan-21: All tests pass for 0.16dev e359acd5 !!
 ## 2012-Apr-29: All tests pass for 0.18dev efddf4d
+## 2012-Nov-27: All tests pass for 0.21
 
 ########################################################################################################
 ######## Regression test for new skare (updated Python, NumPy, tables, etc) in $ska/dev/

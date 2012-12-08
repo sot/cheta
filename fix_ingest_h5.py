@@ -4,18 +4,17 @@ problems with different versioned files that cover same time range being
 retrieved by the archive.
 """
 
-import sys
 import os
 import shutil
 import optparse
 
 import numpy
 import tables
-from Chandra.Time import DateTime
 import Ska.DBI
-import Ska.Table
+import asciitable
 
-from context_def import datadir, ft, files
+from context_def import ft, files
+
 
 def get_options():
     parser = optparse.OptionParser()
@@ -29,9 +28,9 @@ def get_options():
 
 opt, args = get_options()
 
-filetypes = Ska.Table.read_ascii_table('filetypes.dat')
+filetypes = asciitable.read('Ska/engarchive/filetypes.dat')
 if len(args) > 0:
-    filetypes = filetypes[ filetypes['content'] == args[0].upper() ]
+    filetypes = filetypes[filetypes['content'] == args[0].upper()]
 
 for filetype in filetypes:
     # Update attributes of global ContextValue "ft".  This is needed for
@@ -55,13 +54,13 @@ for filetype in filetypes:
     db = Ska.DBI.DBI(dbi='sqlite', server=files['archfiles'].abs)
     archfiles = db.fetchall('select * from archfiles order by tstart asc')
     db.conn.close()
-    
-    # Find archive files that overlap in time (tstart : tstop).  
+
+    # Find archive files that overlap in time (tstart : tstop).
     overlaps = archfiles[1:].tstart - archfiles[:-1].tstop < -1
     file0s = archfiles[:-1][overlaps]
     file1s = archfiles[1:][overlaps]
 
-    # Open the TIME.h5 file for this content type 
+    # Open the TIME.h5 file for this content type
     h5 = tables.openFile(files['oldmsid'].abs, mode=('r' if opt.dry_run else 'a'))
 
     # Iterate through overlapping files and set bad quality in TIME for rows
@@ -78,10 +77,10 @@ for filetype in filetypes:
             bad_rowstart = badfile['rowstart']
             bad_rowstop = badfile['rowstop']
         print file0['filename'], file0['revision'], file1['revision'], \
-              '%9d %9d %9d %9d' % (file0['tstart'], file0['tstop'], file1['tstart'], file1['tstop']), \
-              'Setting TIME rows', bad_rowstart, bad_rowstop, 'to bad quality'
+            '%9d %9d %9d %9d' % (file0['tstart'], file0['tstop'],
+                                 file1['tstart'], file1['tstop']), \
+            'Setting TIME rows', bad_rowstart, bad_rowstop, 'to bad quality'
         if not opt.dry_run:
             h5.root.quality[bad_rowstart:bad_rowstop] = True
 
     h5.close()
-

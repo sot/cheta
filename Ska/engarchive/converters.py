@@ -1,24 +1,32 @@
 from itertools import izip
 import logging
-import os
 import numpy
 import sys
+
+import Ska.Numpy
 
 MODULE = sys.modules[__name__]
 logger = logging.getLogger('engarchive')
 
+
 class NoValidDataError(Exception):
     pass
+
+
+def numpy_converter(dat):
+    return Ska.Numpy.structured_array(dat, colnames=dat.dtype.names)
+
 
 def convert(dat, content):
     try:
         converter = getattr(MODULE, content.lower())
     except AttributeError:
-        converter = lambda x: x.copy()
+        converter = numpy_converter
 
     return converter(dat)
 
-def generic_converter(prefix=None, add_quality=False):
+
+def generic_converter(prefix=None, add_quality=False, aliases=None):
     """Convert an input FITS recarray assuming that it has a TIME column.
     If ``add_prefix`` is set then add ``content_`` as a prefix
     to the data column names.  If ``add_quality`` is set then add a QUALITY
@@ -27,6 +35,8 @@ def generic_converter(prefix=None, add_quality=False):
     def _convert(dat):
         colnames = dat.dtype.names
         colnames_out = [x.upper() for x in colnames]
+        if aliases:
+            colnames_out = [aliases.get(x, x).upper() for x in colnames_out]
         if prefix:
             # Note to self: never change an enclosed reference, i.e. don't do
             # prefix = prefix.upper() + '_'
@@ -35,13 +45,16 @@ def generic_converter(prefix=None, add_quality=False):
             colnames_out = [(x if x in ('TIME', 'QUALITY') else PREFIX + x)
                             for x in colnames_out]
 
-        descrs = [(x,) +  y[1:] for x, y in zip(colnames_out, dat.dtype.descr)]
         arrays = [dat.field(x) for x in colnames]
 
         if add_quality:
+            descrs = [(x,) + y[1:] for x, y in zip(colnames_out, dat.dtype.descr)]
             quals = numpy.zeros((len(dat), len(colnames) + 1), dtype=numpy.bool)
             descrs += [('QUALITY', numpy.bool, (len(colnames) + 1,))]
             arrays += [quals]
+        else:
+            descrs = [(name, array.dtype.str, array.shape[1:])
+                      for name, array in zip(colnames_out, arrays)]
 
         return numpy.rec.fromarrays(arrays, dtype=descrs)
 
@@ -54,6 +67,52 @@ orbitephem1 = generic_converter('orbitephem1', add_quality=True)
 lunarephem1 = generic_converter('lunarephem1', add_quality=True)
 solarephem1 = generic_converter('solarephem1', add_quality=True)
 angleephem = generic_converter(add_quality=True)
+
+
+def parse_alias_str(alias_str):
+    aliases = {}
+    for line in alias_str.strip().splitlines():
+        cxcmsid, msid = line.split()[:2]
+        aliases[cxcmsid] = msid
+    return aliases
+
+ALIASES = {'sim_mrg': """
+    TLMUPDATE    3SEATMUP   "Telemtry Update Flag"
+    SEAIDENT     3SEAID     "SEA Identification Flag"
+    SEARESET     3SEARSET   "SEA Reset Flag"
+    PROMFAIL     3SEAROMF   "SEA PROM Checksum Flag"
+    INVCMDGROUP  3SEAINCM   "SEA Invalid Command Group Flag"
+    TSCMOVING    3TSCMOVE   "TSC In Motion Flag"
+    FAMOVING     3FAMOVE    "FA In Motion Flag"
+    FAPOS        3FAPOS     "FA Position"
+    TSCPOS       3TSCPOS    "TSC Postion"
+    PWMLEVEL     3MRMMXMV   "Max Power Motor Volt recent move"
+    LDRTMECH     3LDRTMEK   "Last Detected Reference Mechanism Tab"
+    LDRTNUM      3LDRTNO    "Last Detected Reference Tab Number"
+    LDRTRELPOS   3LDRTPOS   "Last Detected Reference Relative Postion"
+    FLEXATEMP    3FAFLAAT   "Flexture A Temperature"
+    FLEXBTEMP    3FAFLBAT   "Flexture B Temperature"
+    FLEXCTEMP    3FAFLCAT   "Flexture C Temperature"
+    TSCMTRTEMP   3TRMTRAT   "TSC Motor Temperature"
+    FAMTRTEMP    3FAMTRAT   "FA Motor Temperature"
+    PSUTEMP      3FAPSAT    "SEA Power Supply Temperature"
+    BOXTEMP      3FASEAAT   "SEA Box Temperature"
+    STALLCNT     3SMOTSTL   "SEA Motor Stall Counter"
+    TAB2AUTOPOS  3STAB2EN   "SEA Tab 2 Auto Position Update Status"
+    MTRDRVRLY    3SMOTPEN   "SEA Motor Driver Power Relay status"
+    MTRSELRLY    3SMOTSEL   "SEA Motor Selection Relay Status"
+    HTRPWRRLY    3SHTREN    "SEA Heater Power Relay Status"
+    RAMFAIL      3SEARAMF   "SEA RAM Failure Detected Flag"
+    MTROVRCCNT   3SMOTOC    "Motor Drive Overcurrent Counter"
+    PENDCMDCNT   3SPENDC    "SEA Pending Command Count"
+    FLEXATSET    3SFLXAST   "Flexture A Temperature Setpoint"
+    FLEXBTSET    3SFLXBST   "Flexture B Temperature Setpoint"
+    FLEXCTSET    3SFLXCST   "Flexture C Temperature Setpoint"
+    """}
+
+ALIASES = {key: parse_alias_str(val) for key, val in ALIASES.items()}
+
+sim_mrg = generic_converter(aliases=ALIASES['sim_mrg'])
 
 def acisdeahk(dat):
     """Take the archive ACIS-0 DEA HKP data and convert to a format that is 

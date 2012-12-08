@@ -13,9 +13,9 @@ import Ska.DBI
 from context_def import datadir, ft, files
 
 from Chandra.Time import DateTime
-import Ska.Table
+import asciitable
 
-filetypes = Ska.Table.read_ascii_table('filetypes.dat')
+filetypes = asciitable.read('Ska/engarchive/filetypes.dat')
 if len(sys.argv) == 2:
     filetypes = filetypes[ filetypes['content'] == sys.argv[1].upper() ]
 
@@ -39,7 +39,7 @@ for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
 
     if not os.path.exists(files['contentdir'].abs) or os.path.exists(files['archfiles'].abs):
-        print 'Skipping', ft['content'].val
+        print 'Skipping', ft['content'].val, files['contentdir'].abs, files['archfiles'].abs
         continue
 
     print 'Processing', ft['content'].val
