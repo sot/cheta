@@ -1,3 +1,9 @@
+0.21 - 2012-12-09
+=================
+
+- Add three new content types: SIM SEA, EPHIN housekeeping, and CPE.
+- Numerous infrastructure improvements in ingest and update process.
+
 0.20 - 2012-08-11
 =================
 
