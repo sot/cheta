@@ -15,13 +15,14 @@ import collections
 import warnings
 
 import numpy as np
-import tables
+#import tables
 import asciitable
 import pyyaks.context
 
 from . import file_defs
 from .units import Units
 from . import cache
+from . import remote_access
 from .version import version as __version__
 
 from Chandra.Time import DateTime
@@ -55,24 +56,43 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
                '3SEARAMF': [(0, 'F'), (1, 'T')],
                }
 
+# Determine if the data needs to be retrieved from the remote server,
+# and establish the connection if necessary
+use_remote = False
+print(ENG_ARCHIVE)
+print(os.path.exists(ENG_ARCHIVE))
+if not os.path.exists(ENG_ARCHIVE):
+    if remote_access.enabled:
+        use_remote = True
+        if not remote_access.connection_is_established():
+            if not remote_access.establish_connection():
+                raise remote_access.RemoteConnectionError("Unable to establish connection for remote fetch.")
+
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
-# Global (eng_archive) definition of file names
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
-# Module-level values defining available content types and column (MSID) names
 filetypes = asciitable.read(os.path.join(DIR_PATH, 'filetypes.dat'))
 content = collections.OrderedDict()
+def load_msid_names(msid_names_file):
+    import cPickle as pickle
+    return pickle.load(open(msid_names_file))
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
     try:
-        colnames = pickle.load(open(msid_files['colnames'].abs))
+        if use_remote:
+            print("Loading MSID names from remote server for " + str(ft['content']) + "...")
+            colnames = remote_access.execute_remotely(load_msid_names,
+                  ENG_ARCHIVE + "/data/"+ str(ft['content']) + "/colnames.pickle")
+        else:
+            colnames = load_msid_names(msid_files['colnames'].abs)
         content.update((x, ft['content'].val) for x in sorted(colnames)
                        if x not in IGNORE_COLNAMES)
     except IOError:
-        pass
+            pass
+    
 
 # Cache of the most-recently used TIME array and associated bad values mask.
 # The key is (content_type, tstart, tstop).
@@ -195,7 +215,8 @@ class MSID(object):
     units = UNITS
     fetch = sys.modules[__name__]
 
-    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
+    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None, 
+                 username=None, password=None):
         msids, MSIDs = msid_glob(msid)
         if len(MSIDs) > 1:
             raise ValueError('Multiple matches for {} in Eng Archive'
@@ -317,10 +338,17 @@ class MSID(object):
             ft['msid'] = 'time'
             filename = msid_files['msid'].abs
             logger.info('Reading %s', filename)
-            h5 = tables.openFile(filename)
-            times_ok = ~h5.root.quality[h5_slice]
-            times = h5.root.data[h5_slice]
-            h5.close()
+            def get_time_data_from_server(h5_slice, filename):
+                h5 = tables.openFile(filename)
+                times_ok = ~h5.root.quality[h5_slice]
+                times = h5.root.data[h5_slice]
+                h5.close()
+                return(times_ok,times)
+            if use_remote:
+                times_ok,times = remote_access.execute_remotely(get_time_data_from_server,
+                                                                h5_slice, _remote_filename(filename))
+            else:
+                times_ok,times = get_time_data_from_server(h5_slice, filename)
 
             # Filter bad times.  Last instance of bad times in archive is 2004
             # so don't do this unless needed.  Creating a new 'times' array is
@@ -338,10 +366,17 @@ class MSID(object):
         ft['msid'] = msid
         filename = msid_files['msid'].abs
         logger.info('Reading %s', filename)
-        h5 = tables.openFile(filename)
-        vals = h5.root.data[h5_slice]
-        bads = h5.root.quality[h5_slice]
-        h5.close()
+        def get_msid_data_from_server(h5_slice, filename):
+            h5 = tables.openFile(filename)
+            vals = h5.root.data[h5_slice]
+            bads = h5.root.quality[h5_slice]
+            h5.close()
+            return(vals,bads)
+        if use_remote:
+            vals,bads = remote_access.execute_remotely(get_msid_data_from_server,
+                                                       h5_slice, _remote_filename(filename))
+        else:
+            vals,bads = get_msid_data_from_server(h5_slice, filename)
 
         # Filter bad times rows if needed
         if not times_all_ok:
@@ -1129,30 +1164,42 @@ def get_interval(content, tstart, tstop):
 
     :returns: rowslice
     """
-    import Ska.DBI
 
     ft['content'] = content
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
-
-    query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
-                            'WHERE filetime < ? order by filetime desc',
-                            (tstart,))
-    if not query_row:
+    
+    def get_interval_from_db(tstart, tstop, server):
+        
+        import Ska.DBI
+        
+        db = Ska.DBI.DBI(dbi='sqlite', server=server)
+    
         query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
-                                'order by filetime asc')
-
-    rowstart = query_row['rowstart']
-
-    query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
-                            'WHERE filetime > ? order by filetime asc',
-                            (tstop,))
-    if not query_row:
+                                'WHERE filetime < ? order by filetime desc',
+                                (tstart,))
+        if not query_row:
+            query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
+                                    'order by filetime asc')
+    
+        rowstart = query_row['rowstart']
+    
         query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
-                                'order by filetime desc')
+                                'WHERE filetime > ? order by filetime asc',
+                                (tstop,))
+        if not query_row:
+            query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
+                                    'order by filetime desc')
+    
+        rowstop = query_row['rowstop']
+    
+        return slice(rowstart, rowstop)
 
-    rowstop = query_row['rowstop']
-
-    return slice(rowstart, rowstop)
+    if use_remote:
+        import re
+        return(remote_access.execute_remotely(get_interval_from_db,
+                                              tstart, tstop, 
+                                              _remote_filename(msid_files['archfiles'].abs)))
+    else:
+        return get_interval_from_db(tstart, tstop, msid_files['archfiles'].abs)
 
 
 @contextlib.contextmanager
@@ -1198,3 +1245,14 @@ def _plural(x):
     known small set of cases within fetch where it will get applied.
     """
     return x + 'es' if (x.endswith('x')  or x.endswith('s')) else x + 's'
+
+
+def _remote_filename(local_filename):
+    """Get filename on remote server corresponding to a local filename
+    """
+    import re
+    # Remote the leading drive name and replace any backslashes with
+    # forward slashes
+    return(re.sub("[A-Z]:","",local_filename).replace('\\','/'))
+    
+    
