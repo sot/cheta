@@ -494,10 +494,10 @@ def update_derived(filetype):
     # Make a list of indexes that will correspond to the index/time ranges
     # for each pseudo-"archfile".  In this context an archfile just specifies
     # the time range covered by an ingest, but is needed by fetch to roughly
-    # locate rows in the H5 file for fast queries.  Each archfile is 50000 sec
+    # locate rows in the H5 file for fast queries.  Each archfile is 10000 sec
     # long, and when updating the database no more than 1000000 seconds of
     # telemetry will be read at one time.
-    archfile_time_step = 200000.0
+    archfile_time_step = 10000.0
     max_archfiles = int(1000000.0 / archfile_time_step)
 
     # Read data out to either date_now or the last available time in telemetry.
