@@ -1,79 +1,118 @@
 """
-Settings and functions for remote access to the engineering archive.
+Settings and functions for remotely accessing an engineering archive.
 """
 import sys
+import os
 import getpass
 import IPython.parallel
 
-# To use remote access, this flag needs to be enabled
-enabled = False
+# To use remote access, this flag should be set True (it is true by default
+# on Windows systems, but can manually be set to true on Linux systems
+# if you don't have direct access to the archive)
+access_remotely = sys.platform.startswith('win')
 
-# Username and password for remote access to the eng archive
+# Hostname (IP), username, and password for remote access to the eng archive
+hostname = None
 username = None
 password = None
 
-# Server name
-hostname = '131.142.113.4'
+# Flag to ask the user for credentials if the ssh login fails
+ask_again_if_connect_fails = True
+
+# Flag to show print output for remote calls
+show_print_output = sys.platform.startswith('win')
+
+# Client key file for connecting to the remote server (ipcontroller)
+client_key_file = os.path.join(sys.prefix,"ska_remote_access.json")
 
 # IPython parallel client for accessing the remote python engine
-remote_client = None
+_remote_client = None
 
 class RemoteConnectionError(Exception):
     pass
 
 def establish_connection():
-    # Returns success status
+    """
+Function to establish a connection to the remote server
+Return success status (True/False)
+"""
+    global _remote_client
+    global hostname
+    global username
+    global password
     
-    global remote_client
+    try_to_connect = True
     
-#    max_num_tries = 3
-#    num_tries = 0
-#    while not connection_is_established() and num_tries <= max_num_tries:
-#
-#        num_tries = num_tries + 1
-        
-    # Get the username and password if not already set
-    if username is None:
+    # Loop until the user is able to connect or cancels
+    while _remote_client is None:
+        # Get the username and password if not already set
+        hostname = hostname or raw_input('Enter hostname (or IP) of Ska ' +
+                                         'server (enter to cancel):')
+        if hostname=="":
+            break
         default_username = getpass.getuser()
-        response = raw_input('Enter your login username [' + default_username + ']:')
-        the_username = response or default_username
-    else:
-        the_username = username
-    the_password = password or getpass.getpass('Enter your password:')
-    
-    # Open the connection to the
-    print('Establishing connection to ' + hostname + '...')
-    try:
-        remote_client = IPython.parallel.Client(sshserver = hostname,
-                                                username=the_username,
-                                                password=the_password)
-    except:
-        print 'Error connecting to server ',hostname,': ',sys.exc_info()[0]
-        remote_client = None
+        username = username or raw_input('Enter your login username [' + 
+                                         default_username + ']:')
+        password = password or getpass.getpass('Enter your password:')
+        
+        # Open the connection to the server
+        print 'Establishing connection to ' + hostname + '...'
+        sys.stdout.flush()
+        try:
+            _remote_client = IPython.parallel.Client(client_key_file,
+                                                     sshserver = hostname,
+                                                     username=username,
+                                                     password=password)
+        except:
+            print 'Error connecting to server ',hostname,': ',sys.exc_info()[0]
+            sys.stdout.flush()
+            _remote_client = None
+            # Clear out information so the user can try again
+            hostname = None
+            username = None
+            password = None
+            if not ask_again_if_connect_fails:
+                break
         
     return(connection_is_established())
 
 
 def connection_is_established():
-    return (not remote_client is None)
+    """
+Function to check if a connection to the remote server has been established
+"""
+    return (not _remote_client is None)
     
 
 def execute_remotely(fcn, *args, **kwargs):
-    # Function for executing a function remotely
-#    if not connection_is_established():
-#        establish_connection()
-#        if not connection_is_established():
-#            raise IPython.parallel.ConnectionError("Error establishing connection to remote server")
+    """
+Function for executing a function remotely
+"""
     if not connection_is_established():
-        raise IPython.parallel.ConnectionError("Connection not established to remote server")
-    dview = remote_client[0]; # Use the first (and should be only) engine
+        raise IPython.parallel.ConnectionError(
+                "Connection not established to remote server")
+    dview = _remote_client[0]; # Use the first (and should be only) engine
     dview.block = True
-    return dview.apply(fcn, *args, **kwargs)
+    return dview.apply_sync(fcn, *args, **kwargs)
     
-    
+
+def test_connection():
+    """
+Function to perform a quick test of the connection to the
+remote server
+"""
+    def remote_fcn():
+        import os
+        return os.sys.version
+    return (execute_remotely(remote_fcn))
+
+
 def close_connection():
+    """
+Function to close the connection to the remote server
+"""
+    global _remote_client
     
-    global remote_client
+    _remote_client.close()
+    _remote_client = None
     
-    remote_client.close()
-    remote_client = None

@@ -15,7 +15,6 @@ import collections
 import warnings
 
 import numpy as np
-#import tables
 import asciitable
 import pyyaks.context
 
@@ -56,43 +55,108 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
                '3SEARAMF': [(0, 'F'), (1, 'T')],
                }
 
-# Determine if the data needs to be retrieved from the remote server,
-# and establish the connection if necessary
-use_remote = False
-print(ENG_ARCHIVE)
-print(os.path.exists(ENG_ARCHIVE))
-if not os.path.exists(ENG_ARCHIVE):
-    if remote_access.enabled:
-        use_remote = True
-        if not remote_access.connection_is_established():
-            if not remote_access.establish_connection():
-                raise remote_access.RemoteConnectionError("Unable to establish connection for remote fetch.")
+def local_or_remote_function(remote_print_output):
+    """
+Decorator maker so that a function gets run either locally or remotely 
+depending on the state of remote_access.access_remotely.  This decorator
+maker takes an optional remote_print_output argument that will be
+be printed (locally) if the function is executed remotely,
+
+For functions that are decorated using this wrapper:
+
+Every path that may be generated locally but used remotely should be
+split with _split_path(). Conversely the functions that use
+the resultant path should re-join them with os.path.join. In the
+remote case the join will happen using the remote rules.
+"""
+    def the_decorator(func):
+        def wrapper(*args, **kwargs):
+            if remote_access.access_remotely:
+                # If accessing a remote archive, establish the connection (if 
+                # necessary)
+                if not remote_access.connection_is_established():
+                    try:
+                        if not remote_access.establish_connection():
+                            raise remote_access.RemoteConnectionError \
+                                ("Unable to establish connection for remote fetch.")
+                    except EOFError:
+                        # An EOF error can be raised if the python interpreter is being
+                        # called in such a way that input cannot be received from the 
+                        # user (e.g. when the python interpreter is called from MATLAB)
+                        # If that is the case (and remote access is enabled), then 
+                        # raise an import error
+                        print "Unable to interactively get remote access info from user."
+                        raise ImportError
+                # Print the output, if specified
+                if remote_access.show_print_output and not remote_print_output is None:
+                    print remote_print_output
+                    sys.stdout.flush()
+                # Execute the function remotely and return the result
+                return remote_access.execute_remotely(func, *args, **kwargs)
+            else:
+                return func(*args, **kwargs)
+        return wrapper
+    return the_decorator
+
+def _split_path(path):
+    """
+Return a tuple of the components for ``path``. Strip off the drive if
+it exists. This works correctly for the local OS (linux / windows).
+
+"""
+    drive, path = os.path.splitdrive(path)
+    folders = []
+    while True:
+        path, folder = os.path.split(path)
+
+        if folder != "":
+            folders.append(folder)
+        else:
+            if path == "\\":
+                folders.append("/")
+            elif path != "":
+                folders.append(path)
+            break
+
+    folders.reverse()
+    return folders
 
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
+# Global (eng_archive) definition of file names
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
+# Module-level values defining available content types and column (MSID) names
 filetypes = asciitable.read(os.path.join(DIR_PATH, 'filetypes.dat'))
 content = collections.OrderedDict()
-def load_msid_names(msid_names_file):
-    import cPickle as pickle
-    return pickle.load(open(msid_names_file))
+
+# Get the list of filenames (an array is built to pass all the filenames at
+# once to the remote machine since passing them one at a time is rather slow)
+all_msid_names_files = dict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
-    try:
-        if use_remote:
-            print("Loading MSID names from remote server for " + str(ft['content']) + "...")
-            colnames = remote_access.execute_remotely(load_msid_names,
-                  ENG_ARCHIVE + "/data/"+ str(ft['content']) + "/colnames.pickle")
-        else:
-            colnames = load_msid_names(msid_files['colnames'].abs)
-        content.update((x, ft['content'].val) for x in sorted(colnames)
-                       if x not in IGNORE_COLNAMES)
-    except IOError:
+    all_msid_names_files[str(ft['content'])] = \
+            _split_path(msid_files['colnames'].abs)
+# Function to load MSID names from the files (executed remotely, if necessary)
+@local_or_remote_function("Loading MSID names from Ska eng archive server...")
+def load_msid_names(all_msid_names_files):
+    import cPickle as pickle
+    all_colnames = dict()
+    for k, msid_names_file in all_msid_names_files.iteritems():
+        try:
+            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file)))
+        except IOError:
             pass
-    
+    return all_colnames
+# Load the MSID names
+all_colnames = load_msid_names(all_msid_names_files)
+
+# Save the names
+for k, colnames in all_colnames.iteritems():
+    content.update((x, k) for x in sorted(colnames)
+                   if x not in IGNORE_COLNAMES)
 
 # Cache of the most-recently used TIME array and associated bad values mask.
 # The key is (content_type, tstart, tstop).
@@ -215,8 +279,7 @@ class MSID(object):
     units = UNITS
     fetch = sys.modules[__name__]
 
-    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None, 
-                 username=None, password=None):
+    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
         msids, MSIDs = msid_glob(msid)
         if len(MSIDs) > 1:
             raise ValueError('Multiple matches for {} in Eng Archive'
@@ -274,12 +337,20 @@ class MSID(object):
         files"""
         filename = msid_files['stats'].abs
         logger.info('Opening %s', filename)
-        h5 = tables.openFile(filename)
-        table = h5.root.data
-        times = (table.col('index') + 0.5) * self.dt
-        row0, row1 = np.searchsorted(times, [self.tstart, self.tstop])
-        table_rows = table[row0:row1]  # returns np.ndarray (structured array)
-        h5.close()
+        @local_or_remote_function("Getting stat data for " + self.MSID + 
+                                  " from Ska eng archive server...")
+        def get_stat_data_from_server(filename, dt, tstart, tstop):
+            import tables
+            h5 = tables.openFile(os.path.join(*filename))
+            table = h5.root.data
+            times = (table.col('index') + 0.5) * dt
+            row0, row1 = np.searchsorted(times, [tstart, tstop])
+            table_rows = table[row0:row1]  # returns np.ndarray (structured array)
+            h5.close()
+            return (times, table_rows, row0, row1)
+        times, table_rows, row0, row1 =  \
+                get_stat_data_from_server(_split_path(filename), 
+                                          self.dt, self.tstart, self.tstop)
         logger.info('Closed %s', filename)
 
         self.bads = None
@@ -338,17 +409,15 @@ class MSID(object):
             ft['msid'] = 'time'
             filename = msid_files['msid'].abs
             logger.info('Reading %s', filename)
+            @local_or_remote_function("Getting time data from Ska eng archive server...")
             def get_time_data_from_server(h5_slice, filename):
-                h5 = tables.openFile(filename)
+                import tables
+                h5 = tables.openFile(os.path.join(*filename))
                 times_ok = ~h5.root.quality[h5_slice]
                 times = h5.root.data[h5_slice]
                 h5.close()
                 return(times_ok,times)
-            if use_remote:
-                times_ok,times = remote_access.execute_remotely(get_time_data_from_server,
-                                                                h5_slice, _remote_filename(filename))
-            else:
-                times_ok,times = get_time_data_from_server(h5_slice, filename)
+            times_ok,times = get_time_data_from_server(h5_slice, _split_path(filename))
 
             # Filter bad times.  Last instance of bad times in archive is 2004
             # so don't do this unless needed.  Creating a new 'times' array is
@@ -366,17 +435,16 @@ class MSID(object):
         ft['msid'] = msid
         filename = msid_files['msid'].abs
         logger.info('Reading %s', filename)
+        @local_or_remote_function("Getting msid data for " + msid + 
+                                  " from Ska eng archive server...")
         def get_msid_data_from_server(h5_slice, filename):
-            h5 = tables.openFile(filename)
+            import tables
+            h5 = tables.openFile(os.path.join(*filename))
             vals = h5.root.data[h5_slice]
             bads = h5.root.quality[h5_slice]
             h5.close()
             return(vals,bads)
-        if use_remote:
-            vals,bads = remote_access.execute_remotely(get_msid_data_from_server,
-                                                       h5_slice, _remote_filename(filename))
-        else:
-            vals,bads = get_msid_data_from_server(h5_slice, filename)
+        vals,bads = get_msid_data_from_server(h5_slice, _split_path(filename))
 
         # Filter bad times rows if needed
         if not times_all_ok:
@@ -1167,11 +1235,13 @@ def get_interval(content, tstart, tstop):
 
     ft['content'] = content
     
+    @local_or_remote_function("Getting interval data from " +
+                              "DB on Ska eng archive server...")
     def get_interval_from_db(tstart, tstop, server):
         
         import Ska.DBI
         
-        db = Ska.DBI.DBI(dbi='sqlite', server=server)
+        db = Ska.DBI.DBI(dbi='sqlite', server=os.path.join(*server))
     
         query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
                                 'WHERE filetime < ? order by filetime desc',
@@ -1193,13 +1263,7 @@ def get_interval(content, tstart, tstop):
     
         return slice(rowstart, rowstop)
 
-    if use_remote:
-        import re
-        return(remote_access.execute_remotely(get_interval_from_db,
-                                              tstart, tstop, 
-                                              _remote_filename(msid_files['archfiles'].abs)))
-    else:
-        return get_interval_from_db(tstart, tstop, msid_files['archfiles'].abs)
+    return get_interval_from_db(tstart, tstop, _split_path(msid_files['archfiles'].abs))
 
 
 @contextlib.contextmanager
@@ -1246,13 +1310,5 @@ def _plural(x):
     """
     return x + 'es' if (x.endswith('x')  or x.endswith('s')) else x + 's'
 
-
-def _remote_filename(local_filename):
-    """Get filename on remote server corresponding to a local filename
-    """
-    import re
-    # Remote the leading drive name and replace any backslashes with
-    # forward slashes
-    return(re.sub("[A-Z]:","",local_filename).replace('\\','/'))
     
     
