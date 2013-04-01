@@ -3,11 +3,12 @@ Derived parameter MSIDs related to PCAD subsystem.
 
 Author: A. Arvai
 
-Revision History:
-   Jan 2012       Initial version
- 1 Mar 2012       Modified all ephemeris-based parameters to use predictive
-                  ephemeris
-26 Mar 2012       Re-defined DP_ROLL_FSS and DP_PITCH_FSS to improve accuracy
+Revision History::
+
+     Jan 2012       Initial version
+   1 Mar 2012       Modified all ephemeris-based parameters to use predictive
+                    ephemeris
+  26 Mar 2012       Re-defined DP_ROLL_FSS and DP_PITCH_FSS to improve accuracy
 """
 
 import numpy as np

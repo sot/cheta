@@ -268,7 +268,7 @@ class MSID(object):
 
     The input ``msid`` is case-insensitive and can include linux file "glob"
     patterns, for instance ``orb*1*_x`` (ORBITEPHEM1_X) or ``*pcadmd``
-    (AOPCADMD).  For derived parameters the initial "DP_" is optional, for
+    (AOPCADMD).  For derived parameters the initial ``DP_`` is optional, for
     instance ``dpa_pow*`` (DP_DPA_POWER).
 
     :param msid: name of MSID (case-insensitive)
@@ -885,7 +885,7 @@ class MSIDset(collections.OrderedDict):
     Each input ``msid`` is case-insensitive and can include linux file "glob"
     patterns, for instance ``orb*1*_?`` (ORBITEPHEM1_X, Y and Z) or
     ``aoattqt[1234]`` (AOATTQT1, 2, 3, and 4).  For derived parameters the
-    initial "DP_" is optional, for instance ``dpa_pow*`` (DP_DPA_POWER).
+    initial ``DP_`` is optional, for instance ``dpa_pow*`` (DP_DPA_POWER).
 
     :param msids: list of MSID names (case-insensitive)
     :param start: start date of telemetry (Chandra.Time compatible)
