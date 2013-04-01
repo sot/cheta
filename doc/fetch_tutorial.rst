@@ -870,6 +870,20 @@ rates to those derived on the ground using raw gyro data.
 .. image:: fetchplots/obc_rates.png
 .. image:: fetchplots/gyro_sc_rates.png
 
+Remote Windows access
+=====================
+
+The telemetry archive can be accessed remotely from a Windows PC, if ssh access to
+chimchim is available.  The user will be queried for ssh credentials and
+Ska.engarchive.fetch will connect with a controller running on chimchim to retrieve the
+data.  Besides the initial query for credentials (and slower speeds when fetching data, of
+course), the use of Ska.engarchive.fetch is essentially the same whether the archive is
+local or remote.  The key file
+`<http://donut/svn/fot/Deployment/MATLAB_Tools/Python/python_Windows_64bit/ska_remote_access.json>`_
+needs to be in the user’s Python installation folder (the folder that contains python.exe,
+libs, Doc, etc.) for this to work.
+
+
 To do
 ======
 
