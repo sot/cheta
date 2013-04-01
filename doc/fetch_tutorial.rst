@@ -6,10 +6,10 @@
 Fetch Tutorial
 ================================
 
-The python module ``Ska.engarchive.fetch`` provides a simple interface to the 
+The python module ``Ska.engarchive.fetch`` provides a simple interface to the
 engineering archive data files.  Using the module functions it is easy to
 retrieve data over a time range for a single MSID or a related set of MSIDs.
-The data are return as MSID objects that contain not only the telemetry timestamps 
+The data are return as MSID objects that contain not only the telemetry timestamps
 and values but also various other data arrays and MSID metadata.
 
 Getting started
@@ -44,8 +44,8 @@ is waiting for your next command::
 
    -------> print("Welcome to the fetch module!")
   Welcome to the fetch module!
-  
-  In [3]: 
+
+  In [3]:
 
 Now you can inspect variables or do any other analysis (as we'll learn later)
 or just continue to the next block of the tutorial by entering ``go()`` again
@@ -58,9 +58,9 @@ into the python session::
 
   import Ska.engarchive.fetch as fetch
 
-The ``as fetch`` part of the ``import`` statement just creates an short alias 
-to avoid always typing the somewhat lengthy ``Ska.engarchive.fetch.MSID(..)``.  
-Fetching and plotting full time-resolution data for a single MSID is then quite 
+The ``as fetch`` part of the ``import`` statement just creates an short alias
+to avoid always typing the somewhat lengthy ``Ska.engarchive.fetch.MSID(..)``.
+Fetching and plotting full time-resolution data for a single MSID is then quite
 easy::
 
   tephin = fetch.MSID('tephin', '2009:001', '2009:007') # (MSID, start, stop)
@@ -110,10 +110,10 @@ Converting between units is straightforward with the ``Chandra.Time`` module::
   datetime = Chandra.Time.DateTime(126446464.184)
   datetime.date
   Out[]: '2002:003:12:00:00.000'
-  
+
   datetime.greta
   Out[]: '2002003.120000000'
-  
+
   Chandra.Time.DateTime('2009:235:12:13:14').secs
   Out[]: 367416860.18399996
 
@@ -159,8 +159,8 @@ Plotting time data
 
 Even though seconds since 1998.0 is convenient for computations it isn't so
 natural for humans.  As mentioned the ``Chandra.Time`` module can help with
-converting between formats but for making plots we use the 
-`plot_cxctime() <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.Matplotlib.html#Ska.Matplotlib.plot_cxctime>`_ 
+converting between formats but for making plots we use the
+`plot_cxctime() <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.Matplotlib.html#Ska.Matplotlib.plot_cxctime>`_
 function of the ``Ska.Matplotlib`` module::
 
   from Ska.Matplotlib import plot_cxctime
@@ -176,7 +176,7 @@ That looks better:
 
 .. image:: fetchplots/plot_cxctime.png
 
-.. tip:: 
+.. tip::
 
    The :func:`~Ska.engarchive.fetch.MSID.plot` method accepts any arguments
    work with the Matplotlib `plot_date()
@@ -236,11 +236,11 @@ state-valued MSIDs such as ``AOPCADMD`` or ``AOUNLOAD``::
 Bad data
 =========
 
-At this point we've glossed over the important point of possible bad data.  For 
-various reasons (typically a VCDU drop) the data value associated with a particular 
-readout may be bad.  To handle this the engineering archive provides a boolean array 
-called ``bads`` that is ``True`` for bad samples.  This array corresponds to the 
-respective ``times`` and ``vals`` arrays.  To remove the bad values one can use numpy 
+At this point we've glossed over the important point of possible bad data.  For
+various reasons (typically a VCDU drop) the data value associated with a particular
+readout may be bad.  To handle this the engineering archive provides a boolean array
+called ``bads`` that is ``True`` for bad samples.  This array corresponds to the
+respective ``times`` and ``vals`` arrays.  To remove the bad values one can use numpy
 boolean masking::
 
   ok = ~tephin.bads  # numpy mask requires the "good" values to be True
@@ -275,7 +275,7 @@ locate and filter it out as follows (but also see the next section)::
   Out[]: array([ -2.24164635e+32], dtype=float32)
 
   Chandra.Time.DateTime(aorate1.times[bad_vals_mask]).date
-  Out[]: array(['2007:310:22:10:02.951'], 
+  Out[]: array(['2007:310:22:10:02.951'],
          dtype='|S21')
 
   aorate1.filter_bad(bad_vals_mask)
@@ -336,7 +336,7 @@ columns separated by whitespace, for instance::
   aogbias2 2008:292:00:00:00 2008:297:00:00:00
   aogbias2 2008:227:00:00:00 2008:228:00:00:00
   aogbias2 2009:253:00:00:00 2009:254:00:00:00
-      
+
 The MSID name is not case sensitive and the time values can be in any
 ``DateTime`` format.  Blank lines and any line starting with the # character
 are ignored.  To read in this bad times file do::
@@ -363,8 +363,8 @@ Five minute and daily stats
 The engineering telemetry archive also hosts tables of telemetry statistics
 computed over 5 minute and daily intervals.  To be more precise, the intervals
 are 328 seconds (10 major frames) and 86400 seconds.  The daily intervals are
-not *exactly* lined up with the midnight boundary but are within a couple of minutes.  
-These data are accessed by specifying 
+not *exactly* lined up with the midnight boundary but are within a couple of minutes.
+These data are accessed by specifying
 ``stat=<interval>`` in the |fetch_MSID| call::
 
   tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
@@ -376,13 +376,13 @@ These data are accessed by specifying
   figure(2)
   clf()
   plot_cxctime(tephin_5min.times, tephin_5min.means, '-b')
-  
+
 .. image:: fetchplots/tephin_daily.png
 
 Notice that we did not supply a stop time which means to return values up to the last
-available data in the archive.  The start time, however, is always required.  
+available data in the archive.  The start time, however, is always required.
 
-The MSID object returned for a telemetry statistics query has a number of array 
+The MSID object returned for a telemetry statistics query has a number of array
 attributes, depending on the statistic and the MSID data type.
 
 ==========  =====  =====  ================= ================  ===================
@@ -439,17 +439,17 @@ that creates an ``MSIDset`` is very simple::
 
   for msid in msids:
       self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False, stat=stat)
-  
+
   if filter_bad:
       self.filter_bad()
 
 The answer lies in the additional methods that let you manipulate the MSIDs as a set and
-enforce concordance between the MSIDs in the face of different bad values and/or 
-different sampling.  
+enforce concordance between the MSIDs in the face of different bad values and/or
+different sampling.
 
 Say you want to calculate the spacecraft rates directly from telemetered gyro
 count values instead of relying on OBC rates.  To do this you need to have
-valid data for all 4 gyro channels at identical times.  In this case we know that 
+valid data for all 4 gyro channels at identical times.  In this case we know that
 the gyro count MSIDs AOGYRCT<N> all come at the same rate so the only issue is with
 bad values.  Taking advantage `MSID globs`_ to choose ``AOGYRCT1, 2, 3, 4`` we can write::
 
@@ -467,7 +467,7 @@ the time delta between samples won't always be 0.25625 seconds.
 How do you know if your favorite MSIDs are always sampled at the same rate in
 the Ska engineering archive?  Apart from certain sets of MSIDs that are obvious
 (like the gyro counts), here is where things get a little complicated and a
-digression is needed.  
+digression is needed.
 
 The engineering archive is derived from CXC level-0 engineering telemetry
 decom.  This processing divides the all the engineering MSIDs into groups based
@@ -533,7 +533,7 @@ the details.
       title(title_str)
 
   stat = None  # or try with stat = '5min' for another variation
-  dat = fetch.MSIDset(['aosares1','dp_pitch_fss'],'2000:002:00:00:00','2000:003', 
+  dat = fetch.MSIDset(['aosares1','dp_pitch_fss'],'2000:002:00:00:00','2000:003',
                       stat=stat)
 
   for filter_bad in (False, True):
@@ -554,7 +554,7 @@ the details.
       subplot(4, 1, 4)
       plot(dat['aosares1'].times0 - dat['dp_pitch_fss'].times0)
       title('AOSARES1.times0 - DP_PITCH_FSS.times0' + fb_str)
-      
+
       tight_layout()
 
 .. image:: fetchplots/interpolation_filter_false.png
@@ -566,13 +566,13 @@ the details.
 Unit systems
 ==============
 
-Within ``fetch`` it is possible to select a different system of physical 
+Within ``fetch`` it is possible to select a different system of physical
 units for the retrieved telemetry.  Internally the engineering archive
 stores values in the FITS format standard units as used by the CXC archive.
 This is essentially the MKS system and features all temperatures in Kelvins
-(not the most convenient).  
+(not the most convenient).
 
-In addition to the CXC unit system one can select "science" units or 
+In addition to the CXC unit system one can select "science" units or
 "engineering" units:
 
 ====== ==============================================================
@@ -584,7 +584,7 @@ eng    OCC engineering units (TDB P009, e.g. degF, ft-lb-sec, PSI)
 ====== ==============================================================
 
 The simplest way to select a different unit system is to alter the
-canonical command for importing the ``fetch`` module.  To always use OCC 
+canonical command for importing the ``fetch`` module.  To always use OCC
 engineering units use the following command::
 
   from Ska.engarchive import fetch_eng as fetch
@@ -611,7 +611,7 @@ Example::
 
   t1 = fetch_cxc.MSID('tephin', '2010:001', '2010:002')
   print t1.unit  # prints "K"
-  
+
   t2 = fetch_eng.MSID('tephin', '2010:001', '2010:002')
   print t2.unit  # prints "DEGF"
 
@@ -649,7 +649,7 @@ matches a given ``msid``::
     >>> fetch.msid_glob('orb*1*_?')
     (['orbitephem1_x', 'orbitephem1_y', 'orbitephem1_z'],
      ['ORBITEPHEM1_X', 'ORBITEPHEM1_Y', 'ORBITEPHEM1_Z'])
-    
+
     >>> fetch.msid_glob('dpa_power')
     (['dpa_power'], ['DP_DPA_POWER'])
 
@@ -675,7 +675,7 @@ be accessed with the ``raw_vals`` attribute::
   >>> dat = fetch.Msid('aopcadmd', '2011:185', '2011:195', stat='daily')
   >>> dat.vals
   array(['NMAN', 'NMAN', 'STBY', 'STBY', 'STBY', 'NSUN', 'NPNT', 'NPNT',
-  'NPNT', 'NPNT'], 
+  'NPNT', 'NPNT'],
   dtype='|S4')
   >>> dat.raw_vals
   array([2, 2, 0, 0, 0, 3, 1, 1, 1, 1], dtype=int8)
@@ -694,7 +694,7 @@ in the ``state_codes`` attribute::
    (6, 'NULL')]
 
 .. Note::
-   
+
    Be aware that the ``stat='daily'`` and ``stat='5min'`` values
    for state-valued MSIDs represent a single sample of the MSID at the specified
    interval.  There is no available information for the set of values which
@@ -706,7 +706,7 @@ Telemetry database
 
 With an |fetch_MSID| object you can directly access all the information
 in the Chandra Telemetry Database which relates to that MSID.  This is
-done through the 
+done through the
 `Ska.tdb <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html>`_
 module.  For example::
 
@@ -719,13 +719,13 @@ module.  For example::
   rec.array([('AOPCADMD', 1, 1, 0, 0, 'STBY'), ('AOPCADMD', 1, 7, 6, 6, 'NULL'),
              ('AOPCADMD', 1, 6, 5, 5, 'RMAN'), ('AOPCADMD', 1, 5, 4, 4, 'PWRF'),
              ('AOPCADMD', 1, 4, 3, 3, 'NSUN'), ('AOPCADMD', 1, 2, 1, 1, 'NPNT'),
-             ('AOPCADMD', 1, 3, 2, 2, 'NMAN')], 
-            dtype=[('MSID', '|S15'), ('CALIBRATION_SET_NUM', '<i8'), 
+             ('AOPCADMD', 1, 3, 2, 2, 'NMAN')],
+            dtype=[('MSID', '|S15'), ('CALIBRATION_SET_NUM', '<i8'),
                    ('SEQUENCE_NUM', '<i8'), ('LOW_RAW_COUNT', '<i8'),
                    ('HIGH_RAW_COUNT', '<i8'), ('STATE_CODE', '|S4')])
 
   >>> dat.tdb.Tsc['STATE_CODE']  # STATE_CODE column
-  rec.array(['STBY', 'NULL', 'RMAN', 'PWRF', 'NSUN', 'NPNT', 'NMAN'], 
+  rec.array(['STBY', 'NULL', 'RMAN', 'PWRF', 'NSUN', 'NPNT', 'NMAN'],
             dtype='|S4')
 
   >>> dat.tdb.technical_name
@@ -761,7 +761,7 @@ all the ``TEIO`` data for the mission::
          Wall time: 2.85 s
 
 Now look at the memory usage and see that around a 1 Gb is being used::
-  
+
   len(teio.vals) / 1e6
   clf()
   plot_cxctime(teio.times, teio.vals, '.', markersize=0.5)
@@ -782,8 +782,8 @@ We just fetched 300 million floats and now ``top`` should be showing some respec
 
   Cpu(s):  0.0%us,  0.1%sy,  0.0%ni, 99.7%id,  0.2%wa,  0.1%hi,  0.0%si,  0.0%st
 
-    PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND           
-  14243 aca       15   0 6866m 6.4g  11m S  0.0 40.9   3:08.70 ipython            
+    PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+  14243 aca       15   0 6866m 6.4g  11m S  0.0 40.9   3:08.70 ipython
 
 If you try to make a simple scatter plot with 300 million points you will
 make the machine very unhappy.  But we can do computations or make a histogram of
@@ -794,7 +794,7 @@ the distribution::
 
 .. image:: fetchplots/aorate3_hist.png
 
-Rules of thumb: 
+Rules of thumb:
 
 * 1 million is fast for plotting and analysis.
 * 10 million is OK for plotting and fast for analysis.

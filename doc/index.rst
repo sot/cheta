@@ -1,5 +1,5 @@
 ==================================
- Ska Engineering Telemetry Archive 
+ Ska Engineering Telemetry Archive
 ==================================
 .. include:: references.rst
 
