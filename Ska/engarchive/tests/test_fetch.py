@@ -1,21 +1,18 @@
 import numpy as np
 
-import Ska.engarchive.fetch_eng as fetch
+from Ska.engarchive import fetch
 from Chandra.Time import DateTime
-
-print
-print fetch.__version__
-print fetch.__file__
 
 DATES_EXPECT1 = np.array(['2008:291:23:59:58.987', '2008:291:23:59:59.244',
                           '2008:291:23:59:59.500', '2008:291:23:59:59.756',
                           '2008:297:00:00:00.121', '2008:297:00:00:00.378',
                           '2008:297:00:00:00.634'])
 
-DATES_EXPECT2 = np.array(['2008:291:23:59:58.987', '2008:291:23:59:59.244',
-                         '2008:291:23:59:59.500', '2008:291:23:59:59.756',
-                         '2008:296:00:00:00.048', '2008:296:00:00:00.304',
-                         '2008:296:00:00:00.561'])
+DATES_EXPECT2 = np.array(['2008:291:23:59:54.119', '2008:291:23:59:55.144',
+                          '2008:291:23:59:56.169', '2008:291:23:59:57.194',
+                          '2008:291:23:59:58.219', '2008:291:23:59:59.244',
+                          '2008:297:00:00:00.890', '2008:297:00:00:01.915',
+                          '2008:297:00:00:02.940', '2008:297:00:00:03.965'])
 
 BAD_TIMES = ['2008:292:00:00:00 2008:297:00:00:00',
              '2008:305:00:12:00 2008:305:00:12:03',
@@ -36,21 +33,21 @@ def test_filter_bad_times_list():
 
 def test_msidset_filter_bad_times_list():
     dat = fetch.MSIDset(['aogyrct1'], '2008:291', '2008:298')
-    dat.filter_bad_times()
+    dat.filter_bad_times(table=BAD_TIMES)
     dates = DateTime(dat['aogyrct1'].times[168581:168588]).date
-    assert np.all(dates == DATES_EXPECT2)
+    assert np.all(dates == DATES_EXPECT1)
 
     dat = fetch.Msidset(['aogyrct1'], '2008:291', '2008:298')
-    dat.filter_bad_times()
+    dat.filter_bad_times(table=BAD_TIMES)
     dates = DateTime(dat['aogyrct1'].times[168581:168588]).date
-    assert np.all(dates == DATES_EXPECT2)
+    assert np.all(dates == DATES_EXPECT1)
 
 
 def test_filter_bad_times_default():
     """Test bad times that come from msid_bad_times.dat"""
-    dat = fetch.MSID('aogyrct1', '2008:291', '2008:298')
+    dat = fetch.MSID('aogbias1', '2008:291', '2008:298')
     dat.filter_bad_times()
-    dates = DateTime(dat.times[168581:168588]).date
+    dates = DateTime(dat.times[42140:42150]).date
     assert np.all(dates == DATES_EXPECT2)
 
 
