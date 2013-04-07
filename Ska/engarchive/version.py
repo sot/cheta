@@ -2,7 +2,7 @@
 Version numbering for Ska.engarchive. The `major`, `minor`, and `bugfix`
 variables hold the respective parts of the version number (bugfix is '0' if
 absent). The `release` variable is True if this is a release, and False if this
-is a development version. For the actual version string, use::
+is a development version.  For the actual version string, use::
 
     from Ska.engarchive.version import version
 
