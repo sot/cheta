@@ -1,0 +1,169 @@
+#!/usr/bin/env python
+
+"""
+Regression test for fetching from the Ska engineering archive.
+
+This reads full-resolution, 5 minute, and daily values from a representative
+sample of MSIDs for each content type.
+
+To generate or update the regression dataset::
+
+  # In window 2.  This creates fetch_regr_<ska_test_version>
+  # If not on GRETA, set the ENG_ARCHIVE env var to point at the flight archive
+  % setenv ENG_ARCHIVE /proj/sot/ska/data/eng_archive
+
+  % skatest
+  % cd Ska/engarchive/tests
+  % python test_fetch_regr.py
+
+Help::
+
+  ska-ccosmos$ ./test_fetch_regr.py --help
+  usage: test_fetch_regr.py [-h] [--n-msids N_MSIDS] [--n-samp N_SAMP]
+                            [--start START] [--outroot OUTROOT]
+
+  Regression test for fetch
+
+  optional arguments:
+    -h, --help         show this help message and exit
+    --n-msids N_MSIDS  Max msids per content type
+    --n-samp N_SAMP    Max samples of each msid
+    --start START      Start
+    --outroot OUTROOT  Output file root
+
+"""
+
+import sys
+import os
+import operator
+import hashlib
+import argparse
+import collections
+
+from Chandra.Time import DateTime
+import numpy as np
+
+
+def get_args(args=None):
+    parser = argparse.ArgumentParser(description='Regression test for fetch')
+    parser.add_argument('--n-msids',
+                        default=4,
+                        type=int,
+                        help='Max msids per content type')
+
+    parser.add_argument('--n-samp',
+                        default=10000,
+                        type=int,
+                        help='Max samples of each msid')
+
+    parser.add_argument('--start',
+                        type=str,
+                        default='2012:149:10:00:00',
+                        help='Start')
+
+    parser.add_argument('--outfile',
+                        type=str,
+                        default='fetch_regr.dat',
+                        help='Output file (default=stdout)')
+
+    args = parser.parse_args(args)
+    return args
+
+
+def get_contents(fetch, args):
+    contents = collections.defaultdict(list)
+    for msid, content_type in fetch.content.iteritems():
+        contents[content_type].append(msid)
+
+    for content_type, msids in contents.items():
+        msids = sorted(msids)
+        idxs = np.linspace(0, len(msids) - 1, args.n_msids).astype(int)
+        contents[content_type] = [msids[idx] for idx in sorted(set(idxs))]
+
+    return contents
+
+
+def get_md5(fetch, args, msid, start, days, stat):
+    md5 = hashlib.md5()
+    dat = fetch.MSID(msid, start, start + days, stat=stat)
+    n_samp = min(args.n_samp, len(dat.vals))
+    idxs = np.linspace(0, n_samp - 1, n_samp).astype(int)
+    for val in dat.vals.take(idxs):
+        md5.update(repr(val)[:-1])  # Drop last digit for Windows compatibility
+    if dat.bads is not None:
+        for bad in dat.bads.take(idxs):
+            md5.update(repr(bad))
+
+    return md5.hexdigest()
+
+
+def main():
+    args = get_args()
+
+    from Ska.engarchive import fetch
+    from astropy.utils.console import ProgressBar
+
+    contents = get_contents(fetch, args)
+
+    if args.outfile:
+        print("Writing regression results to {}".format(args.outfile))
+        fout = open(args.outfile, 'w')
+    else:
+        fout = sys.stdout
+
+    start = DateTime(args.start)
+    with ProgressBar(len(contents)) as bar:
+        for content_type in sorted(contents):
+            bar.update()
+            msids = contents[content_type]
+            for msid in msids:
+                for stat, days in ((None, 1),
+                                   ('5min', 4),
+                                   ('daily', 300)):
+
+                    key = '{:20s} {:16s} {:6s}'.format(content_type, msid, stat)
+                    md5_hex = get_md5(fetch, args, msid, start, days, stat)
+                    print >>fout, key, md5_hex
+
+    if args.outfile:
+        fout.close()
+
+
+def test_fetch_regr():
+    from Ska.engarchive import fetch
+    args = get_args(args=[])
+
+    contents = get_contents(fetch, args)
+    start = DateTime(args.start)
+
+    regr_md5_hexes = collections.defaultdict(dict)
+    outfile = os.path.join(os.path.dirname(__file__), args.outfile)
+    with open(outfile, 'r') as f:
+        for line in f:
+            content_type, msid, stat, md5_hex = line.strip().split()
+            key = '{:16s} {:6s}'.format(msid, stat)
+            regr_md5_hexes[content_type][key] = md5_hex
+
+    # Should have same content_type keys
+    assert sorted(contents) == sorted(regr_md5_hexes)
+
+    print()
+    for ii, content_type in enumerate(sorted(contents)):
+        test_md5_hexes = {}
+        msids = contents[content_type]
+        for msid in msids:
+            for stat, days in ((None, 1),
+                               ('5min', 4),
+                               ('daily', 300)):
+
+                key = '{:16s} {:6s}'.format(content_type, msid, stat)
+                md5_hex = get_md5(fetch, args, msid, start, days, stat)
+                test_md5_hexes[key] = md5_hex
+        sys.stdout.write('Checking {:16s} ({}/{})\r'.
+                         format(content_type, ii + 1, len(contents)))
+        sys.stdout.flush()
+        yield operator.eq, test_md5_hexes, regr_md5_hexes[content_type]
+    print()
+
+if __name__ == '__main__':
+    main()

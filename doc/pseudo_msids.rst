@@ -134,37 +134,37 @@ The units shown below are for the CXC and ENG unit systems, respectively.
 ============ ========= ===============================================
 MSID         Unit      Description
 ============ ========= ===============================================
-3FAFLAAT     K [degC]  SEA FA flexure a temp a                        
-3FAFLBAT     K [degC]  SEA FA flexure b temp a                        
-3FAFLCAT     K [degC]  SEA FA flexure c temp a                        
-3FAMOVE                SEA FA in motion flag                          
-3FAMTRAT     K [degC]  SEA-A focus drive motor temp                   
-3FAPOS       mm [step] SEA FA position                                
-3FAPSAT      K [degC]  SEA-A power supply temp                        
-3FASEAAT     K [degC]  SEA-A box temp                                 
-3LDRTMEK               SEA mechanism for last detected reference tab  
-3LDRTNO                SEA tab number of reference tab last detected  
-3LDRTPOS     mm [step] SEA last detected ref tab position             
-3MRMMXMV        [step] SEA max pwm level most recent move             
-3SEAID                 SEA identification                             
-3SEAINCM               SEA invalid command group flag                 
-3SEARAMF               SEA ram failure detection flag                 
-3SEAROMF               SEA prom checksum fail flag                    
-3SEARSET               SEA reset flag                                 
-3SEATMUP               SEA tlm update flag (toggle w/ea update)       
-3SFLXAST     K [degC]  SEA flexure a temperature setpoint             
-3SFLXBST     K [degC]  SEA flexure b temperature setpoint             
-3SFLXCST     K [degC]  SEA flexure c temperature setpoint             
-3SHTREN                SEA heater power relay status                  
-3SMOTOC      cnts      SEA motor drive overcurrent counter            
-3SMOTPEN               SEA motor driver power relay status            
-3SMOTSEL               SEA motor selection relay status               
-3SMOTSTL     cnts      SEA motor stall counter                        
-3SPENDC      cnts      SEA pending cmd count                          
-3STAB2EN               SEA tab2 auto position update enab/disa status 
-3TRMTRAT     K [degC]  SEA a translation drive motor temp             
-3TSCMOVE               SEA TSC in motion flag                         
-3TSCPOS      mm [step] SEA TSC position                               
+3FAFLAAT     K [degC]  SEA FA flexure a temp a
+3FAFLBAT     K [degC]  SEA FA flexure b temp a
+3FAFLCAT     K [degC]  SEA FA flexure c temp a
+3FAMOVE                SEA FA in motion flag
+3FAMTRAT     K [degC]  SEA-A focus drive motor temp
+3FAPOS       mm [step] SEA FA position
+3FAPSAT      K [degC]  SEA-A power supply temp
+3FASEAAT     K [degC]  SEA-A box temp
+3LDRTMEK               SEA mechanism for last detected reference tab
+3LDRTNO                SEA tab number of reference tab last detected
+3LDRTPOS     mm [step] SEA last detected ref tab position
+3MRMMXMV        [step] SEA max pwm level most recent move
+3SEAID                 SEA identification
+3SEAINCM               SEA invalid command group flag
+3SEARAMF               SEA ram failure detection flag
+3SEAROMF               SEA prom checksum fail flag
+3SEARSET               SEA reset flag
+3SEATMUP               SEA tlm update flag (toggle w/ea update)
+3SFLXAST     K [degC]  SEA flexure a temperature setpoint
+3SFLXBST     K [degC]  SEA flexure b temperature setpoint
+3SFLXCST     K [degC]  SEA flexure c temperature setpoint
+3SHTREN                SEA heater power relay status
+3SMOTOC      cnts      SEA motor drive overcurrent counter
+3SMOTPEN               SEA motor driver power relay status
+3SMOTSEL               SEA motor selection relay status
+3SMOTSTL     cnts      SEA motor stall counter
+3SPENDC      cnts      SEA pending cmd count
+3STAB2EN               SEA tab2 auto position update enab/disa status
+3TRMTRAT     K [degC]  SEA a translation drive motor temp
+3TSCMOVE               SEA TSC in motion flag
+3TSCPOS      mm [step] SEA TSC position
 TLMSTATUS              SEA telemetry status (updated or not updated)
 ============ ========= ===============================================
 
@@ -318,7 +318,7 @@ Derived Parameters
 ------------------
 
 The engineering archive has pseudo-MSIDs that are derived via computation from
-telemetry MSIDs.  All derived parameter names begin with the characters "DP_"
+telemetry MSIDs.  All derived parameter names begin with the characters ``DP_``
 (not case sensitive as usual).  Otherwise there is no difference from standard
 MSIDs.
 

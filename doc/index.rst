@@ -1,5 +1,5 @@
 ==================================
- Ska Engineering Telemetry Archive 
+ Ska Engineering Telemetry Archive
 ==================================
 .. include:: references.rst
 
@@ -57,3 +57,13 @@ API docs
    fetch
    plot
    utils
+
+.. toctree::
+   :hidden:
+
+   date_time_formats
+   fetch_tutorial_standalone
+   ipython_tutorial
+   matplotlib_tutorial
+   numpy_tutorial
+   references
