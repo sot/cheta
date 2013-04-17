@@ -5,11 +5,6 @@ import Ska.engarchive.fetch_sci as fetch_sci
 start = '2011:001:00:00:00'
 stop = '2011:001:00:30:00'
 
-print
-print fetch_cxc.__version__
-print fetch_cxc.__file__
-print
-
 
 def test_initial_units():
     assert fetch_cxc.get_units() == 'cxc'
