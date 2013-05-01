@@ -351,14 +351,14 @@ class MSID(object):
             row0, row1 = np.searchsorted(times, [tstart, tstop])
             table_rows = table[row0:row1]  # returns np.ndarray (structured array)
             h5.close()
-            return (times, table_rows, row0, row1)
+            return (times[row0:row1], table_rows, row0, row1)
         times, table_rows, row0, row1 = \
             get_stat_data_from_server(_split_path(filename),
                                       self.dt, self.tstart, self.tstop)
         logger.info('Closed %s', filename)
 
         self.bads = None
-        self.times = times[row0:row1]
+        self.times = times
         self.colnames = ['times']
         for colname in table_rows.dtype.names:
             # Don't like the way columns were named in the stats tables.
