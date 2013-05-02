@@ -631,13 +631,28 @@ class MSID(object):
         else:
             bad_times = [(start, stop)]
 
-        ok = np.ones(len(self.times), dtype=bool)
-        for start, stop in bad_times:
-            tstart = DateTime(start).secs
-            tstop = DateTime(stop).secs
+        # Make sure bad_times is now expressed in sec
+        bad_times = [(DateTime(start).secs, DateTime(stop).secs)
+                     for start, stop in bad_times]
+        self._filter_times(bad_times, exclude=True)
+
+    def _filter_times(self, intervals, exclude=True):
+        """
+        Filter the times of self based on ``intervals``.
+
+        :param intervals: iterable (N x 2) with tstart, tstop in seconds
+        :param exclude: exclude intervals if True, else include intervals
+        """
+        # Make an initial acceptance mask.  If exclude is True then initially
+        # all values are allowed (ok=True).  If exclude is False (i.e. only
+        # include the interval times) then ok=False everywhere.
+        ok = np.empty(len(self.times), dtype=bool)
+        ok[:] = exclude
+
+        for tstart, tstop in intervals:
             if tstart > tstop:
                 raise ValueError("Start time %s must be less than stop time %s"
-                                 % (start, stop))
+                                 % (tstart, tstop))
 
             if tstop < self.times[0] or tstart > self.times[-1]:
                 continue
@@ -647,7 +662,7 @@ class MSID(object):
             # (though in reality an exact tie is extremely unlikely).
             i0 = np.searchsorted(self.times, tstart, side='left')
             i1 = np.searchsorted(self.times, tstop, side='right')
-            ok[i0:i1] = False
+            ok[i0:i1] = not exclude
 
         colnames = (x for x in self.colnames)
         for colname in colnames:
