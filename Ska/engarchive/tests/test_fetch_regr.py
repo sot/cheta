@@ -89,7 +89,8 @@ def get_md5(fetch, args, msid, start, days, stat):
     n_samp = min(args.n_samp, len(dat.vals))
     idxs = np.linspace(0, n_samp - 1, n_samp).astype(int)
     for val in dat.vals.take(idxs):
-        md5.update(repr(val)[:-1])  # Drop last digit for Windows compatibility
+        val = '{:.6e}'.format(val) if isinstance(val, np.inexact) else repr(val)
+        md5.update(val)
     if dat.bads is not None:
         for bad in dat.bads.take(idxs):
             md5.update(repr(bad))
@@ -129,6 +130,10 @@ def main():
         fout.close()
 
 
+def assert_true(x):
+    assert x
+
+
 def test_fetch_regr():
     from Ska.engarchive import fetch
     args = get_args(args=[])
@@ -156,13 +161,22 @@ def test_fetch_regr():
                                ('5min', 4),
                                ('daily', 300)):
 
-                key = '{:16s} {:6s}'.format(content_type, msid, stat)
+                key = '{:16s} {:6s}'.format(msid, stat)
                 md5_hex = get_md5(fetch, args, msid, start, days, stat)
                 test_md5_hexes[key] = md5_hex
+        md5s_equal = test_md5_hexes == regr_md5_hexes[content_type]
         sys.stdout.write('Checking {:16s} ({}/{})\r'.
                          format(content_type, ii + 1, len(contents)))
+        if not md5s_equal:
+            from pprint import pformat
+            sys.stdout.write('\nBAD match\n'
+                             'Regr:\n'
+                             '{}\n'
+                             'Test:\n'
+                             '{}\n'.format(pformat(regr_md5_hexes[content_type]),
+                                           pformat(test_md5_hexes)))
         sys.stdout.flush()
-        yield operator.eq, test_md5_hexes, regr_md5_hexes[content_type]
+        yield assert_true, md5s_equal
     print()
 
 if __name__ == '__main__':
