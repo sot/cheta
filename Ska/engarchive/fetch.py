@@ -642,8 +642,6 @@ class MSID(object):
         The ``intervals`` argument can be either a list of (start, stop) tuples
         or an EventQuery object from kadi.
 
-        Examples
-        --------
         This example shows fetching the pitch component of the spacecraft rate.
         After examining the rates, the samples during maneuvers are then removed
         and the standard deviation is recomputed.  This filters out the large
@@ -675,8 +673,6 @@ class MSID(object):
         The ``intervals`` argument can be either a list of (start, stop) tuples
         or an EventQuery object from kadi.
 
-        Examples
-        --------
         This example shows fetching the pitch component of the spacecraft rate.
         After examining the rates, the samples during maneuvers are then selected
         and the mean is recomputed.  This highlights the large rates during

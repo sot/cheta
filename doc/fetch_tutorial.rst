@@ -1,3 +1,5 @@
+:tocdepth: 3
+
 .. |fetch_MSID| replace:: :func:`~Ska.engarchive.fetch.MSID`
 .. |fetch_MSIDset| replace:: :func:`~Ska.engarchive.fetch.MSIDset`
 .. |fetch_MSIDset_interpolate| replace:: :func:`~Ska.engarchive.fetch.MSIDset.interpolate`
@@ -233,11 +235,84 @@ state-valued MSIDs such as ``AOPCADMD`` or ``AOUNLOAD``::
    case.
 
 
-Bad data
-=========
+Data filtering
+=================
 
-At this point we've glossed over the important point of possible bad data.  For
-various reasons (typically a VCDU drop) the data value associated with a particular
+Often one needs to filter or select subsets of the raw telemetry that gets fetched from
+the archive in order to use the values in analysis.  Here we describe the ways to
+accomplish this in different circumstances.
+
+.. _event_intervals:
+
+Event interval filtering
+-------------------------
+
+The first case is when one needs to either select or remove specific intervals of
+telemetry values from a full |fetch_MSID| or |fetch_MSIDset| object based on known
+spacecraft events.  For instance when analyzing OBC rate noise we need to use only data
+during periods of stable Kalman lock.  Likewise it is frequently useful to exclude time
+intervals during which the spacecraft was in an anomalous state and OBC telemetry is
+unreliable.
+
+To handle this one uses the :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
+:func:`~Ska.engarchive.fetch.MSID.select_intervals` methods in conjunction with the `kadi event
+intervals <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-intervals>`_
+mechanism.
+
+As a simple example, the following code fetches the pitch component of the spacecraft
+rate.  The samples during maneuvers are then selected and then replotted.  This
+highlights the large rates during maneuvers::
+
+  >>> aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+  >>> aorate2.iplot()
+
+  >>> from kadi import events
+  >>> aorate2.select_intervals(events.manvrs)
+  >>> aorate2.plot('.r')
+
+.. plot::
+
+   from Ska.engarchive import fetch
+   import matplotlib.pyplot as plt
+   plt.figure(figsize=(6, 4), dpi=75)
+
+   aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+   aorate2.iplot()
+
+   from kadi import events
+   aorate2.select_intervals(events.manvrs)
+   aorate2.plot('.r')
+   plt.tight_layout()
+
+The following code illustrates use of the :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
+method to select all all time intervals when the spacecraft is *not* maneuvering.  In this
+case we include a pad time of 600 seconds before the start of a maneuver and 300 seconds
+after the end of each maneuver.
+
+  >>> aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+  >>> events.manvrs.interval_pad = (600, 300)  # Pad before, after each maneuver (seconds)
+  >>> aorate2.remove_intervals(events.manvrs)
+  >>> aorate2.iplot('.')
+
+.. plot::
+
+   from Ska.engarchive import fetch
+   import matplotlib.pyplot as plt
+   from kadi import events
+
+   plt.figure(figsize=(6, 4), dpi=75)
+
+   aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+   events.manvrs.interval_pad = (600, 300)  # Pad before, after each maneuver (seconds)
+   aorate2.remove_intervals(events.manvrs)
+   aorate2.iplot('.')
+
+   plt.tight_layout()
+
+Bad data
+-----------
+
+For various reasons (typically a VCDU drop) the data value associated with a particular
 readout may be bad.  To handle this the engineering archive provides a boolean array
 called ``bads`` that is ``True`` for bad samples.  This array corresponds to the
 respective ``times`` and ``vals`` arrays.  To remove the bad values one can use numpy
@@ -253,21 +328,24 @@ bad data points for all the MSID data arrays.  Instead just do::
   tephin.filter_bad()
 
 In fact it can be even easier if you tell fetch to filter the bad data at the point of
-retrieving the data from the archive::
+retrieving the data from the archive.  The following two calls both accomplish this
+task, with the first one being the preferred idiom::
 
+  tephin = fetch.Msid('tephin', '2009:001', '2009:007')
   tephin = fetch.MSID('tephin', '2009:001', '2009:007', filter_bad=True)
 
 You might wonder why fetch ever bothers to return bad data and a bad mask, but
 this will become apparent later when we start using time-correlated values instead
 just simple time plots.
 
-**Really bad data**
+Really bad data
+^^^^^^^^^^^^^^^^^
 
 Even after applying ``filter_bad()`` you may run across obviously bad data in
 the archive (e.g. there is a single value of AORATE1 of around 2e32
 in 2007).  These are not marked with bad quality in the CXC archive and are
 presumably real telemetry errors.  If you run across a bad data point you can
-locate and filter it out as follows (but also see the next section)::
+locate and filter it out as follows (but see also :ref:`filter_bad_times`)::
 
   aorate1 = fetch.MSID('aorate1', '2007:001', '2008:001', filter_bad=True)
   bad_vals_mask = abs(aorate1.vals) > 0.01
@@ -285,12 +363,18 @@ locate and filter it out as follows (but also see the next section)::
 
 .. _filter_bad_times:
 
-**Filtering out bad time intervals of data**
+Filtering out arbitrary time intervals
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are many periods of time where the spacecraft was in an anomalous state
-and telemetry values may be unreliable.  For example during safemode the OBC
-values (AO*) may be meaningless.  There is a simple mechanism to remove these
-times of known bad data in either a |fetch_MSID| or |fetch_MSIDset| object::
+and telemetry values may be unreliable without being marked as bad by CXC data
+processing.  For example during safemode the OBC
+values (AO*) may be meaningless.  The preferred way to handle this situation is
+using :ref:`event_intervals` since those intervals are always up to date.
+
+However, in cases where event interval filter is not applicable, an alternative mechanism
+is available to remove arbitrary times of undesired data in either a
+|fetch_MSID| or |fetch_MSIDset| object::
 
   aorates = fetch.MSIDset(['aorate*'], '2007:001', '2008:001')
   aorates.filter_bad_times()

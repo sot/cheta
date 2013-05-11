@@ -11,20 +11,30 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
+import warnings
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 rootpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, rootpath)
-from Ska.engarchive.version import version as release
 
 # -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.viewcode']
+
+try:
+    import matplotlib.sphinxext.plot_directive
+    extensions += [matplotlib.sphinxext.plot_directive.__name__]
+except ImportError:
+    warnings.warn(
+        "matplotlib's plot_directive could not be imported. " +
+        "Inline plots will not be included in the output")
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -42,13 +52,11 @@ master_doc = 'index'
 project = u'Eng archive'
 copyright = u'2011, Tom Aldcroft'
 
+# The full version, including alpha/beta/rc tags.  Already defined above.
+from Ska.engarchive.version import version as release
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
-
-# The full version, including alpha/beta/rc tags.  Already defined above.
-# release = release 
-
 # The short X.Y version.
 version = '.'.join(release.split('.')[:2])
 
