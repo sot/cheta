@@ -7,9 +7,38 @@ Typically this is needed because of bad telemetry that is not marked
 as such in the CXC archive.  This code will mark a single value or
 range of values as bad (via the quality flag) and re-run the statistics
 computations.  The database (HDF5 file) values are updated in place.
+
+Usage::
+
+  fix_bad_values.py [-h] [--msid MSID] [--start START] [--stop STOP]
+                           [--run] [--data-root DATA_ROOT]
+
+  Fix bad values in eng archive
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    --msid MSID           MSID name
+    --start START         Start time of bad values
+    --stop STOP           Stop time of bad values (default is start + 1 msec)
+    --run                 Actually modify files (dry run is the default)
+    --data-root DATA_ROOT
+                          Engineering archive root directory for MSID and arch
+                          files
+
+Example::
+
+  # First dry run
+  % ./fix_bad_values.py --msid aorate3 --start=2013:146:16:12:44.600 \
+                        --data-root=/proj/sot/ska/data/eng_archive
+
+  # Now the real thing
+  % ./fix_bad_values.py --msid aorate3 --start=2013:146:16:12:44.600 \
+                        --data-root=/proj/sot/ska/data/eng_archive --run
+
+  % emacs NOTES.fix_bad_values  # copy the above into NOTES for the record
+
 """
 
-import os
 import argparse
 import itertools
 
@@ -32,11 +61,9 @@ logger = None
 def get_opt():
     parser = argparse.ArgumentParser(description='Fix bad values in eng archive')
     parser.add_argument('--msid',
-                        default='aorate3',
                         type=str,
                         help='MSID name')
     parser.add_argument('--start',
-                        default='2013:146:16:12:44.600',
                         help='Start time of bad values')
     parser.add_argument('--stop',
                         help='Stop time of bad values')
