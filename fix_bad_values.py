@@ -91,9 +91,13 @@ logger.info('Reading MSID file {}'.format(filename))
 h5 = tables.openFile(filename, 'a')
 try:
     for idx in fix_idxs:
+        quality = h5.root.quality[idx]
+        if quality:
+            logger.info('Skipping idx={} because quality is already True'.format(idx))
+            continue
         logger.info('{}.data[{}] = {}'.format(msid, idx, h5.root.data[idx]))
         logger.info('Changing {}.quality[{}] from {} to True'
-                    .format(msid, idx, h5.root.quality[idx]))
+                    .format(msid, idx, quality))
         if not opt.dry_run:
             h5.root.quality[idx] = True
 finally:
