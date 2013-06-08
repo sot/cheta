@@ -16,7 +16,7 @@ DOC = doc/_build/html/*
 DATA = archfiles_def.sql filetypes_all.dat task_schedule*.cfg
 
 # telem_archive uses a number of dedicated perl and IDL scripts
-SHARE = update_archive.py transfer_stage.py check_integrity.py fetch_tutorial.py NOTES.*
+SHARE = update_archive.py transfer_stage.py check_integrity.py fetch_tutorial.py fix_bad_values.py NOTES.*
 
 .PHONY: doc clean_dp
 
