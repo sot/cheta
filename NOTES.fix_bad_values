@@ -1,0 +1,2 @@
+./fix_bad_values.py --msid aorate3 --start=2013:146:16:12:44.600 --data-root=/proj/sot/ska/data/eng_archive --run
+./fix_bad_values.py --msid aorate1 --start=2007:310:22:10:02.951 --data-root=/proj/sot/ska/data/eng_archive --run
