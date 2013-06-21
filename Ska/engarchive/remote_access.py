@@ -60,8 +60,7 @@ Return success status (True/False)
         sys.stdout.flush()
         try:
             _remote_client = IPython.parallel.Client(client_key_file,
-                                                     sshserver = hostname,
-                                                     username=username,
+                                                     sshserver=username+'@'+hostname,
                                                      password=password)
         except:
             print 'Error connecting to server ',hostname,': ',sys.exc_info()[0]
