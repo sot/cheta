@@ -631,13 +631,96 @@ class MSID(object):
         else:
             bad_times = [(start, stop)]
 
-        ok = np.ones(len(self.times), dtype=bool)
-        for start, stop in bad_times:
-            tstart = DateTime(start).secs
-            tstop = DateTime(stop).secs
+        self._filter_times(bad_times, exclude=True)
+
+    def remove_intervals(self, intervals):
+        """
+        Remove telemetry points that occur within the specified ``intervals``
+
+        This method is the converse of select_intervals().
+
+        The ``intervals`` argument can be either a list of (start, stop) tuples
+        or an EventQuery object from kadi.
+
+        This example shows fetching the pitch component of the spacecraft rate.
+        After examining the rates, the samples during maneuvers are then removed
+        and the standard deviation is recomputed.  This filters out the large
+        rates during maneuvers::
+
+          >>> aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+          >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+          3.9969393528801782
+          >>> figure(1)
+          >>> aorate2.plot(',')
+
+          >>> from kadi import events
+          >>> aorate2.remove_intervals(events.manvrs)
+          >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+          -0.0003688639491030978
+          >>> figure(2)
+          >>> aorate2.plot(',')
+
+        :param intervals: EventQuery or iterable (N x 2) with start, stop dates/times
+        """
+        self._filter_times(intervals, exclude=True)
+
+    def select_intervals(self, intervals):
+        """
+        Select telemetry points that occur within the specified ``intervals``
+
+        This method is the converse of remove_intervals().
+
+        The ``intervals`` argument can be either a list of (start, stop) tuples
+        or an EventQuery object from kadi.
+
+        This example shows fetching the pitch component of the spacecraft rate.
+        After examining the rates, the samples during maneuvers are then selected
+        and the mean is recomputed.  This highlights the large rates during
+        maneuvers::
+
+          >>> aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+          >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+          3.9969393528801782
+          >>> figure(1)
+          >>> aorate2.plot(',')
+
+          >>> from kadi import events
+          >>> aorate2.select_intervals(events.manvrs)
+          >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+          24.764309542605481
+          >>> figure(2)
+          >>> aorate2.plot(',')
+
+        :param intervals: EventQuery or iterable (N x 2) with start, stop dates/times
+        """
+        self._filter_times(intervals, exclude=False)
+
+    def _filter_times(self, intervals, exclude=True):
+        """
+        Filter the times of self based on ``intervals``.
+
+        :param intervals: iterable (N x 2) with tstart, tstop in seconds
+        :param exclude: exclude intervals if True, else include intervals
+        """
+        # Make an initial acceptance mask.  If exclude is True then initially
+        # all values are allowed (ok=True).  If exclude is False (i.e. only
+        # include the interval times) then ok=False everywhere.
+        ok = np.empty(len(self.times), dtype=bool)
+        ok[:] = exclude
+
+        # Check if this is an EventQuery.  Would rather not import EventQuery
+        # because this is expensive (django), so just look at the name and
+        # count on no inheritence.
+        if intervals.__class__.__name__ == 'EventQuery':
+            intervals = intervals.intervals(self.datestart, self.datestop)
+
+        intervals = [(DateTime(start).secs, DateTime(stop).secs)
+                     for start, stop in intervals]
+
+        for tstart, tstop in intervals:
             if tstart > tstop:
                 raise ValueError("Start time %s must be less than stop time %s"
-                                 % (start, stop))
+                                 % (tstart, tstop))
 
             if tstop < self.times[0] or tstart > self.times[-1]:
                 continue
@@ -647,7 +730,7 @@ class MSID(object):
             # (though in reality an exact tie is extremely unlikely).
             i0 = np.searchsorted(self.times, tstart, side='left')
             i1 = np.searchsorted(self.times, tstop, side='right')
-            ok[i0:i1] = False
+            ok[i0:i1] = not exclude
 
         colnames = (x for x in self.colnames)
         for colname in colnames:

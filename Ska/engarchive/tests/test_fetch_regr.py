@@ -35,7 +35,6 @@ Help::
 
 import sys
 import os
-import operator
 import hashlib
 import argparse
 import collections
@@ -176,7 +175,7 @@ def test_fetch_regr():
                              '{}\n'.format(pformat(regr_md5_hexes[content_type]),
                                            pformat(test_md5_hexes)))
         sys.stdout.flush()
-        yield assert_true, md5s_equal
+        assert md5s_equal
     print()
 
 if __name__ == '__main__':
