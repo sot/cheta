@@ -51,6 +51,40 @@ def test_filter_bad_times_default():
     assert np.all(dates == DATES_EXPECT2)
 
 
+def test_filter_bad_times_list_copy():
+    dat = fetch.MSID('aogyrct1', '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2.times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+    assert len(dat.vals) != len(dat2.vals)
+
+    dat = fetch.Msid('aogyrct1', '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2.times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+    assert len(dat.vals) != len(dat2.vals)
+
+
+def test_msidset_filter_bad_times_list_copy():
+    dat = fetch.MSIDset(['aogyrct1'], '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2['aogyrct1'].times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+
+    dat = fetch.Msidset(['aogyrct1'], '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2['aogyrct1'].times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+
+
+def test_filter_bad_times_default_copy():
+    """Test bad times that come from msid_bad_times.dat"""
+    dat = fetch.MSID('aogbias1', '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(copy=True)
+    dates = DateTime(dat2.times[42140:42150]).date
+    assert np.all(dates == DATES_EXPECT2)
+
+
 def test_interpolate():
     dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
                         '2008:002:21:48:00', '2008:002:21:50:00')
@@ -133,3 +167,4 @@ def test_msidset_copy():
         assert msidset1.keys() == msidset2.keys()
         for name in msidset1.keys():
             _assert_msid_equal(msidset1[name], msidset2[name])
+

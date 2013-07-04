@@ -441,6 +441,24 @@ with the interval and MSID and that will be added to the global registry.
 After that there will be no need to explicitly run the
 ``fetch.read_bad_times(filename)`` command to exclude that interval.
 
+Copy versus in-place
+^^^^^^^^^^^^^^^^^^^^^
+
+All of the data filter methods shown here take an optional ``copy`` argument.  By default
+this is set to ``False`` so that the filtering is done in-place, as shown in the previous
+examples.  However, if ``copy=True`` then a new copy of the MSID object is used for the
+data filtering and this copy is returned.  For example::
+
+  >>> aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+  >>> aorate2_manvrs = aorate2.select_intervals(events.manvrs, copy=True)
+
+Or::
+
+  >>> aogbias1 = fetch.MSID('aogbias1', '2008:291', '2008:298')
+  >>> aogbias1_good = aogbias1.filter_bad(copy=True)
+
+In both cases the original ``aorate2`` is left untouched.
+
 Five minute and daily stats
 ===========================
 
