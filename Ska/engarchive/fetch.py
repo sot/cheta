@@ -566,6 +566,10 @@ class MSID(object):
         self.times0 = self.times
         self.times = times
 
+    def copy(self):
+        from copy import deepcopy
+        return deepcopy(self)
+
     def filter_bad(self, bads=None):
         """Filter out any bad values.
 
@@ -997,6 +1001,18 @@ class MSIDset(collections.OrderedDict):
                                    filter_bad=False, stat=stat)
         if filter_bad:
             self.filter_bad()
+
+    def __deepcopy__(self, memo=None):
+        out = self.__class__([], None)
+        for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
+            setattr(out, attr, getattr(self, attr))
+        for msid in self:
+            out[msid] = self[msid].copy()
+
+        return out
+
+    def copy(self):
+        return self.__deepcopy__()
 
     def filter_bad(self):
         """Filter bad values for the MSID set.

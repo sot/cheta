@@ -101,3 +101,35 @@ def test_interpolate_msid():
                             'NMAN', 'NMAN', 'NMAN', 'NMAN',
                             'NMAN', 'NMAN', 'NMAN', 'NMAN'],
                            dtype='|S4'))
+
+
+def _assert_msid_equal(msid1, msid2):
+    for attr in ('tstart', 'tstop', 'datestart', 'datestop', 'units', 'unit', 'stat'):
+        assert getattr(msid1, attr) == getattr(msid2, attr)
+    assert np.all(msid1.times == msid2.times)
+    assert np.all(msid1.vals == msid2.vals)
+    assert msid1.__class__ is msid2.__class__
+
+
+def test_msid_copy():
+    for MsidClass in (fetch.Msid, fetch.MSID):
+        msid1 = MsidClass('aogbias1', '2008:291', '2008:298')
+        msid2 = msid1.copy()
+        _assert_msid_equal(msid1, msid2)
+
+    # Make sure msid data sets are independent
+    msid2.filter_bad()
+    assert len(msid1.vals) != len(msid2.vals)
+
+
+def test_msidset_copy():
+    for MsidsetClass in (fetch.MSIDset, fetch.Msidset):
+        msidset1 = MsidsetClass(['aogbias1', 'aogbias2'], '2008:291', '2008:298')
+        msidset2 = msidset1.copy()
+
+        for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
+            assert getattr(msidset1, attr) == getattr(msidset2, attr)
+
+        assert msidset1.keys() == msidset2.keys()
+        for name in msidset1.keys():
+            _assert_msid_equal(msidset1[name], msidset2[name])
