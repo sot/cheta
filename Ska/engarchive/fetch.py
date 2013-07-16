@@ -991,6 +991,9 @@ class MSID(object):
         plot_cxctime(self.times, vals, *args, state_codes=self.state_codes,
                      **kwargs)
 
+    def __len__(self):
+        return len(self.times)
+
 
 class MSIDset(collections.OrderedDict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
