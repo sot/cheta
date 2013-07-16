@@ -1,3 +1,24 @@
+##########################################################################
+# For py.test unit tests and general development
+##########################################################################
+ska
+workon engarc
+python setup.py install
+cd doc  # make sure it's picking up the installed version
+ipython
+>>> import Ska.engarchive
+>>> Ska.engarchive.test(args='-k -test_fetch_regr')  # normally skip this
+
+##########################################################################
+# Build and install docs
+##########################################################################
+cd doc
+make html
+cd ..
+su -l aca
+make install_doc
+
+#############################################################################
 # Make baseline (seed) test data using flight Ska.
 #
 # NORMALLY THIS IS NOT DONE, just use available flight regression data.
