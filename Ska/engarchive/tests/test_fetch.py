@@ -51,6 +51,40 @@ def test_filter_bad_times_default():
     assert np.all(dates == DATES_EXPECT2)
 
 
+def test_filter_bad_times_list_copy():
+    dat = fetch.MSID('aogyrct1', '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2.times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+    assert len(dat.vals) != len(dat2.vals)
+
+    dat = fetch.Msid('aogyrct1', '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2.times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+    assert len(dat.vals) != len(dat2.vals)
+
+
+def test_msidset_filter_bad_times_list_copy():
+    dat = fetch.MSIDset(['aogyrct1'], '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2['aogyrct1'].times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+
+    dat = fetch.Msidset(['aogyrct1'], '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
+    dates = DateTime(dat2['aogyrct1'].times[168581:168588]).date
+    assert np.all(dates == DATES_EXPECT1)
+
+
+def test_filter_bad_times_default_copy():
+    """Test bad times that come from msid_bad_times.dat"""
+    dat = fetch.MSID('aogbias1', '2008:291', '2008:298')
+    dat2 = dat.filter_bad_times(copy=True)
+    dates = DateTime(dat2.times[42140:42150]).date
+    assert np.all(dates == DATES_EXPECT2)
+
+
 def test_interpolate():
     dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
                         '2008:002:21:48:00', '2008:002:21:50:00')
@@ -101,3 +135,36 @@ def test_interpolate_msid():
                             'NMAN', 'NMAN', 'NMAN', 'NMAN',
                             'NMAN', 'NMAN', 'NMAN', 'NMAN'],
                            dtype='|S4'))
+
+
+def _assert_msid_equal(msid1, msid2):
+    for attr in ('tstart', 'tstop', 'datestart', 'datestop', 'units', 'unit', 'stat'):
+        assert getattr(msid1, attr) == getattr(msid2, attr)
+    assert np.all(msid1.times == msid2.times)
+    assert np.all(msid1.vals == msid2.vals)
+    assert msid1.__class__ is msid2.__class__
+
+
+def test_msid_copy():
+    for MsidClass in (fetch.Msid, fetch.MSID):
+        msid1 = MsidClass('aogbias1', '2008:291', '2008:298')
+        msid2 = msid1.copy()
+        _assert_msid_equal(msid1, msid2)
+
+    # Make sure msid data sets are independent
+    msid2.filter_bad()
+    assert len(msid1.vals) != len(msid2.vals)
+
+
+def test_msidset_copy():
+    for MsidsetClass in (fetch.MSIDset, fetch.Msidset):
+        msidset1 = MsidsetClass(['aogbias1', 'aogbias2'], '2008:291', '2008:298')
+        msidset2 = msidset1.copy()
+
+        for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
+            assert getattr(msidset1, attr) == getattr(msidset2, attr)
+
+        assert msidset1.keys() == msidset2.keys()
+        for name in msidset1.keys():
+            _assert_msid_equal(msidset1[name], msidset2[name])
+

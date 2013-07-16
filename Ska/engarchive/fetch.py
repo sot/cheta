@@ -566,32 +566,42 @@ class MSID(object):
         self.times0 = self.times
         self.times = times
 
-    def filter_bad(self, bads=None):
+    def copy(self):
+        from copy import deepcopy
+        return deepcopy(self)
+
+    def filter_bad(self, bads=None, copy=False):
         """Filter out any bad values.
 
         After applying this method the "bads" column will be set to None to
         indicate that there are no bad values.
 
         :param bads: Bad values mask.  If not supplied then self.bads is used.
+        :param copy: return a copy of MSID object with bad values filtered
         """
+        obj = self.copy() if copy else self
+
         # If bad mask is provided then override any existing bad mask for MSID
         if bads is not None:
-            self.bads = bads
+            obj.bads = bads
 
         # Nothing to do if bads is None (i.e. bad values already filtered)
-        if self.bads is None:
+        if obj.bads is None:
             return
 
-        if np.any(self.bads):
-            logger.info('Filtering bad values for %s', self.msid)
-            ok = ~self.bads
-            colnames = (x for x in self.colnames if x != 'bads')
+        if np.any(obj.bads):
+            logger.info('Filtering bad values for %s', obj.msid)
+            ok = ~obj.bads
+            colnames = (x for x in obj.colnames if x != 'bads')
             for colname in colnames:
-                setattr(self, colname, getattr(self, colname)[ok])
+                setattr(obj, colname, getattr(obj, colname)[ok])
 
-        self.bads = None
+        obj.bads = None
 
-    def filter_bad_times(self, start=None, stop=None, table=None):
+        if copy:
+            return obj
+
+    def filter_bad_times(self, start=None, stop=None, table=None, copy=False):
         """Filter out intervals of bad data in the MSID object.
 
         There are three usage options:
@@ -616,6 +626,7 @@ class MSID(object):
         :param start: Start of time interval to exclude (any DateTime format)
         :param stop: End of time interval to exclude (any DateTime format)
         :param table: Two-column table (start, stop) of bad time intervals
+        :param copy: return a copy of MSID object with bad times filtered
         """
         if table is not None:
             bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
@@ -631,9 +642,12 @@ class MSID(object):
         else:
             bad_times = [(start, stop)]
 
-        self._filter_times(bad_times, exclude=True)
+        obj = self.copy() if copy else self
+        obj._filter_times(bad_times, exclude=True)
+        if copy:
+            return obj
 
-    def remove_intervals(self, intervals):
+    def remove_intervals(self, intervals, copy=False):
         """
         Remove telemetry points that occur within the specified ``intervals``
 
@@ -641,6 +655,10 @@ class MSID(object):
 
         The ``intervals`` argument can be either a list of (start, stop) tuples
         or an EventQuery object from kadi.
+
+        If ``copy`` is set to True then a copy of the MSID object is made prior
+        to removing intervals, and that copy is returned.  The default is to
+        remove intervals in place.
 
         This example shows fetching the pitch component of the spacecraft rate.
         After examining the rates, the samples during maneuvers are then removed
@@ -661,10 +679,14 @@ class MSID(object):
           >>> aorate2.plot(',')
 
         :param intervals: EventQuery or iterable (N x 2) with start, stop dates/times
+        :param copy: return a copy of MSID object with intervals removed
         """
-        self._filter_times(intervals, exclude=True)
+        obj = self.copy() if copy else self
+        obj._filter_times(intervals, exclude=True)
+        if copy:
+            return obj
 
-    def select_intervals(self, intervals):
+    def select_intervals(self, intervals, copy=False):
         """
         Select telemetry points that occur within the specified ``intervals``
 
@@ -672,6 +694,10 @@ class MSID(object):
 
         The ``intervals`` argument can be either a list of (start, stop) tuples
         or an EventQuery object from kadi.
+
+        If ``copy`` is set to True then a copy of the MSID object is made prior
+        to selecting intervals, and that copy is returned.  The default is to
+        selecte intervals in place.
 
         This example shows fetching the pitch component of the spacecraft rate.
         After examining the rates, the samples during maneuvers are then selected
@@ -692,8 +718,12 @@ class MSID(object):
           >>> aorate2.plot(',')
 
         :param intervals: EventQuery or iterable (N x 2) with start, stop dates/times
+        :param copy: return a copy of MSID object with intervals selected
         """
-        self._filter_times(intervals, exclude=False)
+        obj = self.copy() if copy else self
+        obj._filter_times(intervals, exclude=False)
+        if copy:
+            return obj
 
     def _filter_times(self, intervals, exclude=True):
         """
@@ -998,7 +1028,19 @@ class MSIDset(collections.OrderedDict):
         if filter_bad:
             self.filter_bad()
 
-    def filter_bad(self):
+    def __deepcopy__(self, memo=None):
+        out = self.__class__([], None)
+        for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
+            setattr(out, attr, getattr(self, attr))
+        for msid in self:
+            out[msid] = self[msid].copy()
+
+        return out
+
+    def copy(self):
+        return self.__deepcopy__()
+
+    def filter_bad(self, copy=False):
         """Filter bad values for the MSID set.
 
         This function applies the union (logical-OR) of bad value masks for all
@@ -1024,11 +1066,15 @@ class MSIDset(collections.OrderedDict):
 
           for msid in msids.values():
               msid.filter_bad()
+
+        :param copy: return a copy of MSID object with intervals selected
         """
-        for content in set(x.content for x in self.values()):
+        obj = self.copy() if copy else self
+
+        for content in set(x.content for x in obj.values()):
             bads = None
 
-            msids = [x for x in self.values()
+            msids = [x for x in obj.values()
                      if x.content == content and x.bads is not None]
             for msid in msids:
                 if bads is None:
@@ -1039,7 +1085,10 @@ class MSIDset(collections.OrderedDict):
             for msid in msids:
                 msid.filter_bad(bads)
 
-    def filter_bad_times(self, start=None, stop=None, table=None):
+        if copy:
+            return obj
+
+    def filter_bad_times(self, start=None, stop=None, table=None, copy=False):
         """Filter out intervals of bad data in the MSIDset object.
 
         There are three usage options:
@@ -1065,9 +1114,15 @@ class MSIDset(collections.OrderedDict):
         :param start: Start of time interval to exclude (any DateTime format)
         :param stop: End of time interval to exclude (any DateTime format)
         :param table: Two-column table (start, stop) of bad time intervals
+        :param copy: return a copy of MSID object with intervals selected
         """
-        for msid in self.values():
+        obj = self.copy() if copy else self
+
+        for msid in obj.values():
             msid.filter_bad_times(start, stop, table)
+
+        if copy:
+            return obj
 
     def interpolate(self, dt=328.0, start=None, stop=None, filter_bad=True):
         """Perform nearest-neighbor interpolation of all MSID values in the set
