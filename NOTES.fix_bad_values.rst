@@ -21,7 +21,7 @@ obvious issue.  For instance::
         dtype='|S21')
 
 This is a single bad point and can be fixed by providing that precise date
-as the --start argument.  To being do a dry run (which is the default) to see
+as the --start argument.  To do a dry run (which is the default) to see
 what the tool will do::
 
   % ska
