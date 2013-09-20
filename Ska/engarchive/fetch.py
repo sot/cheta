@@ -1415,6 +1415,40 @@ def get_interval(content, tstart, tstop):
     return get_interval_from_db(tstart, tstop, _split_path(msid_files['archfiles'].abs))
 
 
+def get_time_range(content):
+    """
+    Get the approximate time range for the ``content`` type.
+
+    :param content: content type (e.g. 'pcad3eng', 'thm1eng')
+
+    :returns: slice(start time (CXC seconds), stop time (CXC seconds))
+    """
+    
+    ft['content'] = content
+    
+    @local_or_remote_function("Getting time range from " +
+                              "DB on Ska eng archive server...")
+    def get_time_range_from_db(server):
+        
+        import Ska.DBI
+        
+        db = Ska.DBI.DBI(dbi='sqlite', server=os.path.join(*server))
+        
+        query_row = db.fetchone('SELECT tstart FROM archfiles '
+                                'order by filetime asc')
+        
+        tstart = query_row['tstart']
+        
+        query_row = db.fetchone('SELECT tstop FROM archfiles '
+                                 'order by filetime desc')
+        
+        tstop = query_row['tstop']
+        
+        return slice(tstart, tstop)
+    
+    return get_time_range_from_db(_split_path(msid_files['archfiles'].abs))
+
+
 @contextlib.contextmanager
 def _cache_ft():
     """
