@@ -1369,6 +1369,42 @@ class memoized(object):
         return self.func.__doc__
 
 
+CONTENT_TIME_RANGES = {}
+
+
+def get_time_range(msid):
+    """
+    Get the time range for the given ``msid``.
+
+    :param msid: MSID name
+    :returns: (tstart, tstop) in CXC seconds
+    """
+    MSID = msid.upper()
+    with _cache_ft():
+        ft['content'] = content[MSID]
+        ft['msid'] = 'time'
+        filename = msid_files['msid'].abs
+        logger.info('Reading %s', filename)
+
+        @local_or_remote_function("Getting time range from Ska eng archive server...")
+        def get_time_data_from_server(filename):
+            print "Hit function!"
+            import tables
+            h5 = tables.openFile(os.path.join(*filename))
+            tstart = h5.root.data[0]
+            tstop = h5.root.data[-1]
+            h5.close()
+            return tstart, tstop
+
+        if filename in CONTENT_TIME_RANGES:
+            tstart, tstop = CONTENT_TIME_RANGES[filename]
+        else:
+            tstart, tstop = get_time_data_from_server(_split_path(filename))
+            CONTENT_TIME_RANGES[filename] = (tstart, tstop)
+
+    return tstart, tstop
+
+
 @memoized
 def get_interval(content, tstart, tstop):
     """
