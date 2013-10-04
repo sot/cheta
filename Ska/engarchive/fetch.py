@@ -55,6 +55,9 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
                '3SEARAMF': [(0, 'F'), (1, 'T')],
                }
 
+# Cached version (by content type) of first and last available times in archive
+CONTENT_TIME_RANGES = {}
+
 
 def local_or_remote_function(remote_print_output):
     """
@@ -1369,14 +1372,12 @@ class memoized(object):
         return self.func.__doc__
 
 
-CONTENT_TIME_RANGES = {}
-
-
-def get_time_range(msid):
+def get_time_range(msid, format=None):
     """
     Get the time range for the given ``msid``.
 
     :param msid: MSID name
+    :param format: Output format (DateTime format, e.g. 'secs', 'date', 'greta')
     :returns: (tstart, tstop) in CXC seconds
     """
     MSID = msid.upper()
@@ -1388,7 +1389,6 @@ def get_time_range(msid):
 
         @local_or_remote_function("Getting time range from Ska eng archive server...")
         def get_time_data_from_server(filename):
-            print "Hit function!"
             import tables
             h5 = tables.openFile(os.path.join(*filename))
             tstart = h5.root.data[0]
@@ -1402,6 +1402,9 @@ def get_time_range(msid):
             tstart, tstop = get_time_data_from_server(_split_path(filename))
             CONTENT_TIME_RANGES[filename] = (tstart, tstop)
 
+    if format is not None:
+        tstart = getattr(DateTime(tstart), format)
+        tstop = getattr(DateTime(tstop), format)
     return tstart, tstop
 
 
