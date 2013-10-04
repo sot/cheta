@@ -26,6 +26,8 @@ Classes
    
 Functions
 -----------
+.. autofunction:: get_time_range
+
 .. autofunction:: fetch_array
 
 .. autofunction:: fetch_arrays
