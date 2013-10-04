@@ -88,6 +88,12 @@ explore their methods::
   tephin.times[1:20]
   tephin.vals[1:20]
 
+If you are wondering what time range of data is available for a particular MSID
+use the :func:`~Ska.engarchive.fetch.get_time_range` function::
+
+  fetch.get_time_range('tephin', format='date')
+  ('1999:365:22:40:33.076', '2013:276:12:04:39.361')
+
 The name of the variable holding the MSID object is independent of the MSID name
 itself.  Case is not important when specifying the MSID name so one might do::
 
