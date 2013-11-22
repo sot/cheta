@@ -184,31 +184,39 @@ popd
 
 
 ########################################################################################################
-######## OCC functionality testing
+######## OCC FTP functionality testing
 ########################################################################################################
 
-source make_test_eng_archive.csh
-mv test/eng_archive test/eng_archive.head
+export ENG_ARCHIVE=$PWD/test/eng_archive
+mkdir -p test/eng_archive
+rm -rf test/eng_archive/*
 
-rm -rf test/eng_archive_occ
-rm -rf test/eng_archive 
-tar -x -C test -f test/eng_archive.tar.gz 
-cp -rp test/eng_archive test/eng_archive_occ
+rm -f test/make_eng_archive.head.log
+touch test/make_eng_archive.head.log
+rm -f test/make_eng_archive.occ.log
+touch test/make_eng_archive.occ.log
 
-rm -f test/make_eng_archive.log
-rm -f test/make_eng_archive_occ.log
-touch test/make_eng_archive.log
-touch test/make_eng_archive_occ.log
+rm -rf test/eng_archive
+rm -rf test/eng_archive.occ
+rm -rf test/eng_archive.head
 
-foreach doy (271 272 273 274 275 276 277 278 279 280 )
-  setenv ENG_ARCHIVE $PWD/test/eng_archive
-  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
-  ./transfer_stage.py --data-root $ENG_ARCHIVE >>& test/make_eng_archive.log
+cd test
+tar xf /proj/sot/ska/data/eng_archive/regr/flight_eng_archive.tar.gz
+mv eng_archive{,.head}
+cp -rp eng_archive{.head,.occ}
+cd ..
 
-  setenv ENG_ARCHIVE $PWD/test/eng_archive_occ
-  ./transfer_stage.py --data-root $ENG_ARCHIVE --occ >>& test/make_eng_archive_occ.log
-  ./update_archive.py --date-now "2010:$doy" --data-root $ENG_ARCHIVE --occ >>& test/make_eng_archive_occ.log
-end
+CONTENTS="--content=acis2eng --content=acis3eng --content=acisdeahk --content=ccdm4eng --content=dp_acispow128 --content=orbitephem0 --content=simcoor --content=thm1eng"
+
+for doy in 300 302 304; do
+  export ENG_ARCHIVE=$PWD/test/eng_archive.head
+  ./update_archive.py $CONTENTS --date-now "2012:$doy" --data-root $ENG_ARCHIVE >> test/make_eng_archive.head.log 2>&1
+  ./transfer_stage.py --data-root $ENG_ARCHIVE --ftp-dir=eng_archive_test >> test/make_eng_archive.head.log 2>&1
+
+  export ENG_ARCHIVE=$PWD/test/eng_archive.occ
+  ./transfer_stage.py --data-root $ENG_ARCHIVE --occ --ftp-dir=eng_archive_test >> test/make_eng_archive.occ.log 2>&1
+  ./update_archive.py $CONTENTS --date-now "2012:$doy" --data-root $ENG_ARCHIVE --occ >> test/make_eng_archive.occ.log 2>&1
+done
 
 # Regression tests:
 # diff logs (after cutting time columns and replacing _occ with ""): No diffs seen
@@ -216,10 +224,10 @@ end
 # diff binary MSID files.  Some diffs seens...
 
 cd test
-  unsetenv ENG_ARCHIVE
-  ./get_regr_vals.py --start 2010:265 --stop 2010:279
-  setenv ENG_ARCHIVE $PWD/eng_archive_occ
-  ./get_regr_vals.py --test --start 2010:265 --stop 2010:279
+  unset ENG_ARCHIVE
+  ./get_regr_vals.py --start 2012:295 --stop 2012:303
+  export ENG_ARCHIVE=$PWD/eng_archive.occ
+  ./get_regr_vals.py --test --start 2012:295 --stop 2012:303
   ./compare_regr_vals.py
 cd ..
 
