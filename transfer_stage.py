@@ -22,6 +22,9 @@ def get_options():
     parser = optparse.OptionParser()
     parser.add_option("--data-root",
                       help="Engineering archive root directory for MSID and arch files")
+    parser.add_option("--ftp-dir",
+                      default='eng_archive',
+                      help="ftp directory name (default='eng_archive')")
     parser.add_option("--timeout",
                       default=6*3600,
                       type="int",
@@ -47,19 +50,18 @@ def transfer_stage_to_lucky():
     # complete move it into a subdir eng_archive.  This lets the OCC side
     # just watch for fully-uploaded files in that directory.
     logger.info('ftp to lucky')
-    ftp = Ska.ftp.FTP('lucky')
-    ftp.cd('/taldcroft')
-    files = ftp.nlst()
-    if 'eng_archive' not in files:
-        logger.info('mkdir eng_archive')
-        ftp.mkd('eng_archive')
+    ftp = Ska.ftp.SFTP('lucky')
+    ftp.cd('/home/taldcroft')
+    files = ftp.ls()
+    if opt.ftp_dir not in files:
+        logger.info('mkdir {}'.format(opt.ftp_dir))
+        ftp.mkdir(opt.ftp_dir)
     logger.info('put {0}'.format(tarname))
     ftp.put(tarname)
-    logger.info('rename {0} eng_archive/{0}'.format(tarname))
-    ftp.rename(tarname, 'eng_archive/' + tarname)
-    ftp.close()    
+    logger.info('rename {0} {1}/{0}'.format(tarname, opt.ftp_dir))
+    ftp.rename(tarname, '{}/{}'.format(opt.ftp_dir, tarname))
+    ftp.close()
 
-    
     logger.info('unlink {0}'.format(tarname))
     os.unlink(tarname)
     logger.info('rmtree stage')
@@ -73,16 +75,15 @@ def transfer_lucky_to_stage():
 
     # Open lucky ftp connection and watch for tarfile(s) in '/taldcroft/eng_archive'
     logger.info('ftp to lucky')
-    ftp = Ska.ftp.FTP('lucky')
-    ftp.set_pasv(False) # req'd on GRETA network
-    ftp.cd('/taldcroft')
+    ftp = Ska.ftp.SFTP('lucky')
+    ftp.cd('/home/taldcroft')
     files = ftp.ls()
-    if 'eng_archive' not in files:
-        logger.info('mkdir eng_archive')
-        ftp.mkd('eng_archive')
-    ftp.cd('eng_archive')
+    if opt.ftp_dir not in files:
+        logger.info('mkdir {}'.format(opt.ftp_dir))
+        ftp.mkdir(opt.ftp_dir)
+    ftp.cd(opt.ftp_dir)
     for _ in range(opt.timeout / opt.sleep_time):
-        print ftp.pwd(), ftp.ls()
+        print ftp.ftp.getcwd(), ftp.ls()
         files = [x for x in ftp.ls() if re.match('stage_\d+\.tar', x)]
         if files:
             break
@@ -92,7 +93,7 @@ def transfer_lucky_to_stage():
         logger.info('No tarfiles found before timeout')
         ftp.close()
         sys.exit(1)
-        
+
     # For each tarfile:
     # - get file by ftp
     # - untar
