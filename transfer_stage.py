@@ -86,8 +86,8 @@ def transfer_lucky_to_stage():
         ftp.mkdir(opt.ftp_dir)
     ftp.cd(opt.ftp_dir)
     for _ in range(opt.timeout / opt.sleep_time):
-        logger.info('Directory: {}'.format(ftp.ftp.getcwd())
-        logger.info('Files: {}'.format(ftp.ls())
+        logger.info('Directory: {}'.format(ftp.ftp.getcwd()))
+        logger.info('Files: {}'.format(ftp.ls()))
         files = [x for x in ftp.ls() if re.match('stage_\d+\.tar', x)]
         if files:
             break
