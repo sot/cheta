@@ -4,7 +4,7 @@
 Transfer stage files from HEAD network to OCC GRETA network via ftp server lucky.
 """
 
-import re, os , sys
+import re, os, sys
 import glob
 import time
 import optparse
@@ -18,6 +18,7 @@ import Ska.File
 import pyyaks.logger
 import pyyaks.context
 
+
 def get_options():
     parser = optparse.OptionParser()
     parser.add_option("--data-root",
@@ -26,7 +27,7 @@ def get_options():
                       default='eng_archive',
                       help="ftp directory name (default='eng_archive')")
     parser.add_option("--timeout",
-                      default=6*3600,
+                      default=6 * 3600,
                       type="int",
                       help="Tool timeout before quitting")
     parser.add_option("--sleep-time",
@@ -37,6 +38,7 @@ def get_options():
                       action="store_true",
                       help="Running on the OCC GRETA network (no arc5gl)")
     return parser.parse_args()
+
 
 def transfer_stage_to_lucky():
     # Make a tarfile of everything in stage directory
@@ -66,6 +68,7 @@ def transfer_stage_to_lucky():
     os.unlink(tarname)
     logger.info('rmtree stage')
     shutil.rmtree('stage')
+
 
 def transfer_lucky_to_stage():
     """
@@ -118,7 +121,8 @@ def transfer_lucky_to_stage():
 opt, args = get_options()
 
 loglevel = pyyaks.logger.VERBOSE
-logger = pyyaks.logger.get_logger(name='transfer_stage', level=loglevel, format="%(asctime)s %(message)s")
+logger = pyyaks.logger.get_logger(name='transfer_stage', level=loglevel,
+                                  format="%(asctime)s %(message)s")
 
 arch_files = arch_files = pyyaks.context.ContextDict(
     'arch_files', basedir=(opt.data_root or file_defs.arch_root))
@@ -129,4 +133,3 @@ with Ska.File.chdir(arch_files['rootdir'].abs):
         transfer_lucky_to_stage()
     else:
         transfer_stage_to_lucky()
-
