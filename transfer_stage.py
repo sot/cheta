@@ -50,7 +50,7 @@ def transfer_stage_to_lucky():
     # complete move it into a subdir eng_archive.  This lets the OCC side
     # just watch for fully-uploaded files in that directory.
     logger.info('ftp to lucky')
-    ftp = Ska.ftp.SFTP('lucky')
+    ftp = Ska.ftp.SFTP('lucky', logger=logger)
     ftp.cd('/home/taldcroft')
     files = ftp.ls()
     if opt.ftp_dir not in files:
@@ -75,7 +75,7 @@ def transfer_lucky_to_stage():
 
     # Open lucky ftp connection and watch for tarfile(s) in '/taldcroft/eng_archive'
     logger.info('ftp to lucky')
-    ftp = Ska.ftp.SFTP('lucky')
+    ftp = Ska.ftp.SFTP('lucky', logger=logger)
     ftp.cd('/home/taldcroft')
     files = ftp.ls()
     if opt.ftp_dir not in files:
@@ -83,7 +83,8 @@ def transfer_lucky_to_stage():
         ftp.mkdir(opt.ftp_dir)
     ftp.cd(opt.ftp_dir)
     for _ in range(opt.timeout / opt.sleep_time):
-        print ftp.ftp.getcwd(), ftp.ls()
+        logger.info('Directory: {}'.format(ftp.ftp.getcwd())
+        logger.info('Files: {}'.format(ftp.ls())
         files = [x for x in ftp.ls() if re.match('stage_\d+\.tar', x)]
         if files:
             break
