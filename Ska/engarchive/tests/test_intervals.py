@@ -37,6 +37,19 @@ def test_select_remove_interval():
     assert set(dat_r.times).isdisjoint(dat_s.times)
 
 
+def test_remove_intervals_stat():
+    for stat in (None, '5min'):
+        dat = fetch.MSID('tephin', '2012:002', '2012:003')
+        dat.remove_intervals(events.dwells)
+        attrs = [attr for attr in ('vals', 'mins', 'maxes', 'means',
+                                   'p01s', 'p05s', 'p16s', 'p50s',
+                                   'p84s', 'p95s', 'p99s', 'midvals')
+                 if hasattr(dat, attr)]
+
+        for attr in attrs:
+            assert len(dat) == len(getattr(dat, attr))
+
+
 def test_select_remove_all_interval():
     """
     Select or remove all data points via an event that entirely spans the MSID data.
