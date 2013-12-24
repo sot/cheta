@@ -385,6 +385,8 @@ class MSID(object):
         # more consistent use of the 'vals' attribute and there is little use
         # for the original sampled version.
         if hasattr(self, 'means'):
+            # Create new attribute midvals and add as a column (fixes kadi#17)
+            self.colnames.append('midvals')
             self.midvals = self.vals
             self.vals = self.means
 
