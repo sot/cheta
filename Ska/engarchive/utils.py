@@ -6,7 +6,7 @@ from Quaternion import Quat
 import numpy as np
 from Chandra.Time import DateTime
 from scipy.interpolate import interp1d
-from Ska.engarchive import fetch
+from . import fetch
 
 
 def ss_vector(start, stop=None, obj='Earth'):

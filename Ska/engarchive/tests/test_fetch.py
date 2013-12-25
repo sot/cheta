@@ -1,6 +1,6 @@
 import numpy as np
 
-from Ska.engarchive import fetch
+from .. import fetch
 from Chandra.Time import DateTime
 
 DATES_EXPECT1 = np.array(['2008:291:23:59:58.987', '2008:291:23:59:59.244',

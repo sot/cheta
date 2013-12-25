@@ -1,5 +1,5 @@
 from Chandra.Time import DateTime
-import Ska.engarchive.fetch as fetch
+from .. import fetch
 import Ska.Numpy
 import numpy as np
 from .. import cache
