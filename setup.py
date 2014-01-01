@@ -14,3 +14,15 @@ setup(name='Ska.engarchive',
       package_data={'Ska.engarchive': ['*.dat', 'units_*.pkl'],
                     'Ska.engarchive.tests': ['*.dat']},
       )
+
+setup(name='sken',
+      author='Tom Aldcroft',
+      description='Modules supporting Ska engineering telemetry archive',
+      author_email='aldcroft@head.cfa.harvard.edu',
+      py_modules=['sken.fetch', 'sken.converters', 'sken.utils'],
+      version=version,
+      zip_safe=False,
+      packages=['sken', 'sken.derived', 'sken.tests'],
+      package_data={'sken': ['*.dat', 'units_*.pkl'],
+                    'sken.tests': ['*.dat']},
+      )
