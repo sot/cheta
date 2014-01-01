@@ -1,5 +1,5 @@
 from Chandra.Time import DateTime
-from Ska.engarchive import fetch
+from .. import fetch
 from kadi import events
 
 # Use dwells for some interval filter tests

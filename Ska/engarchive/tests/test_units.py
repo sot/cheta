@@ -1,6 +1,6 @@
-import Ska.engarchive.fetch as fetch_cxc
-import Ska.engarchive.fetch_eng as fetch_eng
-import Ska.engarchive.fetch_sci as fetch_sci
+from .. import fetch as fetch_cxc
+from .. import fetch_eng as fetch_eng
+from .. import fetch_sci as fetch_sci
 
 start = '2011:001:00:00:00'
 stop = '2011:001:00:30:00'

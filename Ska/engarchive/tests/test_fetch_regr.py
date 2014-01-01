@@ -100,7 +100,7 @@ def get_md5(fetch, args, msid, start, days, stat):
 def main():
     args = get_args()
 
-    from Ska.engarchive import fetch
+    from .. import fetch
     from astropy.utils.console import ProgressBar
 
     contents = get_contents(fetch, args)
@@ -134,7 +134,7 @@ def assert_true(x):
 
 
 def test_fetch_regr():
-    from Ska.engarchive import fetch
+    from .. import fetch
     args = get_args(args=[])
 
     contents = get_contents(fetch, args)
