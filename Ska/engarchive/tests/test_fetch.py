@@ -14,6 +14,13 @@ DATES_EXPECT2 = np.array(['2008:291:23:59:54.119', '2008:291:23:59:55.144',
                           '2008:297:00:00:00.890', '2008:297:00:00:01.915',
                           '2008:297:00:00:02.940', '2008:297:00:00:03.965'])
 
+DATES_EXPECT3 = np.array(['2008:002:21:48:10.000', '2008:002:21:48:20.000',
+                          '2008:002:21:48:30.000', '2008:002:21:48:40.000',
+                          '2008:002:21:48:50.000', '2008:002:21:49:00.000',
+                          '2008:002:21:49:10.000', '2008:002:21:49:20.000',
+                          '2008:002:21:49:30.000', '2008:002:21:49:40.000',
+                          '2008:002:21:49:50.000'])
+
 BAD_TIMES = ['2008:292:00:00:00 2008:297:00:00:00',
              '2008:305:00:12:00 2008:305:00:12:03',
              '2010:101:00:01:12 2010:101:00:01:25']
@@ -135,6 +142,73 @@ def test_interpolate_msid():
                             'NMAN', 'NMAN', 'NMAN', 'NMAN',
                             'NMAN', 'NMAN', 'NMAN', 'NMAN'],
                            dtype='|S4'))
+
+
+def test_interpolate_exact():
+    dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
+                        '2008:002:21:48:00', '2008:002:21:50:00')
+    dat.interpolate(10.0, exact=True)
+
+    assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
+
+    assert np.allclose(dat['aoattqt1'].vals,
+                       [-0.33072634, -0.33072637, -0.33072674, -0.33072665, -0.33073477,
+                        -0.330761, -0.33080694, -0.33089434, -0.33089264, -0.33097442,
+                        -0.33123678])
+
+    assert np.all(dat['aopcadmd'].vals ==
+                  ['NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN',
+                   'NMAN', 'NMAN', 'NMAN'])
+
+    assert np.all(dat['aogyrct1'].vals ==
+                  [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
+                    -4052,  2752, 10648])
+
+
+def test_interpolate_msid_exact():
+    start = '2008:002:21:48:00'
+    stop = '2008:002:21:50:00'
+    dat = fetch.MSID('aoattqt1', start, stop)
+    dat.interpolate(10.0, start, stop, exact=True)
+    assert np.allclose(dat.vals,
+                       [-0.33072634, -0.33072637, -0.33072674, -0.33072665, -0.33073477,
+                         -0.330761, -0.33080694, -0.33089434, -0.33089264, -0.33097442,
+                         -0.33123678])
+
+    assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
+
+    dat = fetch.MSID('aogyrct1', start, stop)
+    dat.interpolate(10.0, start, stop, exact=True)
+    assert np.all(dat.vals ==
+                  [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
+                    -4052,  2752, 10648])
+
+    assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
+
+    dat = fetch.MSID('aopcadmd', start, stop)
+    dat.interpolate(10.0, start, stop, exact=True)
+    assert np.all(dat.vals ==
+                  ['NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN',
+                   'NMAN', 'NMAN', 'NMAN'])
+
+    assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
+
+
+def test_interpolate_time_precision():
+    """
+    Check that floating point error is < 0.01 msec over 100 days
+    """
+    dat = fetch.Msid('tephin', '2010:001', '2010:100')
+    dat.interpolate(60.06)  # Not exact binary float
+    dt = dat.times[-1] - dat.times[0]
+    dt_frac = dt * 100 - round(dt * 100)
+    assert abs(dt_frac) > 0.001
+
+    dat = fetch.Msid('tephin', '2010:001', '2010:100')
+    dat.interpolate(60.06, exact=True)  # Not exact binary float
+    dt = dat.times[-1] - dat.times[0]
+    dt_frac = dt * 100 - round(dt * 100)
+    assert abs(dt_frac) < 0.001
 
 
 def _assert_msid_equal(msid1, msid2):
