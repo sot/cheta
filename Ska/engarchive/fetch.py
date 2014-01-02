@@ -527,7 +527,7 @@ class MSID(object):
         import Ska.tdb
         return Ska.tdb.msids[self.MSID]
 
-    def interpolate(self, dt=328.0, start=None, stop=None, exact=False):
+    def interpolate(self, dt=None, start=None, stop=None, times=None):
         """Perform nearest-neighbor interpolation of the MSID to the specified
         time sequence.
 
@@ -540,30 +540,28 @@ class MSID(object):
         neighbor interpolated time, providing the *original* timestamps of each
         new interpolated value for that MSID.
 
-        If ``exact`` is set to True then the starting time of the resultant
-        array of interpolated times will be exactly ``start + N * dt`` where
-        ``N`` is an integer.  In addition the creation of the times will be
-        done in a way that minimizes floating point error so that all the
-        times will be very close to ``start + N * dt`` for some ``N``.
+        If ``times`` is provided then this gets used instead of the default linear
+        progression from ``start`` and ``dt``.
 
-        :param dt: time step (sec)
+        :param dt: time step (sec, default=328.0)
         :param start: start of interpolation period (DateTime format)
         :param stop: end of interpolation period (DateTime format)
-        :param exact: start from exactly ``start + N * dt`` (default=False)
+        :param times: array of times for interpolation (default=None)
         """
         import Ska.Numpy
 
-        tstart = DateTime(start).secs if start else self.times[0]
-        tstop = DateTime(stop).secs if stop else self.times[-1]
-
-        if exact:
-            # Compute time stamps starting from tstart exactly and minimize floating point
-            # error as follows Ensure that tstart / tstop is entirely within the range of
-            # available data fetched from the archive.
-            times = np.arange((tstop - tstart) // dt) * dt + tstart
+        if times is not None:
+            if any(kwarg is not None for kwarg in (dt, start, stop)):
+                raise ValueError('If "times" keyword is set then "dt", "start", '
+                                 'and "stop" cannot be set')
+            # Use user-supplied times that are within the range of telemetry.
             ok = (times >= self.times[0]) & (times <= self.times[-1])
             times = times[ok]
         else:
+            dt = 328.0 if dt is None else dt
+            tstart = DateTime(start).secs if start else self.times[0]
+            tstop = DateTime(stop).secs if stop else self.times[-1]
+
             # Legacy method for backward compatibility.  Note that the np.arange()
             # call accrues floating point error.
             tstart = max(tstart, self.times[0])
@@ -1147,7 +1145,7 @@ class MSIDset(collections.OrderedDict):
         if copy:
             return obj
 
-    def interpolate(self, dt=328.0, start=None, stop=None, filter_bad=True, exact=False):
+    def interpolate(self, dt=None, start=None, stop=None, filter_bad=True, times=None):
         """Perform nearest-neighbor interpolation of all MSID values in the set
         to a common time sequence.  The values are updated in-place.
 
@@ -1171,37 +1169,37 @@ class MSIDset(collections.OrderedDict):
         case the MSID ``bads`` values are interpolated as well and provide an
         indication if the interpolated values are bad.
 
-        If ``exact`` is set to True then the starting time of the resultant
-        array of interpolated times will be exactly ``start + N * dt`` where
-        ``N`` is an integer.  In addition the creation of the times will be
-        done in a way that minimizes floating point error so that all the
-        times will be very close to ``start + N * dt`` for some ``N``.
+        If ``times`` is provided then this gets used instead of the default linear
+        progression from ``start`` and ``dt``.
 
-        :param dt: time step (sec)
+        :param dt: time step (sec, default=328.0)
         :param start: start of interpolation period (DateTime format)
         :param stop: end of interpolation period (DateTime format)
         :param filter_bad: filter bad values before interpolating
-        :param exact: start from exactly ``start + N * dt`` (default=False)
+        :param times: array of times for interpolation (default=None)
         """
         import Ska.Numpy
 
         msids = self.values()  # MSID objects in the MSIDset
-
-        # Get the nominal tstart / tstop range
-        tstart = DateTime(start).secs if start else self.tstart
-        tstop = DateTime(stop).secs if stop else self.tstop
 
         # Ensure that tstart / tstop is entirely within the range of available
         # data fetched from the archive.
         max_fetch_tstart = max(msid.times[0] for msid in msids)
         min_fetch_tstop = min(msid.times[-1] for msid in msids)
 
-        if exact:
-            # Compute time stamps and minimize floating point error as follows
-            times = np.arange((tstop - tstart) // dt) * dt + tstart
+        if times is not None:
+            if any(kwarg is not None for kwarg in (dt, start, stop)):
+                raise ValueError('If "times" keyword is set then "dt", "start", '
+                                 'and "stop" cannot be set')
+            # Use user-supplied times that are within the range of telemetry.
             ok = (times >= max_fetch_tstart) & (times <= min_fetch_tstop)
             self.times = times[ok]
         else:
+            # Get the nominal tstart / tstop range
+            dt = 328.0 if dt is None else dt
+            tstart = DateTime(start).secs if start else self.tstart
+            tstop = DateTime(stop).secs if stop else self.tstop
+
             tstart = max(tstart, max_fetch_tstart)
             tstop = min(tstop, min_fetch_tstop)
             self.times = np.arange(tstart, tstop, dt)
