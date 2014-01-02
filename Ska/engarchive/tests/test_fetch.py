@@ -1,5 +1,7 @@
 import numpy as np
 
+import pytest
+
 from .. import fetch
 from Chandra.Time import DateTime
 
@@ -144,10 +146,20 @@ def test_interpolate_msid():
                            dtype='|S4'))
 
 
-def test_interpolate_exact():
+def test_interpolate_times_raise():
+    start = '2008:002:21:48:00'
+    stop = '2008:002:21:50:00'
+    dat = fetch.MSID('aoattqt1', start, stop)
+    with pytest.raises(ValueError):
+        dat.interpolate(10.0, times=[1, 2])
+
+
+def test_interpolate_times():
     dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
                         '2008:002:21:48:00', '2008:002:21:50:00')
-    dat.interpolate(10.0, exact=True)
+    dt = 10.0
+    times = dat.tstart + np.arange((dat.tstop - dat.tstart) // dt + 3) * dt
+    dat.interpolate(times=times)
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
@@ -165,11 +177,13 @@ def test_interpolate_exact():
                     -4052,  2752, 10648])
 
 
-def test_interpolate_msid_exact():
+def test_interpolate_msid_times():
     start = '2008:002:21:48:00'
     stop = '2008:002:21:50:00'
     dat = fetch.MSID('aoattqt1', start, stop)
-    dat.interpolate(10.0, start, stop, exact=True)
+    dt = 10.0
+    times = dat.tstart + np.arange((dat.tstop - dat.tstart) // dt + 3) * dt
+    dat.interpolate(times=times)
     assert np.allclose(dat.vals,
                        [-0.33072634, -0.33072637, -0.33072674, -0.33072665, -0.33073477,
                          -0.330761, -0.33080694, -0.33089434, -0.33089264, -0.33097442,
@@ -178,7 +192,7 @@ def test_interpolate_msid_exact():
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
     dat = fetch.MSID('aogyrct1', start, stop)
-    dat.interpolate(10.0, start, stop, exact=True)
+    dat.interpolate(times=times)
     assert np.all(dat.vals ==
                   [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
                     -4052,  2752, 10648])
@@ -186,7 +200,7 @@ def test_interpolate_msid_exact():
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
     dat = fetch.MSID('aopcadmd', start, stop)
-    dat.interpolate(10.0, start, stop, exact=True)
+    dat.interpolate(times=times)
     assert np.all(dat.vals ==
                   ['NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN',
                    'NMAN', 'NMAN', 'NMAN'])
@@ -199,13 +213,16 @@ def test_interpolate_time_precision():
     Check that floating point error is < 0.01 msec over 100 days
     """
     dat = fetch.Msid('tephin', '2010:001', '2010:100')
+    dt = 60.06
+    times = dat.tstart + np.arange((dat.tstop - dat.tstart) // dt + 3) * dt
+
     dat.interpolate(60.06)  # Not exact binary float
     dt = dat.times[-1] - dat.times[0]
     dt_frac = dt * 100 - round(dt * 100)
     assert abs(dt_frac) > 0.001
 
     dat = fetch.Msid('tephin', '2010:001', '2010:100')
-    dat.interpolate(60.06, exact=True)  # Not exact binary float
+    dat.interpolate(times=times)
     dt = dat.times[-1] - dat.times[0]
     dt_frac = dt * 100 - round(dt * 100)
     assert abs(dt_frac) < 0.001
