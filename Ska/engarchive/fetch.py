@@ -816,16 +816,17 @@ class MSID(object):
                    '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
         f.close()
 
-    def logical_intervals(self, op, val):
+    def logical_intervals(self, op, val, complete_intervals=True):
         """Determine contiguous intervals during which the logical comparison
         expression "MSID.vals op val" is True.  Allowed values for ``op``
         are::
 
           ==  !=  >  <  >=  <=
 
-        The intervals are guaranteed to be complete so that the all reported
-        intervals had a transition before and after within the telemetry
-        interval.
+        If ``complete_intervals`` is True (default) then the intervals are guaranteed to
+        be complete so that the all reported intervals had a transition before and after
+        within the telemetry interval.  Using ``complete_intervals=False`` can be
+        convenient for poorly sampled telemetry, e.g. Format-5 MSIDs like 61PSTS02.
 
         Returns a structured array table with a row for each interval.
         Columns are:
@@ -844,8 +845,11 @@ class MSID(object):
 
         :param op: logical operator, one of ==  !=  >  <  >=  <=
         :param val: comparison value
+        :param complete_intervals: return only complete intervals (default=True)
         :returns: structured array table of intervals
         """
+        from . import utils
+
         ops = {'==': operator.eq,
                '!=': operator.ne,
                '>': operator.gt,
@@ -867,32 +871,8 @@ class MSID(object):
             vals = self.vals
             times = self.times
 
-        starts = ~op(vals[:-1], val) & op(vals[1:], val)
-        ends = op(vals[:-1], val) & ~op(vals[1:], val)
-
-        # If last telemetry point is not val then the data ends during that
-        # interval and there will be an extra start transition that must be
-        # removed.
-        i_starts = np.flatnonzero(starts)
-        if op(vals[-1], val):
-            i_starts = i_starts[:-1]
-
-        # If first entry is val then the telemetry starts during an interval
-        # and there will be an extra end transition that must be removed.
-        i_ends = np.flatnonzero(ends)
-        if op(vals[0], val):
-            i_ends = i_ends[1:]
-
-        tstarts = times[i_starts]
-        tstops = times[i_ends]
-        intervals = {'datestart': DateTime(tstarts).date,
-                     'datestop': DateTime(tstops).date,
-                     'duration': times[i_ends] - times[i_starts],
-                     'tstart': tstarts,
-                     'tstop':  tstops}
-
-        import Ska.Numpy
-        return Ska.Numpy.structured_array(intervals)
+        bools = op(vals, val)
+        return utils.logical_intervals(times, bools, complete_intervals)
 
     def state_intervals(self):
         """Determine contiguous intervals during which the MSID value
@@ -916,6 +896,7 @@ class MSID(object):
         :param val: state value for which intervals are returned.
         :returns: structured array table of intervals
         """
+        from astropy.table import Table
 
         # Do local version of bad value filtering
         if self.bads is not None and np.any(self.bads):
@@ -944,8 +925,7 @@ class MSID(object):
                      'duration': state_times[1:] - state_times[:-1],
                      'val': state_vals}
 
-        import Ska.Numpy
-        return Ska.Numpy.structured_array(intervals)
+        return Table(intervals, names=sorted(intervals))
 
     def iplot(self, fmt='-b', fmt_minmax='-c', **plot_kwargs):
         """Make an interactive plot for exploring the MSID data.
