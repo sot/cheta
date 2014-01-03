@@ -1,12 +1,8 @@
 """
 Utilities for the engineering archive.
 """
-from itertools import count, izip
-from Quaternion import Quat
 import numpy as np
 from Chandra.Time import DateTime
-from scipy.interpolate import interp1d
-from . import fetch
 
 
 def ss_vector(start, stop=None, obj='Earth'):
@@ -54,6 +50,11 @@ def ss_vector(start, stop=None, obj='Earth'):
 
     :returns: table of vector values
     """
+    from itertools import count, izip
+    from Quaternion import Quat
+    from scipy.interpolate import interp1d
+    from . import fetch
+
     sign = dict(earth=-1, sun=1, moon=1)
     obj = obj.lower()
     if obj not in sign:
@@ -126,3 +127,126 @@ def ss_vector(start, stop=None, obj='Earth'):
         out = out[ok]
 
     return out
+
+
+def logical_intervals(times, bools, complete_intervals=True):
+    """Determine contiguous intervals during which `bools` is True.
+
+    If ``complete_intervals`` is True (default) then the intervals are guaranteed to
+    be complete so that the all reported intervals had a transition before and after
+    within the telemetry interval.  Using ``complete_intervals=False`` can be
+    convenient for poorly sampled telemetry, e.g. Format-5 MSIDs like 61PSTS02.
+
+    Returns an astropy Table with a row for each interval.  Columns are:
+
+    * datestart: date of interval start
+    * datestop: date of interval stop
+    * duration: duration of interval (sec)
+    * tstart: time of interval start (CXC sec)
+    * tstop: time of interval stop (CXC sec)
+
+    Example (find SCS107 runs via telemetry)::
+
+      >>> from Ska.engarchive import utils, fetch
+      >>> dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'], '2012:190', '2012:205')
+      >>> dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)
+      >>> scs107 = ((dat['3tscmove'].vals == 'T')
+                    & (dat['aorwbias'].vals == 'DISA')
+                    & (dat['coradmen'].vals == 'DISA'))
+      >>> scs107s = utils.logical_intervals(dat.times, scs107)
+      >>> print scs107s['datestart', 'datestop', 'duration']
+            datestart              datestop          duration
+      --------------------- --------------------- -------------
+      2012:194:20:00:31.652 2012:194:20:04:21.252 229.600000083
+      2012:196:21:07:36.452 2012:196:21:11:26.052 229.600000083
+      2012:201:11:45:46.852 2012:201:11:49:36.452 229.600000083
+
+    :param times: array of time stamps in CXC seconds
+    :param bools: array of logical True/False values
+    :param complete_interavls: return only complete intervals (default=True)
+    :returns: Table of intervals
+    """
+    from astropy.table import Table
+
+    starts = ~bools[:-1] & bools[1:]
+    ends = bools[:-1] & ~bools[1:]
+
+    # If last telemetry point is val then the data ends during that interval and there
+    # will be an extra start transition that must be handled.
+    i_starts = np.flatnonzero(starts)
+    i_ends = np.flatnonzero(ends)
+    if bools[-1]:
+        if complete_intervals:
+            i_starts = i_starts[:-1]
+        else:
+            i_ends = np.concatenate([i_ends, [len(times) - 1]])
+
+    # If first entry is val then the telemetry starts during an interval
+    # and there will be an extra end transition that must be removed.
+    if bools[0]:
+        if complete_intervals:
+            i_ends = i_ends[1:]
+        else:
+            i_starts = np.concatenate([[0], i_starts])
+
+    tstarts = times[i_starts]
+    tstops = times[i_ends]
+    intervals = {'datestart': DateTime(tstarts).date,
+                 'datestop': DateTime(tstops).date,
+                 'duration': times[i_ends] - times[i_starts],
+                 'tstart': tstarts,
+                 'tstop': tstops}
+
+    return Table(intervals, names=sorted(intervals))
+
+
+def state_intervals(times, vals):
+    """
+    Determine contiguous intervals during which the ``vals`` is unchanged.
+
+    Returns an Astropy Table with a row for each interval.  Columns are:
+
+    * datestart: date of interval start
+    * datestop: date of interval stop
+    * duration: duration of interval (sec)
+    * tstart: time of interval start (CXC sec)
+    * tstop: time of interval stop (CXC sec)
+    * val: MSID value during the interval
+
+    Example::
+
+      >>> from Ska.engarchive import fetch, utils
+      >>> dat = fetch.Msid('cobsrqid', '2010:003', '2010:004')
+      >>> obsids = utils.state_intervals(dat.times, dat.vals)
+      >>> print obsids['datestart', 'datestop', 'val']
+            datestart              datestop         val
+      --------------------- --------------------- -------
+      2010:003:12:00:00.976 2010:004:09:07:44.180 11011.0
+      2010:004:09:07:44.180 2010:004:09:40:52.680 56548.0
+      2010:004:09:40:52.680 2010:004:12:00:00.280 12068.0
+
+    :param times: times (CXC seconds)
+    :param vals: state values for which intervals are returned.
+    :returns: structured array table of intervals
+    """
+    from astropy.table import Table
+
+    if len(vals) < 2:
+        raise ValueError('Filtered data length must be at least 2')
+
+    transitions = np.hstack([[True], vals[:-1] != vals[1:], [True]])
+    t0 = times[0] - (times[1] - times[0]) / 2
+    t1 = times[-1] + (times[-1] - times[-2]) / 2
+    midtimes = np.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
+
+    state_vals = vals[transitions[1:]]
+    state_times = midtimes[transitions]
+
+    intervals = {'datestart': DateTime(state_times[:-1]).date,
+                 'datestop': DateTime(state_times[1:]).date,
+                 'tstart': state_times[:-1],
+                 'tstop': state_times[1:],
+                 'duration': state_times[1:] - state_times[:-1],
+                 'val': state_vals}
+
+    return Table(intervals, names=sorted(intervals))
