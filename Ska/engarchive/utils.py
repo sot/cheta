@@ -198,3 +198,55 @@ def logical_intervals(times, bools, complete_intervals=True):
                  'tstop': tstops}
 
     return Table(intervals, names=sorted(intervals))
+
+
+def state_intervals(times, vals):
+    """
+    Determine contiguous intervals during which the ``vals`` is unchanged.
+
+    Returns an Astropy Table with a row for each interval.  Columns are:
+
+    * datestart: date of interval start
+    * datestop: date of interval stop
+    * duration: duration of interval (sec)
+    * tstart: time of interval start (CXC sec)
+    * tstop: time of interval stop (CXC sec)
+    * val: MSID value during the interval
+
+    Example::
+
+      >>> from Ska.engarchive import fetch, utils
+      >>> dat = fetch.Msid('cobsrqid', '2010:003', '2010:004')
+      >>> obsids = utils.state_intervals(dat.times, dat.vals)
+      >>> print obsids['datestart', 'datestop', 'val']
+            datestart              datestop         val
+      --------------------- --------------------- -------
+      2010:003:12:00:00.976 2010:004:09:07:44.180 11011.0
+      2010:004:09:07:44.180 2010:004:09:40:52.680 56548.0
+      2010:004:09:40:52.680 2010:004:12:00:00.280 12068.0
+
+    :param times: times (CXC seconds)
+    :param vals: state values for which intervals are returned.
+    :returns: structured array table of intervals
+    """
+    from astropy.table import Table
+
+    if len(vals) < 2:
+        raise ValueError('Filtered data length must be at least 2')
+
+    transitions = np.hstack([[True], vals[:-1] != vals[1:], [True]])
+    t0 = times[0] - (times[1] - times[0]) / 2
+    t1 = times[-1] + (times[-1] - times[-2]) / 2
+    midtimes = np.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
+
+    state_vals = vals[transitions[1:]]
+    state_times = midtimes[transitions]
+
+    intervals = {'datestart': DateTime(state_times[:-1]).date,
+                 'datestop': DateTime(state_times[1:]).date,
+                 'tstart': state_times[:-1],
+                 'tstop': state_times[1:],
+                 'duration': state_times[1:] - state_times[:-1],
+                 'val': state_vals}
+
+    return Table(intervals, names=sorted(intervals))

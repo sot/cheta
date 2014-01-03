@@ -896,7 +896,7 @@ class MSID(object):
         :param val: state value for which intervals are returned.
         :returns: structured array table of intervals
         """
-        from astropy.table import Table
+        from . import utils
 
         # Do local version of bad value filtering
         if self.bads is not None and np.any(self.bads):
@@ -910,22 +910,7 @@ class MSID(object):
         if len(self.vals) < 2:
             raise ValueError('Filtered data length must be at least 2')
 
-        transitions = np.hstack([[True], vals[:-1] != vals[1:], [True]])
-        t0 = times[0] - (times[1] - times[0]) / 2
-        t1 = times[-1] + (times[-1] - times[-2]) / 2
-        midtimes = np.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
-
-        state_vals = vals[transitions[1:]]
-        state_times = midtimes[transitions]
-
-        intervals = {'datestart': DateTime(state_times[:-1]).date,
-                     'datestop': DateTime(state_times[1:]).date,
-                     'tstart': state_times[:-1],
-                     'tstop': state_times[1:],
-                     'duration': state_times[1:] - state_times[:-1],
-                     'val': state_vals}
-
-        return Table(intervals, names=sorted(intervals))
+        return utils.state_intervals(times, vals)
 
     def iplot(self, fmt='-b', fmt_minmax='-c', **plot_kwargs):
         """Make an interactive plot for exploring the MSID data.

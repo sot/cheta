@@ -106,16 +106,21 @@ def test_util_logical_intervals():
              '2012:201:11:45:46.852 2012:201:11:49:36.452    229.6'])
 
 
-def test_state_intervals():
+def test_msid_state_intervals():
     """
-    Test state intervals - basic aliveness and regression test
+    Test MSID.state_intervals() - basic aliveness and regression test
     """
+    expected = ['      datestart              datestop       val ',
+                '--------------------- --------------------- ----',
+                '2012:366:23:59:59.932 2013:001:00:56:07.057 NPNT',
+                '2013:001:00:56:07.057 2013:001:01:03:37.032 NMAN',
+                '2013:001:01:03:37.032 2013:001:01:26:13.107 NPNT',
+                '2013:001:01:26:13.107 2013:001:01:59:06.233 NMAN',
+                '2013:001:01:59:06.233 2013:001:01:59:59.533 NPNT']
+
     dat = fetch.Msid('aopcadmd', '2013:001:00:00:00', '2013:001:02:00:00')
     intervals = dat.state_intervals()['datestart', 'datestop', 'val']
-    assert intervals.pformat() == ['      datestart              datestop       val ',
-                                   '--------------------- --------------------- ----',
-                                   '2012:366:23:59:59.932 2013:001:00:56:07.057 NPNT',
-                                   '2013:001:00:56:07.057 2013:001:01:03:37.032 NMAN',
-                                   '2013:001:01:03:37.032 2013:001:01:26:13.107 NPNT',
-                                   '2013:001:01:26:13.107 2013:001:01:59:06.233 NMAN',
-                                   '2013:001:01:59:06.233 2013:001:01:59:59.533 NPNT']
+    assert intervals.pformat() == expected
+
+    intervals = utils.state_intervals(dat.times, dat.vals)['datestart', 'datestop', 'val']
+    assert intervals.pformat() == expected
