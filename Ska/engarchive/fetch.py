@@ -816,7 +816,7 @@ class MSID(object):
                    '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
         f.close()
 
-    def logical_intervals(self, op, val, complete_intervals=True):
+    def logical_intervals(self, op, val, complete_intervals=True, max_gap=None):
         """Determine contiguous intervals during which the logical comparison
         expression "MSID.vals op val" is True.  Allowed values for ``op``
         are::
@@ -825,8 +825,11 @@ class MSID(object):
 
         If ``complete_intervals`` is True (default) then the intervals are guaranteed to
         be complete so that the all reported intervals had a transition before and after
-        within the telemetry interval.  Using ``complete_intervals=False`` can be
-        convenient for poorly sampled telemetry, e.g. Format-5 MSIDs like 61PSTS02.
+        within the telemetry interval.
+
+        If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
+        filled with a fictitious False value to create an artificial interval
+        boundary at ``max_gap / 2`` seconds from the nearest data value.
 
         Returns a structured array table with a row for each interval.
         Columns are:
@@ -837,15 +840,18 @@ class MSID(object):
         * tstart: time of interval start (CXC sec)
         * tstop: time of interval stop (CXC sec)
 
-        Example::
+        Examples::
 
-          dat = fetch.MSID('aomanend', '2010:001', '2010:005')
-          manvs = dat.logical_intervals('==', 'NEND')
-          manvs['duration']
+          >>> dat = fetch.MSID('aomanend', '2010:001', '2010:005')
+          >>> manvs = dat.logical_intervals('==', 'NEND')
+
+          >>> dat = fetch.MSID('61PSTS02', '1999:200', '2000:001')
+          >>> safe_suns = dat.logical_intervals('==', 'SSM', complete_intervals=False, max_gap=66)
 
         :param op: logical operator, one of ==  !=  >  <  >=  <=
         :param val: comparison value
         :param complete_intervals: return only complete intervals (default=True)
+        :param max_gap: max allowed gap between time stamps (sec, default=None)
         :returns: structured array table of intervals
         """
         from . import utils
@@ -872,7 +878,7 @@ class MSID(object):
             times = self.times
 
         bools = op(vals, val)
-        return utils.logical_intervals(times, bools, complete_intervals)
+        return utils.logical_intervals(times, bools, complete_intervals, max_gap)
 
     def state_intervals(self):
         """Determine contiguous intervals during which the MSID value

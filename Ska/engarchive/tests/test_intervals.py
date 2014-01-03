@@ -73,18 +73,18 @@ def test_msid_logical_intervals():
     # default complete_intervals=True
     intervals = dat.logical_intervals('==', 'NPNT')
     assert len(intervals) == 1
-    assert np.all(intervals['datestart'] == ['2013:001:01:03:36.520'])
-    assert np.all(intervals['datestop'] == ['2013:001:01:26:12.595'])
+    assert np.all(intervals['datestart'] == ['2013:001:01:03:37.032'])
+    assert np.all(intervals['datestop'] == ['2013:001:01:26:13.107'])
 
     # Now with incomplete intervals on each end
     intervals = dat.logical_intervals('==', 'NPNT', complete_intervals=False)
     assert len(intervals) == 3
-    assert np.all(intervals['datestart'] == ['2013:001:00:00:00.445',
-                                             '2013:001:01:03:36.520',
-                                             '2013:001:01:59:05.720'])
-    assert np.all(intervals['datestop'] == ['2013:001:00:56:06.545',
-                                            '2013:001:01:26:12.595',
-                                            '2013:001:01:59:59.020'])
+    assert np.all(intervals['datestart'] == ['2012:366:23:59:59.932',
+                                             '2013:001:01:03:37.032',
+                                             '2013:001:01:59:06.233'])
+    assert np.all(intervals['datestop'] == ['2013:001:00:56:07.057',
+                                            '2013:001:01:26:13.107',
+                                            '2013:001:01:59:59.533'])
 
 
 def test_util_logical_intervals():
@@ -101,9 +101,24 @@ def test_util_logical_intervals():
     assert (scs107s['datestart', 'datestop', 'duration'].pformat() ==
             ['      datestart              datestop       duration',
              '--------------------- --------------------- --------',
-             '2012:194:20:00:31.652 2012:194:20:04:21.252    229.6',
-             '2012:196:21:07:36.452 2012:196:21:11:26.052    229.6',
-             '2012:201:11:45:46.852 2012:201:11:49:36.452    229.6'])
+             '2012:194:20:00:48.052 2012:194:20:04:37.652    229.6',
+             '2012:196:21:07:52.852 2012:196:21:11:42.452    229.6',
+             '2012:201:11:46:03.252 2012:201:11:49:52.852    229.6'])
+
+
+def test_util_logical_intervals_gap():
+    """
+    Test the max_gap functionality
+    """
+    times = np.array([1, 2, 3, 200, 201, 202])
+    bools = np.ones(len(times), dtype=bool)
+    out = utils.logical_intervals(times, bools, complete_intervals=False, max_gap=10)
+    assert np.allclose(out['tstart'], [0.5, 197.5])
+    assert np.allclose(out['tstop'], [5.5, 202.5])
+
+    out = utils.logical_intervals(times, bools, complete_intervals=False)
+    assert np.allclose(out['tstart'], [1])
+    assert np.allclose(out['tstop'], [202])
 
 
 def test_msid_state_intervals():

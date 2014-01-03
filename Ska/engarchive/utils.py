@@ -129,13 +129,31 @@ def ss_vector(start, stop=None, obj='Earth'):
     return out
 
 
-def logical_intervals(times, bools, complete_intervals=True):
+def _pad_long_gaps(times, bools, max_gap):
+    dts = np.diff(times)
+    i_long_gaps = np.flatnonzero(dts > max_gap)
+    print i_long_gaps
+    if len(i_long_gaps) > 0:
+        for i in i_long_gaps[::-1]:
+            times = np.concatenate([times[:i + 1],
+                                    [times[i] + max_gap / 2.0, times[i + 1] - max_gap / 2.0],
+                                    times[i + 1:]])
+            bools = np.concatenate([bools[:i + 1],
+                                    [False, False],
+                                    bools[i + 1:]])
+    return times, bools
+
+
+def logical_intervals(times, bools, complete_intervals=True, max_gap=None):
     """Determine contiguous intervals during which `bools` is True.
 
     If ``complete_intervals`` is True (default) then the intervals are guaranteed to
     be complete so that the all reported intervals had a transition before and after
-    within the telemetry interval.  Using ``complete_intervals=False`` can be
-    convenient for poorly sampled telemetry, e.g. Format-5 MSIDs like 61PSTS02.
+    within the telemetry interval.
+
+    If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
+    filled with a fictitious False value to create an artificial interval
+    boundary at ``max_gap / 2`` seconds from the nearest data value.
 
     Returns an astropy Table with a row for each interval.  Columns are:
 
@@ -163,41 +181,24 @@ def logical_intervals(times, bools, complete_intervals=True):
 
     :param times: array of time stamps in CXC seconds
     :param bools: array of logical True/False values
-    :param complete_interavls: return only complete intervals (default=True)
+    :param complete_intervals: return only complete intervals (default=True)
+    :param max_gap: max allowed gap between time stamps (sec, default=None)
     :returns: Table of intervals
     """
-    from astropy.table import Table
+    if max_gap is not None:
+        times, bools = _pad_long_gaps(times, bools, max_gap)
 
-    starts = ~bools[:-1] & bools[1:]
-    ends = bools[:-1] & ~bools[1:]
+    intervals = state_intervals(times, bools)
 
-    # If last telemetry point is val then the data ends during that interval and there
-    # will be an extra start transition that must be handled.
-    i_starts = np.flatnonzero(starts)
-    i_ends = np.flatnonzero(ends)
-    if bools[-1]:
-        if complete_intervals:
-            i_starts = i_starts[:-1]
-        else:
-            i_ends = np.concatenate([i_ends, [len(times) - 1]])
+    if complete_intervals:
+        if len(intervals) > 0 and intervals['val'][0]:
+            intervals = intervals[1:]
+        if len(intervals) > 0 and intervals['val'][-1]:
+            intervals = intervals[:-1]
 
-    # If first entry is val then the telemetry starts during an interval
-    # and there will be an extra end transition that must be removed.
-    if bools[0]:
-        if complete_intervals:
-            i_ends = i_ends[1:]
-        else:
-            i_starts = np.concatenate([[0], i_starts])
-
-    tstarts = times[i_starts]
-    tstops = times[i_ends]
-    intervals = {'datestart': DateTime(tstarts).date,
-                 'datestop': DateTime(tstops).date,
-                 'duration': times[i_ends] - times[i_starts],
-                 'tstart': tstarts,
-                 'tstop': tstops}
-
-    return Table(intervals, names=sorted(intervals))
+    ok = intervals['val']  # Intervals where bools is True
+    del intervals['val']
+    return intervals[ok]
 
 
 def state_intervals(times, vals):
