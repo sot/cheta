@@ -1,5 +1,7 @@
+import numpy as np
+
 from Chandra.Time import DateTime
-from .. import fetch
+from .. import fetch, utils
 from kadi import events
 
 # Use dwells for some interval filter tests
@@ -60,3 +62,60 @@ def test_select_remove_all_interval():
     assert len(dat) == 110
     assert len(dat_r) == 0
     assert len(dat_s) == 110
+
+
+def test_msid_logical_intervals():
+    """
+    Test MSID.logical_intervals()
+    """
+    dat = fetch.Msid('aopcadmd', '2013:001:00:00:00', '2013:001:02:00:00')
+
+    # default complete_intervals=True
+    intervals = dat.logical_intervals('==', 'NPNT')
+    assert len(intervals) == 1
+    assert np.all(intervals['datestart'] == ['2013:001:01:03:36.520'])
+    assert np.all(intervals['datestop'] == ['2013:001:01:26:12.595'])
+
+    # Now with incomplete intervals on each end
+    intervals = dat.logical_intervals('==', 'NPNT', complete_intervals=False)
+    assert len(intervals) == 3
+    assert np.all(intervals['datestart'] == ['2013:001:00:00:00.445',
+                                             '2013:001:01:03:36.520',
+                                             '2013:001:01:59:05.720'])
+    assert np.all(intervals['datestop'] == ['2013:001:00:56:06.545',
+                                            '2013:001:01:26:12.595',
+                                            '2013:001:01:59:59.020'])
+
+
+def test_util_logical_intervals():
+    """
+    Test utils.logical_intervals()
+    """
+    dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'], '2012:190', '2012:205')
+    dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)
+    scs107 = ((dat['3tscmove'].vals == 'T')
+              & (dat['aorwbias'].vals == 'DISA')
+              & (dat['coradmen'].vals == 'DISA'))
+    scs107s = utils.logical_intervals(dat.times, scs107)
+    scs107s['duration'].format = '{:.1f}'
+    assert (scs107s['datestart', 'datestop', 'duration'].pformat() ==
+            ['      datestart              datestop       duration',
+             '--------------------- --------------------- --------',
+             '2012:194:20:00:31.652 2012:194:20:04:21.252    229.6',
+             '2012:196:21:07:36.452 2012:196:21:11:26.052    229.6',
+             '2012:201:11:45:46.852 2012:201:11:49:36.452    229.6'])
+
+
+def test_state_intervals():
+    """
+    Test state intervals - basic aliveness and regression test
+    """
+    dat = fetch.Msid('aopcadmd', '2013:001:00:00:00', '2013:001:02:00:00')
+    intervals = dat.state_intervals()['datestart', 'datestop', 'val']
+    assert intervals.pformat() == ['      datestart              datestop       val ',
+                                   '--------------------- --------------------- ----',
+                                   '2012:366:23:59:59.932 2013:001:00:56:07.057 NPNT',
+                                   '2013:001:00:56:07.057 2013:001:01:03:37.032 NMAN',
+                                   '2013:001:01:03:37.032 2013:001:01:26:13.107 NPNT',
+                                   '2013:001:01:26:13.107 2013:001:01:59:06.233 NMAN',
+                                   '2013:001:01:59:06.233 2013:001:01:59:59.533 NPNT']
