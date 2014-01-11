@@ -1,8 +1,8 @@
 Fixing bad values
 ==================
 
-Procedure
------------
+Excluding bad values
+--------------------
 
 Bad values may be reported by users or show up as a warning in Eng archive processing, e.g.::
 
@@ -26,7 +26,9 @@ what the tool will do::
 
   % ska
   % cd ~/git/eng_archive
-  % ./fix_bad_values.py --msid aomantim --start=2013:233:12:19:26.158 --data-root=/proj/sot/ska/data/eng_archive
+  % ./fix_bad_values.py --msid aomantim --start=2013:233:12:19:26.158 \\
+       --data-root=/proj/sot/ska/data/eng_archive
+
   ** If something gets corrupted then there is the NetApp snapshot for recovery **
 
   ** DRY RUN **
@@ -48,9 +50,25 @@ in ska-test.
 
 **IMPORTANT!**
 
-Copy the command you used in the log below, as this is the only permanent record of
-these hand-fixes.  Then commit this updated file to git and push to origin.
+Copy the command you used in the "Record of Fixes" log below, as this is the only
+permanent record of these hand-fixes.  Then commit this updated file to git and push to
+origin.
 
+Setting new values
+------------------
+
+In cases such as safe mode where there is incorrect telemetry over a long time range, it
+can be helpful to substitute new "correct" values.  The poster-child here is DP_PITCH
+which gets reported in CXC telemetry incorrectly.  The fix procedure here is similar
+to above except that the ``--value=<value>`` command line argument is supplied::
+
+  % ska
+  % cd ~/git/eng_archive
+  % ./fix_bad_values.py --msid dp_pitch --value=90.0 --start=2011:188 --stop=2011:190 \\
+       --data-root=/proj/sot/ska/data/eng_archive [--run]
+
+Again it is crucial to record each of these commands and validate the results
+by plotting and printing data values after applying the fix.
 
 Record of fixes
 ---------------

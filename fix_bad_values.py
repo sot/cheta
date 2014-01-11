@@ -67,6 +67,8 @@ def get_opt():
                         help='Start time of bad values')
     parser.add_argument('--stop',
                         help='Stop time of bad values')
+    parser.add_argument('--value',
+                        help='Update with <value> instead of setting as bad')
     parser.add_argument("--run",
                         action="store_true",
                         help="Actually modify files (dry run is the default)")
@@ -220,16 +222,24 @@ def fix_msid_h5(msid, tstart, tstop):
 
     h5 = tables.openFile(filename, 'a')
     try:
-        for idx in fix_idxs:
-            quality = h5.root.quality[idx]
-            if quality:
-                logger.info('Skipping idx={} because quality is already True'.format(idx))
-                continue
-            logger.info('{}.data[{}] = {}'.format(msid, idx, h5.root.data[idx]))
-            logger.info('Changing {}.quality[{}] from {} to True'
-                        .format(msid, idx, quality))
+        if opt.value is not None:
+            # Set data to <value> over the specified time range
+            i0, i1 = fix_idxs[0], fix_idxs[-1] + 1
+            logger.info('Changing {}.data[{}:{}] to {}'
+                        .format(msid, i0, i1, opt.value))
             if opt.run:
-                h5.root.quality[idx] = True
+                h5.root.data[i0:i1] = opt.value
+        else:
+            for idx in fix_idxs:
+                quality = h5.root.quality[idx]
+                if quality:
+                    logger.info('Skipping idx={} because quality is already True'.format(idx))
+                    continue
+                logger.info('{}.data[{}] = {}'.format(msid, idx, h5.root.data[idx]))
+                logger.info('Changing {}.quality[{}] from {} to True'
+                            .format(msid, idx, quality))
+                if opt.run:
+                    h5.root.quality[idx] = True
     finally:
         h5.close()
     logger.info('')
