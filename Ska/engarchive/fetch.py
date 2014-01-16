@@ -7,9 +7,11 @@ from __future__ import print_function, absolute_import, division
 __docformat__ = 'restructuredtext'
 import sys
 import os
+import re
 import time
 import contextlib
-import pickle as pickle
+import six
+from six.moves import cPickle as pickle
 import logging
 import operator
 import fnmatch
@@ -392,6 +394,12 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
+        # Possibly convert vals to unicode for Python 3.  If this MSID is a
+        # state-valued MSID (with string value) then `vals` is the only possible
+        # string attribute.  None of the others like mins/maxes etc will exist.
+        if six.PY3 and vals.dtype.kind == 'S':
+            self.vals = np.array(vals, dtype=re.sub('S', 'U', self.vals.dtype.str))
+
     @staticmethod
     @cache.lru_cache(30)
     def _get_msid_data_cached(content, tstart, tstop, msid, unit_system):
@@ -475,6 +483,10 @@ class MSID(object):
         bads = bads[row0:row1]
         colnames = ['times', 'vals', 'bads']
 
+        # In Python 3 change bytestring to (unicode) string
+        if six.PY3 and vals.dtype.kind == 'S':
+            vals = np.array(vals, dtype=re.sub('S', 'U', vals.dtype.str))
+
         return (vals, times, bads, colnames)
 
     @property
@@ -482,7 +494,7 @@ class MSID(object):
         """List of state codes tuples (raw_count, state_code) for state-valued
         MSIDs
         """
-        if 'S' not in self.vals.dtype.str:
+        if self.vals.dtype.kind not in ('S', 'U'):
             self._state_codes = None
 
         if self.MSID in STATE_CODES:
@@ -507,7 +519,7 @@ class MSID(object):
         stored in ``self.vals``
         """
         # If this is not a string-type value then there are no raw values
-        if 'S' not in self.vals.dtype.str or self.state_codes is None:
+        if self.vals.dtype.kind not in ('S', 'U') or self.state_codes is None:
             self._raw_vals = None
 
         if not hasattr(self, '_raw_vals'):
