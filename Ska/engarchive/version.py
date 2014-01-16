@@ -14,6 +14,8 @@ NOTE: this code copied from astropy and modified.  Any license restrictions
 therein are applicable.
 """
 
+from __future__ import print_function, absolute_import, division
+
 version = '0.26'
 
 _versplit = version.replace('dev', '').split('.')

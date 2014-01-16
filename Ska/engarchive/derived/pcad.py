@@ -11,6 +11,8 @@ Revision History::
   26 Mar 2012       Re-defined DP_ROLL_FSS and DP_PITCH_FSS to improve accuracy
 """
 
+from __future__ import print_function, absolute_import, division
+
 import numpy as np
 from numpy import sin, cos, tan, arctan2, sqrt, degrees, radians
 from . import base

@@ -1,4 +1,5 @@
-from itertools import izip
+from __future__ import print_function, absolute_import, division
+
 import logging
 import numpy
 import sys
@@ -110,7 +111,7 @@ ALIASES = {'sim_mrg': """
     FLEXCTSET    3SFLXCST   "Flexture C Temperature Setpoint"
     """}
 
-ALIASES = {key: parse_alias_str(val) for key, val in ALIASES.items()}
+ALIASES = {key: parse_alias_str(val) for key, val in list(ALIASES.items())}
 
 sim_mrg = generic_converter(aliases=ALIASES['sim_mrg'])
 
@@ -145,21 +146,21 @@ def acisdeahk(dat):
     times = rows['TIME']
 
     outs = []
-    for i0, i1 in izip(block_idxs[:-1], block_idxs[1:]):
+    for i0, i1 in zip(block_idxs[:-1], block_idxs[1:]):
         # Map query_id to an index into rows for each row in the block
         id_idxs = dict((query_ids[i], i) for i in range(i0, i1))
 
         # Make tuples of the values and qual flags corresponding to each DEAHK_COLUMN
         bads = tuple(query_id not in id_idxs for query_id in col_query_ids)
         vals = tuple((0.0 if bad else query_vals[id_idxs[query_id]])
-                     for bad, query_id in izip(bads, col_query_ids))
+                     for bad, query_id in zip(bads, col_query_ids))
         val_tus = tuple((0 if bad else query_val_tus[id_idxs[query_id]])
-                     for bad, query_id in izip(bads, col_query_ids))
+                     for bad, query_id in zip(bads, col_query_ids))
 
         # Now have another pass at finding bad values.  Take these out now so the
         # 5min and daily stats are not frequently corrupted.
         bads = tuple(True if (val_tu == 65535 or numpy.isnan(val)) else bad
-                     for bad, val, val_tu in izip(bads, vals, val_tus))
+                     for bad, val, val_tu in zip(bads, vals, val_tus))
 
         quality = (False, False) + bads
         outs.append((times[i0], quality) + vals)

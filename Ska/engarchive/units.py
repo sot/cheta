@@ -1,5 +1,7 @@
+from __future__ import print_function, absolute_import, division
+
 import os
-import cPickle as pickle
+import pickle as pickle
 import logging
 
 import numpy as np
@@ -19,7 +21,7 @@ module_dir = os.path.dirname(__file__)
 
 units = {}
 units['system'] = 'cxc'
-units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl')))
+units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl'), 'rb'))
 
 
 def K_to_C(vals, delta_val=False):

@@ -1,9 +1,13 @@
 ## {{{ http://code.activestate.com/recipes/498245/ (r6)
+from __future__ import print_function, absolute_import, division
+
 import collections
 import functools
-from itertools import ifilterfalse
 from heapq import nsmallest
 from operator import itemgetter
+
+import six
+from six.moves import filterfalse
 
 class Counter(dict):
     'Mapping where default values are zero'
@@ -66,7 +70,7 @@ def lru_cache(maxsize=30):
             if len(queue) > maxqueue:
                 refcount.clear()
                 queue_appendleft(sentinel)
-                for key in ifilterfalse(refcount.__contains__,
+                for key in filterfalse(refcount.__contains__,
                                         iter(queue_pop, sentinel)):
                     queue_appendleft(key)
                     refcount[key] = 1
@@ -119,7 +123,7 @@ def lfu_cache(maxsize=100):
                 # purge least frequently used cache entry
                 if len(cache) > maxsize:
                     for key, _ in nsmallest(maxsize // 10,
-                                            use_count.iteritems(),
+                                            six.iteritems(use_count),
                                             key=itemgetter(1)):
                         del cache[key], use_count[key]
 
@@ -142,7 +146,7 @@ if __name__ == '__main__':
     def f(x, y):
         return 3*x+y
 
-    domain = range(5)
+    domain = list(range(5))
     from random import choice
     for i in range(1000):
         r = f(choice(domain), choice(domain))
@@ -153,10 +157,10 @@ if __name__ == '__main__':
     def f(x, y):
         return 3*x+y
 
-    domain = range(5)
+    domain = list(range(5))
     from random import choice
     for i in range(1000):
         r = f(choice(domain), choice(domain))
 
-    print(f.hits, f.misses)
+    print((f.hits, f.misses))
 ## end of http://code.activestate.com/recipes/498245/ }}}

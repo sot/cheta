@@ -1,3 +1,5 @@
+from __future__ import print_function, absolute_import, division
+
 import numpy as np
 
 import pytest
@@ -255,7 +257,7 @@ def test_msidset_copy():
         for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
             assert getattr(msidset1, attr) == getattr(msidset2, attr)
 
-        assert msidset1.keys() == msidset2.keys()
-        for name in msidset1.keys():
+        assert list(msidset1.keys()) == list(msidset2.keys())
+        for name in list(msidset1.keys()):
             _assert_msid_equal(msidset1[name], msidset2[name])
 
