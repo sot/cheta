@@ -2,9 +2,15 @@ from __future__ import print_function, absolute_import, division
 
 import numpy as np
 
+import pytest
+
 from Chandra.Time import DateTime
 from .. import fetch, utils
-from kadi import events
+try:
+    from kadi import events
+    HAS_KADI = True
+except ImportError:
+    HAS_KADI = False
 
 # Use dwells for some interval filter tests
 #
@@ -25,6 +31,7 @@ from kadi import events
 #  ('2012:002:10:38:21.218', '2012:002:12:00:00.000')]
 
 
+@pytest.mark.skipif('HAS_KADI is False')
 def test_select_remove_interval():
     dat = fetch.MSID('tephin', '2012:002:02:00:00', '2012:002:04:00:00')
     dat_r = dat.remove_intervals(events.dwells, copy=True)
@@ -41,6 +48,7 @@ def test_select_remove_interval():
     assert set(dat_r.times).isdisjoint(dat_s.times)
 
 
+@pytest.mark.skipif('HAS_KADI is False')
 def test_remove_intervals_stat():
     for stat in (None, '5min'):
         dat = fetch.MSID('tephin', '2012:002', '2012:003')
@@ -54,6 +62,7 @@ def test_remove_intervals_stat():
             assert len(dat) == len(getattr(dat, attr))
 
 
+@pytest.mark.skipif('HAS_KADI is False')
 def test_select_remove_all_interval():
     """
     Select or remove all data points via an event that entirely spans the MSID data.
@@ -112,15 +121,15 @@ def test_util_logical_intervals_gap():
     """
     Test the max_gap functionality
     """
-    times = np.array([1, 2, 3, 200, 201, 202])
+    times = np.array([1, 2, 3, 200, 201, 202], dtype=np.float)
     bools = np.ones(len(times), dtype=bool)
     out = utils.logical_intervals(times, bools, complete_intervals=False, max_gap=10)
     assert np.allclose(out['tstart'], [0.5, 197.5])
     assert np.allclose(out['tstop'], [5.5, 202.5])
 
     out = utils.logical_intervals(times, bools, complete_intervals=False)
-    assert np.allclose(out['tstart'], [1])
-    assert np.allclose(out['tstop'], [202])
+    assert np.allclose(out['tstart'], [0.5])
+    assert np.allclose(out['tstop'], [202.5])
 
 
 def test_msid_state_intervals():
