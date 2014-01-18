@@ -1,3 +1,5 @@
+from __future__ import print_function, absolute_import, division
+
 from Chandra.Time import DateTime
 from .. import fetch
 import Ska.Numpy
@@ -36,7 +38,7 @@ class DerivedParameter(object):
         fetch.set_units(unit_system)
 
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
-        for data in dataset.values():
+        for data in list(dataset.values()):
             if (data.vals.dtype.name == 'string24'
                 and set(data.vals).issubset(set(['ON ', 'OFF']))):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
@@ -44,7 +46,7 @@ class DerivedParameter(object):
         times, indexes = times_indexes(start, stop, self.time_step)
         bads = np.zeros(len(times), dtype=np.bool)  # All data OK (false)
 
-        for msidname, data in dataset.items():
+        for msidname, data in list(dataset.items()):
             keyvals = (data.content, data.times[0], data.times[-1],
                        len(times), times[0], times[-1])
             idxs = interpolate_times(keyvals, len(data.times), 
@@ -62,8 +64,8 @@ class DerivedParameter(object):
             max_gap = self.max_gaps.get(msidname, self.max_gap)
             gap_bads = abs(data.times - times) > max_gap
             if np.any(gap_bads):
-                print "Setting bads because of gaps in {} at {}".format(
-                    msidname, str(times[gap_bads]))
+                print("Setting bads because of gaps in {} at {}".format(
+                    msidname, str(times[gap_bads])))
             bads = bads | gap_bads
 
         dataset.times = times
@@ -76,7 +78,7 @@ class DerivedParameter(object):
         dataset = fetch_eng.MSIDset(self.rootparams, start, stop, filter_bad=True)
 
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
-        for data in dataset.values():
+        for data in list(dataset.values()):
             if (data.vals.dtype.name == 'string24'
                 and set(data.vals) == set(('ON ', 'OFF'))):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))

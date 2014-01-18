@@ -2,12 +2,16 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
+from __future__ import print_function, absolute_import, division
+
 __docformat__ = 'restructuredtext'
 import sys
 import os
+import re
 import time
 import contextlib
-import cPickle as pickle
+import six
+from six.moves import cPickle as pickle
 import logging
 import operator
 import fnmatch
@@ -15,7 +19,7 @@ import collections
 import warnings
 
 import numpy as np
-import asciitable
+from astropy.io import ascii
 import pyyaks.context
 
 from . import file_defs
@@ -93,7 +97,7 @@ def local_or_remote_function(remote_print_output):
                                           "info from user.")
                 # Print the output, if specified
                 if remote_access.show_print_output and not remote_print_output is None:
-                    print remote_print_output
+                    print(remote_print_output)
                     sys.stdout.flush()
                 # Execute the function remotely and return the result
                 return remote_access.execute_remotely(func, *args, **kwargs)
@@ -133,7 +137,7 @@ msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
-filetypes = asciitable.read(os.path.join(DIR_PATH, 'filetypes.dat'))
+filetypes = ascii.read(os.path.join(DIR_PATH, 'filetypes.dat'))
 content = collections.OrderedDict()
 
 # Get the list of filenames (an array is built to pass all the filenames at
@@ -148,11 +152,11 @@ for filetype in filetypes:
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
-    import cPickle as pickle
+    import pickle as pickle
     all_colnames = dict()
-    for k, msid_names_file in all_msid_names_files.iteritems():
+    for k, msid_names_file in all_msid_names_files.items():
         try:
-            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file)))
+            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), 'rb'))
         except IOError:
             pass
     return all_colnames
@@ -160,7 +164,7 @@ def load_msid_names(all_msid_names_files):
 all_colnames = load_msid_names(all_msid_names_files)
 
 # Save the names
-for k, colnames in all_colnames.iteritems():
+for k, colnames in all_colnames.items():
     content.update((x, k) for x in sorted(colnames)
                    if x not in IGNORE_COLNAMES)
 
@@ -180,8 +184,8 @@ logger.propagate = False
 
 # Warn the user if ENG_ARCHIVE is set such that the data path is non-standard
 if os.getenv('ENG_ARCHIVE'):
-    print('fetch: using ENG_ARCHIVE={} for archive path'
-          .format(os.getenv('ENG_ARCHIVE')))
+    print(('fetch: using ENG_ARCHIVE={} for archive path'
+          .format(os.getenv('ENG_ARCHIVE'))))
 
 
 def get_units():
@@ -219,8 +223,8 @@ def read_bad_times(table):
     ``DateTime`` format.  Blank lines and any line starting with the #
     character are ignored.
     """
-    bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
-                                names=['msid', 'start', 'stop'])
+    bad_times = ascii.read(table, format='no_header',
+                           names=['msid', 'start', 'stop'])
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
@@ -254,7 +258,7 @@ def msid_glob(msid):
     # input was a glob the returned msids are just lower case versions
     # of the matched upper case MSIDs.
     for match in (MSID, 'DP_' + MSID):
-        matches = fnmatch.filter(content.keys(), match)
+        matches = fnmatch.filter(list(content.keys()), match)
         if matches:
             if len(matches) > MAX_GLOB_MATCHES:
                 raise ValueError(
@@ -390,6 +394,12 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
+        # Possibly convert vals to unicode for Python 3.  If this MSID is a
+        # state-valued MSID (with string value) then `vals` is the only possible
+        # string attribute.  None of the others like mins/maxes etc will exist.
+        if six.PY3 and vals.dtype.kind == 'S':
+            self.vals = np.array(vals, dtype=re.sub('S', 'U', self.vals.dtype.str))
+
     @staticmethod
     @cache.lru_cache(30)
     def _get_msid_data_cached(content, tstart, tstop, msid, unit_system):
@@ -473,6 +483,10 @@ class MSID(object):
         bads = bads[row0:row1]
         colnames = ['times', 'vals', 'bads']
 
+        # In Python 3 change bytestring to (unicode) string
+        if six.PY3 and vals.dtype.kind == 'S':
+            vals = np.array(vals, dtype=re.sub('S', 'U', vals.dtype.str))
+
         return (vals, times, bads, colnames)
 
     @property
@@ -480,7 +494,7 @@ class MSID(object):
         """List of state codes tuples (raw_count, state_code) for state-valued
         MSIDs
         """
-        if 'S' not in self.vals.dtype.str:
+        if self.vals.dtype.kind not in ('S', 'U'):
             self._state_codes = None
 
         if self.MSID in STATE_CODES:
@@ -505,7 +519,7 @@ class MSID(object):
         stored in ``self.vals``
         """
         # If this is not a string-type value then there are no raw values
-        if 'S' not in self.vals.dtype.str or self.state_codes is None:
+        if self.vals.dtype.kind not in ('S', 'U') or self.state_codes is None:
             self._raw_vals = None
 
         if not hasattr(self, '_raw_vals'):
@@ -647,11 +661,11 @@ class MSID(object):
         :param copy: return a copy of MSID object with bad times filtered
         """
         if table is not None:
-            bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
-                                        names=['start', 'stop'])
+            bad_times = ascii.read(table, format='no_header',
+                                   names=['start', 'stop'])
         elif start is None and stop is None:
             bad_times = []
-            for msid_glob, times in msid_bad_times.items():
+            for msid_glob, times in list(msid_bad_times.items()):
                 if fnmatch.fnmatch(self.MSID, msid_glob):
                     bad_times.extend(times)
         elif start is None or stop is None:
@@ -796,7 +810,7 @@ class MSID(object):
         :param append: append to an existing zipfile
         """
         import zipfile
-        from itertools import izip
+        
         colnames = self.colnames[:]
         if self.bads is None and 'bads' in colnames:
             colnames.remove('bads')
@@ -808,12 +822,12 @@ class MSID(object):
                                        and os.path.exists(filename)
                                        else 'w'))
         info = zipfile.ZipInfo(self.msid + '.csv')
-        info.external_attr = 0664 << 16L  # Set permissions
+        info.external_attr = 0o664 << 16  # Set permissions
         info.date_time = time.localtime()[:7]
         info.compress_type = zipfile.ZIP_DEFLATED
         f.writestr(info,
                    ",".join(colnames) + '\n' +
-                   '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
+                   '\n'.join(fmt % x for x in zip(*colvals)) + '\n')
         f.close()
 
     def logical_intervals(self, op, val, complete_intervals=True, max_gap=None):
@@ -1063,10 +1077,10 @@ class MSIDset(collections.OrderedDict):
         """
         obj = self.copy() if copy else self
 
-        for content in set(x.content for x in obj.values()):
+        for content in set(x.content for x in list(obj.values())):
             bads = None
 
-            msids = [x for x in obj.values()
+            msids = [x for x in list(obj.values())
                      if x.content == content and x.bads is not None]
             for msid in msids:
                 if bads is None:
@@ -1110,7 +1124,7 @@ class MSIDset(collections.OrderedDict):
         """
         obj = self.copy() if copy else self
 
-        for msid in obj.values():
+        for msid in list(obj.values()):
             msid.filter_bad_times(start, stop, table)
 
         if copy:
@@ -1151,7 +1165,7 @@ class MSIDset(collections.OrderedDict):
         """
         import Ska.Numpy
 
-        msids = self.values()  # MSID objects in the MSIDset
+        msids = list(self.values())  # MSID objects in the MSIDset
 
         # Ensure that tstart / tstop is entirely within the range of available
         # data fetched from the archive.
@@ -1203,7 +1217,7 @@ class MSIDset(collections.OrderedDict):
         :param filename: output zipfile name
         """
         append = False
-        for msid in self.values():
+        for msid in list(self.values()):
             msid.write_zip(filename, append=append)
             append = True
 

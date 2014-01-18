@@ -1,5 +1,8 @@
+from __future__ import print_function, absolute_import, division
+
 import os
-import cPickle as pickle
+import six
+from six.moves import cPickle as pickle
 import logging
 
 import numpy as np
@@ -17,9 +20,11 @@ logger.propagate = False
 SYSTEMS = set(('cxc', 'eng', 'sci'))
 module_dir = os.path.dirname(__file__)
 
+ENCODING = {'encoding': 'latin1'} if six.PY3 else {}
+
 units = {}
 units['system'] = 'cxc'
-units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl')))
+units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl'), 'rb'), **ENCODING)
 
 
 def K_to_C(vals, delta_val=False):
@@ -83,7 +88,7 @@ def load_units(unit_system):
     if unit_system not in units:
         filename = os.path.join(module_dir,
                                 'units_{0}.pkl'.format(unit_system))
-        units[unit_system] = pickle.load(open(filename))
+        units[unit_system] = pickle.load(open(filename, 'rb'), **ENCODING)
 
 
 def set_units(unit_system):

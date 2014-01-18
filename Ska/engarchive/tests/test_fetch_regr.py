@@ -33,6 +33,8 @@ Help::
 
 """
 
+from __future__ import print_function, absolute_import, division
+
 import sys
 import os
 import hashlib
@@ -71,10 +73,10 @@ def get_args(args=None):
 
 def get_contents(fetch, args):
     contents = collections.defaultdict(list)
-    for msid, content_type in fetch.content.iteritems():
+    for msid, content_type in fetch.content.items():
         contents[content_type].append(msid)
 
-    for content_type, msids in contents.items():
+    for content_type, msids in list(contents.items()):
         msids = sorted(msids)
         idxs = np.linspace(0, len(msids) - 1, args.n_msids).astype(int)
         contents[content_type] = [msids[idx] for idx in sorted(set(idxs))]
@@ -106,7 +108,7 @@ def main():
     contents = get_contents(fetch, args)
 
     if args.outfile:
-        print("Writing regression results to {}".format(args.outfile))
+        print(("Writing regression results to {}".format(args.outfile)))
         fout = open(args.outfile, 'w')
     else:
         fout = sys.stdout
@@ -123,7 +125,7 @@ def main():
 
                     key = '{:20s} {:16s} {:6s}'.format(content_type, msid, stat)
                     md5_hex = get_md5(fetch, args, msid, start, days, stat)
-                    print >>fout, key, md5_hex
+                    print(key, md5_hex, file=fout)
 
     if args.outfile:
         fout.close()

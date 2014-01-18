@@ -13,8 +13,12 @@ dat = asciitable.read('tmsrment.txt',
 
 units_cxc = pickle.load(open('units_cxc.pkl'))
 
+# Convert to pure Python lists
+msids = dat['col1'].tolist()
+units = dat['col5'].tolist()
+
 units_eng = dict((msid.upper(), unit)
-                 for msid, unit in zip(dat['col1'], dat['col5'])
+                 for msid, unit in zip(msids, units)
                  if unit and msid.upper() in units_cxc)
 
 # Use info about DEA HK telemetry from converters to add units

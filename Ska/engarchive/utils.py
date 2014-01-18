@@ -1,6 +1,8 @@
 """
 Utilities for the engineering archive.
 """
+from __future__ import print_function, absolute_import, division
+
 import numpy as np
 from Chandra.Time import DateTime
 
@@ -50,7 +52,7 @@ def ss_vector(start, stop=None, obj='Earth'):
 
     :returns: table of vector values
     """
-    from itertools import count, izip
+    from itertools import count
     from Quaternion import Quat
     from scipy.interpolate import interp1d
     from . import fetch
@@ -59,7 +61,7 @@ def ss_vector(start, stop=None, obj='Earth'):
     obj = obj.lower()
     if obj not in sign:
         raise ValueError('obj parameter must be one of {0}'
-                         .format(sign.keys()))
+                         .format(list(sign.keys())))
 
     tstart = DateTime(start).secs
     tstop = DateTime(stop).secs
@@ -93,7 +95,7 @@ def ss_vector(start, stop=None, obj='Earth'):
 
     bad_q_atts = []  # List of inconsistent quaternion values in telemetry
     p_obj_body = np.ndarray((len(times0), 3), dtype=float)
-    for i, obj_eci, distance, time, q1, q2, q3, q4 in izip(
+    for i, obj_eci, distance, time, q1, q2, q3, q4 in zip(
         count(), obj_ecis, distances, times0, q_atts['aoattqt1'].midvals,
         q_atts['aoattqt2'].midvals, q_atts['aoattqt3'].midvals,
         q_atts['aoattqt4'].midvals):
@@ -132,7 +134,7 @@ def ss_vector(start, stop=None, obj='Earth'):
 def _pad_long_gaps(times, bools, max_gap):
     dts = np.diff(times)
     i_long_gaps = np.flatnonzero(dts > max_gap)
-    print i_long_gaps
+    print(i_long_gaps)
     if len(i_long_gaps) > 0:
         for i in i_long_gaps[::-1]:
             times = np.concatenate([times[:i + 1],

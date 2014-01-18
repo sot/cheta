@@ -1,3 +1,5 @@
+from __future__ import print_function, absolute_import, division
+
 from .fetch import *
 from . import fetch
 from .version import version as __version__
