@@ -4,6 +4,8 @@ import logging
 import numpy
 import sys
 
+from six.moves import zip
+
 import Ska.Numpy
 
 MODULE = sys.modules[__name__]
@@ -111,7 +113,7 @@ ALIASES = {'sim_mrg': """
     FLEXCTSET    3SFLXCST   "Flexture C Temperature Setpoint"
     """}
 
-ALIASES = {key: parse_alias_str(val) for key, val in list(ALIASES.items())}
+ALIASES = {key: parse_alias_str(val) for key, val in ALIASES.items()}
 
 sim_mrg = generic_converter(aliases=ALIASES['sim_mrg'])
 
