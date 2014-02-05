@@ -260,7 +260,10 @@ during periods of stable Kalman lock.  Likewise it is frequently useful to exclu
 intervals during which the spacecraft was in an anomalous state and OBC telemetry is
 unreliable.
 
-To handle this one uses the :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
+Using Kadi
+^^^^^^^^^^^
+
+Frequently one can handle this with the :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
 :func:`~Ska.engarchive.fetch.MSID.select_intervals` methods in conjunction with the `kadi event
 intervals <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-intervals>`_
 mechanism.
@@ -314,6 +317,57 @@ after the end of each maneuver.
    aorate2.iplot('.')
 
    plt.tight_layout()
+
+Using logical intervals
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+For cases where the intervals to be filtered cannot be expressed as Kadi events,
+the approach is to use the :func:`~Ska.engarchive.utils.logical_intervals` function
+located in the ``Ska.engarchive.utils`` module.  This function creates an intervals
+table where each row represents a desired interval and includes a ``datestart`` and
+``datestop`` column.
+
+For example to extract solar array temperatures when the off-nominal roll
+angle is between 5 and 10 degrees you would do::
+
+  >>> from Ska.engarchive.utils import logical_intervals
+
+  >>> sa_temps = fetch.Msid('TSAPYT','2010:001',stat='5min')
+  >>> roll = fetch.Msid('ROLL','2010:001',stat='5min')
+
+  >>> roll_off_nom = (roll.vals > 5) & (roll.vals < 10)
+  >>> off_nom_intervals = logical_intervals(roll.times, roll_off_nom)
+
+  >>> sa_temps_off_nom = sa_temps.select_intervals(off_nom_intervals, copy=True)
+
+  >>> sa_temps.plot('.r')
+  >>> sa_temps_off_nom.plot('.b')
+
+.. plot::
+
+   from Ska.engarchive import fetch_eng as fetch
+   from Ska.engarchive.utils import logical_intervals
+   import matplotlib.pyplot as plt
+   sa_temps = fetch.Msid('TSAPYT','2010:001',stat='5min')
+   roll = fetch.Msid('ROLL','2010:001',stat='5min')
+   roll_off_nom = (roll.vals > 5) & (roll.vals < 10)
+   off_nom_intervals = logical_intervals(roll.times, roll_off_nom)
+   sa_temps_off_nom = sa_temps.select_intervals(off_nom_intervals, copy=True)
+
+   plt.figure(figsize=(6, 4), dpi=75)
+   sa_temps.plot('.r')
+   sa_temps_off_nom.plot('.b')
+   plt.grid()
+   plt.title('Solar array temps at off-nominal roll 5 - 10 degrees')
+
+Notice that we created a new version of the solar array temperatures MSID object called
+``sa_temps_off_nom`` (using ``copy=True``) instead of filtering in place.  Sometimes it is
+convenient to have both the original and filtered data, e.g. when you want to plot both.
+
+Note also that :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
+:func:`~Ska.engarchive.fetch.MSID.select_intervals` will accept *any* table
+with columns ``datestart`` / ``datestop`` or ``tstart`` / ``tstop`` as input.
+
 
 Bad data
 -----------
