@@ -266,6 +266,50 @@ def msid_glob(msid):
     raise ValueError('MSID {} is not in Eng Archive'.format(MSID))
 
 
+def _get_table_intervals_as_list(table):
+    """
+    Determine if the input ``table`` looks like a table of intervals.  This can either be
+    a structured array / Table with datestart / datestop or tstart / tstop columns,
+    OR a list of lists.
+
+    If so, return a list of corresponding start/stop tuples, otherwise return None.
+    """
+    intervals = None
+
+    if isinstance(table, (list, tuple)):
+        try:
+            intervals = [(DateTime(row[0]).secs, DateTime(row[1]).secs)
+                         for row in table]
+        except:
+            pass
+    else:
+        for prefix in ('date', 't'):
+            start = prefix + 'start'
+            stop = prefix + 'stop'
+            try:
+                intervals = [(DateTime(row[start]).secs, DateTime(row[stop]).secs)
+                             for row in table]
+            except:
+                pass
+            else:
+                break
+
+    # Got an intervals list, now do validation
+    if intervals is not None:
+        from itertools import izip
+
+        if len(intervals) == 0:
+            raise ValueError('Intervals supplied as a zero-length list')
+
+        intervals = sorted(intervals, key=lambda x: x[0])
+
+        # Check for overlaps
+        if any(i0[1] > i1[0] for i0, i1 in izip(intervals[:-1], intervals[1:])):
+            raise ValueError('Input intervals overlap')
+
+    return intervals
+
+
 class MSID(object):
     """Fetch data from the engineering telemetry archive into an MSID object.
 
@@ -301,22 +345,49 @@ class MSID(object):
         if stat:
             self.dt = {'5min': 328, 'daily': 86400}[stat]
 
+        # If ``start`` is actually a table of intervals then fetch
+        # each interval separately and concatenate the results
+        intervals = _get_table_intervals_as_list(start)
+        if intervals is not None:
+            start, stop = intervals[0][0], intervals[-1][1]
+
         self.tstart = DateTime(start).secs
         self.tstop = (DateTime(stop).secs if stop else
                       DateTime(time.time(), format='unix').secs)
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
+
         try:
             self.content = content[self.MSID]
         except KeyError:
             raise ValueError('MSID %s is not in Eng Archive' % self.MSID)
 
         # Get the times, values, bad values mask from the HDF5 files archive
-        self._get_data()
+        if intervals is None:
+            self._get_data()
+        else:
+            self._get_data_over_intervals(intervals)
 
         # If requested filter out bad values and set self.bad = None
         if filter_bad:
             self.filter_bad()
+
+    def _get_data_over_intervals(self, intervals):
+        """
+        Fetch intervals separately and concatenate the results.
+        """
+        msids = []
+        for start, stop in intervals:
+            msids.append(MSID(self.msid, start, stop, filter_bad=False, stat=self.stat))
+
+        # No bad values column for stat='5min' or 'daily', but still need this attribute.
+        if self.stat:
+            self.bads = None
+
+        self.colnames = msids[0].colnames
+        for attr in self.colnames:
+            vals = np.concatenate([getattr(msid, attr) for msid in msids])
+            setattr(self, attr, vals)
 
     def _get_data(self):
         """Get data from the Eng archive"""
@@ -756,16 +827,10 @@ class MSID(object):
         ok = np.empty(len(self.times), dtype=bool)
         ok[:] = exclude
 
-        # See if `intervals` is a table with reasonable columns
-        for prefix in ('date', 't'):
-            start = prefix + 'start'
-            stop = prefix + 'stop'
-            try:
-                intervals = [(intvl[start], intvl[stop]) for intvl in intervals]
-            except:
-                pass
-            else:
-                break
+        # See if the input intervals is actually a table of intervals
+        intervals_list = _get_table_intervals_as_list(intervals)
+        if intervals_list is not None:
+            intervals = intervals_list
 
         # Check if this is an EventQuery.  Would rather not import EventQuery
         # because this is expensive (django), so just look at the name and
@@ -1016,6 +1081,10 @@ class MSIDset(collections.OrderedDict):
     def __init__(self, msids, start, stop=None, filter_bad=False, stat=None):
         super(MSIDset, self).__init__()
 
+        intervals = _get_table_intervals_as_list(start)
+        if intervals is not None:
+            start, stop = intervals[0][0], intervals[-1][1]
+
         self.tstart = DateTime(start).secs
         self.tstop = (DateTime(stop).secs if stop else DateTime().secs)
         self.datestart = DateTime(self.tstart).date
@@ -1026,8 +1095,12 @@ class MSIDset(collections.OrderedDict):
         for msid in msids:
             new_msids.extend(msid_glob(msid)[0])
         for msid in new_msids:
-            self[msid] = self.MSID(msid, self.tstart, self.tstop,
-                                   filter_bad=False, stat=stat)
+            if intervals is None:
+                self[msid] = self.MSID(msid, self.tstart, self.tstop,
+                                       filter_bad=False, stat=stat)
+            else:
+                self[msid] = self.MSID(msid, intervals, filter_bad=False, stat=stat)
+
         if filter_bad:
             self.filter_bad()
 
