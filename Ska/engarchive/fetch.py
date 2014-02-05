@@ -756,6 +756,17 @@ class MSID(object):
         ok = np.empty(len(self.times), dtype=bool)
         ok[:] = exclude
 
+        # See if `intervals` is a table with reasonable columns
+        for prefix in ('date', 't'):
+            start = prefix + 'start'
+            stop = prefix + 'stop'
+            try:
+                intervals = [(intvl[start], intvl[stop]) for intvl in intervals]
+            except:
+                pass
+            else:
+                break
+
         # Check if this is an EventQuery.  Would rather not import EventQuery
         # because this is expensive (django), so just look at the name and
         # count on no inheritence.

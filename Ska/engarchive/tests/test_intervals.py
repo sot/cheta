@@ -24,29 +24,41 @@ from kadi import events
 
 
 def test_select_remove_interval():
-    dat = fetch.MSID('tephin', '2012:002:02:00:00', '2012:002:04:00:00')
-    dat_r = dat.remove_intervals(events.dwells, copy=True)
-    dat_s = dat.select_intervals(events.dwells, copy=True)
-    assert len(dat) == len(dat_r) + len(dat_s)
-    assert len(dat) == 219
-    assert len(dat_r) == 51
-    assert len(dat_s) == 168
-    dates_r = DateTime(dat_r.times).date
-    assert dates_r[0] == '2012:002:02:49:39.317'  # First after '2012:002:02:49:27.017'
-    assert dates_r[15] == '2012:002:02:57:51.317'  # Gap '2012:002:02:58:11.817'
-    assert dates_r[16] == '2012:002:03:04:57.717'  # to '2012:002:03:04:39.267'
-    assert dates_r[50] == '2012:002:03:23:32.917'  # last before '2012:002:03:23:45.217'
-    assert set(dat_r.times).isdisjoint(dat_s.times)
+    """
+    Test basic select and remove intervals functionality.  Do this with two
+    inputs: (1) a QueryEvent object, (2) a table with 'datestart' and 'datestop' cols.
+    The latter is obtained from events.dwells.intervals, but this is the same format
+    as the output from logical_intervals().
+    """
+    start, stop = '2012:002:02:00:00', '2012:002:04:00:00'
+    dat = fetch.MSID('tephin', start, stop)
+    intervals = events.dwells.intervals(start, stop)
+    for filt in (events.dwells, intervals):
+        dat_r = dat.remove_intervals(filt, copy=True)
+        dat_s = dat.select_intervals(filt, copy=True)
+        assert len(dat) == len(dat_r) + len(dat_s)
+        assert len(dat) == 219
+        assert len(dat_r) == 51
+        assert len(dat_s) == 168
+        dates_r = DateTime(dat_r.times).date
+        assert dates_r[0] == '2012:002:02:49:39.317'  # First after '2012:002:02:49:27.017'
+        assert dates_r[15] == '2012:002:02:57:51.317'  # Gap '2012:002:02:58:11.817'
+        assert dates_r[16] == '2012:002:03:04:57.717'  # to '2012:002:03:04:39.267'
+        assert dates_r[50] == '2012:002:03:23:32.917'  # last before '2012:002:03:23:45.217'
+        assert set(dat_r.times).isdisjoint(dat_s.times)
 
 
 def test_remove_intervals_stat():
+    start, stop = '2012:002', '2012:003'
     for stat in (None, '5min'):
-        dat = fetch.MSID('tephin', '2012:002', '2012:003')
-        dat.remove_intervals(events.dwells)
-        attrs = [attr for attr in ('vals', 'mins', 'maxes', 'means',
-                                   'p01s', 'p05s', 'p16s', 'p50s',
-                                   'p84s', 'p95s', 'p99s', 'midvals')
-                 if hasattr(dat, attr)]
+        intervals = events.dwells.intervals(start, stop)
+        for filt in (events.dwells, intervals):
+            dat = fetch.MSID('tephin', start, stop)
+            dat.remove_intervals(filt)
+            attrs = [attr for attr in ('vals', 'mins', 'maxes', 'means',
+                                       'p01s', 'p05s', 'p16s', 'p50s',
+                                       'p84s', 'p95s', 'p99s', 'midvals')
+                     if hasattr(dat, attr)]
 
         for attr in attrs:
             assert len(dat) == len(getattr(dat, attr))
