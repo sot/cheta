@@ -368,6 +368,55 @@ Note also that :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
 :func:`~Ska.engarchive.fetch.MSID.select_intervals` will accept *any* table
 with columns ``datestart`` / ``datestop`` or ``tstart`` / ``tstop`` as input.
 
+Fetching only small intervals
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It may be the case that you want to fetch a number of small intervals of an
+MSID that is sampled at a high rate.  An example is looking at the load bus
+voltage ELBV for 5 minutes after each eclipse.  Because ELBV comes down in
+telemetry about 4 times per second, fetching all the values for the mission
+and then selecting intervals is prohibitively expensive in memory and time.
+
+There is a different mechanism that can work in these situations.  The ``start``
+argument to a ``fetch.MSID`` or ``fetch.MSIDset`` query can be an interval
+specifier.  This might be the output of :func:`~Ska.engarchive.utils.logical_intervals`
+or it might just be a list of ``(start, stop)`` tuples.  If that is the
+case then fetch will iterate through those start / stop pairs, do the
+fetch individually, and then stitch the whole thing back together into
+a single fetch result.
+
+.. Note::
+
+   Doing lots of little fetches can be very slow due to the way that
+   the raw data are stored.  There is a point at which it is faster
+   to fetch the full set of values and then throw away the ones you
+   don't want.  There is no hard and fast rule and you will have to
+   experiment for your case.
+
+The load bus example is a case where doing the little fetches is definitely
+faster::
+
+  >>> # Define intervals covering 5 minutes after the end of each eclipse
+  >>> start, stop = '2011:001', '2014:001'  # nice Python syntax!
+  >>> eclipses = events.eclipses.filter(start, stop)
+  >>> post_eclipse_intervals = [(ecl.tstop, ecl.tstop + 300) for ecl in eclipses]
+
+  >>> # Grab the load bus voltage at full resolution, post eclipse
+  >>> elbv_post_eclipse = fetch.Msid('elbv', post_eclipse_intervals)
+
+  >>> # Grab the load bus voltage at 5 minute intervals over the entire time
+  >>> # and chop out all samples within an hour of eclipse
+  >>> elbv_5min = fetch.Msid('elbv', start, stop, stat='5min')
+  >>> elbv_5min.remove_intervals(events.eclipses(pad=3600))
+
+  >>> # Plot histogram of voltages, using single sample at the 5 min midpoint (not mean)
+  >>> hist(elbv_5min.midvals, bins=np.linspace(26, 34, 50), log=True)
+
+  >>> # Overplot the post-eclipse values
+  >>> hist(elbv_post_eclipse.vals, bins=np.linspace(26, 34, 50), log=True, facecolor='red', alpha=0.5)
+
+.. image:: fetchplots/load_bus_voltage.png
+   :width: 400 px
 
 Bad data
 -----------

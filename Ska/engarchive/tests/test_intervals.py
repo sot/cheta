@@ -23,6 +23,53 @@ from kadi import events
 #  ('2012:002:10:38:21.218', '2012:002:12:00:00.000')]
 
 
+def test_fetch_MSID_intervals():
+    """
+    Show that fetching an MSID with start=<some intervals> is exactly the same as
+    fetching over the time range and selecting <some intervals>.
+    """
+    # Interval with a bad quality point around 2012:175:02:10:021.981
+    start, stop = '2012:175:02:00:00', '2012:175:03:00:00'
+    for filter_bad in (True, False):
+        for stat in (None, '5min'):
+            dat = fetch.MSID('tephin', start, stop, filter_bad=filter_bad, stat=stat)
+            dat.select_intervals(events.dwells)
+
+            dat2 = fetch.MSID('tephin', events.dwells.intervals(start, stop),
+                              filter_bad=filter_bad, stat=stat)
+
+            assert np.all(dat.bads == dat2.bads)
+            assert dat.colnames == dat2.colnames
+            for attr in dat.colnames:
+                assert np.all(getattr(dat, attr) == getattr(dat2, attr))
+
+
+def test_fetch_MSIDset_intervals():
+    """
+    Show that fetching an MSIDset with start=<some intervals> is exactly the same as
+    fetching over the time range and selecting <some intervals>.
+    """
+    # Interval with a bad quality point around 2012:175:02:10:021.981
+    start, stop = '2012:175:02:00:00', '2012:175:03:00:00'
+    msids = ['tephin', 'aopcadmd']
+    for filter_bad in (True, False):
+        for stat in (None, '5min'):
+            dat = fetch.MSIDset(msids, start, stop, filter_bad=filter_bad, stat=stat)
+            for msid in msids:
+                dat[msid].select_intervals(events.dwells)
+
+            dat2 = fetch.MSIDset(msids, events.dwells.intervals(start, stop),
+                                 filter_bad=filter_bad, stat=stat)
+
+            for msid in msids:
+                dm = dat[msid]
+                dm2 = dat2[msid]
+                assert np.all(dm.bads == dm2.bads)
+                assert dm.colnames == dm2.colnames
+                for attr in dm.colnames:
+                    assert np.all(getattr(dm, attr) == getattr(dm2, attr))
+
+
 def test_select_remove_interval():
     """
     Test basic select and remove intervals functionality.  Do this with two
