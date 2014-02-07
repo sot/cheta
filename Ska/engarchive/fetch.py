@@ -298,9 +298,6 @@ def _get_table_intervals_as_list(table):
     if intervals is not None:
         from itertools import izip
 
-        if len(intervals) == 0:
-            raise ValueError('Intervals supplied as a zero-length list')
-
         intervals = sorted(intervals, key=lambda x: x[0])
 
         # Check for overlaps
