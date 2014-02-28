@@ -53,11 +53,11 @@ def get_opt():
 
     parser.add_argument('--remove-events',
                         type=str,
-                        help='Remove kadi events (default=None)')
+                        help='Remove kadi events (comma-separated list, default=None)')
 
     parser.add_argument('--select-events',
                         type=str,
-                        help='Select kadi events (default=None)')
+                        help='Select kadi events (comma-separated list, default=None)')
 
     parser.add_argument('--event-pad',
                         type=float,
@@ -84,7 +84,8 @@ def msidset_interpolate(msidset, dt):
     msidset.interpolate(times=times, filter_bad=False)
     common_bads = np.zeros(len(msidset.times), dtype=bool)
     for msid in msidset.values():
-        common_bads |= msid.bads
+        if msid.bads is not None:  # 5min and daily stats have no bad values
+            common_bads |= msid.bads
 
     # Apply the common bads array and filter out these bad values
     for msid in msidset.values():
