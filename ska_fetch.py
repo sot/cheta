@@ -21,61 +21,9 @@ from Chandra.Time import DateTime
 from Ska.engarchive import fetch
 
 
-def get_opt():
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--start',
-                        type=str,
-                        help='Start time for data fetch (default=<stop> - 30 days)')
-
-    parser.add_argument('--stop',
-                        type=str,
-                        help='Stop time for data fetch (default=NOW)')
-
-    parser.add_argument('--sampling',
-                        type=str,
-                        default='5min',
-                        help='Data sampling (all | 5min | daily) (default=5min)')
-
-    parser.add_argument('--outfile',
-                        default='fetch.zip',
-                        type=str,
-                        help='Output file name (default=fetch.zip)')
-
-    parser.add_argument('--unit-system',
-                        type=str,
-                        default='eng',
-                        help='Unit system for data (eng | sci | cxc) (default=eng)')
-
-    parser.add_argument('--interpolate-dt',
-                        type=float,
-                        help='Interpolate to uniform time steps (secs, default=None)')
-
-    parser.add_argument('--remove-events',
-                        type=str,
-                        help='Remove kadi events (comma-separated list, default=None)')
-
-    parser.add_argument('--select-events',
-                        type=str,
-                        help='Select kadi events (comma-separated list, default=None)')
-
-    parser.add_argument('--event-pad',
-                        type=float,
-                        help='Additional pad time around events (secs, default=None)')
-
-    parser.add_argument('msids',
-                        metavar='MSID',
-                        type=str,
-                        nargs='+',
-                        help='MSID to fetch')
-
-    args = parser.parse_args()
-    return args
-
-
-def msidset_interpolate(msidset, dt):
+def msidset_regrid(msidset, dt):
     """
-    Interpolate the ``msidset`` in-place to a common time basis, starting at
+    Regrid the ``msidset`` in-place to a common time basis, starting at
     ``msidset.tstart`` and stepping by ``dt``.  This assumes an unfiltered MSIDset, and
     returns a filtered MSIDset.
     """
@@ -110,35 +58,102 @@ def get_queryset(event_names, event_pad):
     return queryset
 
 
-if __name__ == '__main__':
-    opt = get_opt()
+def get_telem(msids, start=None, stop=None, sampling=None, unit_system='eng',
+              regrid_dt=None, remove_events=None, select_events=None, event_pad=0,
+              outfile=None):
 
-    stop = DateTime(opt.stop)
-    start = stop - 30 if opt.start is None else DateTime(opt.start)
+    stop = DateTime(stop)
+    start = stop - 30 if start is None else DateTime(start)
 
-    print('Fetching data for MSIDS={} from {} to {}'.format(opt.msids, start.date, stop.date))
+    print('Fetching data for MSIDS={} from {} to {}'.format(msids, start.date, stop.date))
 
-    fetch.set_units(opt.unit_system)
-    dat = fetch.MSIDset(opt.msids, start, stop, stat=opt.sampling,
-                        filter_bad=(opt.interpolate_dt is None))
+    fetch.set_units(unit_system)
 
-    if opt.interpolate_dt:
-        print('Interpolating at {} second intervals'.format(opt.interpolate_dt))
-        msidset_interpolate(dat, opt.interpolate_dt)
+    # If fetching more than 30 days of data make sure that the projected dataset
+    # size is reasonable.  Pre-fetch a 3-day interval and scale.
+    fetch_Mb, regrid_Mb = get_fetch_size(msids, start, stop, stat=None, regrid_dt=None, fast=True)
+    if sampling is None and stop - start > 30:
+        dat = fetch.MSIDset(msids, start, start + 3, )
 
-    if opt.remove_events:
-        event_names = opt.remove_events.split(',')
+    dat = fetch.MSIDset(msids, start, stop, stat=sampling,
+                        filter_bad=(regrid_dt is None))
+
+    if regrid_dt:
+        print('Interpolating at {} second intervals'.format(regrid_dt))
+        msidset_regrid(dat, regrid_dt)
+
+    if remove_events:
+        event_names = remove_events.split(',')
         print('Removing events: {}'.format(event_names))
-        queryset = get_queryset(event_names, opt.event_pad)
+        queryset = get_queryset(event_names, event_pad)
         for msid in dat:
             dat[msid].remove_intervals(queryset)
 
-    if opt.select_events:
-        event_names = opt.remove_events.split(',')
+    if select_events:
+        event_names = remove_events.split(',')
         print('Selecting events: {}'.format(event_names))
-        queryset = get_queryset(event_names, opt.event_pad)
+        queryset = get_queryset(event_names, event_pad)
         for msid in dat:
             dat[msid].select_intervals(queryset)
 
-    print('Writing data to {}'.format(opt.outfile))
-    dat.write_zip(opt.outfile)
+    if outfile is not None:
+        print('Writing data to {}'.format(outfile))
+        dat.write_zip(outfile)
+
+
+def get_opt():
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--start',
+                        type=str,
+                        help='Start time for data fetch (default=<stop> - 30 days)')
+
+    parser.add_argument('--stop',
+                        type=str,
+                        help='Stop time for data fetch (default=NOW)')
+
+    parser.add_argument('--sampling',
+                        type=str,
+                        default='5min',
+                        help='Data sampling (all | 5min | daily) (default=5min)')
+
+    parser.add_argument('--outfile',
+                        default='fetch.zip',
+                        type=str,
+                        help='Output file name (default=fetch.zip)')
+
+    parser.add_argument('--unit-system',
+                        type=str,
+                        default='eng',
+                        help='Unit system for data (eng | sci | cxc) (default=eng)')
+
+    parser.add_argument('--regrid-dt',
+                        type=float,
+                        help='Regrid to uniform time steps (secs, default=None)')
+
+    parser.add_argument('--remove-events',
+                        type=str,
+                        help='Remove kadi events (comma-separated list, default=None)')
+
+    parser.add_argument('--select-events',
+                        type=str,
+                        help='Select kadi events (comma-separated list, default=None)')
+
+    parser.add_argument('--event-pad',
+                        type=float,
+                        help='Additional pad time around events (secs, default=None)')
+
+    parser.add_argument('msids',
+                        metavar='MSID',
+                        type=str,
+                        nargs='+',
+                        help='MSID to fetch')
+
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == '__main__':
+    opt = get_opt()
+
+    dat = get_telem(**var(opt))

@@ -1,8 +1,78 @@
 """
 Utilities for the engineering archive.
 """
+from __future__ import division
+
 import numpy as np
 from Chandra.Time import DateTime
+
+
+# Cache the results of fetching 3 days of telemetry keyed by MSID
+FETCH_SIZES = {}
+
+
+def get_fetch_size(msids, start, stop, stat=None, regrid_dt=None, fast=True):
+    """
+    Estimate the memory size required to fetch the ``msids`` between ``start`` and
+    ``stop``.  This is generally intended for limiting queries to be less than ~100 Mb and
+    allows for making some assumptions for improved performance (see below).
+
+    Returns a tuple of the estimated megabytes of memory for the raw fetch and megabytes
+    for the final output (which is different only in the case of regridding).  This is
+    done by fetching 3 days of telemetry (2010:001 to 2010:004) and scaling appropriately.
+
+    If ``fast`` is True (default) then if either of the conditions below apply a result of
+    (-1, -1) is returned, indicating that the fetch will probably be less than ~100 Mb and
+    should be OK.  (This does not account for the number of MSIDs passed in ``msids``).
+
+      - Fetch duration (stop - start) is less than 30 days
+      - Fetch ``stat`` is '5min' or 'daily'
+
+    :param msids: list of MSIDs or a single MSID
+    :param start: start time
+    :param stop: stop time
+    :param stat: fetch stat (None|'5min'|'daily', default=None)
+    :param regrid_dt: regrid the output to uniform time steps (default=None)
+    :param fast: return (-1, -1) if conditions on duration / stat (default=True)
+
+    :returns: fetch_megabytes, out_megabytes
+    """
+
+    start = DateTime(start)
+    stop = DateTime(stop)
+
+    # Short circuit in the case of a short fetch or not full-resolution telemetry
+    if fast and (stop - start < 30 or stat is not None):
+        return -1, -1
+
+    from . import fetch
+
+    # Allow for a single MSID input and make all values lower-case
+    if isinstance(msids, basestring):
+        msids = [msids]
+    msids = [msid.lower() for msid in msids]
+
+    for msid in msids:
+        if (msid, stat) in FETCH_SIZES:
+            fetch_bytes, fetch_rows = FETCH_SIZES[msid, stat]
+        else:
+            dat = fetch.MSID(msid, '2010:001:00:00:01', '2010:004:00:00:01', stat=stat)
+            fetch_bytes = sum(getattr(dat, attr).nbytes for attr in dat.colnames)
+            fetch_rows = len(dat.vals)
+            FETCH_SIZES[msid, stat] = (fetch_bytes, fetch_rows)
+
+    scale = (stop - start) / 3.0
+    fetch_bytes = sum(FETCH_SIZES[msid, stat][0] * scale for msid in msids)
+
+    # Number of output rows = total fetch time (days) / regrid interval in days
+    if regrid_dt is None:
+        out_bytes = fetch_bytes
+    else:
+        n_rows_out = (stop - start) / (regrid_dt / 86400)
+        out_bytes = sum(FETCH_SIZES[msid, stat][0] * n_rows_out / FETCH_SIZES[msid, stat][1]
+                        for msid in msids)
+
+    return round(fetch_bytes / 1e6, 2), round(out_bytes / 1e6, 2)
 
 
 def ss_vector(start, stop=None, obj='Earth'):
