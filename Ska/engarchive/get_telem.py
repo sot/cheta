@@ -194,6 +194,6 @@ def get_opt():
     return opt
 
 
-if __name__ == '__main__':
+def main():
     opt = get_opt()
     _get_telem(**vars(opt))
