@@ -2,15 +2,15 @@
 Fetch telemetry from the Ska engineering archive.
 
 This bundles many of the common steps of data retrieval into one routine which can be
-accessed either through the command line or as a single function ``get_telem()``.
+accessed either through the command line with ``ska_fetch`` or via the ``get_telem()`` function.
 
-Some documentation and examples here:
+Examples ========
 
-Examples
-========
+  # Get TEPHIN, AOPCADMD for last 30 days, selecting maneuvers during rad zones
+  % ska_fetch --select-events="manvrs & rad_zones" --unit-system=sci TEPHIN AOPCADMD
 
-  % ska_fetch --remove-events=manvrs --unit-system=sci TEPHIN AOPCADMD
-
+Arguments
+=========
 """
 
 from __future__ import print_function, division
@@ -76,6 +76,7 @@ def get_queryset(expr, event_pad):
 
 def _get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
                resample_dt=None, remove_events=None, select_events=None, event_pad=None,
+               time_format=None,
                outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
@@ -131,6 +132,10 @@ def _get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
         for msid in dat:
             dat[msid].select_intervals(queryset)
 
+    if time_format not in (None, 'secs'):
+        for dat_msid in dat.values():
+            dat_msid.times = getattr(DateTime(dat_msid.times, format='secs'), time_format)
+
     if outfile is not None:
         logger.info('Writing data to {}'.format(outfile))
         dat.write_zip(outfile)
@@ -152,12 +157,12 @@ def get_opt():
     parser.add_argument('--sampling',
                         type=str,
                         default='5min',
-                        help='Data sampling (all | 5min | daily) (default=5min)')
+                        help='Data sampling (all|5min|daily) (default=5min)')
 
     parser.add_argument('--unit-system',
                         type=str,
                         default='eng',
-                        help='Unit system for data (eng | sci | cxc) (default=eng)')
+                        help='Unit system for data (eng|sci|cxc) (default=eng)')
 
     parser.add_argument('--resample-dt',
                         type=float,
@@ -174,6 +179,10 @@ def get_opt():
     parser.add_argument('--event-pad',
                         type=float,
                         help='Additional pad time around events (secs, default=None)')
+
+    parser.add_argument('--time-format',
+                        type=str,
+                        help='Output time format (secs|date|greta|jd|frac_year|...)')
 
     parser.add_argument('--outfile',
                         default='fetch.zip',

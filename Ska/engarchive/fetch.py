@@ -1397,7 +1397,7 @@ def get_time_range(msid, format=None):
 
 def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
               resample_dt=None, remove_events=None, select_events=None, event_pad=None,
-              outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
+              time_format=None, outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
     common post-processing functions.
@@ -1412,9 +1412,10 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     :param sampling: Data sampling (full | 5min | daily) (default=full)')
     :param unit_system: Unit system for data (eng | sci | cxc) (default=eng)
     :param resample_dt: Resample to uniform time steps (secs, default=None)
-    :param remove-events: Remove kadi events expression (default=None)
-    :param select-events: Select kadi events expression (default=None)
-    :param event-pad: Additional pad time around events (secs, default=None)
+    :param remove_events: Remove kadi events expression (default=None)
+    :param select_events: Select kadi events expression (default=None)
+    :param event_pad: Additional pad time around events (secs, default=None)
+    :param time_format: Output time format (secs|date|greta|jd|..., default=secs)
     :param outfile: Output file name (default=None)
     :param quiet: Suppress run-time logging output (default=False)
     :param max_fetch_Mb: Max allowed memory for fetching (default=no max)
@@ -1423,7 +1424,7 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     from .get_telem import _get_telem
     return _get_telem(msids, start, stop, sampling, unit_system,
                       resample_dt, remove_events, select_events, event_pad,
-                      outfile, quiet, max_fetch_Mb, max_resample_Mb)
+                      time_format, outfile, quiet, max_fetch_Mb, max_resample_Mb)
 
 
 @memoized
