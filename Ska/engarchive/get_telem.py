@@ -199,7 +199,7 @@ def get_opt():
                         help='Max allowed memory (Mb) for fetching (default=100)')
 
     parser.add_argument('--max-output-Mb',
-                        default=100.0,
+                        default=20.0,
                         type=float,
                         help='Max allowed memory (Mb) for output (default=20)')
 
