@@ -734,7 +734,7 @@ Interpolation
 The |fetch_MSIDset_interpolate| method allows for resampling all the MSIDs in a
 set onto a single common time sequence.  This is done by performing
 nearest-neighbor interpolation of all MSID values.  By default the update
-is done in-place, but if called with ``copy=True`` then a new |MSIDset|
+is done in-place, but if called with ``copy=True`` then a new |fetch_MSIDset|
 is returned and the original is not modified (see `Copy versus in-place`_).
 
 Times
@@ -781,7 +781,7 @@ this:
   same telemetry sample.  If you are not sure, this is the safer option.
 
 If ``filter_bad`` is ``False`` then bad values and the associated ``bads``
-attribute are left in the MSID objects of the interpolated |MSIDset|.  The
+attribute are left in the MSID objects of the interpolated |fetch_MSIDset|.  The
 behaviors are:
 
 1) ``bad_union = False``
@@ -794,6 +794,9 @@ behaviors are:
    Bad values represent the union of bad status for all the MSIDs at the
    interpolated time stamps.
 
+
+Example
+^^^^^^^^
 
 To illustrate the effect of ``filter_bad``, run the following code in pylab.  It
 will make two figures, each with four subplots.  Bad valued points are plotted
