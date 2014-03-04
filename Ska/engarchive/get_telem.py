@@ -1,7 +1,8 @@
 """
-Fetch telemetry from the Ska engineering archive.  This bundles many of the common steps
-of data retrieval into one routine which can be accessed either through the command line
-or as a single function ``get_telem()``.
+Fetch telemetry from the Ska engineering archive.
+
+This bundles many of the common steps of data retrieval into one routine which can be
+accessed either through the command line or as a single function ``get_telem()``.
 
 Some documentation and examples here:
 

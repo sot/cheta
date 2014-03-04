@@ -1400,7 +1400,7 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
 
       - Resample all MSID values to a common uniformly-spaced time series
       - Remove / select times corresponding to specified Kadi event types
-      - Write values to a zipfile
+      - Write MSID telemetry data to a zipfile
 
     :param msids: MSID(s) to fetch (string or list of strings)')
     :param start: Start time for data fetch (default=<stop> - 30 days)
