@@ -1392,7 +1392,7 @@ def get_time_range(msid, format=None):
 
 
 def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
-              resample_dt=None, remove_events=None, select_events=None, event_pad=0,
+              resample_dt=None, remove_events=None, select_events=None, event_pad=None,
               outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
@@ -1408,8 +1408,8 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     :param sampling: Data sampling (full | 5min | daily) (default=full)')
     :param unit_system: Unit system for data (eng | sci | cxc) (default=eng)
     :param resample_dt: Resample to uniform time steps (secs, default=None)
-    :param remove-events: Remove kadi events (comma-separated list, default=None)
-    :param select-events: Select kadi events (comma-separated list, default=None)
+    :param remove-events: Remove kadi events expression (default=None)
+    :param select-events: Select kadi events expression (default=None)
     :param event-pad: Additional pad time around events (secs, default=None)
     :param outfile: Output file name (default=None)
     :param quiet: Suppress run-time logging output (default=False)

@@ -15,6 +15,7 @@ Examples
 from __future__ import print_function, division
 
 import argparse
+import re
 
 import numpy as np
 
@@ -43,24 +44,37 @@ def msidset_resample(msidset, dt):
     msidset.times = msidset.times[~common_bads]
 
 
-def get_queryset(event_names, event_pad):
+def get_queryset(expr, event_pad):
+    """
+    Get query set for ``expr`` (a python-like expression).
+    """
     from kadi import events
 
-    for event_name in event_names:
-        event_queryset = getattr(events, event_name)
-        if event_pad is not None:
-            event_queryset.interval_pad = event_pad
+    seps = '()~|&'
+    re_seps = '([' + seps + '])'
+    expr = re.sub('\s+', '', expr)
+    # Split expr by separators and then toss out '' elements
+    tokens = [x for x in re.split(re_seps, expr) if x]
 
-        try:
-            queryset = queryset | event_queryset
-        except NameError:
-            queryset = event_queryset
+    for i, token in enumerate(tokens):
+        if token not in seps:
+            try:
+                query_event = getattr(events, token)
+                if not isinstance(query_event, events.query.EventQuery):
+                    raise TypeError
+                tokens[i] = 'events.{}'.format(token)
+                if event_pad is not None:
+                    tokens[i] += '(pad={})'.format(event_pad)
+            except:
+                raise ValueError('Expression token {!r} is not a valid event type'
+                                 .format(token))
 
-    return queryset
+    queryset_expr = ' '.join(tokens)
+    return eval(queryset_expr)
 
 
 def _get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
-               resample_dt=None, remove_events=None, select_events=None, event_pad=0,
+               resample_dt=None, remove_events=None, select_events=None, event_pad=None,
                outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
@@ -68,21 +82,8 @@ def _get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
 
     This is a non-public version that really does the work.  The public interface
     is fetch.get_telem(), which is a thin wrapper for this.  (Trying to factor code
-    out to separate modules and keep import times donw).
-
-    :param msids: MSID(s) to fetch (string or list of strings)')
-    :param start: Start time for data fetch (default=<stop> - 30 days)
-    :param stop: Stop time for data fetch (default=NOW)
-    :param sampling: Data sampling (full | 5min | daily) (default=full)')
-    :param unit_system: Unit system for data (eng | sci | cxc) (default=eng)
-    :param resample_dt: Resample to uniform time steps (secs, default=None)
-    :param remove-events: Remove kadi events (comma-separated list, default=None)
-    :param select-events: Select kadi events (comma-separated list, default=None)
-    :param event-pad: Additional pad time around events (secs, default=None)
-    :param outfile: Output file name (default=None)
-    :param quiet: Suppress run-time logging output (default=False)
-    :param max_fetch_Mb: Max allowed memory for fetching (default=no max)
-    :param max_resample_Mb: Max allowed memory for resampled result (default=no max)
+    out to separate modules and keep import times down).  See get_telem() for param
+    docs.
     """
     # Set up output logging
     from pyyaks.logger import get_logger
@@ -118,16 +119,14 @@ def _get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
         msidset_resample(dat, resample_dt)
 
     if remove_events is not None:
-        event_names = remove_events.split(',')
-        logger.info('Removing events: {}'.format(event_names))
-        queryset = get_queryset(event_names, event_pad)
+        logger.info('Removing events: {}'.format(remove_events))
+        queryset = get_queryset(remove_events, event_pad)
         for msid in dat:
             dat[msid].remove_intervals(queryset)
 
     if select_events is not None:
-        event_names = remove_events.split(',')
-        logger.info('Selecting events: {}'.format(event_names))
-        queryset = get_queryset(event_names, event_pad)
+        logger.info('Selecting events: {}'.format(select_events))
+        queryset = get_queryset(select_events, event_pad)
         for msid in dat:
             dat[msid].select_intervals(queryset)
 
@@ -165,11 +164,11 @@ def get_opt():
 
     parser.add_argument('--remove-events',
                         type=str,
-                        help='Remove kadi events (comma-separated list, default=None)')
+                        help='Remove kadi events expression (default=None)')
 
     parser.add_argument('--select-events',
                         type=str,
-                        help='Select kadi events (comma-separated list, default=None)')
+                        help='Select kadi events expression (default=None)')
 
     parser.add_argument('--event-pad',
                         type=float,
