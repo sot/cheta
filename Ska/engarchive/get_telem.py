@@ -76,8 +76,8 @@ def get_queryset(expr, event_pad):
 
 def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
               resample_dt=None, remove_events=None, select_events=None, event_pad=None,
-              time_format=None,
-              outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
+              time_format=None, outfile=None, quiet=False,
+              max_fetch_Mb=None, max_output_Mb=None):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
     common post-processing functions.
@@ -103,16 +103,16 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     fetch.set_units(unit_system)
 
     # Make sure that the dataset being fetched is reasonable (if checking requested)
-    if max_fetch_Mb is not None or max_resample_Mb is not None:
-        fetch_Mb, resample_Mb = utils.get_fetch_size(msids, start, stop, stat=stat,
-                                                     resample_dt=resample_dt, fast=True)
+    if max_fetch_Mb is not None or max_output_Mb is not None:
+        fetch_Mb, output_Mb = utils.get_fetch_size(msids, start, stop, stat=stat,
+                                                   resample_dt=resample_dt, fast=True)
         if max_fetch_Mb is not None and fetch_Mb > max_fetch_Mb:
             raise MemoryError('Requested fetch requires {:.2f} Mb vs. limit of {:.2f} Mb'
                               .format(fetch_Mb, max_fetch_Mb))
-        if max_resample_Mb is not None and resample_Mb > max_resample_Mb:
+        if max_output_Mb is not None and output_Mb > max_output_Mb:
             raise MemoryError('Requested fetch (resampled) requires {:.2f} Mb '
                               'vs. limit of {:.2f} Mb'
-                              .format(resample_Mb, max_resample_Mb))
+                              .format(output_Mb, max_output_Mb))
 
     dat = fetch.MSIDset(msids, start, stop, stat=stat, filter_bad=filter_bad)
 
@@ -192,6 +192,16 @@ def get_opt():
     parser.add_argument('--quiet',
                         action='store_true',
                         help='Suppress run-time logging output')
+
+    parser.add_argument('--max-fetch-Mb',
+                        default=100.0,
+                        type=float,
+                        help='Max allowed memory (Mb) for fetching (default=100)')
+
+    parser.add_argument('--max-output-Mb',
+                        default=100.0,
+                        type=float,
+                        help='Max allowed memory for output (default=20)')
 
     parser.add_argument('msids',
                         metavar='MSID',

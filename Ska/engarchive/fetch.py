@@ -1397,7 +1397,8 @@ def get_time_range(msid, format=None):
 
 def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
               resample_dt=None, remove_events=None, select_events=None, event_pad=None,
-              time_format=None, outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
+              time_format=None, outfile=None, quiet=False,
+              max_fetch_Mb=None, max_output_Mb=None):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
     common post-processing functions.
@@ -1419,12 +1420,13 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     :param outfile: Output file name (default=None)
     :param quiet: Suppress run-time logging output (default=False)
     :param max_fetch_Mb: Max allowed memory for fetching (default=no max)
-    :param max_resample_Mb: Max allowed memory for resampled result (default=no max)
+    :param max_output_Mb: Max allowed memory for output (default=no max)
     """
     from .get_telem import get_telem
     return get_telem(msids, start, stop, sampling, unit_system,
                      resample_dt, remove_events, select_events, event_pad,
-                     time_format, outfile, quiet, max_fetch_Mb, max_resample_Mb)
+                     time_format, outfile, quiet,
+                     max_fetch_Mb, max_output_Mb)
 
 
 @memoized
