@@ -201,7 +201,7 @@ def get_opt():
     parser.add_argument('--max-output-Mb',
                         default=100.0,
                         type=float,
-                        help='Max allowed memory for output (default=20)')
+                        help='Max allowed memory (Mb) for output (default=20)')
 
     parser.add_argument('msids',
                         metavar='MSID',
@@ -215,4 +215,17 @@ def get_opt():
 
 def main():
     opt = get_opt()
-    get_telem(**vars(opt))
+    try:
+        get_telem(**vars(opt))
+    except MemoryError as err:
+        print('\n'.join(['',
+                         '*' * 80,
+                         'ERROR: {}'.format(err),
+                         '*' * 80, '']))
+    except Exception as err:
+        print('\n'.join(['',
+                         '*' * 80,
+                         'ERROR: {}'.format(err),
+                         'If necessary report the following traceback to aca@head.cfa.harvard.edu',
+                         '*' * 80, '']))
+        raise
