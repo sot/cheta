@@ -1201,42 +1201,64 @@ class MSIDset(collections.OrderedDict):
         if copy:
             return obj
 
-    def interpolate(self, dt=None, start=None, stop=None, filter_bad=True, times=None):
-        """Perform nearest-neighbor interpolation of all MSID values in the set
+    def interpolate(self, dt=None, start=None, stop=None, filter_bad=True, times=None,
+                    filter_union=False, copy=False):
+        """
+        Perform nearest-neighbor interpolation of all MSID values in the set
         to a common time sequence.  The values are updated in-place.
+
+        Times
+        =====
 
         The time sequence steps uniformly by ``dt`` seconds starting at the
         ``start`` time and ending at the ``stop`` time.  If not provided the
         times default to the ``start`` and ``stop`` times for the MSID set.
+
+        If ``times`` is provided then this gets used instead of the default linear
+        progression from ``start`` and ``dt``.
 
         For each MSID in the set the ``times`` attribute is set to the common
         time sequence.  In addition a new attribute ``times0`` is defined that
         stores the nearest neighbor interpolated time, providing the *original*
         timestamps of each new interpolated value for that MSID.
 
-        By default ``filter_bad`` is True and each MSID has bad data filtered
-        *before* interpolation so that the nearest neighbor interpolation only
-        finds good data.  In this case (or for ``stat`` values which do not
-        have bad values), the ``times0`` attribute can be used to diagnose
-        whether the interpolation is meaningful.  For instance large numbers of
-        identical time stamps in ``times0`` may be a problem.
+        Filtering
+        =========
 
-        If ``filter_bad`` is set to false then data are not filtered.  In this
-        case the MSID ``bads`` values are interpolated as well and provide an
-        indication if the interpolated values are bad.
+        If ``filter_bad`` is True (default) then bad values are filtered from
+        the interpolated MSID set.  There are two strategies for doing this:
 
-        If ``times`` is provided then this gets used instead of the default linear
-        progression from ``start`` and ``dt``.
+        1) ``filter_union = False``
+
+           Remove the bad values in each MSID prior to interpolating the set to
+           a common time series.  This essentially says to use all the available
+           data individually.  Each MSID has bad data filtered individually
+           *before* interpolation so that the nearest neighbor interpolation only
+           finds good data.  This strategy is done when ``filter_union = False``,
+           which is the default setting.
+
+        2) ``filter_union = True``
+
+          Mark every MSID in the set as bad at the interpolated time if *any*
+          of them are bad at that time.  This stricter version is required when it
+          is important that the MSIDs be truly correlated in time.  For instance
+          this is needed for attitude quaternions since all four values must be
+          from the exact same telemetry sample.  If you are not sure, this is the
+          safer option.
 
         :param dt: time step (sec, default=328.0)
         :param start: start of interpolation period (DateTime format)
         :param stop: end of interpolation period (DateTime format)
-        :param filter_bad: filter bad values before interpolating
+        :param filter_bad: filter bad values
         :param times: array of times for interpolation (default=None)
+        :param filter_union: filter union of bad values after interpolating
+        :param copy: return a new copy instead of in-place update (default=False)
         """
         import Ska.Numpy
 
-        msids = self.values()  # MSID objects in the MSIDset
+        obj = self.copy() if copy else self
+
+        msids = obj.values()  # MSID objects in the MSIDset
 
         # Ensure that tstart / tstop is entirely within the range of available
         # data fetched from the archive.
@@ -1249,23 +1271,23 @@ class MSIDset(collections.OrderedDict):
                                  'and "stop" cannot be set')
             # Use user-supplied times that are within the range of telemetry.
             ok = (times >= max_fetch_tstart) & (times <= min_fetch_tstop)
-            self.times = times[ok]
+            obj.times = times[ok]
         else:
             # Get the nominal tstart / tstop range
             dt = 328.0 if dt is None else dt
-            tstart = DateTime(start).secs if start else self.tstart
-            tstop = DateTime(stop).secs if stop else self.tstop
+            tstart = DateTime(start).secs if start else obj.tstart
+            tstop = DateTime(stop).secs if stop else obj.tstop
 
             tstart = max(tstart, max_fetch_tstart)
             tstop = min(tstop, min_fetch_tstop)
-            self.times = np.arange(tstart, tstop, dt)
+            obj.times = np.arange(tstart, tstop, dt)
 
         for msid in msids:
-            if filter_bad:
+            if filter_bad and not filter_union:
                 msid.filter_bad()
             logger.info('Interpolating index for %s', msid.msid)
             indexes = Ska.Numpy.interpolate(np.arange(len(msid.times)),
-                                            msid.times, self.times,
+                                            msid.times, obj.times,
                                             method='nearest', sorted=True)
             logger.info('Slicing on indexes')
             for colname in msid.colnames:
@@ -1277,7 +1299,26 @@ class MSIDset(collections.OrderedDict):
             # interpolated times.  Then set the MSID times to be the common
             # interpolation times.
             msid.times0 = msid.times
-            msid.times = self.times
+            msid.times = obj.times
+
+        if filter_union:
+            common_bads = np.zeros(len(obj.times), dtype=bool)
+            for msid in msids:
+                if msid.stat is None and msid.bads is None:
+                    warnings.warn('WARNING: {!r} MSID has bad values already filtered.\n'
+                                  'This prevents `filter_bad_union` from working as expected.\n'
+                                  'Use MSIDset (not Msidset) with filter_bad=False.\n')
+                if msid.bads is not None:  # 5min and daily stats have no bad values
+                    common_bads |= msid.bads
+
+            # Apply the common bads array and filter out these bad values
+            for msid in msids:
+                msid.bads = common_bads
+                msid.filter_bad()
+            obj.times = obj.times[~common_bads]
+
+        if copy:
+            return obj
 
     def write_zip(self, filename):
         """Write MSIDset to a zip file named ``filename``

@@ -731,9 +731,51 @@ new centroid value every 2.05 sec.
 Interpolation
 --------------
 
-The |fetch_MSIDset_interpolate| method has some subtleties related to bad
-values.  In order to understand this, first read the method documentation (the
-previous link), then run the following code in pylab.  It will make two
+The |fetch_MSIDset_interpolate| method allows for resampling all the MSIDs in a
+set onto a single common time sequence.  This is done by performing
+nearest-neighbor interpolation of all MSID values.  By default the update
+is done in-place, but if called with ``copy=True`` then a new |MSIDset|
+is returned and the original is not modified (see `Copy versus in-place`_).
+
+Times
+^^^^^^
+
+The time sequence steps uniformly by ``dt`` seconds starting at the
+``start`` time and ending at the ``stop`` time.  If not provided the
+times default to the ``start`` and ``stop`` times for the MSID set.
+
+If ``times`` is provided then this gets used instead of the default linear
+progression from ``start`` and ``dt``.
+
+For each MSID in the set the ``times`` attribute is set to the common
+time sequence.  In addition a new attribute ``times0`` is defined that
+stores the nearest neighbor interpolated time, providing the *original*
+timestamps of each new interpolated value for that MSID.
+
+Filtering
+=========
+
+If ``filter_bad`` is ``True`` (default) then bad values are filtered from
+the interpolated MSID set.  There are two strategies for doing this:
+
+1) ``filter_union = False``
+
+   Remove the bad values in each MSID *prior* to interpolating the set to a
+   common time series.  Since each MSID has bad data filtered individually
+   before interpolation, the subsequent nearest neighbor interpolation only
+   finds "good" data.  This strategy is done when ``filter_union = False``,
+   which is the default setting.
+
+2) ``filter_union = True``
+
+  Remove the bad values *after* interpolating the set to a common time series.
+  This marks every MSID in the set as bad at the interpolated time if *any* of
+  them are bad at that time.  This stricter version is required when it is
+  important that the MSIDs be truly correlated in time.  For instance this is
+  needed for attitude quaternions since all four values must be from the exact
+  same telemetry sample.  If you are not sure, this is the safer option.
+
+To illustrate the above options run the following code in pylab.  It will make two
 figures, each with four subplots.  Bad valued points are plotted with a filled
 black circle.  Read the code and correlate with the plot outputs to understand
 the details.
