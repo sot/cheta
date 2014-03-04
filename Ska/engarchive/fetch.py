@@ -874,6 +874,10 @@ class MSID(object):
         if self.bads is None and 'bads' in colnames:
             colnames.remove('bads')
 
+        # Indexes value is not interesting for output
+        if 'indexes' in colnames:
+            colnames.remove('indexes')
+
         colvals = tuple(getattr(self, x) for x in colnames)
         fmt = ",".join("%s" for x in colnames)
 
