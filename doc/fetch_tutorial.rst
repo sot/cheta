@@ -17,42 +17,6 @@ and values but also various other data arrays and MSID metadata.
 Getting started
 ================
 
-**Running the demo**
-
-This tutorial is available to be run as an IPython demo.  Each section of
-commands will be shown and then you can press <Enter> to actually run them
-interactively.  This will allow more time to understand what's happening and
-less time typing or cut-n-pasting.  To run the demo enter the following::
-
-  import IPython.demo
-  go = IPython.demo.IPythonDemo('/proj/sot/ska/share/eng_archive/fetch_tutorial.py')
-  go()
-
-Now you will see the following::
-
-  **************** <fetch_tutorial.py> block # 0 (35 remaining) ****************
-  ## The basic process of fetching data always starts with importing the module
-  ## into the python session::
-
-  print "Welcome to the fetch module!"
-  import Ska.engarchive.fetch as fetch
-
-  ****************** Press <q> to quit, <Enter> to execute... ******************
-
-This means that a block of code from the fetch demo is queued up to be
-executed.  The red text lines are comments.  Now press <Enter> to actually run
-the code.  You will see the following, which means that the code ran and ``ipython``
-is waiting for your next command::
-
-   -------> print("Welcome to the fetch module!")
-  Welcome to the fetch module!
-
-  In [3]:
-
-Now you can inspect variables or do any other analysis (as we'll learn later)
-or just continue to the next block of the tutorial by entering ``go()`` again
-or by hitting the <Up-arrow> followed by <Enter>.
-
 **First fetch**
 
 The basic process of fetching data always starts with importing the module
