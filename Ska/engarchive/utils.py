@@ -11,14 +11,14 @@ from Chandra.Time import DateTime
 FETCH_SIZES = {}
 
 
-def get_fetch_size(msids, start, stop, stat=None, regrid_dt=None, fast=True):
+def get_fetch_size(msids, start, stop, stat=None, resample_dt=None, fast=True):
     """
     Estimate the memory size required to fetch the ``msids`` between ``start`` and
     ``stop``.  This is generally intended for limiting queries to be less than ~100 Mb and
     allows for making some assumptions for improved performance (see below).
 
     Returns a tuple of the estimated megabytes of memory for the raw fetch and megabytes
-    for the final output (which is different only in the case of regridding).  This is
+    for the final output (which is different only in the case of resampling).  This is
     done by fetching 3 days of telemetry (2010:001 to 2010:004) and scaling appropriately.
 
     If ``fast`` is True (default) then if either of the conditions below apply a result of
@@ -32,10 +32,10 @@ def get_fetch_size(msids, start, stop, stat=None, regrid_dt=None, fast=True):
     :param start: start time
     :param stop: stop time
     :param stat: fetch stat (None|'5min'|'daily', default=None)
-    :param regrid_dt: regrid the output to uniform time steps (default=None)
+    :param resample_dt: resample the output to uniform time steps (default=None)
     :param fast: return (-1, -1) if conditions on duration / stat (default=True)
 
-    :returns: fetch_megabytes, out_megabytes
+    :returns: fetch_Mb, resampled_Mb
     """
 
     start = DateTime(start)
@@ -64,11 +64,11 @@ def get_fetch_size(msids, start, stop, stat=None, regrid_dt=None, fast=True):
     scale = (stop - start) / 3.0
     fetch_bytes = sum(FETCH_SIZES[msid, stat][0] * scale for msid in msids)
 
-    # Number of output rows = total fetch time (days) / regrid interval in days
-    if regrid_dt is None:
+    # Number of output rows = total fetch time (days) / resample interval in days
+    if resample_dt is None:
         out_bytes = fetch_bytes
     else:
-        n_rows_out = (stop - start) / (regrid_dt / 86400)
+        n_rows_out = (stop - start) / (resample_dt / 86400)
         out_bytes = sum(FETCH_SIZES[msid, stat][0] * n_rows_out / FETCH_SIZES[msid, stat][1]
                         for msid in msids)
 
