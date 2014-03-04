@@ -74,10 +74,10 @@ def get_queryset(expr, event_pad):
     return eval(queryset_expr)
 
 
-def _get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
-               resample_dt=None, remove_events=None, select_events=None, event_pad=None,
-               time_format=None,
-               outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
+def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
+              resample_dt=None, remove_events=None, select_events=None, event_pad=None,
+              time_format=None,
+              outfile=None, quiet=False, max_fetch_Mb=None, max_resample_Mb=None):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
     common post-processing functions.
@@ -205,4 +205,4 @@ def get_opt():
 
 def main():
     opt = get_opt()
-    _get_telem(**vars(opt))
+    get_telem(**vars(opt))

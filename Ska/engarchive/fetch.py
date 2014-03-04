@@ -1421,10 +1421,10 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     :param max_fetch_Mb: Max allowed memory for fetching (default=no max)
     :param max_resample_Mb: Max allowed memory for resampled result (default=no max)
     """
-    from .get_telem import _get_telem
-    return _get_telem(msids, start, stop, sampling, unit_system,
-                      resample_dt, remove_events, select_events, event_pad,
-                      time_format, outfile, quiet, max_fetch_Mb, max_resample_Mb)
+    from .get_telem import get_telem
+    return get_telem(msids, start, stop, sampling, unit_system,
+                     resample_dt, remove_events, select_events, event_pad,
+                     time_format, outfile, quiet, max_fetch_Mb, max_resample_Mb)
 
 
 @memoized
