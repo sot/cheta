@@ -752,13 +752,18 @@ time sequence.  In addition a new attribute ``times0`` is defined that
 stores the nearest neighbor interpolated time, providing the *original*
 timestamps of each new interpolated value for that MSID.
 
-Filtering
-=========
+Filtering and bad values
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If ``filter_bad`` is ``True`` (default) then bad values are filtered from
-the interpolated MSID set.  There are two strategies for doing this:
+A key issue in interpolation is the handling of bad (missing) telemetry
+values.  There are two parameters that control the behavior, ``filter_bad``
+and ``bad_union``.
 
-1) ``filter_union = False``
+If ``filter_bad`` is ``True`` (which is the default) then bad values are
+filtered from the interpolated MSID set.  There are two strategies for doing
+this:
+
+1) ``bad_union = False``
 
    Remove the bad values in each MSID *prior* to interpolating the set to a
    common time series.  Since each MSID has bad data filtered individually
@@ -766,7 +771,7 @@ the interpolated MSID set.  There are two strategies for doing this:
    finds "good" data.  This strategy is done when ``filter_union = False``,
    which is the default setting.
 
-2) ``filter_union = True``
+2) ``bad_union = True``
 
   Remove the bad values *after* interpolating the set to a common time series.
   This marks every MSID in the set as bad at the interpolated time if *any* of
@@ -775,10 +780,28 @@ the interpolated MSID set.  There are two strategies for doing this:
   needed for attitude quaternions since all four values must be from the exact
   same telemetry sample.  If you are not sure, this is the safer option.
 
-To illustrate the above options run the following code in pylab.  It will make two
-figures, each with four subplots.  Bad valued points are plotted with a filled
-black circle.  Read the code and correlate with the plot outputs to understand
-the details.
+If ``filter_bad`` is ``False`` then bad values and the associated ``bads``
+attribute are left in the MSID objects of the interpolated |MSIDset|.  The
+behaviors are:
+
+1) ``bad_union = False``
+
+   Bad values represent the bad status of each MSID individually at the
+   interpolated time stamps.
+
+2) ``bad_union = True``
+
+   Bad values represent the union of bad status for all the MSIDs at the
+   interpolated time stamps.
+
+
+To illustrate the effect of ``filter_bad``, run the following code in pylab.  It
+will make two figures, each with four subplots.  Bad valued points are plotted
+with a filled black circle.  Read the code and correlate with the plot outputs
+to understand the details.  The key point is that in the right-hand set of plots
+the interpolated value for DP_PITCH_FSS is taken from the nearest
+sample which in the worst case is over 50 ksec away.
+
 ::
 
   from Ska.Matplotlib import plot_cxctime

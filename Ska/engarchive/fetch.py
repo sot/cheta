@@ -1202,7 +1202,7 @@ class MSIDset(collections.OrderedDict):
             return obj
 
     def interpolate(self, dt=None, start=None, stop=None, filter_bad=True, times=None,
-                    filter_union=False, copy=False):
+                    bad_union=False, copy=False):
         """
         Perform nearest-neighbor interpolation of all MSID values in the set
         to a common time sequence.  The values are updated in-place.
@@ -1222,13 +1222,13 @@ class MSIDset(collections.OrderedDict):
         stores the nearest neighbor interpolated time, providing the *original*
         timestamps of each new interpolated value for that MSID.
 
-        Filtering
-        =========
+        Filtering and bad values
+        ========================
 
         If ``filter_bad`` is True (default) then bad values are filtered from
         the interpolated MSID set.  There are two strategies for doing this:
 
-        1) ``filter_union = False``
+        1) ``bad_union = False``
 
            Remove the bad values in each MSID prior to interpolating the set to
            a common time series.  This essentially says to use all the available
@@ -1237,7 +1237,7 @@ class MSIDset(collections.OrderedDict):
            finds good data.  This strategy is done when ``filter_union = False``,
            which is the default setting.
 
-        2) ``filter_union = True``
+        2) ``bad_union = True``
 
           Mark every MSID in the set as bad at the interpolated time if *any*
           of them are bad at that time.  This stricter version is required when it
@@ -1251,7 +1251,7 @@ class MSIDset(collections.OrderedDict):
         :param stop: end of interpolation period (DateTime format)
         :param filter_bad: filter bad values
         :param times: array of times for interpolation (default=None)
-        :param filter_union: filter union of bad values after interpolating
+        :param bad_union: filter union of bad values after interpolating
         :param copy: return a new copy instead of in-place update (default=False)
         """
         import Ska.Numpy
@@ -1280,10 +1280,10 @@ class MSIDset(collections.OrderedDict):
 
             tstart = max(tstart, max_fetch_tstart)
             tstop = min(tstop, min_fetch_tstop)
-            obj.times = np.arange(tstart, tstop, dt)
+            obj.times = np.arange((tstop - tstart) // dt) * dt + tstart
 
         for msid in msids:
-            if filter_bad and not filter_union:
+            if filter_bad and not bad_union:
                 msid.filter_bad()
             logger.info('Interpolating index for %s', msid.msid)
             indexes = Ska.Numpy.interpolate(np.arange(len(msid.times)),
@@ -1301,7 +1301,7 @@ class MSIDset(collections.OrderedDict):
             msid.times0 = msid.times
             msid.times = obj.times
 
-        if filter_union:
+        if bad_union:
             common_bads = np.zeros(len(obj.times), dtype=bool)
             for msid in msids:
                 if msid.stat is None and msid.bads is None:
