@@ -1311,11 +1311,15 @@ class MSIDset(collections.OrderedDict):
                 if msid.bads is not None:  # 5min and daily stats have no bad values
                     common_bads |= msid.bads
 
-            # Apply the common bads array and filter out these bad values
+            # Apply the common bads array and optional filter out these bad values
             for msid in msids:
                 msid.bads = common_bads
-                msid.filter_bad()
-            obj.times = obj.times[~common_bads]
+                if filter_bad:
+                    msid.filter_bad()
+
+            # Filter MSIDset-level times attr to match invididual MSIDs if filter_bad is True
+            if filter_bad:
+                obj.times = obj.times[~common_bads]
 
         if copy:
             return obj
