@@ -1024,6 +1024,27 @@ Rules of thumb:
 * Look before you leap, do smaller fetches first and check sizes.
 * 5-minute stats are ~10 million so you are always OK.
 
+Estimating fetch size
+-----------------------
+
+You can do a better than the above rules of thumb using the
+:func:`~Ska.engarchive.utils.get_fetch_size` function in the ``Ska.engarchive.utils``
+module to estimate the size of a fetch request prior to making the call.  This is
+especially useful for applications that want to avoid unreasonably large data requests.
+
+As an example, compute the estimated size in Megabytes for fetching full-resolution data
+for TEPHIN and AOPCADMD for a period of 3 years, both of which are then interpolated at a
+time sampling of 32.8 seconds::
+
+  >>> from Ska.engarchive.utils import get_fetch_size
+  >>> get_fetch_size(['TEPHIN', 'AOPCADMD'], '2011:001', '2014:001', interpolate_dt=32.8)
+  (1248.19, 75.06)
+
+This returns two numbers: the first is the memory (megabytes) for the internal fetch
+operation to get the telemetry data, and the second is the memory for the interpolated
+output.  This estimate is made by fetching a 3-day sample of data starting at 2010:001
+and extrapolating.  Therefore the size estimates are reflective of normal operations.
+
 Putting it all together
 =======================
 
