@@ -176,8 +176,8 @@ def test_util_logical_intervals_gap():
     assert np.allclose(out['tstop'], [5.5, 202.5])
 
     out = utils.logical_intervals(times, bools, complete_intervals=False)
-    assert np.allclose(out['tstart'], [1])
-    assert np.allclose(out['tstop'], [202])
+    assert np.allclose(out['tstart'], [0.5])
+    assert np.allclose(out['tstop'], [202.5])
 
 
 def test_msid_state_intervals():

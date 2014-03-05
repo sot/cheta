@@ -1280,7 +1280,7 @@ class MSIDset(collections.OrderedDict):
 
             tstart = max(tstart, max_fetch_tstart)
             tstop = min(tstop, min_fetch_tstop)
-            obj.times = np.arange((tstop - tstart) // dt) * dt + tstart
+            obj.times = np.arange((tstop - tstart) // dt + 1) * dt + tstart
 
         for msid in msids:
             if filter_bad and not bad_union:
