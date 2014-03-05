@@ -723,6 +723,16 @@ A key issue in interpolation is the handling of bad (missing) telemetry
 values.  There are two parameters that control the behavior, ``filter_bad``
 and ``bad_union``.
 
+The plots and discussion below illustrate the effect of ``filter_bad`` and
+``bad_union`` for a synthetic dataset consisting of two MSIDs which are sampled
+at 1.025 seconds (red) and 4.1 seconds (blue).  The red values are increasing
+linearly while the blue ones are decreasing linearly.  Each MSID has a single
+bad point which is marked with a black cross.  The first plot below is the input
+un-interpolated data:
+
+.. image:: fetchplots/interpolate_input.png
+   :width: 400 px
+
 If ``filter_bad`` is ``True`` (which is the default) then bad values are
 filtered from the interpolated MSID set.  There are two strategies for doing
 this:
@@ -732,8 +742,12 @@ this:
    Remove the bad values in each MSID *prior* to interpolating the set to a
    common time series.  Since each MSID has bad data filtered individually
    before interpolation, the subsequent nearest neighbor interpolation only
-   finds "good" data.  This strategy is done when ``filter_union = False``,
-   which is the default setting.
+   finds "good" data and there are no gaps in the output.  This strategy is done
+   when ``bad_union = False``, which is the default setting.  The results are
+   shown below:
+
+   .. image:: fetchplots/interpolate_True_False.png
+      :width: 400 px
 
 2) ``bad_union = True``
 
@@ -742,7 +756,11 @@ this:
   them are bad at that time.  This stricter version is required when it is
   important that the MSIDs be truly correlated in time.  For instance this is
   needed for attitude quaternions since all four values must be from the exact
-  same telemetry sample.  If you are not sure, this is the safer option.
+  same telemetry sample.  If you are not sure, this is the safer option because
+  gaps in the input data are reflected as gaps in the output.
+
+  .. image:: fetchplots/interpolate_True_True.png
+     :width: 400 px
 
 If ``filter_bad`` is ``False`` then bad values and the associated ``bads``
 attribute are left in the MSID objects of the interpolated |fetch_MSIDset|.  The
@@ -753,66 +771,19 @@ behaviors are:
    Bad values represent the bad status of each MSID individually at the
    interpolated time stamps.
 
+   .. image:: fetchplots/interpolate_False_False.png
+      :width: 400 px
+
 2) ``bad_union = True``
 
    Bad values represent the union of bad status for all the MSIDs at the
-   interpolated time stamps.
+   interpolated time stamps.  Notice how the ``filter_bad = True`` and
+   ``bad_union = True`` case above is exactly like this one but with the
+   crossed-out points removed.
 
+   .. image:: fetchplots/interpolate_False_True.png
+      :width: 400 px
 
-Example
-^^^^^^^^
-
-To illustrate the effect of ``filter_bad``, run the following code in pylab.  It
-will make two figures, each with four subplots.  Bad valued points are plotted
-with a filled black circle.  Read the code and correlate with the plot outputs
-to understand the details.  The key point is that in the right-hand set of plots
-the interpolated value for DP_PITCH_FSS is taken from the nearest
-sample which in the worst case is over 50 ksec away.
-
-::
-
-  from Ska.Matplotlib import plot_cxctime
-  from Ska.engarchive import fetch_eng as fetch
-
-  def plot_both(x, title_str):
-      plot_cxctime(x['aosares1'].times, x['aosares1'].vals, 'b')
-      plot_cxctime(x['dp_pitch_fss'].times, x['dp_pitch_fss'].vals, 'r')
-      bads = x['dp_pitch_fss'].bads
-      if bads is not None:
-          plot_cxctime(x['dp_pitch_fss'].times[bads],
-                       x['dp_pitch_fss'].vals[bads], 'ko')
-      title(title_str)
-
-  stat = None  # or try with stat = '5min' for another variation
-  dat = fetch.MSIDset(['aosares1','dp_pitch_fss'],'2000:002:00:00:00','2000:003',
-                      stat=stat)
-
-  for filter_bad in (False, True):
-      fb_str = ' filter_bad={}'.format(filter_bad)
-      figure(figsize=(8, 10))
-
-      subplot(4, 1, 1)
-      plot_both(dat, 'Original Timestamps' + fb_str)
-
-      dat.interpolate(dt=300, filter_bad=filter_bad)
-      subplot(4, 1, 2)
-      plot_both(dat, 'Interpolated Timestamps' + fb_str)
-
-      subplot(4, 1, 3)
-      plot(dat['aosares1'].times - dat['dp_pitch_fss'].times)
-      title('AOSARES1.times - DP_PITCH_FSS.times' + fb_str)
-
-      subplot(4, 1, 4)
-      plot(dat['aosares1'].times0 - dat['dp_pitch_fss'].times0)
-      title('AOSARES1.times0 - DP_PITCH_FSS.times0' + fb_str)
-
-      tight_layout()
-
-.. image:: fetchplots/interpolation_filter_false.png
-   :width: 400 px
-
-.. image:: fetchplots/interpolation_filter_true.png
-   :width: 400 px
 
 Unit systems
 ==============
