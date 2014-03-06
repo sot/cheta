@@ -46,6 +46,7 @@ Documentation
 
    tutorial
    fetch_tutorial
+   ska_fetch
    pseudo_msids
 
 API docs

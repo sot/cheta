@@ -3,6 +3,7 @@
 .. |fetch_MSID| replace:: :func:`~Ska.engarchive.fetch.MSID`
 .. |fetch_MSIDset| replace:: :func:`~Ska.engarchive.fetch.MSIDset`
 .. |fetch_MSIDset_interpolate| replace:: :func:`~Ska.engarchive.fetch.MSIDset.interpolate`
+.. |get_telem| replace:: :func:`~Ska.engarchive.fetch.get_telem`
 
 ================================
 Fetch Tutorial
@@ -16,42 +17,6 @@ and values but also various other data arrays and MSID metadata.
 
 Getting started
 ================
-
-**Running the demo**
-
-This tutorial is available to be run as an IPython demo.  Each section of
-commands will be shown and then you can press <Enter> to actually run them
-interactively.  This will allow more time to understand what's happening and
-less time typing or cut-n-pasting.  To run the demo enter the following::
-
-  import IPython.demo
-  go = IPython.demo.IPythonDemo('/proj/sot/ska/share/eng_archive/fetch_tutorial.py')
-  go()
-
-Now you will see the following::
-
-  **************** <fetch_tutorial.py> block # 0 (35 remaining) ****************
-  ## The basic process of fetching data always starts with importing the module
-  ## into the python session::
-
-  print "Welcome to the fetch module!"
-  import Ska.engarchive.fetch as fetch
-
-  ****************** Press <q> to quit, <Enter> to execute... ******************
-
-This means that a block of code from the fetch demo is queued up to be
-executed.  The red text lines are comments.  Now press <Enter> to actually run
-the code.  You will see the following, which means that the code ran and ``ipython``
-is waiting for your next command::
-
-   -------> print("Welcome to the fetch module!")
-  Welcome to the fetch module!
-
-  In [3]:
-
-Now you can inspect variables or do any other analysis (as we'll learn later)
-or just continue to the next block of the tutorial by entering ``go()`` again
-or by hitting the <Up-arrow> followed by <Enter>.
 
 **First fetch**
 
@@ -731,56 +696,95 @@ new centroid value every 2.05 sec.
 Interpolation
 --------------
 
-The |fetch_MSIDset_interpolate| method has some subtleties related to bad
-values.  In order to understand this, first read the method documentation (the
-previous link), then run the following code in pylab.  It will make two
-figures, each with four subplots.  Bad valued points are plotted with a filled
-black circle.  Read the code and correlate with the plot outputs to understand
-the details.
-::
+The |fetch_MSIDset_interpolate| method allows for resampling all the MSIDs in a
+set onto a single common time sequence.  This is done by performing
+nearest-neighbor interpolation of all MSID values.  By default the update
+is done in-place, but if called with ``copy=True`` then a new |fetch_MSIDset|
+is returned and the original is not modified (see `Copy versus in-place`_).
 
-  from Ska.Matplotlib import plot_cxctime
-  from Ska.engarchive import fetch_eng as fetch
+Times
+^^^^^^
 
-  def plot_both(x, title_str):
-      plot_cxctime(x['aosares1'].times, x['aosares1'].vals, 'b')
-      plot_cxctime(x['dp_pitch_fss'].times, x['dp_pitch_fss'].vals, 'r')
-      bads = x['dp_pitch_fss'].bads
-      if bads is not None:
-          plot_cxctime(x['dp_pitch_fss'].times[bads],
-                       x['dp_pitch_fss'].vals[bads], 'ko')
-      title(title_str)
+The time sequence steps uniformly by ``dt`` seconds starting at the
+``start`` time and ending at the ``stop`` time.  If not provided the
+times default to the ``start`` and ``stop`` times for the MSID set.
 
-  stat = None  # or try with stat = '5min' for another variation
-  dat = fetch.MSIDset(['aosares1','dp_pitch_fss'],'2000:002:00:00:00','2000:003',
-                      stat=stat)
+If ``times`` is provided then this gets used instead of the default linear
+progression from ``start`` and ``dt``.
 
-  for filter_bad in (False, True):
-      fb_str = ' filter_bad={}'.format(filter_bad)
-      figure(figsize=(8, 10))
+For each MSID in the set the ``times`` attribute is set to the common
+time sequence.  In addition a new attribute ``times0`` is defined that
+stores the nearest neighbor interpolated time, providing the *original*
+timestamps of each new interpolated value for that MSID.
 
-      subplot(4, 1, 1)
-      plot_both(dat, 'Original Timestamps' + fb_str)
+Filtering and bad values
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-      dat.interpolate(dt=300, filter_bad=filter_bad)
-      subplot(4, 1, 2)
-      plot_both(dat, 'Interpolated Timestamps' + fb_str)
+A key issue in interpolation is the handling of bad (missing) telemetry
+values.  There are two parameters that control the behavior, ``filter_bad``
+and ``bad_union``.
 
-      subplot(4, 1, 3)
-      plot(dat['aosares1'].times - dat['dp_pitch_fss'].times)
-      title('AOSARES1.times - DP_PITCH_FSS.times' + fb_str)
+The plots and discussion below illustrate the effect of ``filter_bad`` and
+``bad_union`` for a synthetic dataset consisting of two MSIDs which are sampled
+at 1.025 seconds (red) and 4.1 seconds (blue).  The red values are increasing
+linearly while the blue ones are decreasing linearly.  Each MSID has a single
+bad point which is marked with a black cross.  The first plot below is the input
+un-interpolated data:
 
-      subplot(4, 1, 4)
-      plot(dat['aosares1'].times0 - dat['dp_pitch_fss'].times0)
-      title('AOSARES1.times0 - DP_PITCH_FSS.times0' + fb_str)
-
-      tight_layout()
-
-.. image:: fetchplots/interpolation_filter_false.png
+.. image:: fetchplots/interpolate_input.png
    :width: 400 px
 
-.. image:: fetchplots/interpolation_filter_true.png
-   :width: 400 px
+If ``filter_bad`` is ``True`` (which is the default) then bad values are
+filtered from the interpolated MSID set.  There are two strategies for doing
+this:
+
+1) ``bad_union = False``
+
+   Remove the bad values in each MSID *prior* to interpolating the set to a
+   common time series.  Since each MSID has bad data filtered individually
+   before interpolation, the subsequent nearest neighbor interpolation only
+   finds "good" data and there are no gaps in the output.  This strategy is done
+   when ``bad_union = False``, which is the default setting.  The results are
+   shown below:
+
+   .. image:: fetchplots/interpolate_True_False.png
+      :width: 400 px
+
+2) ``bad_union = True``
+
+  Remove the bad values *after* interpolating the set to a common time series.
+  This marks every MSID in the set as bad at the interpolated time if *any* of
+  them are bad at that time.  This stricter version is required when it is
+  important that the MSIDs be truly correlated in time.  For instance this is
+  needed for attitude quaternions since all four values must be from the exact
+  same telemetry sample.  If you are not sure, this is the safer option because
+  gaps in the input data are reflected as gaps in the output.
+
+  .. image:: fetchplots/interpolate_True_True.png
+     :width: 400 px
+
+If ``filter_bad`` is ``False`` then bad values and the associated ``bads``
+attribute are left in the MSID objects of the interpolated |fetch_MSIDset|.  The
+behaviors are:
+
+1) ``bad_union = False``
+
+   Bad values represent the bad status of each MSID individually at the
+   interpolated time stamps.
+
+   .. image:: fetchplots/interpolate_False_False.png
+      :width: 400 px
+
+2) ``bad_union = True``
+
+   Bad values represent the union of bad status for all the MSIDs at the
+   interpolated time stamps.  Notice how the ``filter_bad = True`` and
+   ``bad_union = True`` case above is exactly like this one but with the
+   crossed-out points removed.
+
+   .. image:: fetchplots/interpolate_False_True.png
+      :width: 400 px
+
 
 Unit systems
 ==============
@@ -1020,6 +1024,183 @@ Rules of thumb:
 * 300 million is OK for analysis, expect 30-60 seconds for any operation.
 * Look before you leap, do smaller fetches first and check sizes.
 * 5-minute stats are ~10 million so you are always OK.
+
+Estimating fetch size
+-----------------------
+
+You can do a better than the above rules of thumb using the
+:func:`~Ska.engarchive.utils.get_fetch_size` function in the ``Ska.engarchive.utils``
+module to estimate the size of a fetch request prior to making the call.  This is
+especially useful for applications that want to avoid unreasonably large data requests.
+
+As an example, compute the estimated size in Megabytes for fetching full-resolution data
+for TEPHIN and AOPCADMD for a period of 3 years, both of which are then interpolated at a
+time sampling of 32.8 seconds::
+
+  >>> from Ska.engarchive.utils import get_fetch_size
+  >>> get_fetch_size(['TEPHIN', 'AOPCADMD'], '2011:001', '2014:001', interpolate_dt=32.8)
+  (1248.19, 75.06)
+
+This returns two numbers: the first is the memory (megabytes) for the internal fetch
+operation to get the telemetry data, and the second is the memory for the interpolated
+output.  This estimate is made by fetching a 3-day sample of data starting at 2010:001
+and extrapolating.  Therefore the size estimates are reflective of normal operations.
+
+Fetching the easy way
+=====================
+
+The high-level function |get_telem| is available to simplify use of the Ska engineering
+archive.  It provides a way to combine many of the common processing steps associated with
+fetching and using telemetry data into a single function call.  This includes:
+
+- Fetch a set of MSIDs over a time range, specifying the sampling as
+  either full-resolution, 5-minute, or daily data.
+- Filter out bad or missing data.
+- Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
+- Remove or select time intervals corresponding to specified Kadi event types.
+- Change the time format from CXC seconds (seconds since 1998.0) to something more
+  convenient like GRETA time.
+- Write the MSID telemetry data to a zip file.
+
+Aside from the first two steps (fetching data and filtering bad data), all the steps are
+optional.
+
+The |get_telem| function has a lot of parameters in order to be flexible, but we'll break
+them down into manageable groups.
+
+**Desired telemetry**
+
+The first set are the key inputs relating to the actual telemetry:
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+msids          MSID(s) to fetch (string or list of strings)
+start          Start time for data fetch (default=<stop> - 30 days)
+stop           Stop time for data fetch (default=NOW)
+sampling       Data sampling (full | 5min | daily) (default=full)')
+unit_system    Unit system for data (eng | sci | cxc) (default=eng)
+============== ======================================================
+
+The first argument ``msids`` is the only one that always has to be provided.  It should be
+either a single string like ``'COBSRQID'`` or a list of strings like ``['TEPHIN',
+'TCYLAFT6', 'TEIO']``.  Note that the MSID is case-insensitive so ``'tephin'`` is fine.
+
+The ``start`` and ``stop`` arguments are typically a string like ``'2012:001:02:03:04'``
+(ISO time) or ``'2012001.020304'`` (GRETA time).  If not provided then the last 30 days of
+telemetry will be fetched.
+
+The ``sampling`` argument will choose between either full-resolution telemetry
+or the 5-minute or daily summary statistic values.
+
+The ``unit_system`` argument selects the output unit system.  The choices are engineering
+units (i.e. what is in the TDB and GRETA), science units (mostly just temperatures in C
+instead of F), or CXC units (whatever is in CXC decom, which e.g. has temperatures in K).
+
+Example::
+
+  % ska
+  % ipython --pylab
+  >>> from Ska.engarchive.fetch import get_telem
+  >>> dat = get_telem(['tephin', 'tcylaft6'], '2010:001', '2010:030', sampling='5min')
+  >>> clf()
+  >>> dat['tephin'].plot(label='TEPHIN', color='r')
+  >>> dat['tcylaft6'].plot(label='TCYLAFT6', color='b')
+  >>> legend()
+
+The output of |get_telem| is an |fetch_MSIDset| object which is described in the `MSID
+sets`_ section.
+
+**Interpolation**
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+interpolate_dt Interpolate to uniform time steps (secs, default=None)
+============== ======================================================
+
+In general different MSIDs will come down in telemetry with different sampling and time
+stamps.  Interpolation allows you to put all the MSIDs onto a common time sequence so you
+can compare them, plot one against the other, and so forth.  You can see the
+`Interpolation`_ section for the gory details, but if you need to have your MSIDs on
+a common time sequence then set ``interpolate_dt`` to the desired time step
+in seconds.  When interpolating |get_telem| uses ``filter_bad=True`` and
+``union_bad=True`` (as described in `Interpolation`_).
+
+**Intervals**
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+remove_events  Remove kadi events expression (default=None)
+select_events  Select kadi events expression (default=None)
+============== ======================================================
+
+These arguments allow you to select or remove intervals in the data using the `Kadi event
+definitions <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_.
+For instance we can select times of stable NPM dwells during radiation zones::
+
+  >>> dat = get_telem(['aoatter1', 'aoatter2', 'aoatter3'],
+                      start='2014:001', stop='2014:010', interpolate_dt=32.8,
+                      select_events='dwells & rad_zones')
+
+The order of processing is to first remove event intervals, then select event intervals.
+
+The expression for ``remove_events`` or ``select_events`` can be any logical expression
+involving Kadi query names (see the `event definitions table
+<http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_).  The
+following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
+``select_events`` this would imply selecting telemetry which is either during a DSN pass
+or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
+that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
+A positive padding expands the event intervals while negative contracts the intervals.
+
+**Output**
+
+============== =========================================================
+Argument       Description
+============== =========================================================
+time_format    Output time format (secs|date|greta|jd|..., default=secs)
+outfile        Output file name (default=None)
+============== =========================================================
+
+By default the ``times`` attribute for each MSID is provided in seconds since 1998.0 (CXC
+seconds).  The ``time_format`` argument allows selecting any time format supported by
+`Chandra.Time <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/pydocs/Chandra.Time.html>`_.
+
+If the ``outfile`` is set to a valid file name then the MSID set will be written out as a
+compressed zip archive.  This archive will contain a CSV file corresponding to each MSID
+in the set.  See the section on `Exporting to CSV`_ for additional information and an
+example of the output format.
+
+**Process control**
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+quiet          Suppress run-time logging output (default=False)
+max_fetch_Mb   Max allowed memory (Mb) for fetching (default=1000)
+max_output_Mb  Max allowed memory (Mb) for output (default=100)
+============== ======================================================
+
+Normally |get_telem| outputs a few lines of progress information as it is processing the
+request.  To disable this logging set ``quiet=True``.
+
+The next two arguments are in place to prevent accidentally doing a huge query that will
+consume all available memory or generate a large file that will be slow to read.  For
+instance getting all the gyro count data for the mission will take more than 70 Gb of
+memory.
+
+The ``max_fetch_Mb`` argument specifies how much memory the fetched |fetch_MSIDset| can
+take.  This has a default of 1000 Mb = 1 Gb.
+
+The ``max_output_Mb`` only applies if you have also specified an ``outfile`` to write.
+This checks the size of the actual output |fetch_MSIDset|, which may be smaller than the
+fetch object if data sampling has been reduced via the ``interpolate_dt`` argument.  This
+has a default of 100 Mb.
+
+Both of the defaults here are relatively conservative, and with experience you can set
+larger values.
 
 Putting it all together
 =======================
