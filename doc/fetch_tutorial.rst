@@ -1134,7 +1134,6 @@ Argument       Description
 ============== ======================================================
 remove_events  Remove kadi events expression (default=None)
 select_events  Select kadi events expression (default=None)
-event_pad      Additional pad time around events (secs, default=None)
 ============== ======================================================
 
 These arguments allow you to select or remove intervals in the data using the `Kadi event
@@ -1150,10 +1149,11 @@ The order of processing is to first remove event intervals, then select event in
 The expression for ``remove_events`` or ``select_events`` can be any logical expression
 involving Kadi query names (see the `event definitions table
 <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_).  The
-following string would be valid: ``'dsn_comms | (dwells(pad=-300) & ~eclipses)'``, and for
+following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
 ``select_events`` this would imply selecting telemetry which is either during a DSN pass
-or (within a NPM dwell and not during an eclipse).  The ``pad=-300`` qualifier means
+or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
 that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
+A positive padding expands the event intervals while negative contracts the intervals.
 
 **Output**
 

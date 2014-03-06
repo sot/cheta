@@ -43,8 +43,7 @@ You can get help by asking ``ska_fetch`` to print its command line options::
 
   usage: ska_fetch [-h] [--start START] [--stop STOP] [--sampling SAMPLING]
                    [--unit-system UNIT_SYSTEM] [--interpolate-dt INTERPOLATE_DT]
-                   [--remove-events REMOVE_EVENTS]
-                   [--select-events SELECT_EVENTS] [--event-pad EVENT_PAD]
+                   [--remove-events REMOVE_EVENTS] [--select-events SELECT_EVENTS]
                    [--time-format TIME_FORMAT] [--outfile OUTFILE] [--quiet]
                    [--max-fetch-Mb MAX_FETCH_MB] [--max-output-Mb MAX_OUTPUT_MB]
                    MSID [MSID ...]
@@ -59,7 +58,7 @@ You can get help by asking ``ska_fetch`` to print its command line options::
 
     # Get daily temps since 2000, removing times within 100000 seconds of safe- or normal- sun
     % ska_fetch --sampling=daily --outfile=tephin.zip \
-                --remove-events='safe_suns(pad=100000) | normal_suns(pad=100000)' \
+                --remove-events='safe_suns[pad=100000] | normal_suns[pad=100000]' \
                 tephin tcylaft6
 
   Arguments
@@ -240,10 +239,11 @@ The order of processing is to first remove event intervals, then select event in
 The expression for ``--remove_events`` or ``--select_events`` can be any logical expression
 involving Kadi query names (see the `event definitions table
 <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_).  The
-following string would be valid: ``'dsn_comms | (dwells(pad=-300) & ~eclipses)'``, and for
+following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
 ``select_events`` this would imply selecting telemetry which is either during a DSN pass
-or (within a NPM dwell and not during an eclipse).  The ``pad=-300`` qualifier means
+or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
 that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
+A positive padding expands the event intervals while negative contracts the intervals.
 
 Output
 ^^^^^^^

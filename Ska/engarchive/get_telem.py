@@ -10,7 +10,7 @@ Examples
 
   # Get daily temps since 2000, removing times within 100000 seconds of safe- or normal- sun
   % ska_fetch TEPHIN TCYLAFT6 --start 2000:001 --sampling=daily --outfile=tephin.zip \\
-              --remove-events='safe_suns(pad=100000) | normal_suns(pad=100000)'
+              --remove-events='safe_suns[pad=100000] | normal_suns[pad=100000]'
 
 Arguments
 =========
@@ -48,14 +48,19 @@ def msidset_resample(msidset, dt):
     msidset.times = msidset.times[~common_bads]
 
 
-def get_queryset(expr, event_pad):
+def get_queryset(expr):
     """
-    Get query set for ``expr`` (a python-like expression).
+    Get query set for ``expr`` python-ish expression, e.g. (manvrs[bad=200] & radzones).
+    Using [] instead of () makes parsing easier.
     """
     from kadi import events
 
     seps = '()~|&'
     re_seps = '([' + seps + '])'
+    re_float = r'[+-]? (?: \d+ (?: \.\d*)? | \.\d+) (?:[eE][+-]?\d+)?'
+    re_event_pad = re.compile(r'(\w+) (\[ \s* pad \s* = \s* {} \s* \])? $'.format(re_float),
+                              re.VERBOSE)
+
     expr = re.sub('\s+', '', expr)
     # Split expr by separators and then toss out '' elements
     tokens = [x for x in re.split(re_seps, expr) if x]
@@ -63,22 +68,26 @@ def get_queryset(expr, event_pad):
     for i, token in enumerate(tokens):
         if token not in seps:
             try:
-                query_event = getattr(events, token)
+                query_name, pad = re_event_pad.match(token).groups()
+                if pad is None:
+                    pad = ''
+                pad = re.sub(r'\[', '(', pad)
+                pad = re.sub(r'\]', ')', pad)
+                query_event = getattr(events, query_name)
                 if not isinstance(query_event, events.query.EventQuery):
                     raise TypeError
-                tokens[i] = 'events.{}'.format(token)
-                if event_pad is not None:
-                    tokens[i] += '(pad={})'.format(event_pad)
+                tokens[i] = 'events.{}'.format(query_name + pad)
             except:
-                raise ValueError('Expression token {!r} is not a valid event type'
+                raise ValueError('Expression token {!r} is not valid'
                                  .format(token))
 
     queryset_expr = ' '.join(tokens)
+    print(queryset_expr)
     return eval(queryset_expr)
 
 
 def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
-              interpolate_dt=None, remove_events=None, select_events=None, event_pad=None,
+              interpolate_dt=None, remove_events=None, select_events=None,
               time_format=None, outfile=None, quiet=False,
               max_fetch_Mb=None, max_output_Mb=None):
     """
@@ -128,13 +137,13 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
 
     if remove_events is not None:
         logger.info('Removing events: {}'.format(remove_events))
-        queryset = get_queryset(remove_events, event_pad)
+        queryset = get_queryset(remove_events)
         for msid in dat:
             dat[msid].remove_intervals(queryset)
 
     if select_events is not None:
         logger.info('Selecting events: {}'.format(select_events))
-        queryset = get_queryset(select_events, event_pad)
+        queryset = get_queryset(select_events)
         for msid in dat:
             dat[msid].select_intervals(queryset)
 
@@ -181,10 +190,6 @@ def get_opt():
     parser.add_argument('--select-events',
                         type=str,
                         help='Select kadi events expression (default=None)')
-
-    parser.add_argument('--event-pad',
-                        type=float,
-                        help='Additional pad time around events (secs, default=None)')
 
     parser.add_argument('--time-format',
                         type=str,

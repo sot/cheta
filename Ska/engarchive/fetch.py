@@ -1444,7 +1444,7 @@ def get_time_range(msid, format=None):
 
 
 def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
-              interpolate_dt=None, remove_events=None, select_events=None, event_pad=None,
+              interpolate_dt=None, remove_events=None, select_events=None,
               time_format=None, outfile=None, quiet=False,
               max_fetch_Mb=1000, max_output_Mb=100):
     """
@@ -1468,7 +1468,6 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     :param interpolate_dt: Interpolate to uniform time steps (secs, default=None)
     :param remove_events: Remove kadi events expression (default=None)
     :param select_events: Select kadi events expression (default=None)
-    :param event_pad: Additional pad time around events (secs, default=None)
     :param time_format: Output time format (secs|date|greta|jd|..., default=secs)
     :param outfile: Output file name (default=None)
     :param quiet: Suppress run-time logging output (default=False)
@@ -1479,7 +1478,7 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     """
     from .get_telem import get_telem
     return get_telem(msids, start, stop, sampling, unit_system,
-                     interpolate_dt, remove_events, select_events, event_pad,
+                     interpolate_dt, remove_events, select_events,
                      time_format, outfile, quiet,
                      max_fetch_Mb, max_output_Mb)
 
