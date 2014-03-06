@@ -26,6 +26,8 @@ Classes
    
 Functions
 -----------
+.. autofunction:: get_telem
+
 .. autofunction:: get_time_range
 
 .. autofunction:: get_units
