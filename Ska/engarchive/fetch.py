@@ -874,6 +874,9 @@ class MSID(object):
         if self.bads is None and 'bads' in colnames:
             colnames.remove('bads')
 
+        if self.state_codes:
+            colnames.append('raw_vals')
+
         # Indexes value is not interesting for output
         if 'indexes' in colnames:
             colnames.remove('indexes')
