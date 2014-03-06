@@ -74,8 +74,8 @@ def get_queryset(expr, event_pad):
     return eval(queryset_expr)
 
 
-def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
-              resample_dt=None, remove_events=None, select_events=None, event_pad=None,
+def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
+              interpolate_dt=None, remove_events=None, select_events=None, event_pad=None,
               time_format=None, outfile=None, quiet=False,
               max_fetch_Mb=None, max_output_Mb=None):
     """
@@ -95,7 +95,9 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     stop = DateTime(stop)
     start = stop - 30 if start is None else DateTime(start)
     stat = None if sampling == 'full' else sampling
-    filter_bad = resample_dt is None
+    filter_bad = interpolate_dt is None
+    if isinstance(msids, basestring):
+        msids = [msids]
 
     logger.info('Fetching {}-resolution data for MSIDS={} from {} to {}'
                 .format(sampling, msids, start.date, stop.date))
@@ -105,20 +107,21 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
     # Make sure that the dataset being fetched is reasonable (if checking requested)
     if max_fetch_Mb is not None or max_output_Mb is not None:
         fetch_Mb, output_Mb = utils.get_fetch_size(msids, start, stop, stat=stat,
-                                                   resample_dt=resample_dt, fast=True)
+                                                   interpolate_dt=interpolate_dt, fast=True)
         if max_fetch_Mb is not None and fetch_Mb > max_fetch_Mb:
             raise MemoryError('Requested fetch requires {:.2f} Mb vs. limit of {:.2f} Mb'
                               .format(fetch_Mb, max_fetch_Mb))
-        if max_output_Mb is not None and output_Mb > max_output_Mb:
-            raise MemoryError('Requested fetch (resampled) requires {:.2f} Mb '
+        # If outputting to a file then check output size
+        if outfile and max_output_Mb is not None and output_Mb > max_output_Mb:
+            raise MemoryError('Requested fetch (interpolated) requires {:.2f} Mb '
                               'vs. limit of {:.2f} Mb'
                               .format(output_Mb, max_output_Mb))
 
     dat = fetch.MSIDset(msids, start, stop, stat=stat, filter_bad=filter_bad)
 
-    if resample_dt is not None:
-        logger.info('Resampling at {} second intervals'.format(resample_dt))
-        msidset_resample(dat, resample_dt)
+    if interpolate_dt is not None:
+        logger.info('Interpolating at {} second intervals'.format(interpolate_dt))
+        msidset_resample(dat, interpolate_dt)
 
     if remove_events is not None:
         logger.info('Removing events: {}'.format(remove_events))
@@ -136,7 +139,7 @@ def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
         for dat_msid in dat.values():
             dat_msid.times = getattr(DateTime(dat_msid.times, format='secs'), time_format)
 
-    if outfile is not None:
+    if outfile:
         logger.info('Writing data to {}'.format(outfile))
         dat.write_zip(outfile)
 
@@ -164,9 +167,9 @@ def get_opt():
                         default='eng',
                         help='Unit system for data (eng|sci|cxc) (default=eng)')
 
-    parser.add_argument('--resample-dt',
+    parser.add_argument('--interpolate-dt',
                         type=float,
-                        help='Resample to uniform time steps (secs, default=None)')
+                        help='Interpolate to uniform time steps (secs, default=None)')
 
     parser.add_argument('--remove-events',
                         type=str,
@@ -194,14 +197,14 @@ def get_opt():
                         help='Suppress run-time logging output')
 
     parser.add_argument('--max-fetch-Mb',
-                        default=100.0,
+                        default=1000.0,
                         type=float,
-                        help='Max allowed memory (Mb) for fetching (default=100)')
+                        help='Max allowed memory (Mb) for fetching (default=1000)')
 
     parser.add_argument('--max-output-Mb',
                         default=20.0,
                         type=float,
-                        help='Max allowed memory (Mb) for output (default=20)')
+                        help='Max allowed memory (Mb) for file output (default=20)')
 
     parser.add_argument('msids',
                         metavar='MSID',

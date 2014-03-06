@@ -9,7 +9,7 @@ def test_get_fetch_size_functionality():
     fetch_mb, out_mb = get_fetch_size('aopcadmd', '2010:001', '2011:001')
     assert fetch_mb, out_mb == (399.97, 399.97)
 
-    fetch_mb, out_mb = get_fetch_size('aopcadmd', '2010:001', '2011:001', regrid_dt=1.025 * 10)
+    fetch_mb, out_mb = get_fetch_size('aopcadmd', '2010:001', '2011:001', interpolate_dt=1.025 * 10)
     assert fetch_mb, out_mb == (399.97, 40.0)
 
     fetch_mb, out_mb = get_fetch_size('aopcadmd', '2010:001', '2011:001', fast=False, stat='5min')
@@ -33,7 +33,7 @@ def test_get_fetch_size_accuracy():
     fetch_bytes = sum(getattr(dat, attr).nbytes for attr in dat.colnames)
 
     fetch_mb, out_mb = get_fetch_size('aopcadmd', '2010:001', '2011:001', stat='5min',
-                                      regrid_dt=328 * 2, fast=False)
+                                      interpolate_dt=328 * 2, fast=False)
     assert fetch_mb == round(fetch_bytes / 1e6, 2)
 
     # Now interpolate to 10 minute intervals
@@ -46,7 +46,7 @@ def test_get_fetch_size_accuracy():
     fetch_bytes = sum(getattr(dat, attr).nbytes for attr in dat.colnames)
 
     fetch_mb, out_mb = get_fetch_size('aopcadmd', '2011:001', '2011:010',
-                                      regrid_dt=328 * 2, fast=False)
+                                      interpolate_dt=328 * 2, fast=False)
     assert fetch_mb == round(fetch_bytes / 1e6, 2)
 
     # Now interpolate to 10 minute intervals

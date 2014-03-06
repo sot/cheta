@@ -1440,36 +1440,43 @@ def get_time_range(msid, format=None):
     return tstart, tstop
 
 
-def get_telem(msids, start=None, stop=None, sampling='all', unit_system='eng',
-              resample_dt=None, remove_events=None, select_events=None, event_pad=None,
+def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
+              interpolate_dt=None, remove_events=None, select_events=None, event_pad=None,
               time_format=None, outfile=None, quiet=False,
-              max_fetch_Mb=None, max_output_Mb=None):
+              max_fetch_Mb=1000, max_output_Mb=20):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
-    common post-processing functions.
+    common processing functions:
 
-      - Resample all MSID values to a common uniformly-spaced time series
-      - Remove / select times corresponding to specified Kadi event types
-      - Write MSID telemetry data to a zipfile
+      - Fetch a set of MSIDs over a time range, specifying the sampling as
+        either full-resolution, 5-minute, or daily data.
+      - Filter out bad or missing data.
+      - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
+      - Remove or select time intervals corresponding to specified Kadi event types.
+      - Change the time format from CXC seconds (seconds since 1998.0) to something more
+        convenient like GRETA time.
+      - Write the MSID telemetry data to a zipfile.
 
     :param msids: MSID(s) to fetch (string or list of strings)')
     :param start: Start time for data fetch (default=<stop> - 30 days)
     :param stop: Stop time for data fetch (default=NOW)
-    :param sampling: Data sampling (full | 5min | daily) (default=full)')
+    :param sampling: Data sampling (full | 5min | daily) (default=full)
     :param unit_system: Unit system for data (eng | sci | cxc) (default=eng)
-    :param resample_dt: Resample to uniform time steps (secs, default=None)
+    :param interpolate_dt: Interpolate to uniform time steps (secs, default=None)
     :param remove_events: Remove kadi events expression (default=None)
     :param select_events: Select kadi events expression (default=None)
     :param event_pad: Additional pad time around events (secs, default=None)
     :param time_format: Output time format (secs|date|greta|jd|..., default=secs)
     :param outfile: Output file name (default=None)
     :param quiet: Suppress run-time logging output (default=False)
-    :param max_fetch_Mb: Max allowed memory for fetching (default=no max)
-    :param max_output_Mb: Max allowed memory for output (default=no max)
+    :param max_fetch_Mb: Max allowed memory (Mb) for fetching (default=1000)
+    :param max_output_Mb: Max allowed memory (Mb) for file output (default=20)
+
+    :returns: MSIDset object
     """
     from .get_telem import get_telem
     return get_telem(msids, start, stop, sampling, unit_system,
-                     resample_dt, remove_events, select_events, event_pad,
+                     interpolate_dt, remove_events, select_events, event_pad,
                      time_format, outfile, quiet,
                      max_fetch_Mb, max_output_Mb)
 

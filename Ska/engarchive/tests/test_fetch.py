@@ -259,3 +259,15 @@ def test_msidset_copy():
         for name in msidset1.keys():
             _assert_msid_equal(msidset1[name], msidset2[name])
 
+def test_interpolate_copy():
+    """
+    Test interpolate copy=True option
+    """
+    pass
+
+
+def test_interpolate_filtering():
+    """
+    Filtering and interpolation
+    """
+    dat = fetch.MSIDset(['aosares1','pitch_fss'],'2000:003:05:30:00','2000:003:05:31:30')
