@@ -1446,7 +1446,7 @@ def get_time_range(msid, format=None):
 def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
               interpolate_dt=None, remove_events=None, select_events=None, event_pad=None,
               time_format=None, outfile=None, quiet=False,
-              max_fetch_Mb=1000, max_output_Mb=20):
+              max_fetch_Mb=1000, max_output_Mb=100):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
     common processing functions:
@@ -1473,7 +1473,7 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     :param outfile: Output file name (default=None)
     :param quiet: Suppress run-time logging output (default=False)
     :param max_fetch_Mb: Max allowed memory (Mb) for fetching (default=1000)
-    :param max_output_Mb: Max allowed memory (Mb) for file output (default=20)
+    :param max_output_Mb: Max allowed memory (Mb) for file output (default=100)
 
     :returns: MSIDset object
     """

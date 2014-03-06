@@ -1180,7 +1180,7 @@ Argument       Description
 ============== ======================================================
 quiet          Suppress run-time logging output (default=False)
 max_fetch_Mb   Max allowed memory (Mb) for fetching (default=1000)
-max_output_Mb  Max allowed memory (Mb) for output (default=20)
+max_output_Mb  Max allowed memory (Mb) for output (default=100)
 ============== ======================================================
 
 Normally |get_telem| outputs a few lines of progress information as it is processing the
@@ -1195,9 +1195,9 @@ The ``max_fetch_Mb`` argument specifies how much memory the fetched |fetch_MSIDs
 take.  This has a default of 1000 Mb = 1 Gb.
 
 The ``max_output_Mb`` only applies if you have also specified an ``outfile`` to write.
-This checks the actual output |fetch_MSIDset|, which may be smaller than the
+This checks the size of the actual output |fetch_MSIDset|, which may be smaller than the
 fetch object if data sampling has been reduced via the ``interpolate_dt`` argument.  This
-has a default of 20 Mb.
+has a default of 100 Mb.
 
 Both of the defaults here are relatively conservative, and with experience you can set
 larger values.

@@ -1,13 +1,16 @@
 """
 Fetch telemetry from the Ska engineering archive.
 
-This bundles many of the common steps of data retrieval into one routine which can be
-accessed either through the command line with ``ska_fetch`` or via the ``get_telem()`` function.
+Examples
+========
 
-Examples ========
+  # Get full-resolution TEPHIN, AOPCADMD for 30 days, and save as telem.zip
+  % ska_fetch TEPHIN AOPCADMD --start=2013:001 --stop=2013:030 --sampling=5min \\
+              --time-format=greta --outfile=telem.zip
 
-  # Get TEPHIN, AOPCADMD for last 30 days, selecting maneuvers during rad zones
-  % ska_fetch --select-events="manvrs & rad_zones" --unit-system=sci TEPHIN AOPCADMD
+  # Get daily temps since 2000, removing times within 100000 seconds of safe- or normal- sun
+  % ska_fetch TEPHIN TCYLAFT6 --start 2000:001 --sampling=daily --outfile=tephin.zip \\
+              --remove-events='safe_suns(pad=100000) | normal_suns(pad=100000)'
 
 Arguments
 =========
@@ -99,7 +102,7 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     if isinstance(msids, basestring):
         msids = [msids]
 
-    logger.info('Fetching {}-resolution data for MSIDS={} from {} to {}'
+    logger.info('Fetching {}-resolution data for MSIDS={}\n  from {} to {}'
                 .format(sampling, msids, start.date, stop.date))
 
     fetch.set_units(unit_system)
@@ -160,7 +163,7 @@ def get_opt():
     parser.add_argument('--sampling',
                         type=str,
                         default='5min',
-                        help='Data sampling (all|5min|daily) (default=5min)')
+                        help='Data sampling (full|5min|daily) (default=5min)')
 
     parser.add_argument('--unit-system',
                         type=str,
@@ -202,9 +205,9 @@ def get_opt():
                         help='Max allowed memory (Mb) for fetching (default=1000)')
 
     parser.add_argument('--max-output-Mb',
-                        default=20.0,
+                        default=100.0,
                         type=float,
-                        help='Max allowed memory (Mb) for file output (default=20)')
+                        help='Max allowed memory (Mb) for file output (default=100)')
 
     parser.add_argument('msids',
                         metavar='MSID',
