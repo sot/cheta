@@ -259,15 +259,57 @@ def test_msidset_copy():
         for name in msidset1.keys():
             _assert_msid_equal(msidset1[name], msidset2[name])
 
-def test_interpolate_copy():
-    """
-    Test interpolate copy=True option
-    """
-    pass
 
-
-def test_interpolate_filtering():
+def test_MSIDset_interpolate_filtering():
     """
     Filtering and interpolation
     """
-    dat = fetch.MSIDset(['aosares1','pitch_fss'],'2000:003:05:30:00','2000:003:05:31:30')
+    # Bung up some data same as documentation example
+    dat = fetch.MSIDset(['aosares1', 'pitch_fss'], '2010:001:00:00:00', '2010:001:00:00:20')
+    dat['aosares1'].bads[2] = True
+    dat['pitch_fss'].bads[6] = True
+
+    # Uninterpolated
+    assert np.sum(dat['aosares1'].bads == 1)
+    assert np.sum(dat['pitch_fss'].bads == 1)
+    assert len(dat['aosares1']) == 4
+    assert len(dat['pitch_fss']) == 20
+
+    # False, False
+    dati = dat.interpolate(dt=0.5, filter_bad=False, bad_union=False, copy=True)
+
+    assert np.sum(dati['aosares1'].bads) == 8
+    assert np.sum(dati['pitch_fss'].bads) == 2
+    assert len(dati['aosares1']) == 25
+    assert len(dati['pitch_fss']) == 25
+
+    # False, True
+    dati = dat.interpolate(dt=0.5, filter_bad=False, bad_union=True, copy=True)
+
+    assert np.sum(dati['aosares1'].bads) == 10  # same as below
+    assert np.sum(dati['pitch_fss'].bads) == 10
+    assert len(dati['aosares1']) == 25
+    assert len(dati['pitch_fss']) == 25
+
+    # True, False (default settings) returns all interpolated time samples
+    dati = dat.interpolate(dt=0.5, filter_bad=True, bad_union=False, copy=True)
+
+    assert np.sum(dati['aosares1'].bads) is None  # same as below
+    assert np.sum(dati['pitch_fss'].bads) is None
+    assert len(dati['aosares1']) == 25
+    assert len(dati['pitch_fss']) == 25
+
+    # True, True returns only good (in union sense) interpolated time samples
+    # so 25 - 10 bad samples = 15
+    dati = dat.interpolate(dt=0.5, filter_bad=True, bad_union=True, copy=True)
+
+    assert np.sum(dati['aosares1'].bads) is None  # same as below
+    assert np.sum(dati['pitch_fss'].bads) is None
+    assert len(dati['aosares1']) == 15
+    assert len(dati['pitch_fss']) == 15
+
+    # Finally test that copy works (dat didn't change)
+    assert np.sum(dat['aosares1'].bads) == 1
+    assert np.sum(dat['pitch_fss'].bads) == 1
+    assert len(dat['aosares1']) == 4
+    assert len(dat['pitch_fss']) == 20
