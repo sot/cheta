@@ -1,8 +1,14 @@
 import numpy as np
+import pytest
 
 from Chandra.Time import DateTime
 from .. import fetch, utils
-from kadi import events
+
+try:
+    import kadi.events
+    HAS_EVENTS = True
+except ImportError:
+    HAS_EVENTS = False
 
 # Use dwells for some interval filter tests
 #
@@ -23,6 +29,7 @@ from kadi import events
 #  ('2012:002:10:38:21.218', '2012:002:12:00:00.000')]
 
 
+@pytest.mark.skipif("not HAS_EVENTS")
 def test_fetch_MSID_intervals():
     """
     Show that fetching an MSID with start=<some intervals> is exactly the same as
@@ -33,9 +40,9 @@ def test_fetch_MSID_intervals():
     for filter_bad in (True, False):
         for stat in (None, '5min'):
             dat = fetch.MSID('tephin', start, stop, filter_bad=filter_bad, stat=stat)
-            dat.select_intervals(events.dwells)
+            dat.select_intervals(kadi.events.dwells)
 
-            dat2 = fetch.MSID('tephin', events.dwells.intervals(start, stop),
+            dat2 = fetch.MSID('tephin', kadi.events.dwells.intervals(start, stop),
                               filter_bad=filter_bad, stat=stat)
 
             assert np.all(dat.bads == dat2.bads)
@@ -44,6 +51,7 @@ def test_fetch_MSID_intervals():
                 assert np.all(getattr(dat, attr) == getattr(dat2, attr))
 
 
+@pytest.mark.skipif("not HAS_EVENTS")
 def test_fetch_MSIDset_intervals():
     """
     Show that fetching an MSIDset with start=<some intervals> is exactly the same as
@@ -56,9 +64,9 @@ def test_fetch_MSIDset_intervals():
         for stat in (None, '5min'):
             dat = fetch.MSIDset(msids, start, stop, filter_bad=filter_bad, stat=stat)
             for msid in msids:
-                dat[msid].select_intervals(events.dwells)
+                dat[msid].select_intervals(kadi.events.dwells)
 
-            dat2 = fetch.MSIDset(msids, events.dwells.intervals(start, stop),
+            dat2 = fetch.MSIDset(msids, kadi.events.dwells.intervals(start, stop),
                                  filter_bad=filter_bad, stat=stat)
 
             for msid in msids:
@@ -70,17 +78,18 @@ def test_fetch_MSIDset_intervals():
                     assert np.all(getattr(dm, attr) == getattr(dm2, attr))
 
 
+@pytest.mark.skipif("not HAS_EVENTS")
 def test_select_remove_interval():
     """
     Test basic select and remove intervals functionality.  Do this with two
     inputs: (1) a QueryEvent object, (2) a table with 'datestart' and 'datestop' cols.
-    The latter is obtained from events.dwells.intervals, but this is the same format
+    The latter is obtained from kadi.events.dwells.intervals, but this is the same format
     as the output from logical_intervals().
     """
     start, stop = '2012:002:02:00:00', '2012:002:04:00:00'
     dat = fetch.MSID('tephin', start, stop)
-    intervals = events.dwells.intervals(start, stop)
-    for filt in (events.dwells, intervals):
+    intervals = kadi.events.dwells.intervals(start, stop)
+    for filt in (kadi.events.dwells, intervals):
         dat_r = dat.remove_intervals(filt, copy=True)
         dat_s = dat.select_intervals(filt, copy=True)
         assert len(dat) == len(dat_r) + len(dat_s)
@@ -95,11 +104,12 @@ def test_select_remove_interval():
         assert set(dat_r.times).isdisjoint(dat_s.times)
 
 
+@pytest.mark.skipif("not HAS_EVENTS")
 def test_remove_intervals_stat():
     start, stop = '2012:002', '2012:003'
     for stat in (None, '5min'):
-        intervals = events.dwells.intervals(start, stop)
-        for filt in (events.dwells, intervals):
+        intervals = kadi.events.dwells.intervals(start, stop)
+        for filt in (kadi.events.dwells, intervals):
             dat = fetch.MSID('tephin', start, stop)
             dat.remove_intervals(filt)
             attrs = [attr for attr in ('vals', 'mins', 'maxes', 'means',
@@ -111,13 +121,14 @@ def test_remove_intervals_stat():
             assert len(dat) == len(getattr(dat, attr))
 
 
+@pytest.mark.skipif("not HAS_EVENTS")
 def test_select_remove_all_interval():
     """
     Select or remove all data points via an event that entirely spans the MSID data.
     """
     dat = fetch.Msid('tephin', '2012:001:20:00:00', '2012:001:21:00:00')
-    dat_r = dat.remove_intervals(events.dwells, copy=True)
-    dat_s = dat.select_intervals(events.dwells, copy=True)
+    dat_r = dat.remove_intervals(kadi.events.dwells, copy=True)
+    dat_s = dat.select_intervals(kadi.events.dwells, copy=True)
     assert len(dat) == 110
     assert len(dat_r) == 0
     assert len(dat_s) == 110
