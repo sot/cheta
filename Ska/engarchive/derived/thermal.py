@@ -1972,12 +1972,12 @@ class DP_OBAHCHK(DerivedParameterThermal):
 
     def calc(self, data):
         # Initialize using the first msid
-        maxes = data[rootparams[0]].vals
-        mins = data[rootparams[0]].vals
+        maxes = data[self.rootparams[0]].vals
+        mins = data[self.rootparams[0]].vals
 
         # Loop through the rest of the msids and collect the max and mins
         # for each time point (axis=0).
-        for name in rootparams:
+        for name in self.rootparams:
             maxes = np.max((maxes, data[name].vals), axis=0)
             mins = np.min((mins, data[name].vals), axis=0)
 
