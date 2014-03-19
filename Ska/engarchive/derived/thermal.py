@@ -13,12 +13,11 @@ class DerivedParameterThermal(base.DerivedParameter):
     def fix_4OHTRZ50(data):
         # This is the first period when zone 50 became stuck on, up until it
         # became temporarily unstuck in 2006:363.
-        stuck1 = (data.times > 188439810.759 & data.times < 283792685.184)
-        # Zone 50 became stuck again on day 2006:264.
+        stuck1 = (data.times > 188439810.759) & (data.times < 283792685.184)
+        # Zone 50 became stuck again on day 2006:364.
         stuck2 = data.times > 283844996.184
         stuck = stuck1 | stuck2
         data['4OHTRZ50'].vals[stuck] = 1
-        return data
 
 #--------------------------------------------
 
@@ -1011,7 +1010,7 @@ class DP_P50(DerivedParameterThermal):
     time_step = 0.25625
 
     def calc(self, data):
-        data = self.fix_4OHTRZ50(data)
+        self.fix_4OHTRZ50(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P50 = data['4OHTRZ50'].vals * VSQUARED / 35.2
         return P50
@@ -1302,7 +1301,7 @@ class DP_PAFTCONE(DerivedParameterThermal):
     time_step = 0.25625
 
     def calc(self, data):
-        data = self.fix_4OHTRZ50(data)
+        self.fix_4OHTRZ50(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P48 = data['4OHTRZ48'].vals * VSQUARED / 79.5
         P49 = data['4OHTRZ49'].vals * VSQUARED / 34.8
@@ -1528,7 +1527,7 @@ class DP_POBAT(DerivedParameterThermal):
     time_step = 0.25625
 
     def calc(self, data):
-        data = self.fix_4OHTRZ50(data)
+        self.fix_4OHTRZ50(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P75 = data['4OHTRZ75'].vals * VSQUARED / 130.2
         P76 = data['4OHTRZ76'].vals * VSQUARED / 133.4
@@ -1686,7 +1685,7 @@ class DP_PTOTAL(DerivedParameterThermal):
     time_step = 0.25625
 
     def calc(self, data):
-        data = self.fix_4OHTRZ50(data)
+        self.fix_4OHTRZ50(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P01 = data['4OHTRZ01'].vals * VSQUARED / 110.2
         P02 = data['4OHTRZ02'].vals * VSQUARED / 109.7
@@ -1983,7 +1982,7 @@ class DP_OBAHCHK(DerivedParameterThermal):
             mins = np.min((mins, data[name].vals), axis=0)
 
         OBAHCHK = maxes - mins
-    return OBAHCHK
+        return OBAHCHK
 
 
 #--------------------------------------------
@@ -1994,7 +1993,7 @@ class DP_HADG(DerivedParameterThermal):
     def calc(self, data):
         HADG = np.max((data['OHRMGRD3'].vals, data['OHRMGRD6'].vals), axis=0)
 
-    return HADG
+        return HADG
 
 
 #--------------------------------------------
@@ -2008,4 +2007,4 @@ class DP_ABH_DUTYCYCLE(DerivedParameterThermal):
         DC2 = np.abs(data['4OHTRZ55'].vals) / 126.8 + np.abs(data['4OHTRZ57'].vals) / 142.3
         ABH_DUTYCYCLE = RTOTAL * (DC1 + DC2)
 
-    return ABH_DUTYCYCLE
+        return ABH_DUTYCYCLE
