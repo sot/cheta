@@ -10,7 +10,7 @@ from . import base
 class DerivedParameterThermal(base.DerivedParameter):
     content_root = 'thermal'
 
-    def fix_4OHTRZ50(data):
+    def fix_4OHTRZ50(self, data):
         # This is the first period when zone 50 became stuck on, up until it
         # became temporarily unstuck in 2006:363.
         stuck1 = (data.times > 188439810.759) & (data.times < 283792685.184)
