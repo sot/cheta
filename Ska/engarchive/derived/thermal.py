@@ -1960,32 +1960,6 @@ class DP_TSSMIN(DerivedParameterThermal):
 
 
 #--------------------------------------------
-class DP_OBAHCHK(DerivedParameterThermal):
-    rootparams = ['OOBTHR08', 'OOBTHR09', 'OOBTHR10', 'OOBTHR11', 'OOBTHR12',
-                  'OOBTHR13', 'OOBTHR14', 'OOBTHR15', 'OOBTHR17', 'OOBTHR18',
-                  'OOBTHR19', 'OOBTHR20', 'OOBTHR21', 'OOBTHR22', 'OOBTHR23',
-                  'OOBTHR24', 'OOBTHR25', 'OOBTHR26', 'OOBTHR27', 'OOBTHR28',
-                  'OOBTHR29', 'OOBTHR30', 'OOBTHR31', 'OOBTHR33', 'OOBTHR34',
-                  'OOBTHR35', 'OOBTHR36', 'OOBTHR37', 'OOBTHR38', 'OOBTHR39',
-                  'OOBTHR40', 'OOBTHR41', 'OOBTHR42', 'OOBTHR45', 'OOBTHR46']
-    time_step = 32.8
-
-    def calc(self, data):
-        # Initialize using the first msid
-        maxes = data[self.rootparams[0]].vals
-        mins = data[self.rootparams[0]].vals
-
-        # Loop through the rest of the msids and collect the max and mins
-        # for each time point (axis=0).
-        for name in self.rootparams:
-            maxes = np.max((maxes, data[name].vals), axis=0)
-            mins = np.min((mins, data[name].vals), axis=0)
-
-        OBAHCHK = maxes - mins
-        return OBAHCHK
-
-
-#--------------------------------------------
 class DP_HADG(DerivedParameterThermal):
     rootparams = ['OHRMGRD3', 'OHRMGRD6']
     time_step = 32.8
