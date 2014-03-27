@@ -41,19 +41,19 @@ msid = 'newmsid'
 figure()
 subplot(3, 1, 1)
 dat = fetch.Msid(msid, '2000:001', '2000:030')
-plot_cxctime(dat.times, dat.vals)
+dat.plot()
 
 subplot(3, 1, 2)
 dat5 = fetch.Msid(msid, '2000:001', '2000:030', stat='5min')
-plot_cxctime(dat5.times, dat5.vals)
+dat5.plot()
 
 subplot(3, 1, 3)
 datd = fetch.Msid(msid, '2000:001', '2000:030', stat='daily')
-plot_cxctime(datd.times, datd.vals)
+datd.plot()
 
 # Intermediate commits
 git commit -a
-git push origin derived:derived
+git push origin derived
 
 ####################################################
 ## Full ingest / update
