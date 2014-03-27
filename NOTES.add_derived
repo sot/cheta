@@ -26,7 +26,7 @@ export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 # that you cannot just add a new column to an existing content type because the
 # ingest process (update_archive.py) does not currently handle this.
 
-./add_derived.py --data-root=$PWD
+./add_derived.py --data-root=$PWD --content=dp_$content
 
 # Update the archive, first in a small test.  --content takes a match regex.
 
