@@ -1,5 +1,6 @@
-import numpy as np
+from copy import deepcopy
 
+import numpy as np
 import pytest
 
 from .. import fetch
@@ -26,6 +27,18 @@ DATES_EXPECT3 = np.array(['2008:002:21:48:10.000', '2008:002:21:48:20.000',
 BAD_TIMES = ['2008:292:00:00:00 2008:297:00:00:00',
              '2008:305:00:12:00 2008:305:00:12:03',
              '2010:101:00:01:12 2010:101:00:01:25']
+
+
+def test_filter_bad_times_overlap():
+    """
+    OK to supply overlapping bad times
+    """
+    msid_bad_times_cache = deepcopy(fetch.msid_bad_times)
+    dat = fetch.MSID('aogbias1', '2008:290', '2008:300', stat='daily')
+    fetch.read_bad_times(['aogbias1 2008:292:00:00:00 2008:297:00:00:00'])
+    fetch.read_bad_times(['aogbias1 2008:292:00:00:00 2008:297:00:00:00'])
+    dat.filter_bad_times()
+    fetch.msid_bad_times = msid_bad_times_cache
 
 
 def test_filter_bad_times_list():
