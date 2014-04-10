@@ -266,13 +266,17 @@ def msid_glob(msid):
     raise ValueError('MSID {} is not in Eng Archive'.format(MSID))
 
 
-def _get_table_intervals_as_list(table):
+def _get_table_intervals_as_list(table, check_overlaps=True):
     """
     Determine if the input ``table`` looks like a table of intervals.  This can either be
     a structured array / Table with datestart / datestop or tstart / tstop columns,
     OR a list of lists.
 
     If so, return a list of corresponding start/stop tuples, otherwise return None.
+
+    If ``check_overlaps`` is True then a check is made to assure that the supplied
+    intervals do not overlap.  This is needed when reading multiple intervals with
+    a single call to fetch, but not for bad times filtering.
     """
     intervals = None
 
@@ -294,8 +298,8 @@ def _get_table_intervals_as_list(table):
             else:
                 break
 
-    # Got an intervals list, now do validation
-    if intervals is not None:
+    # Got an intervals list, now sort
+    if check_overlaps and intervals is not None:
         from itertools import izip
 
         intervals = sorted(intervals, key=lambda x: x[0])
@@ -344,7 +348,7 @@ class MSID(object):
 
         # If ``start`` is actually a table of intervals then fetch
         # each interval separately and concatenate the results
-        intervals = _get_table_intervals_as_list(start)
+        intervals = _get_table_intervals_as_list(start, check_overlaps=True)
         if intervals is not None:
             start, stop = intervals[0][0], intervals[-1][1]
 
@@ -825,7 +829,7 @@ class MSID(object):
         ok[:] = exclude
 
         # See if the input intervals is actually a table of intervals
-        intervals_list = _get_table_intervals_as_list(intervals)
+        intervals_list = _get_table_intervals_as_list(intervals, check_overlaps=False)
         if intervals_list is not None:
             intervals = intervals_list
 
@@ -1085,7 +1089,7 @@ class MSIDset(collections.OrderedDict):
     def __init__(self, msids, start, stop=None, filter_bad=False, stat=None):
         super(MSIDset, self).__init__()
 
-        intervals = _get_table_intervals_as_list(start)
+        intervals = _get_table_intervals_as_list(start, check_overlaps=True)
         if intervals is not None:
             start, stop = intervals[0][0], intervals[-1][1]
 
