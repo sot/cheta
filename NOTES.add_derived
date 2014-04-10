@@ -26,7 +26,7 @@ export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 # that you cannot just add a new column to an existing content type because the
 # ingest process (update_archive.py) does not currently handle this.
 
-./add_derived.py --data-root=$PWD
+./add_derived.py --data-root=$PWD --content=dp_$content
 
 # Update the archive, first in a small test.  --content takes a match regex.
 
@@ -41,19 +41,19 @@ msid = 'newmsid'
 figure()
 subplot(3, 1, 1)
 dat = fetch.Msid(msid, '2000:001', '2000:030')
-plot_cxctime(dat.times, dat.vals)
+dat.plot()
 
 subplot(3, 1, 2)
 dat5 = fetch.Msid(msid, '2000:001', '2000:030', stat='5min')
-plot_cxctime(dat5.times, dat5.vals)
+dat5.plot()
 
 subplot(3, 1, 3)
 datd = fetch.Msid(msid, '2000:001', '2000:030', stat='daily')
-plot_cxctime(datd.times, datd.vals)
+datd.plot()
 
 # Intermediate commits
 git commit -a
-git push origin derived:derived
+git push origin derived
 
 ####################################################
 ## Full ingest / update

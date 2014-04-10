@@ -45,6 +45,15 @@ class DerivedParameter(object):
         bads = np.zeros(len(times), dtype=np.bool)  # All data OK (false)
 
         for msidname, data in dataset.items():
+            # If no data are found in specified interval then stub two fake
+            # data points that are both bad.  All interpolated points will likewise
+            # be bad.
+            if len(data) < 2:
+                data.vals = np.zeros(2, dtype=data.vals.dtype)  # two null points
+                data.bads = np.ones(2, dtype=np.bool)  # all points bad
+                data.times = np.array([times[0], times[-1]])
+                print('No data in {} between {} and {} (setting all bad)'
+                      .format(msidname, DateTime(start).date, DateTime(stop).date))
             keyvals = (data.content, data.times[0], data.times[-1],
                        len(times), times[0], times[-1])
             idxs = interpolate_times(keyvals, len(data.times), 
@@ -62,8 +71,10 @@ class DerivedParameter(object):
             max_gap = self.max_gaps.get(msidname, self.max_gap)
             gap_bads = abs(data.times - times) > max_gap
             if np.any(gap_bads):
-                print "Setting bads because of gaps in {} at {}".format(
-                    msidname, str(times[gap_bads]))
+                print("Setting bads because of gaps in {} between {} to {}"
+                      .format(msidname,
+                              DateTime(times[gap_bads][0]).date,
+                              DateTime(times[gap_bads][-1]).date))
             bads = bads | gap_bads
 
         dataset.times = times

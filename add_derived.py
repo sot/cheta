@@ -113,7 +113,7 @@ def main():
 
     opt, args = get_options()
     ft = fetch.ft
-    msid_files = pyyaks.context.ContextDict('msid_files', basedir=opt.data_root)
+    msid_files = pyyaks.context.ContextDict('add_derived.msid_files', basedir=opt.data_root)
     msid_files.update(file_defs.msid_files)
     logger = pyyaks.logger.get_logger(name='engarchive', level=pyyaks.logger.VERBOSE, 
                                       format="%(asctime)s %(message)s")

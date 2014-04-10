@@ -90,10 +90,10 @@ if opt.create:
     opt.update_stats = False
 
 ft = fetch.ft
-msid_files = pyyaks.context.ContextDict('msid_files',
+msid_files = pyyaks.context.ContextDict('update_archive.msid_files',
                                         basedir=(opt.data_root or file_defs.msid_root))
 msid_files.update(file_defs.msid_files)
-arch_files = pyyaks.context.ContextDict('arch_files',
+arch_files = pyyaks.context.ContextDict('update_archive.arch_files',
                                         basedir=(opt.data_root or file_defs.arch_root))
 arch_files.update(file_defs.arch_files)
 
