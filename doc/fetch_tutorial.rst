@@ -1020,9 +1020,17 @@ the distribution::
 Rules of thumb:
 
 * 1 million is fast for plotting and analysis.
-* 10 million is OK for plotting and fast for analysis.
-* 300 million is OK for analysis, expect 30-60 seconds for any operation.
-* Look before you leap, do smaller fetches first and check sizes.
+* 10 million is fast for analysis but on the edge for plotting:
+
+  * Plotting lines or symbols (the ``'-'`` or ``'.'`` markers) may fail with the dreaded ``Agg
+    rendering complexity exceeded``.  Once this happens you frequently need to restart
+    IPython entirely to make more plots.
+  * Plotting with the ``','`` marker is typically OK as this just makes a single pixel
+    dot instead of a plot glyph.
+
+* 300 million is OK for analysis, expect 30-60 seconds for any operation.  Plots can only
+  be done using density image maps binning in 2-d.
+* Look before you leap, do smaller fetches first and check sizes as shown below.
 * 5-minute stats are ~10 million so you are always OK.
 
 Estimating fetch size
