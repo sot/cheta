@@ -183,9 +183,10 @@ def fix_stats_h5(msid, tstart, tstop, interval):
         table = h5.root.data
         row0, row1 = np.searchsorted(table.col('index'), [index0, index1])
         for row_idx, vals_stat in itertools.izip(range(row0, row1), vals_stats):
-            logger.info('Row index = {}'.format(row_idx))
-            logger.info('  ORIGINAL: %s', table[row_idx])
-            logger.info('  UPDATED : %s', vals_stat)
+            if row1 - row0 < 50 or row_idx == row0 or row_idx == row1 - 1:
+                logger.info('Row index = {}'.format(row_idx))
+                logger.info('  ORIGINAL: %s', table[row_idx])
+                logger.info('  UPDATED : %s', vals_stat)
             if opt.run:
                 table[row_idx] = tuple(vals_stat)
     finally:
@@ -235,9 +236,10 @@ def fix_msid_h5(msid, tstart, tstop):
                 if quality:
                     logger.info('Skipping idx={} because quality is already True'.format(idx))
                     continue
-                logger.info('{}.data[{}] = {}'.format(msid, idx, h5.root.data[idx]))
-                logger.info('Changing {}.quality[{}] from {} to True'
-                            .format(msid, idx, quality))
+                if len(fix_idxs) < 100 or idx == fix_idxs[0] or idx == fix_idxs[-1]:
+                    logger.info('{}.data[{}] = {}'.format(msid, idx, h5.root.data[idx]))
+                    logger.info('Changing {}.quality[{}] from {} to True'
+                                .format(msid, idx, quality))
                 if opt.run:
                     h5.root.quality[idx] = True
     finally:
