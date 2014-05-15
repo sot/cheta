@@ -88,3 +88,31 @@ Record of fixes
   ./fix_bad_values.py --start '2013:197:03:50:12.387' --stop '2013:197:03:50:25.016' --data-root /proj/sot/ska/data/eng_archive --run --msid DP_HRMA_AVE
   ./fix_bad_values.py --start '2013:197:03:50:12.387' --stop '2013:197:03:50:25.016' --data-root /proj/sot/ska/data/eng_archive --run --msid DP_HRMHCHK
   ./fix_bad_values.py --msid aomantim --start=2013:233:12:19:26.158 --data-root=/proj/sot/ska/data/eng_archive --run
+
+  # No DP_PITCH in 1999 data
+  # ./fix_bad_values.py --start '1999:229:20:17:50.616' --stop '1999:231:01:29:21.816' --data-root /proj/sot/ska/data/eng_archive/1999 --msid DP_PITCH --value=90.0
+  # ./fix_bad_values.py --start '1999:269:20:22:50.616' --stop '1999:270:08:22:15.416' --data-root /proj/sot/ska/data/eng_archive/1999 --msid DP_PITCH --value=90.0
+
+  ./fix_bad_values.py --start '2000:048:08:08:54.216' --stop '2000:049:16:48:40.000' --data-root /proj/sot/ska/data/eng_archive --msid DP_PITCH --value=90.0 --run
+  ./fix_bad_values.py --start '2011:187:12:28:53.816' --stop '2011:192:03:54:20.000' --data-root /proj/sot/ska/data/eng_archive --msid DP_PITCH --value=90.0 --run
+  ./fix_bad_values.py --start '2012:150:03:33:09.816' --stop '2012:152:02:01:10.000' --data-root /proj/sot/ska/data/eng_archive --msid DP_PITCH --value=90.0 --run
+
+
+Appendix: plot safe mode pitch values
+-------------------------------------
+The post-2000 safe mode end times for fixing DP_PITCH were determined
+with the following script and by zooming into the time when PITCH
+returns to about 90 degrees (indicating on-board attitude is correct).
+::
+
+  def plot_pitch(event, stat=None):
+      figure()
+      start = DateTime(event.start)
+      stop = DateTime(event.stop)
+      dat = fetch.Msid('pitch', start - 0.5, stop + 1.5, stat=stat)
+      if len(dat) > 2:
+          dat.plot('b')
+      dat = fetch.Msid('aosares1', start - 0.5, stop + 1.5, stat=stat)
+      dat.plot('r')
+      plot_cxctime([start.secs, start.secs], ylim(), '--r')
+      plot_cxctime([stop.secs, stop.secs], ylim(), '--r')
