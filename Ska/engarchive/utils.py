@@ -202,7 +202,6 @@ def ss_vector(start, stop=None, obj='Earth'):
 def _pad_long_gaps(times, bools, max_gap):
     dts = np.diff(times)
     i_long_gaps = np.flatnonzero(dts > max_gap)
-    print i_long_gaps
     if len(i_long_gaps) > 0:
         for i in i_long_gaps[::-1]:
             times = np.concatenate([times[:i + 1],
