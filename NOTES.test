@@ -9,6 +9,9 @@ ipython
 >>> import Ska.engarchive
 >>> Ska.engarchive.test(args='-k -test_fetch_regr')  # normally skip this
 
+# WITHIN git repo
+py.test sken <args...>
+
 ##########################################################################
 # Build and install docs
 ##########################################################################
