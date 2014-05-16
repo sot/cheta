@@ -326,3 +326,16 @@ def test_MSIDset_interpolate_filtering():
     assert np.sum(dat['pitch_fss'].bads) == 1
     assert len(dat['aosares1']) == 4
     assert len(dat['pitch_fss']) == 20
+
+
+def test_1999_fetch():
+    for start, stop in (('1999:363:00:00:00', '2000:005:00:00:00'),  # Covering deadband
+                        ('1999:363:00:00:00', '2000:002:00:00:00'),  # Stop within deadband
+                        ('2000:002:00:00:00', '2000:004:00:00:00'),  # Start within deadband
+                        ('1999:360:00:00:00', '1999:361:00:00:00')):  # 1999 before deadband
+        dat = fetch.MSID('aopcadmd', start, stop)
+        assert np.allclose(np.diff(dat.times), 1.025, atol=0.01)
+
+        dat = fetch.MSIDset(['aopcadmd', 'aoattqt1'], start, stop)
+        assert np.allclose(np.diff(dat['aopcadmd'].times), 1.025, atol=0.01)
+        assert np.allclose(np.diff(dat['aoattqt1'].times), 1.025, atol=0.01)

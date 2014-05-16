@@ -37,6 +37,14 @@ ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
 IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
 DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
+# Dates near the start of 2000 that demarcates the split between the 1999 data
+# and post-2000 data.  The 1999 data goes out to at least 2000:005:13:00:00,
+# while post-2000 data starts as late as 2000:001:11:58:59.  Dates between LO
+# and HI get taken from either 1999 or post-2000.  The times are 4 millisec before
+# a minor frame boundary to avoid collisions.
+DATE2000_LO = DateTime('2000:001:00:00:00.090').date
+DATE2000_HI = DateTime('2000:003:00:00:00.234').date
+
 # Maximum number of MSIDs that should ever match an input MSID spec
 # (to prevent accidentally selecting a very large number of MSIDs)
 MAX_GLOB_MATCHES = 10
@@ -363,6 +371,10 @@ class MSID(object):
         except KeyError:
             raise ValueError('MSID %s is not in Eng Archive' % self.MSID)
 
+        if self.datestart < DATE2000_LO and self.datestop > DATE2000_HI:
+            intervals = [(self.datestart, DATE2000_HI),
+                         (DATE2000_HI, self.datestop)]
+
         # Get the times, values, bad values mask from the HDF5 files archive
         if intervals is None:
             self._get_data()
@@ -400,15 +412,16 @@ class MSID(object):
             ft['content'] = self.content
             ft['msid'] = self.MSID
 
-            if self.stat:
-                ft['interval'] = self.stat
-                self._get_stat_data()
-            else:
-                gmd = (self._get_msid_data_cached if CACHE else
-                       self._get_msid_data)
-                self.vals, self.times, self.bads, self.colnames = \
-                    gmd(self.content, self.tstart, self.tstop, self.MSID,
-                        self.units['system'])
+            with _set_msid_files_basedir(self.datestart):
+                if self.stat:
+                    ft['interval'] = self.stat
+                    self._get_stat_data()
+                else:
+                    gmd = (self._get_msid_data_cached if CACHE else
+                           self._get_msid_data)
+                    self.vals, self.times, self.bads, self.colnames = \
+                        gmd(self.content, self.tstart, self.tstop, self.MSID,
+                            self.units['system'])
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -1548,6 +1561,22 @@ def _cache_ft():
         delkeys = [x for x in ft if x not in ft_cache]
         for key in delkeys:
             del ft[key]
+
+
+@contextlib.contextmanager
+def _set_msid_files_basedir(datestart):
+    """
+    If datestart is before 2000:001:00:00:00 then use the 1999 archive files.
+    """
+    try:
+        cache_basedir = msid_files.basedir
+        if datestart < DATE2000_LO:
+            # Note: don't use os.path.join because ENG_ARCHIVE and basedir must
+            # use linux '/' convention but this might be running on Windows.
+            msid_files.basedir = msid_files.basedir + '/1999'
+        yield
+    finally:
+        msid_files.basedir = cache_basedir
 
 
 def add_logging_handler(level=logging.INFO,
