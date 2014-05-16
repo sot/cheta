@@ -143,3 +143,34 @@ As aca:
 # Install scripts from git dev directory (probably as aldcroft)
 make install
 
+
+###################################################################
+Add 1999 derived params
+###################################################################
+
+  export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
+
+# Add_derived.py checks for any new derived content types or columns.  Note
+# that you cannot just add a new column to an existing content type because the
+# ingest process (update_archive.py) does not currently handle this.
+
+  ./add_derived.py --data-root=$PWD --start='1999:205' --stop='1999:210'
+
+The dp_pcad4 data depend on ephemeris values which don't start until 1999:226:08:00:00.
+(Use dev_utils/print_msidfile_times.py to see this).  So remove that and start that one later.
+
+  rm -rf data/dp_pcad4
+  ./add_derived.py --data-root=$PWD --start='1999:226' --stop='1999:231' --content=dp_pcad4
+
+Now update everything for a few days:
+
+  ./update_archive.py --data-root=$PWD --content=dp_ --date-now 1999:240 --content dp_pcad4
+
+  ./update_archive.py --data-root=$PWD --date-now 1999:241 --content dp_pcad >& log_pcad &
+  ./update_archive.py --data-root=$PWD --date-now 1999:241 --content dp_acispow >& log_acispow &
+  ./update_archive.py --data-root=$PWD --date-now 1999:214 --content dp_thermal >& log_thermal.1 &
+
+Finally update through the beginning of 2000.  This takes a little while:
+
+  ./update_archive.py --data-root=$PWD --date-now 2000:010 --max-lookback-time=400 \
+      --content dp_ >& log_derived.1 &
