@@ -36,13 +36,8 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
         except:
             if reflect:
                 out = 2 * pi - out
-            if abs(arg) > 1:
-                raise ValueError('arrcos arg = {}'.format(arg))
         else:
             out[reflect] = 2 * pi - out[reflect]
-            if np.any(np.abs(arg)) > 1.0:
-                bad = np.abs(arg) > 1.0
-                raise ValueError('arrcos args = {}'.format(arg[bad]))
 
         return out
 
