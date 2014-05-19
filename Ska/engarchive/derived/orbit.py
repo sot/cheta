@@ -1,7 +1,33 @@
 """
-Derived parameter MSIDs related to vehicle Keplerian orbital elements.
+Orbital elements based on the position and velocity of Chandra at each 5 minute definitive
+ephemeris state vector.  In addition to the classical orbital elements, the orbit
+perigee and apogee are available:
 
-Based on http://www.castor2.ca/05_OD/01_Gauss/14_Kepler/index.html
+  ================ ====
+  MSID             Unit
+  ================ ====
+  semi_major_axis    m
+  eccentricity      --
+  inclination       deg
+  ascending_node    deg
+  argument_perigee  deg
+  mean_anomaly      deg
+  orbit_period      sec
+  perigee_radius     m
+  apogee_radius      m
+  ================ ====
+
+Example::
+
+  >>> from Ska.engarchive import fetch_eng as fetch
+
+  >>> dat = fetch.Msidset(['inclination', 'perigee_radius'], '1999:200', stat='daily')
+  >>> subplot(2, 1, 1)
+  >>> dat['inclination'].plot()
+  >>> subplot(2, 1, 2)
+  >>> dat['perigee_radius'].plot()
+
+The relevant equations were taken from http://www.castor2.ca/05_OD/01_Gauss/14_Kepler/index.html.
 """
 import numpy as np
 
@@ -10,11 +36,32 @@ from . import base
 from Chandra.Time import DateTime
 
 ELEMENTS_CACHE = {}
-R_E = 6378.137  # Earth Equatorial Radius (km)
-M_G = 398600.44  # Gravitational parameter (km**3 / s**2)
+R_E = 6378.137e3  # Earth Equatorial Radius (m)
+M_G = 398600.44e9  # Gravitational parameter (m**3 / s**2)
 
 
 def calc_orbital_elements(x, y, z, vx, vy, vz):
+    """
+    Calculate orbital elements given input position (x, y, z) in m and
+    velocity (vx, vy, vz) in m/s.  Orbit perigee and apogee are computed
+    as well.
+
+    Returns a dict with the following key values:
+
+      ================ ====
+      Key name         Unit
+      ================ ====
+      semi_major_axis    m
+      eccentricity       --
+      inclination       deg
+      ascending_node    deg
+      argument_perigee  deg
+      mean_anomaly      deg
+      orbit_period      sec
+      apogee_radius       m
+      perigee_radius      m
+      ================ ====
+    """
     from numpy import sin, cos, arccos, sqrt, degrees, pi
 
     def arccos_2pi(arg, reflect):
@@ -89,13 +136,18 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
     w = degrees(w)
     M = degrees(M)
 
+    perigee = a * (1 - e)
+    apogee = a * (1 + e)
+
     return {'semi_major_axis': a,
             'orbit_period': T,
             'eccentricity': e,
             'inclination': i,
             'ascending_node': aw,
             'argument_perigee': w,
-            'mean_anomaly': M}
+            'mean_anomaly': M,
+            'perigee_radius': perigee,
+            'apogee_radius': apogee}
 
 
 class DerivedParameterOrbit(base.DerivedParameter):
@@ -115,12 +167,12 @@ class DerivedParameterOrbit(base.DerivedParameter):
             return ELEMENTS_CACHE[start, stop][param]
 
         # Get values in km and km/sec
-        x = data['orbitephem0_x'].vals / 1000.
-        y = data['orbitephem0_y'].vals / 1000.
-        z = data['orbitephem0_z'].vals / 1000.
-        vx = data['orbitephem0_vx'].vals / 1000.
-        vy = data['orbitephem0_vy'].vals / 1000.
-        vz = data['orbitephem0_vz'].vals / 1000.
+        x = data['orbitephem0_x'].vals
+        y = data['orbitephem0_y'].vals
+        z = data['orbitephem0_z'].vals
+        vx = data['orbitephem0_vx'].vals
+        vy = data['orbitephem0_vy'].vals
+        vz = data['orbitephem0_vz'].vals
 
         elements = calc_orbital_elements(x, y, z, vx, vy, vz)
         ELEMENTS_CACHE[start, stop] = elements
@@ -132,7 +184,7 @@ class DerivedParameterOrbit(base.DerivedParameter):
 
 class DP_SEMI_MAJOR_AXIS(DerivedParameterOrbit):
     """
-    Orbital element: semi-major axis (km)
+    Orbital element: semi-major axis (m)
     """
 
 
@@ -169,4 +221,20 @@ class DP_ARGUMENT_PERIGEE(DerivedParameterOrbit):
 class DP_MEAN_ANOMALY(DerivedParameterOrbit):
     """
     Orbital element: mean anomaly (degrees)
+    """
+
+
+class DP_PERIGEE_RADIUS(DerivedParameterOrbit):
+    """
+    Orbit perigee based on orbital elements (m)
+
+    Defined as ``semi_major_axis * (1 - eccentricity)``
+    """
+
+
+class DP_APOGEE_RADIUS(DerivedParameterOrbit):
+    """
+    Orbit apogee based on orbital elements (m)
+
+    Defined as ``semi_major_axis * (1 + eccentricity)``
     """
