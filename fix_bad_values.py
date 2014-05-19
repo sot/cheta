@@ -41,6 +41,7 @@ Example::
 
 import argparse
 import itertools
+import contextlib
 
 import numpy as np
 import tables
@@ -56,6 +57,22 @@ ft = fetch.ft
 opt = None
 msid_files = None
 logger = None
+
+
+@contextlib.contextmanager
+def _set_msid_files_basedir(datestart):
+    """
+    If datestart is before 2000:001:00:00:00 then use the 1999 archive files.
+    """
+    try:
+        cache_basedir = msid_files.basedir
+        if datestart < fetch.DATE2000_LO:
+            # Note: don't use os.path.join because ENG_ARCHIVE and basedir must
+            # use linux '/' convention but this might be running on Windows.
+            msid_files.basedir = msid_files.basedir + '/1999'
+        yield
+    finally:
+        msid_files.basedir = cache_basedir
 
 
 def get_opt():
@@ -155,7 +172,9 @@ def fix_stats_h5(msid, tstart, tstop, interval):
 
     ft['msid'] = msid
     ft['interval'] = interval
-    stats_file = msid_files['stats'].abs
+    datestart = DateTime(tstart).date
+    with _set_msid_files_basedir(datestart):
+        stats_file = msid_files['stats'].abs
     logger.info('Updating stats file {}'.format(stats_file))
 
     index0 = int(tstart // dt)
@@ -282,7 +301,9 @@ def main():
     tstop = stop.secs + 0.001
 
     # First fix the HDF5 file with full resolution MSID data
-    fix_msid_h5(msid, tstart, tstop)
+    # Need to potentially set basedir for 1999 data.
+    with _set_msid_files_basedir(DateTime(tstart).date):
+        fix_msid_h5(msid, tstart, tstop)
 
     # Now fix stats files
     fix_stats_h5(msid, tstart, tstop, '5min')
