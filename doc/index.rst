@@ -34,7 +34,7 @@ stream are also available in the archive.  These are:
 * EPHIN telemetry: level-0 science telemetry from EPHIN
 * ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
 * Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
-* Derived parameters: values computed from other MSIDs in the archive
+* Derived parameters: values computed from other MSIDs in the archive (ACIS power, orbital elements, PCAD, thermal)
 
 For details see the documentation on Pseudo-MSIDs in the engineering archive.
 
