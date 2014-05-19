@@ -1,5 +1,5 @@
 """
-Orbital elements based on the position and velocity of Chandra at each 5 minute definitive
+Orbital elements based on the position and velocity of Chandra at each 5 minute predictive
 ephemeris state vector.  In addition to the classical orbital elements, the orbit
 perigee and apogee are available:
 
