@@ -127,7 +127,6 @@ def main():
         colname = dp_class.__name__.upper()
         dp = dp_class()
         content = dp.content
-        print content, opt.content
         if not opt.content or (opt.content and content in opt.content):
             dpd = content_defs.setdefault(content, {})
             dpd.setdefault('classes', {'TIME': None})
