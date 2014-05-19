@@ -86,3 +86,8 @@ rm run2.log
 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2012:060 --max-lookback-time=160 >> run2.log 2>&1 
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2012:120 --max-lookback-time=160 >> run2.log 2>&1 
+
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2013:120 --max-lookback-time=400 >> run2.log 2>&1 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2014:120 --max-lookback-time=400 >> run2.log 2>&1 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now=2015:120 --max-lookback-time=400 >> run2.log 2>&1 
+

@@ -1227,8 +1227,7 @@ class MSIDset(collections.OrderedDict):
         Perform nearest-neighbor interpolation of all MSID values in the set
         to a common time sequence.  The values are updated in-place.
 
-        Times
-        =====
+        **Times**
 
         The time sequence steps uniformly by ``dt`` seconds starting at the
         ``start`` time and ending at the ``stop`` time.  If not provided the
@@ -1242,8 +1241,7 @@ class MSIDset(collections.OrderedDict):
         stores the nearest neighbor interpolated time, providing the *original*
         timestamps of each new interpolated value for that MSID.
 
-        Filtering and bad values
-        ========================
+        **Filtering and bad values**
 
         If ``filter_bad`` is True (default) then bad values are filtered from
         the interpolated MSID set.  There are two strategies for doing this:

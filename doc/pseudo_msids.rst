@@ -382,6 +382,12 @@ ACIS Power
 .. automodule:: Ska.engarchive.derived.acispow
    :members:
 
+Orbital elements
+^^^^^^^^^^^^^^^^^
+.. automodule:: Ska.engarchive.derived.orbit
+   :members:
+   :undoc-members:
+
 PCAD
 ^^^^^
 .. automodule:: Ska.engarchive.derived.pcad
@@ -392,3 +398,4 @@ Thermal
 .. automodule:: Ska.engarchive.derived.thermal
    :members:
    :undoc-members:
+
