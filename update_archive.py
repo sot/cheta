@@ -304,6 +304,9 @@ def del_stats(colname, time0, interval):
     ft['msid'] = colname
     ft['interval'] = interval
     stats_file = msid_files['stats'].abs
+    if not os.path.exists(stats_file):
+        raise IOError('Stats file {} not found'.format(stats_file))
+
     logger.info('Fixing stats file %s after time %s', stats_file, DateTime(time0).date)
 
     stats = tables.openFile(stats_file, mode='a',
@@ -625,8 +628,11 @@ def truncate_archive(filetype, date):
 
     for colname in colnames:
         ft['msid'] = colname
+        filename = msid_files['msid'].abs
+        if not os.path.exists(filename):
+            raise IOError('MSID file {} not found'.format(filename))
         if not opt.dry_run:
-            h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+            h5 = tables.openFile(filename, mode='a')
             h5.root.data.truncate(rowstart)
             h5.root.quality.truncate(rowstart)
             h5.close()
@@ -634,8 +640,9 @@ def truncate_archive(filetype, date):
             rowstart, filetype['content'], colname))
 
         # Delete the 5min and daily stats, with a little extra margin
-        del_stats(colname, time0, '5min')
-        del_stats(colname, time0, 'daily')
+        if colname != 'TIME':
+            del_stats(colname, time0, '5min')
+            del_stats(colname, time0, 'daily')
 
     if not opt.dry_run:
         db.execute('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
