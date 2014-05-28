@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from .. import fetch
+from .. import fetch_eng
 from Chandra.Time import DateTime
 
 DATES_EXPECT1 = np.array(['2008:291:23:59:58.987', '2008:291:23:59:59.244',
@@ -339,3 +340,22 @@ def test_1999_fetch():
         dat = fetch.MSIDset(['aopcadmd', 'aoattqt1'], start, stop)
         assert np.allclose(np.diff(dat['aopcadmd'].times), 1.025, atol=0.01)
         assert np.allclose(np.diff(dat['aoattqt1'].times), 1.025, atol=0.01)
+
+
+def test_intervals_fetch_unit():
+    """
+    Test that fetches with multiple intervals get the units right
+    """
+    dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')])
+    assert np.allclose(np.mean(dat.vals), 41.709809063172251)
+
+    dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')],
+                         stat='5min')
+    assert np.allclose(np.mean(dat.vals), 40.289990982154158)
+
+    dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')],
+                         stat='daily')
+    assert np.allclose(np.mean(dat.vals), 40.303963216145831)
+
+    dat = fetch_eng.Msid('tephin', '1999:350', '2000:010')
+    assert np.allclose(np.mean(dat.vals), 41.642133316805605)
