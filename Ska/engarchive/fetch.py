@@ -391,7 +391,7 @@ class MSID(object):
         """
         msids = []
         for start, stop in intervals:
-            msids.append(MSID(self.msid, start, stop, filter_bad=False, stat=self.stat))
+            msids.append(self.fetch.MSID(self.msid, start, stop, filter_bad=False, stat=self.stat))
 
         # No bad values column for stat='5min' or 'daily', but still need this attribute.
         if self.stat:
