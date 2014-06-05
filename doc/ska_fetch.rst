@@ -61,6 +61,10 @@ You can get help by asking ``ska_fetch`` to print its command line options::
                 --remove-events='safe_suns[pad=100000] | normal_suns[pad=100000]' \
                 tephin tcylaft6
 
+    # Get daily IRU-2 temps since 2004, removing known LTT bad times
+    % ska_fetch AIRU2BT --start 2004:001 --sampling=daily --outfile=airu2bt.zip \
+                --remove-events='ltt_bads[msid="AIRU2BT"]'
+
   Arguments
   =========
 
@@ -244,6 +248,18 @@ following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'`
 or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
 that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
 A positive padding expands the event intervals while negative contracts the intervals.
+
+Another example of practical interest is using the LTT bad times event to remove bad times
+for long-term trending plots by MSID.  In this case we get daily IRU-2 temps since 2004,
+removing known LTT bad times::
+
+  % ska_fetch AIRU2BT --start 2004:001 --sampling=daily --outfile=airu2bt.zip \
+                --remove-events='ltt_bads[msid="AIRU2BT"]'
+
+Notice the syntax here which indicates selecting all the LTT bad times corresponding
+to ``AIRU2BT``.  See the
+`LTT bad times <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#ltt-bad-times>`_
+section for more details.
 
 Output
 ^^^^^^^
