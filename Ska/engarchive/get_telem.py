@@ -12,19 +12,111 @@ Examples
   % ska_fetch TEPHIN TCYLAFT6 --start 2000:001 --sampling=daily --outfile=tephin.zip \\
               --remove-events='safe_suns[pad=100000] | normal_suns[pad=100000]'
 
+  # Get daily IRU-2 temps since 2004, removing know LTT bad times
+  % ska_fetch AIRU2BT --start 2004:001 --sampling=daily --outfile=airu2bt.zip \\
+              --remove-events='ltt_bads[msid="AIRU2BT"]'
+
 Arguments
 =========
 """
 
 from __future__ import print_function, division
 
+import ast
 import argparse
 import re
+import shlex
+from itertools import izip, count
 
 import numpy as np
 
 from Chandra.Time import DateTime
 from . import fetch, utils
+
+
+def sanitize_event_expression(expr):
+    """
+    Take an event expression from the --remove-intervals or --select-intervals
+    command line args and do two things:
+
+    - Fully parse and make sure it matches the limited allowed syntax so that
+      it can be later eval'd safely.
+    - Change e.g. "ltt_bads[pad=800, msid='airu2bt']" to
+      "events.ltt_bads(pad=800, msid='airu2bt')" for eval in module context.
+    """
+    # First tokenize
+    seps = '()~|&'
+    expr = re.sub('\s+', '', expr)
+    words = [''] + list(shlex.shlex(expr)) + ['']
+
+    tokens = []
+    for word in words:
+        if word in seps or word == '':
+            tokens.append("SEP")
+        elif re.match(r'\w+$', word):
+            try:
+                ast.literal_eval(word)
+                tokens.append("LITERAL")
+            except:
+                tokens.append("SYMBOL")
+        elif word == '=':
+            tokens.append("EQUAL")
+        elif word == '[':
+            tokens.append("LBRACE")
+        elif word == ']':
+            tokens.append("RBRACE")
+        elif word == ',':
+            tokens.append("COMMA")
+        else:
+            try:
+                ast.literal_eval(word)
+                tokens.append("LITERAL")
+            except:
+                raise ValueError('Cannot identify word {!r}'.format(word))
+
+    # Now check syntax and do substitutions where needed
+    in_arg_list = False
+    for i, p_token, token, n_token in izip(count(1), tokens, tokens[1:], tokens[2:]):
+        if token == "SEP":
+            if words[i] in '|&':
+                words[i] = ' {} '.format(words[i])
+            continue
+
+        if token == "LBRACE":
+            if in_arg_list:
+                raise ValueError('"LBRACE" within arg list')
+            in_arg_list = True
+            words[i] = '('
+
+        elif token == "RBRACE":
+            if not in_arg_list:
+                raise ValueError('"RBRACE" outside arg list')
+            in_arg_list = False
+            words[i] = ')'
+
+        elif token == "SYMBOL":
+            if not in_arg_list:
+                words[i] = 'events.' + words[i]
+                if n_token not in ("SEP", "LBRACE"):
+                    raise ValueError('"SYMBOL" not followed by "SEP" or "LBRACE"')
+            else:
+                if n_token != "EQUAL":
+                    raise ValueError('KWARG not followed by "EQUAL"')
+
+        elif token == "EQUAL":
+            if p_token != "SYMBOL" or n_token != "LITERAL":
+                raise ValueError('SYMBOL = LITERAL syntax not found')
+
+        elif token == "LITERAL":
+            if p_token != "EQUAL" or n_token not in ("RBRACE", "COMMA"):
+                raise ValueError('Bad "LITERAL" placement')
+
+        elif token == "COMMA":
+            if n_token != "SYMBOL":
+                raise ValueError('COMMA must be followed by SYMBOL')
+            words[i] = ', '
+
+    return ''.join(words)
 
 
 def msidset_resample(msidset, dt):
@@ -55,34 +147,7 @@ def get_queryset(expr):
     """
     from kadi import events
 
-    seps = '()~|&'
-    re_seps = '([' + seps + '])'
-    re_float = r'[+-]? (?: \d+ (?: \.\d*)? | \.\d+) (?:[eE][+-]?\d+)?'
-    re_event_pad = re.compile(r'(\w+) (\[ \s* pad \s* = \s* {} \s* \])? $'.format(re_float),
-                              re.VERBOSE)
-
-    expr = re.sub('\s+', '', expr)
-    # Split expr by separators and then toss out '' elements
-    tokens = [x for x in re.split(re_seps, expr) if x]
-
-    for i, token in enumerate(tokens):
-        if token not in seps:
-            try:
-                query_name, pad = re_event_pad.match(token).groups()
-                if pad is None:
-                    pad = ''
-                pad = re.sub(r'\[', '(', pad)
-                pad = re.sub(r'\]', ')', pad)
-                query_event = getattr(events, query_name)
-                if not isinstance(query_event, events.query.EventQuery):
-                    raise TypeError
-                tokens[i] = 'events.{}'.format(query_name + pad)
-            except:
-                raise ValueError('Expression token {!r} is not valid'
-                                 .format(token))
-
-    queryset_expr = ' '.join(tokens)
-    print(queryset_expr)
+    queryset_expr = sanitize_event_expression(expr)
     return eval(queryset_expr)
 
 
