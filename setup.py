@@ -1,5 +1,3 @@
-import os
-import platform
 from setuptools import setup
 
 from Ska.engarchive.version import package_version
@@ -8,22 +6,6 @@ from Ska.engarchive.version import package_version
 # (same directory as version.py)
 package_version.write_git_version_file()
 
-
-if platform.system() in ('Darwin', 'Linux'):
-    if not os.path.exists('sken'):
-        os.symlink('Ska/engarchive', 'sken')
-
-    setup(name='sken',
-          author='Tom Aldcroft',
-          description='Modules supporting Ska engineering telemetry archive',
-          author_email='aldcroft@head.cfa.harvard.edu',
-          py_modules=['sken.fetch', 'sken.converters', 'sken.utils', 'sken.get_telem'],
-          version=package_version.version,
-          zip_safe=False,
-          packages=['sken', 'sken.derived', 'sken.tests'],
-          package_data={'sken': ['*.dat', 'units_*.pkl', 'GIT_VERSION'],
-                        'sken.tests': ['*.dat']},
-          )
 
 setup(name='Ska.engarchive',
       author='Tom Aldcroft',
