@@ -31,9 +31,9 @@ export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 
 # Update the archive, first in a small test.  --content takes a match regex.
 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:260
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:270
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:280
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:290
 
 ipython --pylab
 impska
