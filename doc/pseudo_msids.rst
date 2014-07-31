@@ -382,6 +382,12 @@ ACIS Power
 .. automodule:: Ska.engarchive.derived.acispow
    :members:
 
+EPS
+^^^^^^^^^^^^^^^^^
+.. automodule:: Ska.engarchive.derived.eps
+   :members:
+   :undoc-members:
+
 Orbital elements
 ^^^^^^^^^^^^^^^^^
 .. automodule:: Ska.engarchive.derived.orbit
