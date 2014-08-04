@@ -22,10 +22,10 @@ def get_options():
                       default=".",
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--start",
-                      default="2000:001",
+                      default="1999:201",
                       help="Start for initial data fetch")
     parser.add_option("--stop",
-                      default="2000:010",
+                      default="1999:260",
                       help="Stop for initial data fetch")
     parser.add_option("--content",
                       action='append',
@@ -127,7 +127,7 @@ def main():
         colname = dp_class.__name__.upper()
         dp = dp_class()
         content = dp.content
-        if not opt.content or (opt.content and content in opt.content):
+        if opt.content == [] or any(re.match(x + r'\d+', content) for x in opt.content):
             dpd = content_defs.setdefault(content, {})
             dpd.setdefault('classes', {'TIME': None})
             dpd['content'] = content

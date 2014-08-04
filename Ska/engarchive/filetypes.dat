@@ -85,6 +85,8 @@ L3   DERIVED   DP_PCAD4        -                            -
 L3   DERIVED   DP_PCAD16       -                            -
 L3   DERIVED   DP_PCAD32       -                            -
 L3   DERIVED   DP_ORBIT1280    -                            -
+L3   DERIVED   DP_EPS8         -                            -
+L3   DERIVED   DP_EPS16        -                            -
 # 
 # Candidate file types.
 # Arc5gl query <instrum>_<type>_<level> (or <instrum>_<level>if type is None)

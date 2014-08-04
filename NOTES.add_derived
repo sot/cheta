@@ -4,7 +4,7 @@
 
 git checkout -b derived
 
-- Update filetypes.dat
+- Update Ska/engarchive/filetypes.dat
 - Update Ska/engarchive/version.py (inc. version, add "dev" e.g. "0.13dev"
 - Update Ska/engarchive/derived/__init__.py
 - Update Ska/engarchive/derived/<new>.py
@@ -25,14 +25,15 @@ export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 # Add_derived.py checks for any new derived content types or columns.  Note
 # that you cannot just add a new column to an existing content type because the
 # ingest process (update_archive.py) does not currently handle this.
+# This reads data from 1999:200 to 1999:260
 
 ./add_derived.py --data-root=$PWD --content=dp_$content
 
 # Update the archive, first in a small test.  --content takes a match regex.
 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:010
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:020
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:030
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:260
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:270
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:280
 
 ipython --pylab
 impska
@@ -40,15 +41,15 @@ impska
 msid = 'newmsid'
 figure()
 subplot(3, 1, 1)
-dat = fetch.Msid(msid, '2000:001', '2000:030')
+dat = fetch.Msid(msid, '1999:200')
 dat.plot()
 
 subplot(3, 1, 2)
-dat5 = fetch.Msid(msid, '2000:001', '2000:030', stat='5min')
+dat5 = fetch.Msid(msid, '1999:200', stat='5min')
 dat5.plot()
 
 subplot(3, 1, 3)
-datd = fetch.Msid(msid, '2000:001', '2000:030', stat='daily')
+datd = fetch.Msid(msid, '1999:200', stat='daily')
 datd.plot()
 
 # Intermediate commits
