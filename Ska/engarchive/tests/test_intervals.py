@@ -105,6 +105,19 @@ def test_select_remove_interval():
 
 
 @pytest.mark.skipif("not HAS_EVENTS")
+def test_remove_subclassed_eventquery_interval():
+    """
+    Test remove intervals functionality with an EventQuery subclass
+    (LttBadsEventQuery).
+    """
+    start, stop = '2010:002:02:00:00', '2013:002:04:00:00'
+    dat = fetch.MSID('tephin', start, stop, stat='daily')
+    assert len(dat) == 1096
+    dat.remove_intervals(kadi.events.ltt_bads)
+    assert len(dat) == 1026
+
+
+@pytest.mark.skipif("not HAS_EVENTS")
 def test_remove_intervals_stat():
     start, stop = '2012:002', '2012:003'
     for stat in (None, '5min'):

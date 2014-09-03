@@ -1,16 +1,15 @@
 ##########################################################################
 # For py.test unit tests and general development
 ##########################################################################
-ska
-workon engarc
+skadev
+export KADI=/proj/sot/ska/data/kadi
+export ENG_ARCHIVE=/proj/sot/ska/data/eng_archive
+
 python setup.py install
 cd doc  # make sure it's picking up the installed version
 ipython
 >>> import Ska.engarchive
 >>> Ska.engarchive.test(args='-k -test_fetch_regr')  # normally skip this
-
-# WITHIN git repo
-py.test sken <args...>
 
 ##########################################################################
 # Build and install docs
