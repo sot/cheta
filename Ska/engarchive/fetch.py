@@ -45,6 +45,9 @@ DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 DATE2000_LO = DateTime('2000:001:00:00:00.090').date
 DATE2000_HI = DateTime('2000:003:00:00:00.234').date
 
+# Launch date (earliest possible date for telemetry)
+LAUNCH_DATE = '1999:204'
+
 # Maximum number of MSIDs that should ever match an input MSID spec
 # (to prevent accidentally selecting a very large number of MSIDs)
 MAX_GLOB_MATCHES = 10
@@ -338,7 +341,7 @@ class MSID(object):
     units = UNITS
     fetch = sys.modules[__name__]
 
-    def __init__(self, msid, start, stop=None, filter_bad=False, stat=None):
+    def __init__(self, msid, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None):
         msids, MSIDs = msid_glob(msid)
         if len(MSIDs) > 1:
             raise ValueError('Multiple matches for {} in Eng Archive'
@@ -1099,7 +1102,7 @@ class MSIDset(collections.OrderedDict):
     """
     MSID = MSID
 
-    def __init__(self, msids, start, stop=None, filter_bad=False, stat=None):
+    def __init__(self, msids, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None):
         super(MSIDset, self).__init__()
 
         intervals = _get_table_intervals_as_list(start, check_overlaps=True)
@@ -1372,8 +1375,8 @@ class Msid(MSID):
     """
     units = UNITS
 
-    def __init__(self, msid, start, stop=None, filter_bad=True, stat=None):
-        super(Msid, self).__init__(msid, start, stop=stop,
+    def __init__(self, msid, start=LAUNCH_DATE, stop=None, filter_bad=True, stat=None):
+        super(Msid, self).__init__(msid, start=start, stop=stop,
                                    filter_bad=filter_bad, stat=stat)
 
 
@@ -1392,8 +1395,8 @@ class Msidset(MSIDset):
     """
     MSID = MSID
 
-    def __init__(self, msids, start, stop=None, filter_bad=True, stat=None):
-        super(Msidset, self).__init__(msids, start, stop=stop,
+    def __init__(self, msids, start=LAUNCH_DATE, stop=None, filter_bad=True, stat=None):
+        super(Msidset, self).__init__(msids, start=start, stop=stop,
                                       filter_bad=filter_bad, stat=stat)
 
 

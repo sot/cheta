@@ -36,8 +36,6 @@ easy::
 
 .. image:: fetchplots/first.png
 
-
-
 The ``tephin`` variable returned by |fetch_MSID| is an ``MSID`` object and
 we can access the various object attributes with ``<object>.<attr>``.  The
 timestamps ``tephin.times`` and the telemetry values ``tephin.vals`` are both
@@ -52,6 +50,20 @@ explore their methods::
   tephin.vals.<TAB>
   tephin.times[1:20]
   tephin.vals[1:20]
+
+**Default start and stop values**
+
+If you do not provide a value for the ``start`` time, then it defaults to
+the beginning of the mission (1999:204 = July 23, 1999).  If you do not provide
+a stop time then it defaults to the latest available data in the archive.
+::
+
+  tephin = fetch.Msid('tephin', stop='2001:001') # Launch through 2001:001
+  tephin = fetch.Msid('tephin', start='2010:001') # 2010:001 through NOW
+  tephin = fetch.Msid('tephin', '2010:001') # Same as previous
+  tephin = fetch.Msid('tephin') # Launch through NOW
+
+**Other details**
 
 If you are wondering what time range of data is available for a particular MSID
 use the :func:`~Ska.engarchive.fetch.get_time_range` function::
