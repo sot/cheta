@@ -1075,10 +1075,12 @@ class MSID(object):
 
         """
 
+        import matplotlib.pyplot as plt
         from Ska.Matplotlib import plot_cxctime
         vals = self.raw_vals if self.state_codes else self.vals
         plot_cxctime(self.times, vals, *args, state_codes=self.state_codes,
                      **kwargs)
+        plt.margins(0.02, 0.05)
 
     def __len__(self):
         return len(self.times)
