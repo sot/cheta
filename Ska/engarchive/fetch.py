@@ -847,9 +847,9 @@ class MSID(object):
             intervals = intervals_list
 
         # Check if this is an EventQuery.  Would rather not import EventQuery
-        # because this is expensive (django), so just look at the name and
-        # count on no inheritence.
-        if intervals.__class__.__name__ == 'EventQuery':
+        # because this is expensive (django), so just look at the names in
+        # object MRO.
+        if 'EventQuery' in (cls.__name__ for cls in intervals.__class__.__mro__):
             intervals = intervals.intervals(self.datestart, self.datestop)
 
         intervals = [(DateTime(start).secs, DateTime(stop).secs)
