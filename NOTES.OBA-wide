@@ -1,0 +1,98 @@
+Update process
+================
+
+- Prior to patch uplink, copy obc4eng content directory to temp dir.
+- Update code to add an obc4eng converter
+
+Update
+------
+
+  cd ~/git/eng_archive
+  export ENG_ARCHIVE=$PWD
+  python ./update_archive.py --content=obc4eng
+
+Replace flight archive on HEAD
+-------------------------------
+
+  cd ~/git/eng_archive
+  rsync -av data/obc4eng $ska/data/eng_archive/data/obc4eng-post
+  cd $ska/data/eng_archive/data
+  mv obc4eng obc4eng-pre-PR361
+  mv obc4eng-post/obc4eng ./
+  rmdir obc4eng-post
+  mv obc4eng/arch{,-patch}
+  cd obc4eng
+  ln -s /data/cosmos2/eng_archive/data/obc4eng/arch
+  rsync -av arch-patch/ arch/
+
+Test
+----
+
+  ipython --pylab
+  impska
+  msid_nums = {'a': '08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29'.split(),
+               'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split()
+              }
+  for patch in ('a', 'b'):
+      for msid_num in msid_nums[patch]:
+          msid = 'OOBTHR' + msid_num
+          dat = fetch.Msid(msid, '2014:341', stat='5min')
+          dat.iplot()
+          a = raw_input(msid + '> ')
+
+Copy to GRETA (from SOT@chimchim) by rsync-ing from HEAD
+--------------------------------------------------------
+
+Update Ska.engarchive and install via skare
+-------------------------------------------
+
+Definition
+=============
+
+From the PR-361 patch request, here are the 41 MSIDs that are being
+patched to use wide mode:
+
+OOBTHR08 KT.Tel_Therm_Database(OBA, 6)
+OOBTHR09 KT.Tel_Therm_Database(OBA, 7)
+OOBTHR10 KT.Tel_Therm_Database(OBA, 8)
+OOBTHR11 KT.Tel_Therm_Database(OBA, 9)
+OOBTHR12 KT.Tel_Therm_Database(OBA, 10)
+OOBTHR13 KT.Tel_Therm_Database(OBA, 11)
+OOBTHR14 KT.Tel_Therm_Database(OBA, 12)
+OOBTHR15 KT.Tel_Therm_Database(OBA, 13)
+OOBTHR17 KT.Tel_Therm_Database(OBA, 14)
+OOBTHR18 KT.Tel_Therm_Database(OBA, 15)
+OOBTHR19 KT.Tel_Therm_Database(OBA, 16)
+OOBTHR20 KT.Tel_Therm_Database(OBA, 17)
+OOBTHR21 KT.Tel_Therm_Database(OBA, 18)
+OOBTHR22 KT.Tel_Therm_Database(OBA, 19)
+OOBTHR23 KT.Tel_Therm_Database(OBA, 20)
+OOBTHR24 KT.Tel_Therm_Database(OBA, 21)
+OOBTHR25 KT.Tel_Therm_Database(OBA, 22)
+OOBTHR26 KT.Tel_Therm_Database(OBA, 23)
+OOBTHR27 KT.Tel_Therm_Database(OBA, 24)
+OOBTHR28 KT.Tel_Therm_Database(OBA, 25)
+OOBTHR29 KT.Tel_Therm_Database(OBA, 26)
+^^^ Patch A ^^^^
+---------
+,,,, Patch B ,,,,
+OOBTHR30 KT.Tel_Therm_Database(OBA, 27)
+OOBTHR31 KT.Tel_Therm_Database(OBA, 28)
+OOBTHR33 KT.Tel_Therm_Database(OBA, 29)
+OOBTHR34 KT.Tel_Therm_Database(OBA, 30)
+OOBTHR35 KT.Tel_Therm_Database(OBA, 31)
+OOBTHR36 KT.Tel_Therm_Database(OBA, 32)
+OOBTHR37 KT.Tel_Therm_Database(OBA, 33)
+OOBTHR38 KT.Tel_Therm_Database(OBA, 34)
+OOBTHR39 KT.Tel_Therm_Database(OBA, 35)
+OOBTHR40 KT.Tel_Therm_Database(OBA, 36)
+OOBTHR41 KT.Tel_Therm_Database(OBA, 37)
+OOBTHR44 KT.Tel_Therm_Database(OBA,40)
+OOBTHR45 KT.Tel_Therm_Database(OBA,41)
+OOBTHR46 KT.Tel_Therm_Database(OBA,42)
+OOBTHR49 KT.Tel_Therm_Database(OBA,44)
+OOBTHR50 KT.Tel_Therm_Database(OBA,45)
+OOBTHR51 KT.Tel_Therm_Database(OBA,46)
+OOBTHR52 KT.Tel_Therm_Database(OBA,47)
+OOBTHR53 KT.Tel_Therm_Database(OBA,48)
+OOBTHR54 KT.Tel_Therm_Database(OBA,49)
