@@ -3,7 +3,9 @@ import logging
 import numpy
 import sys
 
+import numpy as np
 import Ska.Numpy
+from Chandra.Time import DateTime
 
 MODULE = sys.modules[__name__]
 logger = logging.getLogger('engarchive')
@@ -113,6 +115,50 @@ ALIASES = {'sim_mrg': """
 ALIASES = {key: parse_alias_str(val) for key, val in ALIASES.items()}
 
 sim_mrg = generic_converter(aliases=ALIASES['sim_mrg'])
+
+
+def obc4eng(dat):
+    """
+    At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to
+    read out in wide-mode.  After this time the data in the listed OOBTHRxx MSIDs became
+    invalid while the OOBTHRxx_WIDE MSIDs became valid.  This converter simply copies the
+    *_WIDE values to the original MSIDs after the time of patch activation.  The *_WIDE
+    MSIDs are not available in the eng archive (by the _WIDE names).
+    """
+    def quality_index(dat, colname):
+        """Return the index for `colname` in `dat`"""
+        return list(dat.dtype.names).index(colname)
+
+    # MSIDs OOBTHR<msid_num> that went to _WIDE after the patch, which was done in parts A
+    # and B.
+    msid_nums = {'a': '08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29'.split(),
+                 'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split()
+                 }
+
+    # Convert using the baseline converter
+    out = numpy_converter(dat)
+
+    # The patch times below correspond to roughly the middle of the major frame where
+    # patches A and B were applied, respectively.
+    patch_times = {'a': DateTime('2014:342:16:29:30').secs,
+                   'b': DateTime('2014:342:16:32:45').secs}
+
+    for patch in ('a', 'b'):
+        # Set a mask defining times after the activation of wide-range telemetry in PR-361
+        mask = out['TIME'] > patch_times[patch]
+        if np.any(mask):
+            for msid_num in msid_nums[patch]:
+                msid = 'OOBTHR' + msid_num
+                msid_wide = msid + '_WIDE'
+                print('Fixing MSID {}'.format(msid))
+                out[msid][mask] = out[msid_wide][mask]
+
+                q_index = quality_index(out, msid)
+                q_index_wide = quality_index(out, msid_wide)
+                out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
+
+    return out
+
 
 def acisdeahk(dat):
     """Take the archive ACIS-0 DEA HKP data and convert to a format that is 
