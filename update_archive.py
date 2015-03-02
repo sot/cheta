@@ -676,6 +676,11 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
             return None, None
         else:
             raise
+    except converters.DataShapeError as err:
+        hdus.close()
+        logger.warning('WARNING: skipping file {} with bad data shape: ASCDSVER={} {}'
+                       .format(filename, hdu.header['ASCDSVER'], err))
+        return None, None
 
     # Accumlate relevant info about archfile that will be ingested into
     # MSID h5 files.  Commit info before h5 ingest so if there is a failure

@@ -4,9 +4,11 @@ Log in to a machine with at least 16 Gb RAM and get into ska environment
 
 ssh ccosmos
 cd ~/git/eng_archive
+ln -s /export/tom/tmp/eng_archive data  # some local disk
 ska
 export ENG_ARCHIVE=$PWD
-export CONTENT=<CONTENT>
+export CONTENT=<CONTENT>  # Upper case
+export TMP_FITS=/export/tom/tmp/eng_archive/tlm/  # some local disk
 
 *********************************************************************************
 Add a new content type to eng_archive
@@ -15,16 +17,16 @@ Add a new content type to eng_archive
 * Add content definition to filestypes.dat.  The CONTENT value must be upper case
 
 *********************************************************************************
-* Get FITS archive files from 2000:001 through 2001:001
+* Get FITS archive files from 1999:001 through 2000:001
 *********************************************************************************
-python ingest_fits_archive.py $CONTENT
+python ingest_fits_archive.py $CONTENT $TMP_FITS
 
-This puts files into /data/cosmos2/eng_archive/tlm/$CONTENT
+This puts files into $TMP_FITS/$CONTENT
 
 *********************************************************************************
 * Ingest to a local H5 repo for $CONTENT
-***************************************b******************************************
-python ingest_h5_archive.py $CONTENT
+*********************************************************************************
+python ingest_h5_archive.py $CONTENT $TMP_FITS
 
 This puts files into data/ which should be a link to a local disk.
 

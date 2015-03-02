@@ -32,6 +32,8 @@ L0   EPS       EPS6ENG         EPS_ENG_0{EPS6ENG}           *.fits.gz
 L0   EPS       EPS7ENG         EPS_ENG_0{EPS7ENG}           *.fits.gz
 L0   EPS       EPS9ENG         EPS_ENG_0{EPS9ENG}           *.fits.gz
 L0   EPS       EPS10ENG        EPS_ENG_0{EPS10ENG}          *.fits.gz
+L0   HRC       HRC0HK          HRC_0{HRCHK}                 *.fits.gz
+L0   HRC       HRC0SS          HRC_0{HRCSS}                 *.fits.gz
 L0   HRC       HRC2ENG         HRC_ENG_0{HRC2ENG}           *.fits.gz
 L0   HRC       HRC4ENG         HRC_ENG_0{HRC4ENG}           *.fits.gz
 L0   HRC       HRC5ENG         HRC_ENG_0{HRC5ENG}           *.fits.gz
