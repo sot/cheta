@@ -2,6 +2,7 @@ from itertools import izip
 import logging
 import numpy
 import sys
+from collections import OrderedDict
 
 import numpy as np
 import Ska.Numpy
@@ -90,17 +91,17 @@ def get_bit_array(dat, in_name, out_name, bit_index):
             mult *= 2
     else:
         try:
-            state_code = Ska.tdb.msids[out_name].Tsc['STATE_CODE']
-            scs = state_code[0], state_code[1]
+            tscs = Ska.tdb.msids[out_name].Tsc
+            scs = {tsc['LOW_RAW_COUNT']: tsc['STATE_CODE'] for tsc in tscs}
         except (KeyError, AttributeError):
-            scs = ['OFF', 'ON']
+            scs = ['OFF', 'ON ']
 
         # CXC telemetry stores state code vals with trailing spaces so all match
         # in length.  Annoying, but reproduce this here for consistency so
         # fetch Msid.raw_vals does the right thing.
-        max_len = max(len(sc) for sc in scs)
+        max_len = max(len(sc) for sc in scs.values())
         fmtstr = '{:' + str(max_len) + 's}'
-        scs = [fmtstr.format(sc) for sc in scs]
+        scs = [fmtstr.format(val) for key, val in scs.items()]
 
         out_array = np.where(dat[in_name][:, bit_index], scs[1], scs[0])
 
@@ -139,13 +140,6 @@ def generic_converter2(msid_cxc_map):
             out_quality[:, out_names.index(out_name)] = dat['QUALITY'][:, i_in]
 
         out = Ska.Numpy.structured_array(out_arrays, out_names)
-        if 0:
-            dtype = [(name, arr.dtype.str, arr.shape[1:])
-                     for name, arr in zip(out_names, out_arrays)]
-            out = np.empty(len(dat), dtype=dtype)
-            for out_name, out_array in zip(out_names, out_arrays):
-                out[out_name] = out_array
-
         return out
 
     return _convert
@@ -160,7 +154,7 @@ angleephem = generic_converter(add_quality=True)
 
 
 def parse_alias_str(alias_str, invert=False):
-    aliases = {}
+    aliases = OrderedDict()
     for line in alias_str.strip().splitlines():
         cxcmsid, msid = line.split()[:2]
         if invert:
@@ -211,6 +205,7 @@ ALIASES = {'sim_mrg': """
     SHEVART      2SHEV2RT
     """,
            'hrc0hk': """
+    SCIDPREN:0,1,2,3,8,9,10 HRC_SS_HK_BAD
     P24CAST:7     224PCAST
     P15CAST:7     215PCAST
     N15CAST:7     215NCAST
@@ -261,7 +256,6 @@ ALIASES = {'sim_mrg': """
     CBHVAST       2CBHVAST
     CBLVAST       2CBLVAST
     WDTHAST       2WDTHAST
-    SCIDPREN:0,1,2,3,8,9,10 HRC_SS_HK_BAD
     SCIDPREN:4    2CLMDAST
     SCIDPREN:5    2FIFOAVR
     SCIDPREN:6    2OBNLASL
@@ -305,9 +299,12 @@ ALIASES = {'sim_mrg': """
     SMTRATM       2SMTRATM
     FE00ATM       2FE00ATM
     """,
-#    CE00ATM       2CE00ATM
-#    CE01ATM       2CE01ATM
-}
+           # These HRC HK temperature MSIDs do not always appear in telemetry due to a
+           # wiring issue, and are frequently not in the CXC archive files.  Per HRC ops
+           # input these are ignored by the Ska eng. archive.
+           # CE00ATM 2CE00ATM
+           # CE01ATM 2CE01ATM
+           }
 
 CXC_TO_MSID = {key: parse_alias_str(val) for key, val in ALIASES.items()}
 MSID_TO_CXC = {key: parse_alias_str(val, invert=True) for key, val in ALIASES.items()}
@@ -319,10 +316,26 @@ hrc0ss = generic_converter2(MSID_TO_CXC['hrc0ss'])
 
 def hrc0hk(dat):
     out = generic_converter2(MSID_TO_CXC['hrc0hk'])(dat)
-    # Set all data columns to bad quality where HRC_SS_HK_BAD is not zero
-    # (First two columns are TIME and QUALITY)
+    # Set all HRC HK data columns to bad quality where HRC_SS_HK_BAD is not zero
+    # First three columns are TIME, QUALITY, and HRC_SS_HK_BAD -- do not filter these.
     bad = out['HRC_SS_HK_BAD'] > 0
-    out['QUALITY'][bad, 2:] = True
+    if np.any(bad):
+        out['QUALITY'][bad, 3:] = True
+        logger.info('Setting {} readouts of all HRC HK telem to bad quality (bad SCIDPREN)'
+                    .format(np.count_nonzero(bad)))
+
+    # Detect the secondary-science byte-shift anomaly by finding out-of-range 2SMTRATM values.
+    # For those bad frames:
+    # - Set bit 10 (from LSB) of HRC_SS_HK_BAD
+    # - Set all analog MSIDs (2C05PALV and later in the list) to bad quality
+    bad = (out['2SMTRATM'] < -20) | (out['2SMTRATM'] > 50)
+    if np.any(bad):
+        out['HRC_SS_HK_BAD'][bad] |= 2 ** 10  # 1024
+        analogs_index0 = list(out.dtype.names).index('2C05PALV')
+        out['QUALITY'][bad, analogs_index0:] = True
+        logger.info('Setting {} readouts of analog HRC HK telem to bad quality (bad 2SMTRATM)'
+                    .format(np.count_nonzero(bad)))
+
     return out
 
 
