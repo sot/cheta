@@ -144,3 +144,13 @@ MSID        archive_file_type  archive_file_msid  bits (if applicable)
 2FE00ATM     hk0                FE00ATM
 2CE00ATM     hk0                CE00ATM
 2CE01ATM     hk0                CE01ATM
+
+Testing
+-------
+
+source /proj/sot/ska/dev/bin/ska_envs.csh
+cp /home/aldcroft/git/eng_archive/plot_all_hrc.py ./
+ipython --pylab
+
+run -i plot_all_hrc
+
