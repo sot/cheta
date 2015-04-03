@@ -59,17 +59,23 @@ Probably worth checking the stats files quickly before going forward.
   cp -rp data/$CONTENT $SKA/data/eng_archive/data/
 
 *********************************************************************************
-* Install new filetypes.dat.  For testing may need to edit to remove 
-* filetypes that are not reflected in devska archive
+* Update version and install new package
 *********************************************************************************
-  make install
-   - or - 
-  cp -p filetypes.dat $SKA/data/eng_archive)
 
+- Update Ska/engarchive/version.py
+
+  python setup.py sdist
+  cp -p dist/...tar.gz $SKA/pkgs/
+
+- Update skare and install
 
 ===========================================
-OLD-STYLE INITIAL INGEST
+DONE
 ===========================================
+
+-------Appendix -------------------------------------------------------------------
+
+* Old-style initial ingest
 
     *********************************************************************************
     * Get FITS archive files from 1999:001 through 2000:001
