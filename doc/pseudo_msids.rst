@@ -120,6 +120,210 @@ Sun_EarthLimbAng     deg    Sun-Earth angle (from limb)
 Point_RamVectorAng   deg    Pointing-Ram angle
 ==================== ====== =========================================
 
+HRC Secondary Science and Housekeeping
+--------------------------------------
+
+The HRC telemeters a variety of useful information that is sent down in secondary science
+and housekeeping formats (SS and HK hereafter).  The engineering archive reformats those
+telemetry values to be consistent with the MSFC-1949 specification of HRC SS and HK
+telemetry.  It also facilitates handling invalid data in SS and HK telemetry.
+
+Invalid data
+^^^^^^^^^^^^
+
+Invalid HRC SS and HK telemetry can arise in three ways:
+
+1. When telemetry format changes there is commanding to change the timing signals used to
+   fill the housekeeping and secondary science rates that can result in invalid data being
+   put in these MSIDs for up to a major frame.
+2. When detectors change or a detector is set to its default configuration the FIFO used
+   to hold the housekeeping an secondary science data gets reset which may result in a single
+   bad sample of data.
+3. The secondary-science byte-shift anomaly causes the occasional portion of the
+   housekeeping and sometimes the rate data to be corrupted.
+
+In the Ska archive the presence of these conditions is tracked in a new pseudo-MSID called
+``HRC_SS_HK_BAD``.
+
+The first two of these are detected by looking at "spare" bits in the MSID ``SCIDPREN``
+(i.e. good data satisfies ``SCIDPREN=0000xxxx000xxxxx``.  The least-significant 7 bits of
+``HRC_SS_HK_BAD`` contain a copy of the 7 bits in ``SCIDPREN`` which must be 0 for good
+data.  The following code illustrates detecting conditions (1) or (2)::
+
+  >>> from Ska.engarchive import fetch
+  >>> from Chandra.Time import DateTime
+  >>> dat = fetch.Msid('HRC_SS_HK_BAD', '1999:300', '1999:310')
+  >>> bad = (dat.vals & 0x7f) > 0
+  >>> DateTime(dat.times[bad]).date
+  array(['1999:301:16:10:13.375', '1999:301:16:10:15.425',
+         '1999:301:18:16:42.476', '1999:301:18:16:44.526',
+         '1999:301:19:20:03.176', '1999:301:19:20:05.226',
+         '1999:301:21:28:33.226', '1999:301:21:28:35.276',
+         '1999:303:07:13:16.230', '1999:303:07:13:18.280'],
+        dtype='|S21')
+
+The third condition is detected by its impact on the MSID ``2SMTRATM``. If it is less than
+-20degC or greater than 50degC then the analog housekeeping from the row is
+marked with bad quality.  In this case the ``HRC_SS_HK_BAD`` MSID has bit 10 set,
+which can be detected by a logical-and with ``0x0400`` (1024).
+
+Querying data
+^^^^^^^^^^^^^^
+
+For HK telemetry it is sufficient to query the archive using the standard ``fetch.Msid``
+method which automatically removes bad quality data.  This applies for 5-minute and daily
+stat data as well.  For instance::
+
+  >>> dat = fetch.Msid('2S2ONST', '2002:200', '2002:250')
+  >>> dat.plot()
+
+.. plot::
+
+   from Ska.engarchive import fetch
+   import matplotlib.pyplot as plt
+   plt.figure(figsize=(6, 4), dpi=75)
+   dat = fetch.Msid('2S2ONST', '2002:200', '2002:250', stat='5min')
+   dat.plot()
+   plt.grid()
+   plt.tight_layout()
+
+For SS the situation is a little different because those do not have
+the bad quality flags set at the time of data ingest (because the indicators are all
+in HK).  In this case use the ``fetch.HrcSsMsid`` method to get a filtered version
+of the SS MSIDs (``2TLEV1RT 2VLEV1RT 2SHEV1RT 2TLEV2RT 2VLEV2RT 2SHEV2RT``).  For
+instance to get 5-minute telemetry for ``2SHEV1RT`` use::
+
+  >>> dat = fetch.HrcSsMsid('2SHEV1RT', '2002:200', '2002:250', stat='5min')
+  >>> dat.plot()
+
+.. plot::
+
+   from Ska.engarchive import fetch
+   import matplotlib.pyplot as plt
+   plt.figure(figsize=(6, 4), dpi=75)
+   dat = fetch.HrcSsMsid('2SHEV1RT', '2002:200', '2002:250', stat='5min')
+   dat.plot()
+   plt.grid()
+   plt.tight_layout()
+
+HK MSIDs
+^^^^^^^^
+
+The list of available HK MSIDs is:
+
+=========    ====================================================
+MSID          Description
+=========    ====================================================
+224PCAST     +24V LVPS ON/OFF
+215PCAST     +15V LVPS ON/OFF
+215NCAST     -15V LVPS ON/OFF
+2SPTPAST     SPECTROSCOPY DET TOP PLATE HV STEP
+2SPBPAST     SPECTROSCOPY DET BOTTOM PLATE HV STEP
+2IMTPAST     IMAGING DET TOP PLATE HV STEP
+2IMBPAST     IMAGING DET BOTTOM PLATE HV STEP
+2NYMTAST     -Y SHUTTER MOTOR SELECTED
+2PYMTAST     +Y SHUTTER MOTOR SELECTED
+2CLMTAST     CALSRC MOTOR SELECTED
+2DRMTAST     DOOR MOTOR SELECTED
+2ALMTAST     ALL MOTORS DESELECTED
+2MSMDARS     MOTION CONTROL MODE RESET -- 2MSMDARS
+2MDIRAST     MOTOR DIRECTION
+2MSNBAMD     MOTOR STATUS REGISTER MV NSTEPS TOWARD B
+2MSNAAMD     MOTOR STATUS REGISTER MV NSTEPS TOWARD A
+2MSLBAMD     MOTOR STATUS REGISTER MOVE TO LIMIT SWITCH B
+2MSLAAMD     MOTOR STATUS REGISTER MOVE TO LIMIT SWITCH A
+2MSPRAMD     MOTOR STATUS REGISTER MOVE TO POSITION R
+2MSDRAMD     MOTOR DRIVE ENABLE
+2MCMDARS     MOTION CONTROL MODE RESET -- 2MCMDARS
+2MCNBAMD     MOTOR CMD REGISTER MV NSTEPS TOWARD B
+2MCNAAMD     MOTOR CMD REGISTER MV NSTEPS TOWARD A
+2MCLBAMD     MOTOR CMD REGISTER MOVE TO LIMIT SWITCH B
+2MCLAAMD     MOTOR CMD REGISTER MOVE TO LIMIT SWITCH A
+2MCPRAMD     MOTOR COMMAND REGISTER MOVE TO POSITION REGISTER
+2MDRVAST     MOTOR CMD REGISTER MOTOR DRIVE ENABLE
+2SCTHAST     STEP CTR LAST VALUE
+2SMOIAST     SELECTED MOTOR OVERCURRENT FLAG
+2SMOTAST     SELECTED MOTOR OVERTEMPERATURE FLAG
+2DROTAST     DRV OVERTEMP ENABLE
+2DROIAST     DRV OVERCURRENT ENABLE
+2SFLGAST     STOP FLAG ENABLE
+2OSLSAST     OPEN SECONDARY LIMIT SWITCH ENABLE
+2OPLSAST     OPEN PRIMARY LIMIT SWITCH ENABLE
+2CSLSAST     CLOS SECONDARY LIMIT SWITCH ENABLE
+2CPLSAST     CLOS PRIMARY LIMIT SWITCH ENABLE
+2OSLSADT     OPEN SECONDARY LS DETECTED
+2OSLSAAC     OPEN SECONDARY LS ACTIVE
+2OPLSAAC     OPEN PRIMARY LS ACTIVE
+2CSLSADT     CLOS SECONDARY LS DETECTED
+2CSLSAAC     CLOS SECONDARY LS ACTIVE
+2CPLSAAC     CLOS PRIMARY LS ACTIVE
+2FCPUAST     FORCED COARSE POSITION U AXIS
+2FCPVAST     FORCED COARSE POSITION V AXIS
+2CBHUAST     CENTER BLANK HIGH CP U AXIS
+2CBLUAST     CENTER BLANK LOW CP U AXIS
+2CBHVAST     CENTER BLANK HIGH CP V AXIS
+2CBLVAST     CENTER BLANK LOW CP V AXIS
+2WDTHAST     WIDTH THRESHOLD SETTING
+2CLMDAST     CALIBRATION MODE ON
+2FIFOAVR     DATA FIFO ENABLE
+2OBNLASL     OBSERVING/NEXT-IN-LINE MODE SELECT
+2SPMDASL     SPECT DETECTOR SPECT/IMG MODE SELECT
+2EBLKAVR     EDGE BLANK VALIDITY ENABLE
+2CBLKAVR     CENTER BLANK VALIDITY ENABLE
+2ULDIAVR     UPPER LEVEL DISCR VALIDITY ENABLE
+2WDTHAVR     WIDTH DISCR VALIDITY ENABLE
+2SHLDAVR     SHIELD DISCR VALIDITY ENABLE
+2SPONST      SPECTROSCOPY DETECTOR HVPS ON/OFF
+2SPCLST      SPECTROSCOPY DET HVPS CURRENT LIMIT ENAB
+2S1ONST      SHIELD A HVPS ON/OFF
+2IMONST      IMAGING DETECTOR HVPS ON/OFF
+2IMCLST      IMAGING DET HVPS CURRENT LIMIT ENABLE
+2S2ONST      SHIELD B HVPS ON/OFF
+2S1HVST      SHIELD A HVPS SETTING
+2S2HVST      SHIELD B HVPS SETTING
+2C05PALV     +5V BUS MONITOR
+2C15PALV     +15V BUS MONITOR
+2C15NALV     -15V BUS MONITOR
+2C24PALV     +24V BUS MONITOR
+2IMHVLV      IMAGING LOWER MCP HV MONITOR
+2IMHBLV      IMAGING LOWER & UPPER MCP HV MONITOR
+2SPHVLV      SPECTROSCOPY LOWER MCP HV MONITOR
+2SPHBLV      SPECTROSCOPY UPPER MCP HV MONITOR
+2S1HVLV      SHIELD A HV MONITOR
+2S2HVLV      SHIELD B HV MONITOR
+2PRBSCR      PRIMARY BUS CURRENT
+2PRBSVL      PRIMARY BUS VOLTAGE
+2ULDIALV     UPPER LEVEL DISCRIMINATOR SETTING
+2LLDIALV     TRIGGER LEVEL DISCRIMINATOR MONITOR
+2FEPRATM     FE PREAMP CARD TEMPERATURE
+2CALPALV     CAL PULSER AMPLITUDE MONITOR
+2GRDVALV     GRID BIAS SETTING MONITOR
+2RSRFALV     RANGE SWITCH ANALOG SETTING
+2SPINATM     SPECTROSCOPY DETECTOR TEMPERATURE (INSIDE)
+2IMINATM     IMAGING DETECTOR TEMPERATURE (INSIDE)
+2LVPLATM     LVPS PLATE TEMP
+2SPHVATM     SPECTROSCOPY DET HVPS TEMPERATURE
+2IMHVATM     IMAGING DET HVPS TEMPERATURE
+2SMTRATM     SELECTED MOTOR TEMPERATURE
+2FE00ATM     FRONT END TEMPERATURE RT2
+=========    ====================================================
+
+SS MSIDs
+^^^^^^^^
+The available SS MSIDs are:
+
+=========    ====================================================
+MSID          Description
+=========    ====================================================
+2TLEV1RT     TOTAL EVENT RATE 1
+2VLEV1RT     VALID EVENT RATE 1
+2SHEV1RT     SHIELD EVENT RATE 1
+2TLEV2RT     TOTAL EVENT RATE 2
+2VLEV2RT     VALID EVENT RATE 2
+2SHEV2RT     SHIELD EVENT RATE 2
+=========    ====================================================
+
+
 Science Instrument Module
 -------------------------
 

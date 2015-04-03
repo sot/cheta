@@ -1402,6 +1402,52 @@ class Msidset(MSIDset):
                                       filter_bad=filter_bad, stat=stat)
 
 
+class HrcSsMsid(Msid):
+    """
+    Fetch data from the engineering telemetry archive into an MSID object.
+    Same as MSID class but with filter_bad=True by default.
+
+    :param msid: name of MSID (case-insensitive)
+    :param start: start date of telemetry (Chandra.Time compatible)
+    :param stop: stop date of telemetry (current time if not supplied)
+    :param filter_bad: automatically filter out bad values
+    :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+    :param unit_system: Unit system (cxc|eng|sci, default=current units)
+
+    :returns: MSID instance
+
+    """
+    units = UNITS
+
+    def __new__(self, msid, start=LAUNCH_DATE, stop=None, stat=None):
+        ss_msids = '2TLEV1RT 2VLEV1RT 2SHEV1RT 2TLEV2RT 2VLEV2RT 2SHEV2RT'
+        if msid.upper() not in ss_msids.split():
+            raise ValueError('MSID {} is not in HRC secondary science ({})'
+                             .format(msid, ss_msids))
+
+        # If this is not full-resolution then add boolean bads mask to individual MSIDs
+        msids = [msid, 'HRC_SS_HK_BAD']
+        out = MSIDset(msids, start=start, stop=stop, stat=stat)
+        if stat is not None:
+            for m in msids:
+                out[m].bads = np.zeros(len(out[m].vals), dtype=np.bool)
+
+        # Set bad mask
+        i_bads = np.flatnonzero(out['HRC_SS_HK_BAD'].vals > 0)
+        out['HRC_SS_HK_BAD'].bads[i_bads] = True
+
+        # For full-resolution smear the bad mask out by +/- 5 samples
+        if stat is None:
+            for i_bad in i_bads:
+                i0 = max(0, i_bad - 5)
+                i1 = i_bad + 5
+                out['HRC_SS_HK_BAD'].bads[i0:i1] = True
+
+        # Finally interpolate and filter out bad values
+        out.interpolate(times=out[msid].times, bad_union=True, filter_bad=True)
+        return out[msid]
+
+
 class memoized(object):
     """Decorator that caches a function's return value each time it is called.
     If called later with the same arguments, the cached value is returned, and

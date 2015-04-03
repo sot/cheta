@@ -39,10 +39,10 @@ def append_h5_col(dats, content, colname):
         return list(dat.dtype.names).index(colname)
     filename = os.path.join('data', content, colname + '.h5')
     h5 = tables.openFile(filename, mode='a')
-    newdata = np.hstack([x.field(colname) for x in dats])
+    newdata = np.hstack([x[colname] for x in dats])
     print 'Appending to', colname, 'with shape', newdata.shape
     h5.root.data.append(newdata)
-    h5.root.quality.append(np.hstack([x.field('QUALITY')[:,i_colname(x)] for x in dats]))
+    h5.root.quality.append(np.hstack([x['QUALITY'][:,i_colname(x)] for x in dats]))
     h5.close()
 
 filetypes = asciitable.read('Ska/engarchive/filetypes.dat')
@@ -74,7 +74,7 @@ for filetype in filetypes:
     colnames = set(dat.dtype.names)
     colnames_all = set(dat.dtype.names)
     for colname in colnames_all:
-        if len(dat.field(colname).shape) > 1:
+        if len(dat[colname].shape) > 1:
             print 'Removing column', colname
             colnames.remove(colname)
     for colname in colnames:
@@ -100,9 +100,9 @@ for filetype in filetypes:
         header = dict((x, hdu.header[x]) for x in hdu.header.keys() if not re.match(r'T.+\d+', x))
         header['row0'] = row
         header['row1'] = row + len(dat)
-        if dat.field('QUALITY').shape[1] != len(dat.dtype.names):
+        if dat['QUALITY'].shape[1] != len(dat.dtype.names):
             print 'WARNING: skipping because of quality size mismatch: ', \
-                  dat.field('QUALITY').shape[1], len(dat.dtype.names)
+                  dat['QUALITY'].shape[1], len(dat.dtype.names)
             hdus.close()
             continue
         headers[os.path.basename(f)] = header

@@ -1,0 +1,156 @@
+HRC overview
+------------
+
+The HRC level 0 data is pretty straightforward. There are only three wrinkles that come to
+mind right now that affect the "validity" of the data.
+
+1) when we change telemetry format there is commanding to change the timing signals used
+to fill the housekeeping and secondary science rates that can result in invalid data being
+put in these MSIDs for up to a major frame
+
+2) when we change detectors or set a detector to its default configuration the FIFO used
+to hold the housekeeping an secondary science data gets reset which may result in a single
+bad sample of data
+
+3)  the  secondary-science  byte-shift  anomaly  causes  the  occasional  portion  of  the
+housekeeping and sometimes the rate data to be corrupted.
+
+The first two of these can usually be detected by looking at "spare" bits in the MSID
+SCIDPREN (i.e. good data satisfies "scidpren=0000xxxx000xxxxx".
+
+The data corrupted by the byte-shift can be detected by its impact on the MSID SMTRATM. If
+it is less than -20degC or greater than 50degC then some of the analog housekeeping from
+the row is corrupted.
+
+Queries:
+
+- HRC_0{HRCHK}
+- HRC_0{HRCSS}
+
+
+HRC MSIDs in ss0 and hk0 files for ingestion to SKA archive.
+------------------------------------------------------------
+
+Notes:
+1) bits are 0 = msb
+2) there are pairs of P012 MSIDs (e.g. 2TLEV1RT and 2TLEV2RT) that are
+a single achive file MSID (TLEVART in this example)
+3) the MSIDs 2CE00ATM and 2CE01ATM are only present when in HRC
+observing telemetry format (FMT1)
+
+
+MSID        archive_file_type  archive_file_msid  bits (if applicable)
+----------- -----------------  -----------------  --------------
+2TLEV1RT     ss0                TLEVART
+2VLEV1RT     ss0                VLEVART
+2SHEV1RT     ss0                SHEVART
+2TLEV2RT     ss0                TLEVART
+2VLEV2RT     ss0                VLEVART
+2SHEV2RT     ss0                SHEVART
+
+MSID        archive_file_type  archive_file_msid  bits (if applicable)
+----------- -----------------  -----------------  --------------
+224PCAST     hk0                P24CAST
+2SPTPAST     hk0                SPTPAST
+215PCAST     hk0                P15CAST
+2SPBPAST     hk0                SPBPAST
+215NCAST     hk0                N15CAST
+2IMTPAST     hk0                IMTPAST
+2IMBPAST     hk0                IMBPAST
+2NYMTAST     hk0                MTRSELCT            3
+2PYMTAST     hk0                MTRSELCT            4
+2CLMTAST     hk0                MTRSELCT            5
+2DRMTAST     hk0                MTRSELCT            6
+2ALMTAST     hk0                MTRSELCT            7
+2MSMDARS     hk0                MTRSTATR            0
+2MDIRAST     hk0                MTRSTATR            1
+2MSNBAMD     hk0                MTRSTATR            2
+2MSNAAMD     hk0                MTRSTATR            3
+2MSLBAMD     hk0                MTRSTATR            4
+2MSLAAMD     hk0                MTRSTATR            5
+2MSPRAMD     hk0                MTRSTATR            6
+2MSDRAMD     hk0                MTRSTATR            7
+2MCMDARS     hk0                MTRCMNDR            0
+2MCNBAMD     hk0                MTRCMNDR            2
+2MCNAAMD     hk0                MTRCMNDR            3
+2MCLBAMD     hk0                MTRCMNDR            4
+2MCLAAMD     hk0                MTRCMNDR            5
+2MCPRAMD     hk0                MTRCMNDR            6
+2MDRVAST     hk0                MTRCMNDR            7
+2SCTHAST     hk0                SCTHAST
+2SMOIAST     hk0                MTRITMP             1
+2SMOTAST     hk0                MTRITMP             2
+2DROTAST     hk0                MTRITMP             5
+2DROIAST     hk0                MTRITMP             6
+2SFLGAST     hk0                MLSWENBL            3
+2OSLSAST     hk0                MLSWENBL            4
+2OPLSAST     hk0                MLSWENBL            5
+2CSLSAST     hk0                MLSWENBL            6
+2CPLSAST     hk0                MLSWENBL            7
+2OSLSADT     hk0                MLSWSTAT            2
+2OSLSAAC     hk0                MLSWSTAT            3
+2OPLSAAC     hk0                MLSWSTAT            4
+2CSLSADT     hk0                MLSWSTAT            5
+2CSLSAAC     hk0                MLSWSTAT            6
+2CPLSAAC     hk0                MLSWSTAT            7
+2FCPUAST     hk0                FCPUAST
+2FCPVAST     hk0                FCPVAST
+2CBHUAST     hk0                CBHUAST
+2CBLUAST     hk0                CBLUAST
+2CBHVAST     hk0                CBHVAST
+2CBLVAST     hk0                CBLVAST
+2WDTHAST     hk0                WDTHAST
+2CLMDAST     hk0                SCIDPREN          4
+2FIFOAVR     hk0                SCIDPREN          5
+2OBNLASL     hk0                SCIDPREN          6
+2SPMDASL     hk0                SCIDPREN          7
+2EBLKAVR     hk0                SCIDPREN          11
+2CBLKAVR     hk0                SCIDPREN          12
+2ULDIAVR     hk0                SCIDPREN          13
+2WDTHAVR     hk0                SCIDPREN          14
+2SHLDAVR     hk0                SCIDPREN          15
+2SPONST      hk0                HVPSSTAT          0
+2SPCLST      hk0                HVPSSTAT          1
+2S1ONST      hk0                HVPSSTAT          2
+2IMONST      hk0                HVPSSTAT          3
+2IMCLST      hk0                HVPSSTAT          4
+2S2ONST      hk0                HVPSSTAT          5
+2S1HVST      hk0                S1HVST
+2S2HVST      hk0                S2HVST
+2C05PALV     hk0                C05PALV
+2C15PALV     hk0                C15PALV
+2C15NALV     hk0                C15NALV
+2C24PALV     hk0                C24PALV
+2IMHVLV      hk0                IMHVLV
+2IMHBLV      hk0                IMHBLV
+2SPHVLV      hk0                SPHVLV
+2SPHBLV      hk0                SPHBLV
+2S1HVLV      hk0                S1HVLV
+2S2HVLV      hk0                S2HVLV
+2PRBSCR      hk0                PRBSCR
+2PRBSVL      hk0                PRBSVL
+2ULDIALV     hk0                ULDIALV
+2LLDIALV     hk0                LLDIALV
+2FEPRATM     hk0                FEPRATM
+2CALPALV     hk0                CALPALV
+2GRDVALV     hk0                GRDVALV
+2RSRFALV     hk0                RSRFALV
+2SPINATM     hk0                SPINATM
+2IMINATM     hk0                IMINATM
+2LVPLATM     hk0                LVPLATM
+2SPHVATM     hk0                SPHVATM
+2IMHVATM     hk0                IMHVATM
+2SMTRATM     hk0                SMTRATM
+2FE00ATM     hk0                FE00ATM
+2CE00ATM     hk0                CE00ATM
+2CE01ATM     hk0                CE01ATM
+
+Testing
+-------
+
+source /proj/sot/ska/dev/bin/ska_envs.csh
+cp /home/aldcroft/git/eng_archive/plot_all_hrc.py ./
+ipython --pylab
+
+run -i plot_all_hrc
+

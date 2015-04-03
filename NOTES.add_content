@@ -2,11 +2,17 @@
 Log in to a machine with at least 16 Gb RAM and get into ska environment
 *********************************************************************************
 
-ssh ccosmos
-cd ~/git/eng_archive
-ska
-export ENG_ARCHIVE=$PWD
-export CONTENT=<CONTENT>
+  ssh kadi
+  cd ~/git/eng_archive
+  ln -s /export/tom/tmp/eng_archive data  # some local disk
+  mkdir 1999; cd 1999; ln -s ../data data; cd ..
+  ska
+  export ENG_ARCHIVE=$PWD
+  export CONTENT=<CONTENT>  # Upper case
+
+Note that for adding new content the trick of soft links for the 1999 data is used.
+The archive update always goes to the ./data (non-1999) directory but fetch queries
+for pre-2000 data always look in 1999.  It's a little hacky but works.
 
 *********************************************************************************
 Add a new content type to eng_archive
@@ -15,70 +21,93 @@ Add a new content type to eng_archive
 * Add content definition to filestypes.dat.  The CONTENT value must be upper case
 
 *********************************************************************************
-* Get FITS archive files from 2000:001 through 2001:001
+* Get FITS archive files from 1999:001 through 2000:001
 *********************************************************************************
-python ingest_fits_archive.py $CONTENT
+  ./update_archive.py --date-now=2000:001 --date-start=1999:210 --create --content=$CONTENT
 
-This puts files into /data/cosmos2/eng_archive/tlm/$CONTENT
-
-*********************************************************************************
-* Ingest to a local H5 repo for $CONTENT
-***************************************b******************************************
-python ingest_h5_archive.py $CONTENT
-
-This puts files into data/ which should be a link to a local disk.
-
-*********************************************************************************
-* Generate sql archfiles file
-*********************************************************************************
-python convert_headers.py $CONTENT
-
-*********************************************************************************
-* Fix file overlaps.  Do a dry run perhaps.
-*********************************************************************************
-python fix_ingest_h5.py $CONTENT --dry-run
-python fix_ingest_h5.py $CONTENT
-
-# For EPHEM content (and others in future??) use the --overwrite-partial
-# flag to make it overwrite overlapping rows instead of tossing the
-# entire archive file:
-python fix_ingest_h5.py $CONTENT --overwrite-partial
+This puts files into ./data.  In --create mode there is no limit on file gaps.
 
 *********************************************************************************
 * Test in ska env within git/eng_archive
 *********************************************************************************
 
-pylab
+ipython --pylab
 impska
-dat = fetch.MSID(<msid>, '2010:001', '2010:002')  # etc
+dat = fetch.MSID(<msid>, '1999:300', '1999:310')  # etc
 dat.iplot()
 
 *********************************************************************************
 * Update/create the stats files in ska
 *********************************************************************************
-python update_archive.py --no-full --content $CONTENT --max-lookback-time 1e20
+  ./update_archive.py --no-full --content $CONTENT --max-lookback-time 1e20
+
+Probably worth checking the stats files quickly before going forward.
 
 *********************************************************************************
 * Bring archive up to current date
 *********************************************************************************
-python update_archive.py --content $CONTENT --date-start 2000:010 > $CONTENT.log 2>&1 &
+  ./update_archive.py --content $CONTENT --date-start 2000:010 > $CONTENT.log 2>&1 &
 
 *********************************************************************************
 * Move FITS files into archive
 *********************************************************************************
-python move_fits_archive.py $CONTENT
+  python move_fits_archive.py $CONTENT
 
 *********************************************************************************
 * Copy h5 files into Ska
 *********************************************************************************
-cp -rp data/$CONTENT $SKA/data/eng_archive/data/
+  cp -rp data/$CONTENT $SKA/data/eng_archive/data/
 
 *********************************************************************************
-* Install new filetypes.dat.  For testing may need to edit to remove 
-* filetypes that are not reflected in devska archive
+* Update version and install new package
 *********************************************************************************
-make install
- - or - 
-cp -p filetypes.dat $SKA/data/eng_archive)
 
+- Update Ska/engarchive/version.py
 
+  python setup.py sdist
+  cp -p dist/...tar.gz $SKA/pkgs/
+
+- Update skare and install
+
+===========================================
+DONE
+===========================================
+
+-------Appendix -------------------------------------------------------------------
+
+* Old-style initial ingest
+
+    *********************************************************************************
+    * Get FITS archive files from 1999:001 through 2000:001
+    *********************************************************************************
+    export TMP_FITS=/export/tom/tmp/eng_archive/tlm/  # some local disk
+    python ingest_fits_archive.py $CONTENT $TMP_FITS
+
+    This puts files into $TMP_FITS/$CONTENT
+
+    *********************************************************************************
+    * Ingest to a local H5 repo for $CONTENT
+    *********************************************************************************
+    python ingest_h5_archive.py $CONTENT $TMP_FITS
+
+    This puts files into data/ which should be a link to a local disk.
+
+    *********************************************************************************
+    * Generate sql archfiles file
+    *********************************************************************************
+    python convert_headers.py $CONTENT
+
+    *********************************************************************************
+    * Fix file overlaps.  Do a dry run perhaps.
+    *********************************************************************************
+    python fix_ingest_h5.py $CONTENT --dry-run
+    python fix_ingest_h5.py $CONTENT
+
+    # For EPHEM content (and others in future??) use the --overwrite-partial
+    # flag to make it overwrite overlapping rows instead of tossing the
+    # entire archive file:
+    python fix_ingest_h5.py $CONTENT --overwrite-partial
+
+===========================================
+OLD-STYLE INITIAL INGEST (END)
+===========================================
