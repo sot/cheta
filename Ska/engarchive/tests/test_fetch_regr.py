@@ -39,8 +39,11 @@ import hashlib
 import argparse
 import collections
 
+import pytest
 from Chandra.Time import DateTime
 import numpy as np
+
+WINDOWS = os.name == 'nt'
 
 
 def get_args(args=None):
@@ -133,6 +136,7 @@ def assert_true(x):
     assert x
 
 
+@pytest.mark.skipif(WINDOWS)
 def test_fetch_regr():
     from .. import fetch
     args = get_args(args=[])
