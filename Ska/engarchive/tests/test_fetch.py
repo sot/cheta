@@ -347,15 +347,15 @@ def test_intervals_fetch_unit():
     Test that fetches with multiple intervals get the units right
     """
     dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')])
-    assert np.allclose(np.mean(dat.vals), 41.709809063172251)
+    assert np.allclose(np.mean(dat.vals), 41.713467)
 
     dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')],
                          stat='5min')
-    assert np.allclose(np.mean(dat.vals), 40.289990982154158)
+    assert np.allclose(np.mean(dat.vals), 40.290966)
 
     dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')],
                          stat='daily')
-    assert np.allclose(np.mean(dat.vals), 40.303963216145831)
+    assert np.allclose(np.mean(dat.vals), 40.303955)
 
     dat = fetch_eng.Msid('tephin', '1999:350', '2000:010')
-    assert np.allclose(np.mean(dat.vals), 41.642133316805605)
+    assert np.allclose(np.mean(dat.vals), 41.646729)

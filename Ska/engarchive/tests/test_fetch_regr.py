@@ -39,8 +39,11 @@ import hashlib
 import argparse
 import collections
 
+import pytest
 from Chandra.Time import DateTime
 import numpy as np
+
+WINDOWS = os.name == 'nt'
 
 
 def get_args(args=None):
@@ -100,8 +103,7 @@ def get_md5(fetch, args, msid, start, days, stat):
 def main():
     args = get_args()
 
-    from .. import fetch
-    from astropy.utils.console import ProgressBar
+    from Ska.engarchive import fetch
 
     contents = get_contents(fetch, args)
 
@@ -112,18 +114,17 @@ def main():
         fout = sys.stdout
 
     start = DateTime(args.start)
-    with ProgressBar(len(contents)) as bar:
-        for content_type in sorted(contents):
-            bar.update()
-            msids = contents[content_type]
-            for msid in msids:
-                for stat, days in ((None, 1),
-                                   ('5min', 4),
-                                   ('daily', 300)):
+    for i, content_type in enumerate(sorted(contents)):
+        msids = contents[content_type]
+        for msid in msids:
+            print('{} / {} : {} {}'.format(i, len(contents), content_type, msid))
+            for stat, days in ((None, 1),
+                               ('5min', 4),
+                               ('daily', 300)):
 
-                    key = '{:20s} {:16s} {:6s}'.format(content_type, msid, stat)
-                    md5_hex = get_md5(fetch, args, msid, start, days, stat)
-                    print >>fout, key, md5_hex
+                key = '{:20s} {:16s} {:6s}'.format(content_type, msid, stat)
+                md5_hex = get_md5(fetch, args, msid, start, days, stat)
+                print >>fout, key, md5_hex
 
     if args.outfile:
         fout.close()
@@ -133,6 +134,7 @@ def assert_true(x):
     assert x
 
 
+@pytest.mark.skipif(WINDOWS)
 def test_fetch_regr():
     from .. import fetch
     args = get_args(args=[])
