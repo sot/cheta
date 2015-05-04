@@ -134,7 +134,7 @@ def assert_true(x):
     assert x
 
 
-@pytest.mark.skipif(WINDOWS)
+@pytest.mark.skipif(WINDOWS, reason='Skip extended regression tests on Windows')
 def test_fetch_regr():
     from .. import fetch
     args = get_args(args=[])
