@@ -91,10 +91,10 @@ if opt.create:
 
 ft = fetch.ft
 msid_files = pyyaks.context.ContextDict('update_archive.msid_files',
-                                        basedir=(opt.data_root or file_defs.msid_root))
+                                        basedir=opt.data_root)
 msid_files.update(file_defs.msid_files)
 arch_files = pyyaks.context.ContextDict('update_archive.arch_files',
-                                        basedir=(opt.data_root or file_defs.arch_root))
+                                        basedir=opt.data_root)
 arch_files.update(file_defs.arch_files)
 
 # Set up fetch so it will first try to read from opt.data_root if that is
@@ -529,7 +529,7 @@ def update_archive(filetype):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
     else:
-        tmpdir = Ska.File.TempDir(dir=file_defs.arch_root)
+        tmpdir = Ska.File.TempDir(dir=opt.data_root)
         dirname = tmpdir.name
 
     with Ska.File.chdir(dirname):

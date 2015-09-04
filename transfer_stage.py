@@ -124,8 +124,7 @@ loglevel = pyyaks.logger.VERBOSE
 logger = pyyaks.logger.get_logger(name='transfer_stage', level=loglevel,
                                   format="%(asctime)s %(message)s")
 
-arch_files = arch_files = pyyaks.context.ContextDict(
-    'arch_files', basedir=(opt.data_root or file_defs.arch_root))
+arch_files = pyyaks.context.ContextDict('arch_files', basedir=opt.data_root)
 arch_files.update(file_defs.arch_files)
 
 with Ska.File.chdir(arch_files['rootdir'].abs):
