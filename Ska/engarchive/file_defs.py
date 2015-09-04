@@ -8,15 +8,18 @@ basename) defined.
 
 Msid files are the hdf5 files containing the entire mission telemetry for one MSID.
 Arch files are the CXC archive files containing a short interval of telemetry for
-all MSIDs in the same content-type group (e.g. ACIS2ENG). 
+all MSIDs in the same content-type group (e.g. ACIS2ENG).
 """
 import os
 
 SKA = os.environ.get('SKA') or '/proj/sot/ska'
 
 # Root directories for MSID files.  msid_root is prime, others are backups.
+# NOTE: msid_root(s) used ONLY in one-off or legacy code, not in update_archive.py or
+# transfer_stage.py
 msid_root = os.path.join(SKA, 'data', 'eng_archive')
 msid_roots = [msid_root]
+
 msid_files = {'filetypes':    'filetypes.dat',
               'msid_bad_times': 'msid_bad_times.dat',
               'contentdir':   'data/{{ft.content}}/',
@@ -30,6 +33,9 @@ msid_files = {'filetypes':    'filetypes.dat',
               'stats':        'data/{{ft.content}}/{{ft.interval}}/{{ft.msid | upper}}.h5',
               }
 
+
+# NOTE: arch_root used ONLY in one-off or legacy code, not in update_archive.py or
+# transfer_stage.py
 arch_root = '/data/cosmos2/eng_archive'
 arch_files = {'stagedir': 'stage/{{ft.content}}/',
               'rootdir': '',
