@@ -136,7 +136,7 @@ def main():
         colname = dp_class.__name__.upper()
         dp = dp_class()
         content = dp.content
-        if opt.content == [] or any(re.match(x + r'\d+', content) for x in opt.content):
+        if opt.content == [] or any(x == content for x in opt.content):
             dpd = content_defs.setdefault(content, {})
             dpd.setdefault('classes', {'TIME': None})
             dpd['content'] = content

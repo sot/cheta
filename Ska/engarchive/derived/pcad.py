@@ -16,6 +16,27 @@ import numpy as np
 from numpy import sin, cos, tan, arctan2, sqrt, degrees, radians
 from . import base
 
+ODB_FSS_MISALIGN = np.zeros([4, 4, 3], dtype=np.float64)
+ODB_FSS_MISALIGN[1, 1, 1] = 9.999990450374580e-01
+ODB_FSS_MISALIGN[2, 1, 1] = -5.327615067743422e-07
+ODB_FSS_MISALIGN[3, 1, 1] = 1.381999959551952e-03
+ODB_FSS_MISALIGN[1, 2, 1] = 0.0
+ODB_FSS_MISALIGN[2, 2, 1] = 9.999999256947376e-01
+ODB_FSS_MISALIGN[3, 2, 1] = 3.855003493343671e-04
+ODB_FSS_MISALIGN[1, 3, 1] = -1.382000062241829e-03
+ODB_FSS_MISALIGN[2, 3, 1] = -3.854999811959735e-04
+ODB_FSS_MISALIGN[3, 3, 1] = 9.999989707322665e-01
+
+ODB_FSS_MISALIGN[1, 1, 2] = 9.999985515924564e-01
+ODB_FSS_MISALIGN[2, 1, 2] = 2.219418563716329e-06
+ODB_FSS_MISALIGN[3, 1, 2] = 1.702001193752122e-03
+ODB_FSS_MISALIGN[1, 2, 2] = 0.0
+ODB_FSS_MISALIGN[2, 2, 2] = 9.999991497861834e-01
+ODB_FSS_MISALIGN[3, 2, 2] = -1.304004183359718e-03
+ODB_FSS_MISALIGN[1, 3, 2] = -1.702002640818283e-03
+ODB_FSS_MISALIGN[2, 3, 2] = 1.304002294630222e-03
+ODB_FSS_MISALIGN[3, 3, 2] = 9.999977013798713e-01
+
 
 class DerivedParameterPcad(base.DerivedParameter):
     content_root = 'pcad'
@@ -324,21 +345,15 @@ class DP_PITCH_FSS(DerivedParameterPcad):
     def calc(self, data):
         in_fss_fov = (data['aosunprs'].vals == 'SUN ')
         data.bads = data.bads | ~in_fss_fov
+
         # rotation matrix from FSS to ACA frame
-        A_AF = np.array([[9.999990450374580e-01,
-                          0.0,
-                          -1.382000062241829e-03],
-                         [-5.327615067743422e-07,
-                          9.999999256947376e-01,
-                          -3.854999811959735e-04],
-                         [1.381999959551952e-03,
-                          3.855003493343671e-04,
-                          9.999989707322665e-01]])
+        fss_align = ODB_FSS_MISALIGN[1:4, 1:4, 2]
+
         # FSS's sun vector in FSS frame
         alpha = radians(data['aoalpang'].vals)
         beta = radians(data['aobetang'].vals)
         sun_fss = np.array([tan(beta), tan(alpha), -np.ones(len(alpha))])
-        sun_aca = A_AF.dot(sun_fss)
+        sun_aca = fss_align.dot(sun_fss)
         magnitude = sqrt((sun_aca * sun_aca).sum(axis=0))
         data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
@@ -456,21 +471,15 @@ class DP_ROLL_FSS(DerivedParameterPcad):
     def calc(self, data):
         in_fss_fov = (data['aosunprs'].vals == 'SUN ')
         data.bads = data.bads | ~in_fss_fov
+
         # rotation matrix from FSS to ACA frame
-        A_AF = np.array([[9.999990450374580e-01,
-                          0.0,
-                          -1.382000062241829e-03],
-                         [-5.327615067743422e-07,
-                          9.999999256947376e-01,
-                          -3.854999811959735e-04],
-                         [1.381999959551952e-03,
-                          3.855003493343671e-04,
-                          9.999989707322665e-01]])
+        fss_align = ODB_FSS_MISALIGN[1:4, 1:4, 2]
+
         # FSS's sun vector in FSS frame
         alpha = radians(data['aoalpang'].vals)
         beta = radians(data['aobetang'].vals)
         sun_fss = np.array([tan(beta), tan(alpha), -np.ones(len(alpha))])
-        sun_aca = A_AF.dot(sun_fss)
+        sun_aca = fss_align.dot(sun_fss)
         magnitude = sqrt((sun_aca * sun_aca).sum(axis=0))
         data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
