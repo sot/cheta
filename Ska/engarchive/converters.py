@@ -375,6 +375,22 @@ def obc4eng(dat):
                 q_index_wide = quality_index(out, msid_wide)
                 out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
 
+    # Fix the onboard oba average temperature calibration. This msid, 4OAVOBAT, is not measured
+    # directly, rather it is an average of all OBA thermistors and is calculated by the OBC.
+    #
+    # Since there are several minutes between the first and second patch uplinks, the calibration
+    # for this MSID will be innacurate for several updates until the second patch takes effect.
+    # The second patch time is used as the start for the new calibration for this MSID.
+    mask = out['TIME'] > patch_times['b']
+    msid = '4OAVOBAT'
+    msid_wide = '4OAVOBAT_WIDE'
+    print('Fixing MSID {}'.format(msid))
+    out[msid][mask] = out[msid_wide][mask]
+
+    q_index = quality_index(out, msid)
+    q_index_wide = quality_index(out, msid_wide)
+    out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
+
     return out
 
 
