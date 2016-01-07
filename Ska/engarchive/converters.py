@@ -368,10 +368,9 @@ def obc4eng(dat):
             for msid_num in msid_nums[patch]:
                 if '4OAVOBAT' in msid_num:
                     msid = '4OAVOBAT'
-                    msid_wide = '4OAVOBAT_WIDE'
                 else:
                     msid = 'OOBTHR' + msid_num
-                    msid_wide = msid + '_WIDE'
+                msid_wide = msid + '_WIDE'
                 print('Fixing MSID {}'.format(msid))
                 out[msid][mask] = out[msid_wide][mask]
 
