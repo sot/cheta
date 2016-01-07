@@ -446,7 +446,7 @@ class DP_OBA_AVE(DerivedParameterThermal):
         OSUM = data[self.rootparams[0]].vals
         for names in self.rootparams[1:]:
             OSUM = OSUM + data[names].vals
-        OBA_AVE = OSUM / 36
+        OBA_AVE = OSUM / 35
         return OBA_AVE
 
 
