@@ -350,7 +350,7 @@ def obc4eng(dat):
     # MSIDs OOBTHR<msid_num> that went to _WIDE after the patch, which was done in parts A
     # and B.
     msid_nums = {'a': '08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29'.split(),
-                 'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split()
+                 'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54 4OAVOBAT'.split()
                  }
 
     # Convert using the baseline converter
@@ -366,30 +366,18 @@ def obc4eng(dat):
         mask = out['TIME'] > patch_times[patch]
         if np.any(mask):
             for msid_num in msid_nums[patch]:
-                msid = 'OOBTHR' + msid_num
-                msid_wide = msid + '_WIDE'
+                if '4OAVOBAT' in msid_num:
+                    msid = '4OAVOBAT'
+                    msid_wide = '4OAVOBAT_WIDE'
+                else:
+                    msid = 'OOBTHR' + msid_num
+                    msid_wide = msid + '_WIDE'
                 print('Fixing MSID {}'.format(msid))
                 out[msid][mask] = out[msid_wide][mask]
 
                 q_index = quality_index(out, msid)
                 q_index_wide = quality_index(out, msid_wide)
                 out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
-
-    # Fix the onboard oba average temperature calibration. This msid, 4OAVOBAT, is not measured
-    # directly, rather it is an average of all OBA thermistors and is calculated by the OBC.
-    #
-    # Since there are several minutes between the first and second patch uplinks, the calibration
-    # for this MSID will be innacurate for several updates until the second patch takes effect.
-    # The second patch time is used as the start for the new calibration for this MSID.
-    mask = out['TIME'] > patch_times['b']
-    msid = '4OAVOBAT'
-    msid_wide = '4OAVOBAT_WIDE'
-    print('Fixing MSID {}'.format(msid))
-    out[msid][mask] = out[msid_wide][mask]
-
-    q_index = quality_index(out, msid)
-    q_index_wide = quality_index(out, msid_wide)
-    out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
 
     return out
 
