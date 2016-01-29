@@ -5,7 +5,12 @@ Log in to a machine with at least 16 Gb RAM and get into ska environment
   ssh kadi
   cd ~/git/eng_archive
   ln -s /export/tom/tmp/eng_archive data  # some local disk
+
+  # Do the following in general, but NOT if just updating stats data.
+  # Fetch ends up seeing the >= 2000 archfiles.db and it cannot fetch
+  # 1999 data properly.
   mkdir 1999; cd 1999; ln -s ../data data; cd ..
+
   ska
   export ENG_ARCHIVE=$PWD
   export CONTENT=<CONTENT>  # Upper case
