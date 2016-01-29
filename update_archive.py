@@ -210,14 +210,10 @@ def main():
             for colname in colnames:
                 if opt.state_codes_only:
                     try:
-                        state_codes = Ska.tdb.msids[colname].Tsc['STATE_CODE']
-                    except Exception:
-                        state_codes = None
-                    if state_codes is None:
-                        logger.info('Skipping {} because it has no state codes'.format(colname))
+                        Ska.tdb.msids[colname].Tsc['STATE_CODE']
+                    except:
+                        # Either not in TDB or does not have Tsc defined
                         continue
-                    else:
-                        logger.info('MSID {} has state codes {}'.format(colname, state_codes))
 
                 msid = update_stats(colname, 'daily')
                 update_stats(colname, '5min', msid)
@@ -371,15 +367,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
                 out['p{:02d}'.format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
 
     # MSID may have state codes
-    try:
-        state_codes = Ska.tdb.msids[msid.msid].Tsc['STATE_CODE']
-    except:
-        state_codes = None
-    else:
-        for state_code in state_codes:
-            out['n_' + state_code.strip()] = np.zeros(n_out, dtype=np.int32)
-    print('State codes: {}'.format(state_codes))
-    print('out keys: {}'.format(out.keys()))
+    if msid.state_codes:
+        for raw_count, state_code in msid.state_codes:
+            out['n_' + state_code] = np.zeros(n_out, dtype=np.int32)
 
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
@@ -427,12 +417,14 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     for quant_val, quantile in zip(quant_vals, quantiles):
                         out['p%02d' % quantile][i] = quant_val
 
-            if state_codes is not None:
+            if msid.state_codes:
                 # If MSID has state codes then count the number of values in each state
-                # and store.  Note that state codes often have embedded spaces, thus the
-                # need for stripping (but not in the compare).
-                for state_code in state_codes:
-                    out['n_' + state_code.strip()][i] = np.count_nonzero(vals == state_code)
+                # and store.  The MSID values can have trailing spaces to fill out to a
+                # uniform length, so state_code is right padded accordingly.
+                max_len = max(len(state_code) for raw_count, state_code in msid.state_codes)
+                fmtstr = '{:' + str(max_len) + 's}'
+                for raw_count, state_code in msid.state_codes:
+                    out['n_' + state_code][i] = np.count_nonzero(vals == fmtstr.format(state_code))
 
             i += 1
 
