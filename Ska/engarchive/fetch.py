@@ -53,7 +53,14 @@ LAUNCH_DATE = '1999:204'
 MAX_GLOB_MATCHES = 10
 
 # Special-case state codes that override those in the TDB
-STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
+STATE_CODES = {
+               # SIMDIAG
+               '3SDSWELF': [(0, 'F'), (1, 'T')],
+               '3SDSYRS': [(0, 'F'), (1, 'T')],
+               '3SDWMRS': [(0, 'F'), (1, 'T')],
+
+               # SIM_MRG
+               '3TSCMOVE': [(0, 'F'), (1, 'T')],
                '3FAMOVE': [(0, 'F'), (1, 'T')],
                '3SEAID': [(0, 'SEA-A'), (1, 'SEA-B')],
                '3SEARSET': [(0, 'F'), (1, 'T')],
