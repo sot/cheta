@@ -394,7 +394,7 @@ def tel2eng(dat):
     # 4OAVOBAT is modified by both patches since it is an average of MSIDs in both parts of the
     # patch. Use the second time value as this is when the process is complete. See obc4eng() for
     # both times and further details.
-    patch_time = DateTime('2014:342:16:32:45').secs}
+    patch_time = DateTime('2014:342:16:32:45').secs
 
     mask = out['TIME'] > patch_time
     if np.any(mask):
