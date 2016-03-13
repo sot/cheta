@@ -17,25 +17,44 @@ Check initial conditions
 - OCC task_sched.cfg has been run successfully on the tar output from the 
   HEAD version.  [I.e. OCC is synced to latest HEAD]
 - Lucky dir /taldcroft/eng_archive is empty.
+- There is NOT an steadily increasing GAP.  Read the "NOTE for OCC" section
+  below and be sure that does not apply.
 
-Run it:
+Run it
+======
 
-rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
+  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
 
-/proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap.cfg
-  - OR at the OCC (BUT SEE NOTE) -
-/proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
+Bulk processing
+-----------------
+HEAD:  /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap.cfg
+OCC:   /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
 
-NOTE for OCC:
-=============
+More focused processing
+-----------------------
+Edit /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg and change the
+--content <content>.  Note that <content> is a Python "match" regex, meaning it
+must match from the start of available content types (Ska/engarchive/filetypes.dat).
+For instance "sim" will match SIM{1,2,3}ENG, SIM_MRG, and SIMCOOR.
+
+HEAD: /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
+OCC: /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
+
+For the OCC it is not necessarily required to use a custom file since it will only
+be processing the new files from the HEAD run, though it will make things go a
+bit faster.
+
+NOTE for OCC: steadily increasing gap
+=====================================
 ** If the OCC has gotten behind and there are a number of emails showing an
    increasing gap (see below)...
 
 Copy all archived files of the correct type from the last ingested at OCC 
-(e.g. acisf432766656N001_hkp0.fits.gz) until the last ingested in HEAD.
+(e.g. acisf432766656N001_hkp0.fits.gz) until the last ingested in HEAD.  Determine
+last file from email logs
 
-HEAD files: /data/cosmos2/eng_archive/data/<content>/..
-Dump all HEAD files into OCC:/proj/sot/ska/data/eng_archive/stage/<content>/
+HEAD files: /proj/sot/ska/data/eng_archive/data/<content>/arch/YYYY/DDD
+Copy all newer HEAD files into OCC:/proj/sot/ska/data/eng_archive/stage/<content>/
 
 Then run something like on GRETA network:
 
