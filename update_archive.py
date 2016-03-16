@@ -347,8 +347,11 @@ def calc_stats_vals(msid, rows, indexes, interval):
     quantiles = (1, 5, 16, 50, 84, 95, 99)
     n_out = len(rows) - 1
 
+    # Check if data type is "numeric".  Boolean values count as numeric,
+    # partly for historical reasons, in that they support funcs like
+    # mean (with implicit conversion to float).
     msid_dtype = msid.vals.dtype
-    msid_is_numeric = issubclass(msid_dtype.type, np.number)
+    msid_is_numeric = issubclass(msid_dtype.type, (np.number, np.bool_))
 
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = OrderedDict()
