@@ -154,6 +154,27 @@ def create_content_dir():
         db.commit()
 
 
+_fix_state_code_cache = {}
+
+def fix_state_code(state_code):
+    """
+    Return a version of ``state_code`` that has only alphanumeric chars.  This
+    can be used as a column name, unlike e.g. "n_+1/2".  Since this gets called
+    in an inner loop cache the result.
+    """
+    try:
+        out = _fix_state_code_cache[state_code]
+    except KeyError:
+        out = state_code
+        for sub_in, sub_out in ((r'\+', 'PLUS_'),
+                                (r'\-', 'MINUS_'),
+                                (r'>', '_GREATER_'),
+                                (r'/', '_DIV_')):
+            out = re.sub(sub_in, sub_out, out)
+        _fix_state_code_cache[state_code] = out
+
+    return out
+
 def main():
     logger.info('Run time options: \n{}'.format(opt))
     logger.info('Update_archive file: {}'.format(os.path.abspath(__file__)))
@@ -372,7 +393,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
     # MSID may have state codes
     if msid.state_codes:
         for raw_count, state_code in msid.state_codes:
-            out['n_' + state_code] = np.zeros(n_out, dtype=np.int32)
+            out['n_' + fix_state_code(state_code)] = np.zeros(n_out, dtype=np.int32)
 
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
@@ -427,7 +448,8 @@ def calc_stats_vals(msid, rows, indexes, interval):
                 max_len = max(len(state_code) for raw_count, state_code in msid.state_codes)
                 fmtstr = '{:' + str(max_len) + 's}'
                 for raw_count, state_code in msid.state_codes:
-                    out['n_' + state_code][i] = np.count_nonzero(vals == fmtstr.format(state_code))
+                    state_count = np.count_nonzero(vals == fmtstr.format(state_code))
+                    out['n_' + fix_state_code(state_code)][i] = state_count
 
             i += 1
 
