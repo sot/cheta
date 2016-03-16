@@ -576,15 +576,19 @@ class MSID(object):
 
         if not hasattr(self, '_state_codes'):
             import Ska.tdb
-            states = Ska.tdb.msids[self.MSID].Tsc
-            if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
-                warnings.warn('MSID {} has string vals but no state codes '
-                              'or multiple calibration sets'.format(self.msid))
+            try:
+                states = Ska.tdb.msids[self.MSID].Tsc
+            except:
                 self._state_codes = None
             else:
-                states = np.sort(states.data, order='LOW_RAW_COUNT')
-                self._state_codes = [(state['LOW_RAW_COUNT'],
-                                      state['STATE_CODE']) for state in states]
+                if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
+                    warnings.warn('MSID {} has string vals but no state codes '
+                                  'or multiple calibration sets'.format(self.msid))
+                    self._state_codes = None
+                else:
+                    states = np.sort(states.data, order='LOW_RAW_COUNT')
+                    self._state_codes = [(state['LOW_RAW_COUNT'],
+                                          state['STATE_CODE']) for state in states]
         return self._state_codes
 
     @property
