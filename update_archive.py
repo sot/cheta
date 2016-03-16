@@ -640,7 +640,7 @@ def truncate_archive(filetype, date):
             rowstart, filetype['content'], colname))
 
         # Delete the 5min and daily stats, with a little extra margin
-        if colname != 'TIME':
+        if colname not in fetch.IGNORE_COLNAMES:
             del_stats(colname, time0, '5min')
             del_stats(colname, time0, 'daily')
 
