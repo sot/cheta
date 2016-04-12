@@ -10,6 +10,10 @@ Log in to a machine with at least 16 Gb RAM and get into ska environment
   export ENG_ARCHIVE=$PWD
   export CONTENT=<CONTENT>  # Upper case
 
+In order to use a local install of pyfits 2.3, which is *much* faster, do:
+
+  export PYTHONPATH=$PWD/local/lib/python2.7/site-packages
+
 Note that for adding new content the trick of soft links for the 1999 data is used.
 The archive update always goes to the ./data (non-1999) directory but fetch queries
 for pre-2000 data always look in 1999.  It's a little hacky but works.

@@ -9,6 +9,8 @@ import Ska.Numpy
 from Chandra.Time import DateTime
 import Ska.tdb
 
+from . import units
+
 MODULE = sys.modules[__name__]
 logger = logging.getLogger('engarchive')
 
@@ -32,6 +34,10 @@ def numpy_converter(dat):
 
 
 def convert(dat, content):
+    # Zero-length file results in `dat is None`
+    if dat is None:
+        raise NoValidDataError
+
     try:
         converter = getattr(MODULE, content.lower())
     except AttributeError:
@@ -310,8 +316,36 @@ CXC_TO_MSID = {key: parse_alias_str(val) for key, val in ALIASES.items()}
 MSID_TO_CXC = {key: parse_alias_str(val, invert=True) for key, val in ALIASES.items()}
 
 
-sim_mrg = generic_converter(aliases=CXC_TO_MSID['sim_mrg'])
+def sim_mrg(dat):
+    """
+    Custom converter for SIM_MRG.
+
+    There is a bug in CXCDS L0 SIM decom wherein the 3LDRTMEK MSID is
+    incorrectly assigned (TSC and FA are reversed).  The calibration
+    of 3LDRTPOS from steps to mm is then also wrong because it uses
+    the FA conversion instead of TSC.
+
+    This function fixes 3LDRTMEK, then backs out the (incorrect) 3LDRTPOS
+    steps to mm conversion and re-does it correctly using the TSC conversion.
+    Note that 3LDRTMEK is (by virtue of the way mission operations run)
+    always "TSC".
+    """
+    # Start with the generic converter
+    out = generic_converter(aliases=CXC_TO_MSID['sim_mrg'])(dat)
+
+    # Now do the fixes.  FOT mech has stated that 3LDRTMEK is always 'FA'
+    # in practice.
+    bad = out['3LDRTMEK'] == 'FA '
+    if np.count_nonzero(bad):
+        out['3LDRTMEK'][bad] = 'TSC'
+        pos_tsc_steps = units.converters['mm', 'FASTEP'](out['3LDRTPOS'][bad])
+        out['3LDRTPOS'][bad] = units.converters['TSCSTEP', 'mm'](pos_tsc_steps)
+
+    return out
+
+
 hrc0ss = generic_converter2(MSID_TO_CXC['hrc0ss'])
+# sim_mrg = generic_converter(aliases=CXC_TO_MSID['sim_mrg'])
 
 
 def hrc0hk(dat):
