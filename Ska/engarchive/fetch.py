@@ -18,6 +18,7 @@ import re
 import numpy as np
 import asciitable
 import pyyaks.context
+import maude
 
 from . import file_defs
 from .units import Units
@@ -69,6 +70,18 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
+
+# should be the python equivalent of an enum
+_backend = 'eng_archive'
+
+def from_eng_archive():
+    maude.handler.disconnect()
+    _backend = 'eng_archive'
+
+def from_maude(channel = 'FLIGHT'):
+    maude.handler.connect()
+    maude.handler.channel = channel
+    _backend = 'maude'
 
 
 def local_or_remote_function(remote_print_output):
@@ -126,6 +139,7 @@ def _split_path(path):
         path, folder = os.path.split(path)
 
         if folder != "":
+
             folders.append(folder)
         else:
             if path == "\\":
@@ -491,6 +505,11 @@ class MSID(object):
     def _get_msid_data(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files"""
+
+		# if context == maude:
+        if 'maude' == _backend:
+            print 'onward to maude'
+		   #return _get_msid_data_maude(content, tstart, tstop, msid, unit_system)
 
         # Get a row slice into HDF5 file for this content type that picks out
         # the required time range plus a little padding on each end.
