@@ -666,16 +666,16 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
     logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
     hdus = pyfits.open(f)
     hdu = hdus[1]
+
     try:
         dat = converters.convert(hdu.data, filetype['content'])
+
     except converters.NoValidDataError:
         # When creating files allow NoValidDataError
         hdus.close()
         logger.warning('WARNING: no valid data in data file {}'.format(filename))
-        if opt.create:
-            return None, None
-        else:
-            raise
+        return None, None
+
     except converters.DataShapeError as err:
         hdus.close()
         logger.warning('WARNING: skipping file {} with bad data shape: ASCDSVER={} {}'
