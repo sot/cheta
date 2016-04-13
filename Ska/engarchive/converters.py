@@ -345,7 +345,6 @@ def sim_mrg(dat):
 
 
 hrc0ss = generic_converter2(MSID_TO_CXC['hrc0ss'])
-# sim_mrg = generic_converter(aliases=CXC_TO_MSID['sim_mrg'])
 
 
 def hrc0hk(dat):
