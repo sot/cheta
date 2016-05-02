@@ -70,17 +70,30 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
 
-# should be the python equivalent of an enum
-_backend = 'eng_archive'
+# Data source. Default to CXC. Set to MAUDE by fetch.from_maude()
+_backend = 'CXC'
 
-def from_eng_archive():
+def from_cxc():
     maude.handler.disconnect()
-    _backend = 'eng_archive'
+    global _backend
+    _backend = 'CXC'
 
-def from_maude(channel = 'FLIGHT'):
-    maude.handler.connect()
-    maude.handler.channel = channel
-    _backend = 'maude'
+
+def from_maude(channel='FLIGHT'):
+    """
+    Attempt to connect to MAUDE. Set the backend flag to 'MAUDE' if successful.
+
+    :param channel: MAUDE telemetry channel (FLIGHT, FLTCOMP, ASVT, TEST)
+    """
+    try:
+        maude.handler.connect()
+    except IOError as e:
+        print(str(e))
+    else:
+        maude.channel = channel
+        global _backend
+        _backend = 'MAUDE'
+        print('Successfully connected to MAUDE')
 
 
 def local_or_remote_function(remote_print_output):
@@ -434,11 +447,14 @@ class MSID(object):
                     ft['interval'] = self.stat
                     self._get_stat_data()
                 else:
-                    gmd = (self._get_msid_data_cached if CACHE else
-                           self._get_msid_data)
+                    if 'MAUDE' == _backend:
+                        gmd = self._get_msid_data_from_maude
+                    else:
+                        gmd = (self._get_msid_data_cached if CACHE else
+                        self._get_msid_data)
                     self.vals, self.times, self.bads, self.colnames = \
-                        gmd(self.content, self.tstart, self.tstop, self.MSID,
-                            self.units['system'])
+                    gmd(self.content, self.tstart, self.tstop, self.MSID,
+                        self.units['system'])
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -499,16 +515,15 @@ class MSID(object):
         files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
         return MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
+        #global _backend
+        #return (MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
+        #if 'CXC' == _backend else MSID._get_msid_data_from_maude(content,
+        #    tstart, tstop, msid, unit_system))
 
     @staticmethod
     def _get_msid_data(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files"""
-
-		# if context == maude:
-        if 'maude' == _backend:
-            print 'onward to maude'
-		   #return _get_msid_data_maude(content, tstart, tstop, msid, unit_system)
 
         # Get a row slice into HDF5 file for this content type that picks out
         # the required time range plus a little padding on each end.
@@ -582,6 +597,25 @@ class MSID(object):
 
         return (vals, times, bads, colnames)
 
+    @staticmethod
+    def _get_msid_data_from_maude(content, tstart, tstop, msid, unit_system):
+        """
+        Get time and values for an MSID from MAUDE.
+        Returned values are (for now) all assumed to be good.
+        """
+        out = maude.get_msids(msids=msid, start=DateTime(tstart).greta,
+                              stop=DateTime(tstop).greta)
+        out = out['data'][0] # but what about n>1 msids?
+        vals = Units(unit_system).convert(msid.upper(), out['values'])
+        times = out['times'].secs
+
+        # No notion of 'bad' values yet from MAUDE, so pretend they're all good
+        bads = np.full((len(vals),), False, dtype=bool)
+
+        colnames = ['times', 'vals', 'bads']
+        return (vals, times, bads, colnames)
+
+    
     @property
     def state_codes(self):
         """List of state codes tuples (raw_count, state_code) for state-valued
