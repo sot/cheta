@@ -21,6 +21,8 @@ L0   CCDM      CCDM10ENG       CCDM_ENG_0{CCDM10ENG}        *.fits.gz
 L0   CCDM      CCDM11ENG       CCDM_ENG_0{CCDM11ENG}        *.fits.gz
 L0   CCDM      CCDM12ENG       CCDM_ENG_0{CCDM12ENG}        *.fits.gz
 L0   CCDM      CCDM13ENG       CCDM_ENG_0{CCDM13ENG}        *.fits.gz
+L0   CCDM      CCDM14ENG       CCDM_ENG_0{CCDM14ENG}        *.fits.gz
+L0   CCDM      CCDM15ENG       CCDM_ENG_0{CCDM15ENG}        *.fits.gz
 L0   EPHIN     EPHIN1ENG       EPHIN_ENG_0{EPHIN1ENG}       *.fits.gz
 L0   EPHIN     EPHIN2ENG       EPHIN_ENG_0{EPHIN2ENG}       *.fits.gz
 L0   EPS       EPS1ENG         EPS_ENG_0{EPS1ENG}           *.fits.gz
