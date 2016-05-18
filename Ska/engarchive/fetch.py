@@ -1650,7 +1650,6 @@ def _fix_ctu_dwell_mode_bads(msid, bads):
         # Find transitions from good value to bad value.  Turn that
         # good value to bad to extend the badness by one sample.
         ok = (bads[:-1] == False) & (bads[1:] == True)
-        print(bads.dtype)
         bads[:-1][ok] = True
 
     return bads
