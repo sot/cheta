@@ -436,20 +436,27 @@ def update_stats(colname, interval, msid=None):
         if len(times) > 2:
             rows = np.searchsorted(msid.times, times)
             vals_stats = calc_stats_vals(msid, rows, indexes, interval)
-            if not opt.dry_run:
+            if len(vals_stats) > 0:
                 # Don't change the following logic in order to add stats data
                 # on the same pass as creating the table.  Tried it and
                 # something got broken so that there was a single bad record
                 # after the first bunch.
-                try:
-                    stats.root.data.append(vals_stats)
-                    logger.info('  Adding %d records', len(vals_stats))
-                except tables.NoSuchNodeError:
-                    logger.info('  Creating table with %d records ...', len(vals_stats))
-                    stats.createTable(stats.root, 'data', vals_stats,
-                                      "{} sampling".format(interval), expectedrows=2e7)
-
-                stats.root.data.flush()
+                if not opt.dry_run:
+                    try:
+                        stats.root.data.append(vals_stats)
+                        logger.info('  Adding %d records', len(vals_stats))
+                    except tables.NoSuchNodeError:
+                        logger.info('  Creating table with %d records ...', len(vals_stats))
+                        stats.createTable(stats.root, 'data', vals_stats,
+                                          "{} sampling".format(interval), expectedrows=2e7)
+                    stats.root.data.flush()
+            else:
+                logger.info('  No stat records within available fetched values')
+        else:
+            logger.info('  No full stat intervals within fetched values')
+    else:
+        logger.info('  No MSID data found within {} to {}'
+                    .format(msid.datestart, msid.datestop))
 
     stats.close()
 
