@@ -359,3 +359,17 @@ def test_intervals_fetch_unit():
 
     dat = fetch_eng.Msid('tephin', '1999:350', '2000:010')
     assert np.allclose(np.mean(dat.vals), 41.646729)
+
+
+def test_ctu_dwell_telem():
+    """
+    Ensure that bad values are filtered appropriately for dwell mode telem.
+    This
+    """
+    #dat = fetch_eng.Msid('dwell01', '2015:294', '2015:295')
+    #assert np.all(dat.vals < 190)
+    #assert np.all(dat.vals > 150)
+
+    dat = fetch_eng.Msid('airu1bt', '2015:294', '2015:295')
+    assert np.all(dat.vals < -4.95)
+    assert np.all(dat.vals > -5.05)

@@ -13,6 +13,7 @@ import operator
 import fnmatch
 import collections
 import warnings
+import re
 
 import numpy as np
 import asciitable
@@ -560,6 +561,10 @@ class MSID(object):
         times = times[row0:row1]
         bads = bads[row0:row1]
         colnames = ['times', 'vals', 'bads']
+
+        # Possibly expand the bads list for a set of about 30 MSIDs which
+        # have incorrect values in CXCDS telemetry
+        bads = _fix_ctu_dwell_mode_bads(msid, bads)
 
         return (vals, times, bads, colnames)
 
@@ -1626,6 +1631,29 @@ def _set_msid_files_basedir(datestart):
         yield
     finally:
         msid_files.basedir = cache_basedir
+
+
+def _fix_ctu_dwell_mode_bads(msid, bads):
+    """
+    Because of an issue related to the placement of the dwell mode flag, MSIDs that get
+    stepped on in dwell mode get a bad value at the beginning of a dwell mode, while the
+    dwell mode values (DWELLnn) get a bad value at the end.  This does a simple
+    brute-force fix of expanding any section of bad values by ones sample in the
+    appropriate direction.
+    """
+    MSID = msid.upper()
+    stepped_on_msids = ('4PRT5BT', '4RT585T', 'AFLCA3BI', 'AIRU1BT', 'CSITB5V',
+                        'CUSOAOVN', 'ECNV3V', 'PLAED4ET', 'PR1TV01T', 'TCYLFMZM',
+                        'TOXTSUPN', 'ES1P5CV', 'ES2P5CV')
+
+    if MSID in stepped_on_msids or re.match(r'DWELL\d\d', MSID):
+        # Find transitions from good value to bad value.  Turn that
+        # good value to bad to extend the badness by one sample.
+        ok = (bads[:-1] == False) & (bads[1:] == True)
+        print(bads.dtype)
+        bads[:-1][ok] = True
+
+    return bads
 
 
 def add_logging_handler(level=logging.INFO,
