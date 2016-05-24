@@ -71,30 +71,78 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
 
+
+class Backend(object):
+    _backends = ('cxc',)
+    _allowed = ('cxc', 'maude')
+
+    def __init__(self, *backends):
+        self._new_backends = backends
+
+    def __enter__(self):
+        self._orig_backends = self.__class__._backends
+        self.set(*self._new_backends)
+
+    def __exit__(self, type, value, traceback):
+        self.__class__._backends = self._orig_backends
+
+    @classmethod
+    def set(cls, *backends):
+        if any(backend not in cls._allowed for backend in backends):
+            raise ValueError('backends {} not in allowed set {}'
+                             .format(backends))
+        cls._backends = backends
+
+    @classmethod
+    def get(cls):
+        return cls._backends
+
 # Data source. Default to CXC. Set to MAUDE by fetch.from_maude()
-_backend = 'CXC'
+_backend = Backend('cxc')
 
 def from_cxc():
-    maude.handler.disconnect()
     global _backend
-    _backend = 'CXC'
+    _backend.set('cxc')
+    
+def from_maude():
+    global _backend
+    _backend.set('maude')
 
+def backend():
+    global _backend
+    print(_backend.get()[0])
 
-def from_maude(channel='FLIGHT'):
-    """
-    Attempt to connect to MAUDE. Set the backend flag to 'MAUDE' if successful.
+#def from_cxc():
+#    """
+#    Sets the backend data source to the eng archive ('CXC').
+#    This is the default.
+#    """
+#    maude.handler.disconnect()
+#    global _backend
+#    _backend = 'CXC'
+#
+#
+#def from_maude(channel='FLIGHT'):
+#    """
+#    Attempt to connect to MAUDE. Set the backend flag to 'MAUDE' if successful.
+#
+#    :param channel: MAUDE telemetry channel (FLIGHT, FLTCOMP, ASVT, TEST)
+#    """
+#    try:
+#        maude.handler.connect()
+#    except IOError as e:
+#        print(str(e))
+#    else:
+#        maude.channel = channel
+#        global _backend
+#        _backend = 'MAUDE'
+#        print('Successfully connected to MAUDE')
 
-    :param channel: MAUDE telemetry channel (FLIGHT, FLTCOMP, ASVT, TEST)
-    """
-    try:
-        maude.handler.connect()
-    except IOError as e:
-        print(str(e))
-    else:
-        maude.channel = channel
-        global _backend
-        _backend = 'MAUDE'
-        print('Successfully connected to MAUDE')
+def from_maude():
+    Backend.set('maude')
+
+def from_cxc():
+    Backend.set('cxc')
 
 
 def local_or_remote_function(remote_print_output):
@@ -448,12 +496,13 @@ class MSID(object):
                     ft['interval'] = self.stat
                     self._get_stat_data()
                 else:
-                    if 'MAUDE' == _backend:
+                    if 'maude' == _backend.get()[0]:
                         gmd = self._get_msid_data_from_maude
+                        self.source = 'maude'
                     else:
                         gmd = (self._get_msid_data_cached if CACHE else
                         self._get_msid_data)
-                    self.vals, self.times, self.bads, self.colnames = \
+                        self.source = 'cxc'
                     gmd(self.content, self.tstart, self.tstop, self.MSID,
                         self.units['system'])
 
@@ -516,10 +565,6 @@ class MSID(object):
         files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
         return MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
-        #global _backend
-        #return (MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
-        #if 'CXC' == _backend else MSID._get_msid_data_from_maude(content,
-        #    tstart, tstop, msid, unit_system))
 
     @staticmethod
     def _get_msid_data(content, tstart, tstop, msid, unit_system):
@@ -602,25 +647,34 @@ class MSID(object):
 
         return (vals, times, bads, colnames)
 
-    @staticmethod
-    def _get_msid_data_from_maude(content, tstart, tstop, msid, unit_system):
+    #@staticmethod
+    def _get_msid_data_from_maude(self, content, tstart, tstop, msid, unit_system):
         """
         Get time and values for an MSID from MAUDE.
         Returned values are (for now) all assumed to be good.
         """
-        out = maude.get_msids(msids=msid, start=DateTime(tstart).greta,
-                              stop=DateTime(tstop).greta)
-        out = out['data'][0] # but what about n>1 msids?
-        vals = Units(unit_system).convert(msid.upper(), out['values'])
-        times = out['times'].secs
+        try:
+            out = maude.get_msids(msids=msid, start=tstart, stop=tstop)
+        except Exception as e:
+            print(e)
+        else:
+            # (for now) msids are only ever fetched from maude one at a time, so
+            # select the 0th element from the query result
+            out = out['data'][0] 
 
-        # No notion of 'bad' values yet from MAUDE, so pretend they're all good
-        bads = np.full((len(vals),), False, dtype=bool)
+            vals = Units(unit_system).convert(msid.upper(), out['values'])
+            times = out['times'].secs
+            
+            # No notion of 'bad' values yet from MAUDE, so pretend they're all good
+            bads = np.full((len(vals),), False, dtype=bool)
 
-        colnames = ['times', 'vals', 'bads']
-        return (vals, times, bads, colnames)
+            colnames = ['times', 'vals', 'bads']
 
-    
+            self.vals, self.times, self.bads, self.colnames = \
+            vals, times, bads, colnames
+
+            self.raw_vals = out['raw_values']
+
     @property
     def state_codes(self):
         """List of state codes tuples (raw_count, state_code) for state-valued
