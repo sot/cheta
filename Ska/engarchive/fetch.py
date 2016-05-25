@@ -2,7 +2,6 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
-__docformat__ = 'restructuredtext'
 import sys
 import os
 import time
@@ -71,7 +70,8 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
 
-class Backend(object):
+
+class _Backend(object):
     _backends = ('cxc',)
     _allowed = ('cxc', 'maude')
 
@@ -95,6 +95,11 @@ class Backend(object):
     @classmethod
     def get(cls):
         return cls._backends
+
+
+# Public interface is a "backend" module attribute
+backend = _Backend
+
 
 def local_or_remote_function(remote_print_output):
     """
@@ -447,15 +452,21 @@ class MSID(object):
                     ft['interval'] = self.stat
                     self._get_stat_data()
                 else:
-                    if 'maude' in Backend.get():
-                        gmd = self._get_msid_data_from_maude
-                        self.source = 'maude'
-                    else:
-                        gmd = (self._get_msid_data_cached if CACHE else
-                        self._get_msid_data)
-                        self.source = 'cxc'
-                    gmd(self.content, self.tstart, self.tstop, self.MSID,
-                        self.units['system'])
+                    self.colnames = ['vals', 'times', 'bads']
+                    args = (self.content, self.tstart, self.tstop, self.MSID, self.units['system'])
+
+                    if 'cxc' in backend.get():
+                        # CACHE is normally True only when doing ingest processing.  Note
+                        # also that to support caching the get_msid_data_from_cxc_cached
+                        # method must be static.
+                        get_msid_data = (self._get_msid_data_from_cxc_cached if CACHE
+                                         else self._get_msid_data_from_cxc)
+                        self.vals, self.times, self.bads = get_msid_data(*args)
+
+                    if 'maude' in backend.get():
+                        # Update self.vals, times, bads in place.  This might concatenate MAUDE
+                        # telemetry to existing CXC values.
+                        self._get_msid_data_from_maude(*args)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -509,14 +520,16 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
+    @staticmethod
     @cache.lru_cache(30)
-    def _get_msid_data_cached(self, content, tstart, tstop, msid, unit_system):
+    def _get_msid_data_from_cxc_cached(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
-        return MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
+        return MSID._get_msid_data_from_cxc(content, tstart, tstop, msid, unit_system)
 
-    def _get_msid_data(self, content, tstart, tstop, msid, unit_system):
+    @staticmethod
+    def _get_msid_data_from_cxc(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files"""
 
@@ -588,45 +601,57 @@ class MSID(object):
         vals = Units(unit_system).convert(msid.upper(), vals[row0:row1])
         times = times[row0:row1]
         bads = bads[row0:row1]
-        colnames = ['times', 'vals', 'bads']
 
         # Possibly expand the bads list for a set of about 30 MSIDs which
         # have incorrect values in CXCDS telemetry
         bads = _fix_ctu_dwell_mode_bads(msid, bads)
 
-        return (vals, times, bads, colnames)
+        return (vals, times, bads)
 
     def _get_msid_data_from_maude(self, content, tstart, tstop, msid, unit_system):
         """
         Get time and values for an MSID from MAUDE.
         Returned values are (for now) all assumed to be good.
         """
+        # Telemetry values from another backend may already be available.  If
+        # so then only query MAUDE from after the last available point.
+        telem_already = hasattr(self, 'times')
+
+        if telem_already:
+            tstart = self.times[-1] + 0.001  # Don't fetch the last point again
+            if tstop - tstart < 32.8:
+                # Already got enough data from the original query, no need to hit MAUDE
+                return
+
+        # Actually query MAUDE
         try:
             out = maude.get_msids(msids=msid, start=tstart, stop=tstop)
         except Exception as e:
-            print(e)
-        else:
-            # (for now) msids are only ever fetched from maude one at a time,
-            # so select the 0th element from the query result
-            out = out['data'][0] 
+            raise Exception('MAUDE query failed: {}'.format(e))
 
-            vals = Units(unit_system).convert(msid.upper(), out['values'])
-            times = out['times'].secs
-            
-            # No notion of 'bad' values yet from MAUDE, so pretend they're all good
-            bads = np.full((len(vals),), False, dtype=bool)
+        # Only one MSID is queried from MAUDE but maude.get_msids() already returns
+        # a list of results, so select the first element.
+        out = out['data'][0]
 
-            colnames = ['times', 'vals', 'bads']
+        vals = out['values']  # Units(unit_system).convert(msid.upper(), out['values'])
+        times = out['times'].secs
+        bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
 
-            self.vals, self.times, self.bads, self.colnames = \
-            vals, times, bads, colnames
+        if telem_already:
+            vals = np.concatenate([self.vals, vals])
+            times = np.concatenate([self.times, times])
+            bads = np.concatenate([self.bads, bads])
+
+        self.vals = vals
+        self.times = times
+        self.bads = bads
 
     @property
     def state_codes(self):
         """List of state codes tuples (raw_count, state_code) for state-valued
         MSIDs
         """
-        if 'S' not in self.vals.dtype.str:
+        if self.vals.dtype.kind not in ('S', 'U'):
             self._state_codes = None
 
         if self.MSID in STATE_CODES:
@@ -651,7 +676,7 @@ class MSID(object):
         stored in ``self.vals``
         """
         # If this is not a string-type value then there are no raw values
-        if 'S' not in self.vals.dtype.str or self.state_codes is None:
+        if self.vals.dtype.kind not in ('S', 'U') or self.state_codes is None:
             self._raw_vals = None
 
         if not hasattr(self, '_raw_vals'):
