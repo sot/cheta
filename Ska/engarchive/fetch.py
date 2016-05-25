@@ -70,34 +70,39 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 CONTENT_TIME_RANGES = {}
 
 
-class _Backend(object):
-    _backends = ('cxc',)
-    _allowed = ('cxc', 'maude')
+class _DataSource(object):
+    """
+    Context manager and quasi-singleton configuration object for managing the
+    data_source(s) used for fetching telemetry.
+    """
+    _data_sources = ('cxc',)
+    _allowed = ('cxc', 'maude', 'test-drop-half')
 
-    def __init__(self, *backends):
-        self._new_backends = backends
+    def __init__(self, *data_sources):
+        self._new_data_sources = data_sources
 
     def __enter__(self):
-        self._orig_backends = self.__class__._backends
-        self.set(*self._new_backends)
+        self._orig_data_sources = self.__class__._data_sources
+        self.set(*self._new_data_sources)
 
     def __exit__(self, type, value, traceback):
-        self.__class__._backends = self._orig_backends
+        self.__class__._data_sources = self._orig_data_sources
 
     @classmethod
-    def set(cls, *backends):
-        if any(backend not in cls._allowed for backend in backends):
-            raise ValueError('backends {} not in allowed set {}'
-                             .format(backends))
-        cls._backends = backends
+    def set(cls, *data_sources):
+        if any(data_source not in cls._allowed for data_source in data_sources):
+            allowed = tuple(x for x in cls._allowed if not x.startswith('test'))
+            raise ValueError('data_sources {} not in allowed set {}'
+                             .format(data_sources, allowed))
+        cls._data_sources = data_sources
 
     @classmethod
     def get(cls):
-        return cls._backends
+        return cls._data_sources
 
 
-# Public interface is a "backend" module attribute
-backend = _Backend
+# Public interface is a "data_source" module attribute
+data_source = _DataSource
 
 
 def local_or_remote_function(remote_print_output):
@@ -399,6 +404,7 @@ class MSID(object):
                       DateTime(time.time(), format='unix').secs)
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
+        self.data_source = {}
 
         try:
             self.content = content[self.MSID]
@@ -454,15 +460,29 @@ class MSID(object):
                     self.colnames = ['vals', 'times', 'bads']
                     args = (self.content, self.tstart, self.tstop, self.MSID, self.units['system'])
 
-                    if 'cxc' in backend.get():
+                    if 'cxc' in data_source.get():
                         # CACHE is normally True only when doing ingest processing.  Note
                         # also that to support caching the get_msid_data_from_cxc_cached
                         # method must be static.
                         get_msid_data = (self._get_msid_data_from_cxc_cached if CACHE
                                          else self._get_msid_data_from_cxc)
                         self.vals, self.times, self.bads = get_msid_data(*args)
+                        self.data_source['cxc'] = (DateTime(self.times[0]).date,
+                                                   DateTime(self.times[-1]).date)
 
-                    if 'maude' in backend.get():
+                    if 'test-drop-half' in data_source.get():
+                        # For testing purposes drop half the data off the end.  This assumes another
+                        # data_source like 'cxc' has been selected.
+                        idx = len(self.vals) // 2
+                        self.vals = self.vals[:idx]
+                        self.times = self.times[:idx]
+                        self.bads = self.bads[:idx]
+                        # Following assumes only one prior data source but ok for controlled testing
+                        for source in self.data_source:
+                            self.data_source[source] = (DateTime(self.times[0]).date,
+                                                        DateTime(self.times[-1]).date)
+
+                    if 'maude' in data_source.get():
                         # Update self.vals, times, bads in place.  This might concatenate MAUDE
                         # telemetry to existing CXC values.
                         self._get_msid_data_from_maude(*args)
@@ -614,13 +634,14 @@ class MSID(object):
         """
         import maude
 
-        # Telemetry values from another backend may already be available.  If
+        # Telemetry values from another data_source may already be available.  If
         # so then only query MAUDE from after the last available point.
-        telem_already = hasattr(self, 'times')
+        telem_already = hasattr(self, 'times') and len(self.times) > 2
 
         if telem_already:
             tstart = self.times[-1] + 0.001  # Don't fetch the last point again
-            if tstop - tstart < 32.8:
+            dt = self.times[-1] - self.times[-2]
+            if tstop - tstart < dt * 2:
                 # Already got enough data from the original query, no need to hit MAUDE
                 return
 
@@ -637,6 +658,9 @@ class MSID(object):
         vals = out['values']  # Units(unit_system).convert(msid.upper(), out['values'])
         times = out['times'].secs
         bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
+
+        self.data_source['maude'] = (DateTime(times[0]).date,
+                                     DateTime(times[-1]).date)
 
         if telem_already:
             vals = np.concatenate([self.vals, vals])
