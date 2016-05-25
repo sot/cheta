@@ -18,6 +18,7 @@ import re
 import numpy as np
 import asciitable
 import pyyaks.context
+import maude
 
 from . import file_defs
 from .units import Units
@@ -70,6 +71,30 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
 
+class Backend(object):
+    _backends = ('cxc',)
+    _allowed = ('cxc', 'maude')
+
+    def __init__(self, *backends):
+        self._new_backends = backends
+
+    def __enter__(self):
+        self._orig_backends = self.__class__._backends
+        self.set(*self._new_backends)
+
+    def __exit__(self, type, value, traceback):
+        self.__class__._backends = self._orig_backends
+
+    @classmethod
+    def set(cls, *backends):
+        if any(backend not in cls._allowed for backend in backends):
+            raise ValueError('backends {} not in allowed set {}'
+                             .format(backends))
+        cls._backends = backends
+
+    @classmethod
+    def get(cls):
+        return cls._backends
 
 def local_or_remote_function(remote_print_output):
     """
@@ -126,6 +151,7 @@ def _split_path(path):
         path, folder = os.path.split(path)
 
         if folder != "":
+
             folders.append(folder)
         else:
             if path == "\\":
@@ -421,11 +447,15 @@ class MSID(object):
                     ft['interval'] = self.stat
                     self._get_stat_data()
                 else:
-                    gmd = (self._get_msid_data_cached if CACHE else
-                           self._get_msid_data)
-                    self.vals, self.times, self.bads, self.colnames = \
-                        gmd(self.content, self.tstart, self.tstop, self.MSID,
-                            self.units['system'])
+                    if 'maude' in Backend.get():
+                        gmd = self._get_msid_data_from_maude
+                        self.source = 'maude'
+                    else:
+                        gmd = (self._get_msid_data_cached if CACHE else
+                        self._get_msid_data)
+                        self.source = 'cxc'
+                    gmd(self.content, self.tstart, self.tstop, self.MSID,
+                        self.units['system'])
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -479,16 +509,14 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
-    @staticmethod
     @cache.lru_cache(30)
-    def _get_msid_data_cached(content, tstart, tstop, msid, unit_system):
+    def _get_msid_data_cached(self, content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
         return MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
 
-    @staticmethod
-    def _get_msid_data(content, tstart, tstop, msid, unit_system):
+    def _get_msid_data(self, content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files"""
 
@@ -567,6 +595,31 @@ class MSID(object):
         bads = _fix_ctu_dwell_mode_bads(msid, bads)
 
         return (vals, times, bads, colnames)
+
+    def _get_msid_data_from_maude(self, content, tstart, tstop, msid, unit_system):
+        """
+        Get time and values for an MSID from MAUDE.
+        Returned values are (for now) all assumed to be good.
+        """
+        try:
+            out = maude.get_msids(msids=msid, start=tstart, stop=tstop)
+        except Exception as e:
+            print(e)
+        else:
+            # (for now) msids are only ever fetched from maude one at a time,
+            # so select the 0th element from the query result
+            out = out['data'][0] 
+
+            vals = Units(unit_system).convert(msid.upper(), out['values'])
+            times = out['times'].secs
+            
+            # No notion of 'bad' values yet from MAUDE, so pretend they're all good
+            bads = np.full((len(vals),), False, dtype=bool)
+
+            colnames = ['times', 'vals', 'bads']
+
+            self.vals, self.times, self.bads, self.colnames = \
+            vals, times, bads, colnames
 
     @property
     def state_codes(self):
