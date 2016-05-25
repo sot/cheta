@@ -17,7 +17,6 @@ import re
 import numpy as np
 import asciitable
 import pyyaks.context
-import maude
 
 from . import file_defs
 from .units import Units
@@ -613,6 +612,8 @@ class MSID(object):
         Get time and values for an MSID from MAUDE.
         Returned values are (for now) all assumed to be good.
         """
+        import maude
+
         # Telemetry values from another backend may already be available.  If
         # so then only query MAUDE from after the last available point.
         telem_already = hasattr(self, 'times')
