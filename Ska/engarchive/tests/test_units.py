@@ -1,6 +1,9 @@
+import numpy as np
+
 from .. import fetch as fetch_cxc
 from .. import fetch_eng as fetch_eng
 from .. import fetch_sci as fetch_sci
+from ..units import Units
 
 start = '2011:001:00:00:00'
 stop = '2011:001:00:30:00'
@@ -83,3 +86,17 @@ def test_deahk_units():
     assert cxc.vals[0] > 100
     assert sci.vals[0] < -80
     assert eng.vals[0] < -80
+
+
+def test_from_units():
+    vals = Units('sci').convert('TEPHIN', np.array([32.0]), from_system='eng')
+    assert np.allclose(vals, [0.0])
+
+
+def test_equiv_units():
+    cxc = fetch_cxc.MSID('aorate1', start, stop)
+    sci = fetch_sci.MSID('aorate1', start, stop)
+    eng = fetch_eng.MSID('aorate1', start, stop)
+    assert cxc.unit == 'rad/s'
+    assert sci.unit == 'rad/s'
+    assert eng.unit == 'RADPS'

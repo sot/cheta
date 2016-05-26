@@ -1,12 +1,15 @@
 import numpy as np
 import pytest
 
-from .. import fetch
+
+from .. import fetch, fetch_sci, fetch_eng
+fetch_cxc = fetch
 
 
 date1 = '2016:001:00:00:00.1'
 date2 = '2016:001:00:00:02.0'
 date3 = '2016:001:00:00:05.0'
+date4 = '2016:001:00:00:35.0'
 
 
 try:
@@ -60,3 +63,16 @@ def test_maude_data_source():
         assert np.all(datcm.vals == datc.vals)
         assert datcm.data_source == {'cxc': ('2016:001:00:00:00.287', '2016:001:00:00:02.337'),
                                      'maude': ('2016:001:00:00:02.509', '2016:001:00:00:04.815')}
+
+
+@pytest.mark.skipif("not HAS_MAUDE")
+def test_units_eng_to_other():
+    for fetch_ in fetch_sci, fetch_eng, fetch_cxc:
+        dat1 = fetch_.Msid('tephin', date1, date4)
+        with fetch_.data_source('maude'):
+            dat2 = fetch_.Msid('tephin', date1, date4)
+
+        assert 'cxc' in dat1.data_source
+        assert 'maude' in dat2.data_source
+        assert dat1.unit == dat2.unit
+        assert np.allclose(dat1.vals, dat2.vals)

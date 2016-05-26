@@ -69,13 +69,16 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
 
+# Default source of data.
+DEFAULT_DATA_SOURCE = 'cxc'
+
 
 class _DataSource(object):
     """
     Context manager and quasi-singleton configuration object for managing the
     data_source(s) used for fetching telemetry.
     """
-    _data_sources = ('cxc',)
+    _data_sources = (DEFAULT_DATA_SOURCE,)
     _allowed = ('cxc', 'maude', 'test-drop-half')
 
     def __init__(self, *data_sources):
@@ -655,7 +658,7 @@ class MSID(object):
         # a list of results, so select the first element.
         out = out['data'][0]
 
-        vals = out['values']  # Units(unit_system).convert(msid.upper(), out['values'])
+        vals = Units(unit_system).convert(msid.upper(), out['values'], from_system='eng')
         times = out['times'].secs
         bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
 
