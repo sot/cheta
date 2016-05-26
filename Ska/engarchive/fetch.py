@@ -100,8 +100,26 @@ class _DataSource(object):
         cls._data_sources = data_sources
 
     @classmethod
-    def get(cls):
-        return cls._data_sources
+    def get(cls, include_test=True):
+        if include_test:
+            sources = cls._data_sources
+        else:
+            sources = filter(lambda x: not x.startswith('test'), cls._data_sources)
+        return sources
+
+    @classmethod
+    def get_msids(cls, source):
+        """Get the set of MSID names corresponding to ``source`` ('cxc' or 'maude')
+        """
+        if source == 'cxc':
+            out = content
+        elif source == 'maude':
+            import maude
+            out = maude.MSIDS
+        else:
+            raise ValueError('source must be "cxc" or "msid"')
+
+        return set(out)
 
 
 # Public interface is a "data_source" module attribute
@@ -291,12 +309,45 @@ def msid_glob(msid):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
+    msids = []
+    MSIDS = []
+    for source in data_source.get(include_test=False):
+        ms, MS = _msid_glob(msid, source)
+
+        # Build up a list of unique MSIDs in original order.  This process is O(N^2)
+        # but the lists are small so don't care.
+        for m in ms:
+            if m not in msids:
+                msids.append(m)
+        for m in MS:
+            if m not in MSIDS:
+                MSIDS.append(m)
+
+    if not msids:
+        raise ValueError('MSID {} is not in'.format(MSID))
+
+    return msids, MSIDS
+
+
+def _msid_glob(msid, source):
+    """Get the archive MSIDs matching ``msid``.
+
+    The function returns a tuple of (msids, MSIDs) where ``msids`` is a list of
+    MSIDs that is all lower case and (where possible) matches the input
+    ``msid``.  The output ``MSIDs`` is all upper case and corresponds to the
+    exact MSID names stored in the archive HDF5 files.
+
+    :param msid: input MSID glob
+    :returns: tuple (msids, MSIDs)
+    """
+
+    source_msids = data_source.get_msids(source)
 
     MSID = msid.upper()
     # First try MSID or DP_<MSID>.  If success then return the upper
     # case version and whatever the user supplied (could be any case).
     for match in (MSID, 'DP_' + MSID):
-        if match in content:
+        if match in source_msids:
             return [msid], [match]
 
     # Next try as a file glob.  If there is a match then return a
@@ -304,7 +355,7 @@ def msid_glob(msid):
     # input was a glob the returned msids are just lower case versions
     # of the matched upper case MSIDs.
     for match in (MSID, 'DP_' + MSID):
-        matches = fnmatch.filter(content.keys(), match)
+        matches = fnmatch.filter(source_msids, match)
         if matches:
             if len(matches) > MAX_GLOB_MATCHES:
                 raise ValueError(
@@ -313,7 +364,8 @@ def msid_glob(msid):
                     .format(msid, MAX_GLOB_MATCHES))
             return [x.lower() for x in matches], matches
 
-    raise ValueError('MSID {} is not in Eng Archive'.format(MSID))
+    # msid not found for this data source
+    return [], []
 
 
 def _get_table_intervals_as_list(table, check_overlaps=True):
