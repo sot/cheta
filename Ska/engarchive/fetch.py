@@ -309,24 +309,18 @@ def msid_glob(msid):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
-    msids = []
-    MSIDS = []
+    msids = collections.OrderedDict()
+    MSIDS = collections.OrderedDict()
+
     for source in data_source.get(include_test=False):
         ms, MS = _msid_glob(msid, source)
-
-        # Build up a list of unique MSIDs in original order.  This process is O(N^2)
-        # but the lists are small so don't care.
-        for m in ms:
-            if m not in msids:
-                msids.append(m)
-        for m in MS:
-            if m not in MSIDS:
-                MSIDS.append(m)
+        msids.update((m, None) for m in ms)
+        MSIDS.update((m, None) for m in MS)
 
     if not msids:
         raise ValueError('MSID {} is not in'.format(MSID))
 
-    return msids, MSIDS
+    return list(msids), list(MSIDS)
 
 
 def _msid_glob(msid, source):
