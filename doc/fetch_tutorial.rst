@@ -974,6 +974,43 @@ so refer to the
 `Ska.tdb <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html>`_
 documentation for further information.
 
+MAUDE telemetry server
+======================
+
+The ``fetch`` module provides the capability to choose the source of telemetry data used
+in queries.  The historical (and current default) back-end telemetry database consists of
+a collection of HDF5 files that are constructed and updated daily using CXC level-0
+engineering telemetry decom products.  This is complete and accurate but typically has a
+latency of 2-3 days.
+
+In order to fill this gap an interface to the MAUDE telemetry server is available.
+
+
+Setup for authentication
+------------------------
+
+In order to use ``maude`` you must have authentication credentials (username and password)
+to access OCCweb.  One can provide those credentials manually to the
+:func:`~maude.maude.get_msids` function call, but this gets tiresome.
+
+The preferred method to use this from a secure machine is to edit the file ``.netrc`` in
+your home directory and put in your OCCweb credentials.
+
+**IMPORTANT**: make sure the file is readable only by you!
+::
+
+  chmod og-rwx ~/.netrc
+
+
+Once you have done that, add these three lines.  If there are already
+other machines defined you need a blank line between the machine configs.
+::
+
+  machine  occweb
+  login    your-occweb-username
+  password your-occweb-password
+
+
 Pushing it to the limit
 ========================
 
