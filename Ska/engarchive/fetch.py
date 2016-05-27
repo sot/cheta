@@ -93,10 +93,15 @@ class _DataSource(object):
 
     @classmethod
     def set(cls, *data_sources):
+        allowed = cls.get(include_test=False)
         if any(data_source not in cls._allowed for data_source in data_sources):
-            allowed = tuple(x for x in cls._allowed if not x.startswith('test'))
             raise ValueError('data_sources {} not in allowed set {}'
                              .format(data_sources, allowed))
+
+        if len(data_sources) == 0:
+            raise ValueError('must select at least one data source in {}'
+                             .format(allowed))
+
         cls._data_sources = data_sources
 
     @classmethod
@@ -112,10 +117,10 @@ class _DataSource(object):
         """Get the set of MSID names corresponding to ``source`` ('cxc' or 'maude')
         """
         if source == 'cxc':
-            out = content
+            out = content.keys()
         elif source == 'maude':
             import maude
-            out = maude.MSIDS
+            out = maude.MSIDS.keys()
         else:
             raise ValueError('source must be "cxc" or "msid"')
 
@@ -312,13 +317,15 @@ def msid_glob(msid):
     msids = collections.OrderedDict()
     MSIDS = collections.OrderedDict()
 
-    for source in data_source.get(include_test=False):
+    sources = data_source.get(include_test=False)
+    for source in sources:
         ms, MS = _msid_glob(msid, source)
         msids.update((m, None) for m in ms)
         MSIDS.update((m, None) for m in MS)
 
     if not msids:
-        raise ValueError('MSID {} is not in'.format(MSID))
+        raise ValueError('MSID {!r} is not in {} data source(s)'
+                         .format(msid, ' or '.join(x.upper() for x in sources)))
 
     return list(msids), list(MSIDS)
 
@@ -454,11 +461,7 @@ class MSID(object):
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
         self.data_source = {}
-
-        try:
-            self.content = content[self.MSID]
-        except KeyError:
-            raise ValueError('MSID %s is not in Eng Archive' % self.MSID)
+        self.content = content.get(self.MSID)
 
         if self.datestart < DATE2000_LO and self.datestop > DATE2000_HI:
             intervals = [(self.datestart, DATE2000_HI),
@@ -503,13 +506,16 @@ class MSID(object):
 
             with _set_msid_files_basedir(self.datestart):
                 if self.stat:
+                    if 'maude' in data_source.get():
+                        raise ValueError('MAUDE data source does not support telemetry statistics')
                     ft['interval'] = self.stat
                     self._get_stat_data()
                 else:
                     self.colnames = ['vals', 'times', 'bads']
                     args = (self.content, self.tstart, self.tstop, self.MSID, self.units['system'])
 
-                    if 'cxc' in data_source.get():
+                    if ('cxc' in data_source.get() and
+                            self.MSID in data_source.get_msids('cxc')):
                         # CACHE is normally True only when doing ingest processing.  Note
                         # also that to support caching the get_msid_data_from_cxc_cached
                         # method must be static.
@@ -519,7 +525,7 @@ class MSID(object):
                         self.data_source['cxc'] = (DateTime(self.times[0]).date,
                                                    DateTime(self.times[-1]).date)
 
-                    if 'test-drop-half' in data_source.get():
+                    if 'test-drop-half' in data_source.get() and hasattr(self, 'vals'):
                         # For testing purposes drop half the data off the end.  This assumes another
                         # data_source like 'cxc' has been selected.
                         idx = len(self.vals) // 2
@@ -531,7 +537,8 @@ class MSID(object):
                             self.data_source[source] = (DateTime(self.times[0]).date,
                                                         DateTime(self.times[-1]).date)
 
-                    if 'maude' in data_source.get():
+                    if ('maude' in data_source.get() and
+                            self.MSID in data_source.get_msids('maude')):
                         # Update self.vals, times, bads in place.  This might concatenate MAUDE
                         # telemetry to existing CXC values.
                         self._get_msid_data_from_maude(*args)

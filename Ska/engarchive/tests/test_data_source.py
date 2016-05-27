@@ -41,7 +41,12 @@ def test_data_source():
 
     with pytest.raises(ValueError) as err:
         fetch.data_source.set('blah')
-    assert 'data_sources' in str(err)
+    assert 'not in allowed set' in str(err.value)
+
+    with pytest.raises(ValueError) as err:
+        with fetch.data_source():
+            pass
+    assert 'must select at least' in str(err.value)
 
 
 @pytest.mark.skipif("not HAS_MAUDE")
@@ -76,3 +81,40 @@ def test_units_eng_to_other():
         assert 'maude' in dat2.data_source
         assert dat1.unit == dat2.unit
         assert np.allclose(dat1.vals, dat2.vals)
+
+
+@pytest.mark.skipif("not HAS_MAUDE")
+def test_msid_resolution():
+    """
+    Make sure that MSIDs that might be in one data source or the other
+    are handled properly.
+    """
+    with fetch.data_source('cxc', 'maude', 'test-drop-half'):
+        # dp_pitch only in CXC but this succeeds anyway
+        dat = fetch.Msid('dp_pitch', date1, date4)
+        assert dat.data_source.keys() == ['cxc']
+        print(len(dat.vals))
+
+        # Not in either
+        with pytest.raises(ValueError) as err:
+            fetch.Msid('asdfasdfasdf', date1, date4)
+        assert "MSID 'asdfasdfasdf' is not in CXC or MAUDE" in str(err.value)
+
+        # ACIMG1D1 only in MAUDE
+        dat = fetch.Msid('ACIMG1D1', date1, date4)
+        assert dat.data_source.keys() == ['maude']
+        print(len(dat.vals))
+
+    with fetch.data_source('cxc'):
+        # In MAUDE but this is not selected
+        with pytest.raises(ValueError):
+            fetch.Msid('ACIMG1D1', date1, date4)
+
+
+@pytest.mark.skipif("not HAS_MAUDE")
+def test_no_stats_maude():
+    """Cannot select stats='5min' or 'daily' with MAUDE data source"""
+    with fetch.data_source('maude'):
+        with pytest.raises(ValueError) as err:
+            fetch.Msid('TEPHIN', date1, date4, stat='5min')
+        assert 'MAUDE data source does not support' in str(err.value)
