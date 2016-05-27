@@ -978,20 +978,65 @@ MAUDE telemetry server
 ======================
 
 The ``fetch`` module provides the capability to choose the source of telemetry data used
-in queries.  The historical (and current default) back-end telemetry database consists of
-a collection of HDF5 files that are constructed and updated daily using CXC level-0
-engineering telemetry decom products.  This is complete and accurate but typically has a
-latency of 2-3 days.
+in queries.  The historical (and current default) source of telemetry data consists of a
+collection of HDF5 files that are constructed and updated daily using CXC level-0
+engineering telemetry decom products.  This has the bulk of commonly used telemetry but
+typically has a latency of 2-3 days.
 
-In order to fill this gap an interface to the MAUDE telemetry server is available.
+In order to fill this gap an interface to the `MAUDE telemetry server
+<http://occweb.cfa.harvard.edu/twiki/Software/MaudeSupport>`_ is also available.
+
+The key differences between the CXC and MAUDE telemetry data sources are:
+
+- CXC includes `pseudo-MSIDs <../pseudo_msids.html>`_ such as ephemeris data, ACIS and HRC
+  housekeeping, and derived parameters like the pitch and off-nominal roll angle.
+- CXC has a latency of 2-3 days vs. hours for MAUDE back-orbit telemetry.
+- During a realtime support MAUDE provides near-realime telemetry.
+- As of MAUDE 0.7.2 there is no support for 5-minute and daily stats (coming in 0.7.3).
+- CXC has about 6800 MSIDs while MAUDE has around 11350.  At least some of the MSIDs that
+  are only in MAUDE are somewhat obscure ones like ``ACIMG1D1`` (PEA1 PIXEL D1 DATA IMAGE
+  1) which the CXC decoms into higher-level products.
+- CXC is optimized for large bulk queries using direct disk access.  It is limited only by
+  system memory (gigabytes) and **always returns all available data points**.
+- MAUDE is optimized for smaller, more frequent queries and uses a secure web server to
+  provide data.  It has limits on both the number of returned data values (around 100k)
+  and the total number of bytes in the data (around 1.6 Mb).  **MAUDE will sub-sample
+  the data as necessary to fit in the data limits**.
+
+Once you have followed the steps to `Setup for MAUDE authentication`, you can access
+the MAUDE data.
+
+The source of data for fetch queries is controlled by the module-level ``fetch.data_source``
+configuration.  You can first view the current data source with::
+
+  >>> fetch.data_source.get()
+  ('cxc',)
+
+This shows that the current source of data is the CXC files.  You can change to MAUDE as follows::
+
+  >>> fetch.data_source.set('maude')
+  >>> fetch.data_source.get()
+  ('maude',)
+
+Now if you execute a query MAUDE will be used.  There is not any obvious difference from
+the user perspective and the returned ``Msid`` object looks and behaves exactly as if you
+had queried from the CXC data::
+
+  >>> dat = fetch.Msid('tephin', '2015:001', '2015:002')
+
+The most direct way to be sure of the actual data source is to look at the ``data_source``
+attribute::
+
+  >>> dat.data_source
+  {'maude': ('2015:001:12:00:15.037', '2015:002:11:59:37.452')}
 
 
-Setup for authentication
-------------------------
+Setup for MAUDE authentication
+------------------------------
 
-In order to use ``maude`` you must have authentication credentials (username and password)
-to access OCCweb.  One can provide those credentials manually to the
-:func:`~maude.maude.get_msids` function call, but this gets tiresome.
+In order to use MAUDE as the data source you must have authentication credentials
+(username and password) to access OCCweb.  One can provide those credentials manually to
+the :func:`~maude.maude.get_msids` function call, but this gets tiresome.
 
 The preferred method to use this from a secure machine is to edit the file ``.netrc`` in
 your home directory and put in your OCCweb credentials.
