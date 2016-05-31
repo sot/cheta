@@ -1001,13 +1001,16 @@ The key differences between the CXC and MAUDE telemetry data sources are:
 - MAUDE is optimized for smaller, more frequent queries and uses a secure web server to
   provide data.  It has limits on both the number of returned data values (around 100k)
   and the total number of bytes in the data (around 1.6 Mb).  **MAUDE will sub-sample
-  the data as necessary to fit in the data limits**.
+  the data as necessary to fit in the data limits (see below for example)**.
 
-Once you have followed the steps to `Setup for MAUDE authentication`, you can access
+Basic usage
+-----------
+
+Once you have followed the steps to `Setup for MAUDE authentication`_, you can access
 the MAUDE data.
 
 The source of data for fetch queries is controlled by the module-level ``fetch.data_source``
-configuration.  You can first view the current data source with::
+configuration object.  You can first view the current data source with::
 
   >>> fetch.data_source.get()
   ('cxc',)
@@ -1028,7 +1031,91 @@ The most direct way to be sure of the actual data source is to look at the ``dat
 attribute::
 
   >>> dat.data_source
-  {'maude': ('2015:001:12:00:15.037', '2015:002:11:59:37.452')}
+  {'maude': {'flags': {'subset': False, 'tolerance': False},
+             'start': '2015:001:12:00:15.037',
+             'stop': '2015:002:11:59:37.452'}}
+
+This shows the ``start`` and ``stop`` time for data values that were returned
+by the MAUDE server.  In addition two status flags are returned.
+
+For the purposes here, the important flag is ``subset``.  As mentioned above, the MAUDE
+server will not return more than around 100k data values in a single query.  When a query
+would return more than this number of values then it automatically subsamples the data to
+return no more than 100k points.  This is done in a clever way such that it reproduces
+what a plot of the fully-sampled dataset would look like at screen resolution.
+Nevertheless one should pay attention to the ``subset`` flag, particularly in cases
+where subsampling could affect analysis results.  One example is examinine attitude
+quaternions (``AOATTQT{1,2,3,4}``) where the four values must be taken from the
+exact same readout frame.
+
+A common use case (indeed a key driver for accessing MAUDE through the Ska interface) is
+to fetch data using *both* the CXC and MAUDE data, taking CXC data where possible and then
+filling in the last couple of days using MAUDE.  This is done by specifying the data
+source as both ``cxc`` and ``maude``, as shown in the following example::
+
+  >>> fetch.data_source.set('cxc', 'maude')
+
+Now assume the current date is 2016:152:01:00:00 and we want all available data since 2016:100
+
+  >>> dat = fetch.Msid('tephin', '2016:100')
+  >>> dat.data_source
+  {'cxc': {'start': '2016:100:12:00:11.268',
+           'stop': '2016:150:19:38:40.317'},
+   'maude': {'flags': {'subset': False, 'tolerance': False},
+             'start': '2016:150:19:38:56.130',
+             'stop': '2016:151:20:40:37.392'}}
+
+This shows that data have been fetched from both data sources and stitched together
+seamlessly.
+
+Context manager
+---------------
+
+The ``fetch.data_source`` object can also be used as a context manager to *temporarily*
+change the data source within an enclosed code block.  This is useful because it restores
+the original data source even if there is an exception within the code block.  For
+instance::
+
+  >>> fetch.data_source.get()
+  ('cxc',)
+  >>> with fetch.data_source('maude'):
+  ...     dat = fetch.Msid('tephin', '2016:001', '2016:002')
+  ...     print(fetch.data_source.get())
+  ...
+  ('maude',)
+  >>> fetch.data_source.get()
+  ('cxc',)
+
+Data source differences
+-----------------------
+
+There are different MSIDs available in the different data sources (but *mostly* they
+overlap).  To directly understand this you can access the MSID lists as follows.  The
+``get_msids()`` method of ``data_source`` returns a Python ``set`` of MSIDs::
+
+  >>> cxc_msids = fetch.data_source.get_msids('cxc')
+  >>> maude_msids = fetch.data_source.get_msids('maude')
+  >>> sorted(cxc_msids - maude_msids)  # In CXC but not MAUDE
+  ['3W00FILL',
+   '3W05FILL',
+   '3W22FILL',
+   ...
+   'TMP_FEP1_MONG',
+   'TMP_FEP1_PCB',
+   'TMP_FEP1_RAM']
+
+  >>> len(cxc_msids - maude_msids)
+  552
+  >>> len(maude_msids - cxc_msids)
+  5107
+
+If you do a mixed-source query (CXC and MAUDE) for an MSID that is available in
+only one of the sources, then just the one source will be used.  For instance::
+
+  >>> dat = fetch.Msid('pitch', '2016:145')  # from 2016:145 to present
+  >>> dat.data_source
+  {'cxc': {'start': '2016:145:12:00:00.241',
+           'stop': '2016:150:18:37:01.841'}}
 
 
 Setup for MAUDE authentication
