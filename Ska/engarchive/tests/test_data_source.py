@@ -55,19 +55,25 @@ def test_maude_data_source():
     with fetch.data_source('cxc'):
         datc = fetch.Msid('aogyrct1', date1, date3)
         assert len(datc.vals) == 19
-        assert datc.data_source == {'cxc': ('2016:001:00:00:00.287', '2016:001:00:00:04.900')}
+        assert datc.data_source == {'cxc': {'start': '2016:001:00:00:00.287',
+                                            'stop': '2016:001:00:00:04.900'}}
 
     with fetch.data_source('maude'):
         datm = fetch.Msid('aogyrct1', date1, date3)
         assert np.all(datm.vals == datc.vals)
         assert not np.all(datm.times == datc.times)
-        assert datm.data_source == {'maude': ('2016:001:00:00:00.203', '2016:001:00:00:04.815')}
+        assert datm.data_source == {'maude': {'start': '2016:001:00:00:00.203',
+                                              'stop': '2016:001:00:00:04.815',
+                                              'flags': {'tolerance': False, 'subset': False}}}
 
     with fetch.data_source('cxc', 'maude', 'test-drop-half'):
         datcm = fetch.Msid('aogyrct1', date1, date3)
         assert np.all(datcm.vals == datc.vals)
-        assert datcm.data_source == {'cxc': ('2016:001:00:00:00.287', '2016:001:00:00:02.337'),
-                                     'maude': ('2016:001:00:00:02.509', '2016:001:00:00:04.815')}
+        assert datcm.data_source == {'cxc': {'start': '2016:001:00:00:00.287',
+                                             'stop': '2016:001:00:00:02.337'},
+                                     'maude': {'start': '2016:001:00:00:02.509',
+                                               'stop': '2016:001:00:00:04.815',
+                                               'flags': {'tolerance': False, 'subset': False}}}
 
 
 @pytest.mark.skipif("not HAS_MAUDE")

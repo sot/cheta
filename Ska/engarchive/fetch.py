@@ -522,8 +522,8 @@ class MSID(object):
                         get_msid_data = (self._get_msid_data_from_cxc_cached if CACHE
                                          else self._get_msid_data_from_cxc)
                         self.vals, self.times, self.bads = get_msid_data(*args)
-                        self.data_source['cxc'] = (DateTime(self.times[0]).date,
-                                                   DateTime(self.times[-1]).date)
+                        self.data_source['cxc'] = {'start': DateTime(self.times[0]).date,
+                                                   'stop': DateTime(self.times[-1]).date}
 
                     if 'test-drop-half' in data_source.get() and hasattr(self, 'vals'):
                         # For testing purposes drop half the data off the end.  This assumes another
@@ -534,8 +534,8 @@ class MSID(object):
                         self.bads = self.bads[:idx]
                         # Following assumes only one prior data source but ok for controlled testing
                         for source in self.data_source:
-                            self.data_source[source] = (DateTime(self.times[0]).date,
-                                                        DateTime(self.times[-1]).date)
+                            self.data_source[source] = {'start': DateTime(self.times[0]).date,
+                                                        'stop': DateTime(self.times[-1]).date}
 
                     if ('maude' in data_source.get() and
                             self.MSID in data_source.get_msids('maude')):
@@ -715,8 +715,9 @@ class MSID(object):
         times = out['times'].secs
         bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
 
-        self.data_source['maude'] = (DateTime(times[0]).date,
-                                     DateTime(times[-1]).date)
+        self.data_source['maude'] = {'start': DateTime(times[0]).date,
+                                     'stop': DateTime(times[-1]).date,
+                                     'flags': out['flags']}
 
         if telem_already:
             vals = np.concatenate([self.vals, vals])
