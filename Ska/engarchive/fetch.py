@@ -745,8 +745,9 @@ class MSID(object):
                 return
 
         # Actually query MAUDE
+        options = data_source.options()['maude']
         try:
-            out = maude.get_msids(msids=msid, start=tstart, stop=tstop)
+            out = maude.get_msids(msids=msid, start=tstart, stop=tstop, **options)
         except Exception as e:
             raise Exception('MAUDE query failed: {}'.format(e))
 

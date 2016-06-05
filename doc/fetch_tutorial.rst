@@ -1038,6 +1038,8 @@ attribute::
 This shows the ``start`` and ``stop`` time for data values that were returned
 by the MAUDE server.  In addition two status flags are returned.
 
+**Data subsets**
+
 For the purposes here, the important flag is ``subset``.  As mentioned above, the MAUDE
 server will not return more than around 100k data values in a single query.  When a query
 would return more than this number of values then it automatically subsamples the data to
@@ -1048,12 +1050,32 @@ where subsampling could affect analysis results.  One example is examinine attit
 quaternions (``AOATTQT{1,2,3,4}``) where the four values must be taken from the
 exact same readout frame.
 
+In order to force the MAUDE server to return full resolution data, the MAUDE data source
+needs to be configured with the ``allow_subset=False`` flag.  This will prevent
+sub-sampling by doing multiple small queries.  This has an overhead penalty because it may
+require multiple server requests to piece together the full query.  For example::
+
+  >>> import maude
+  >>> maude.set_logger_level(10)  # Show debugging information from maude
+  >>> fetch.data_source.set('maude allow_subset=False')
+  >>> dat = fetch.Msid('aoattqt1', '2016:001', '2016:003')
+  get_msids: Using .netrc with user=taldcroft
+  get_msids_in_chunks: Chunked reading: max samples / major_frame = 32, chunk dt = 82000.0 secs
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016001120000000&tp=2016002040000000
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002040000000&tp=2016002200000000
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002200000000&tp=2016003120000000
+  >>> len(dat.vals)
+  168586  # MORE than 100000!
+
+**Multiple data sources**
+
 A common use case (indeed a key driver for accessing MAUDE through the Ska interface) is
 to fetch data using *both* the CXC and MAUDE data, taking CXC data where possible and then
-filling in the last couple of days using MAUDE.  This is done by specifying the data
-source as both ``cxc`` and ``maude``, as shown in the following example::
+filling in the last couple of days using MAUDE with full-resolution data (no subsetting).
+This is done by specifying the data source as both ``cxc`` and ``maude
+allow_subset=False``, as shown in the following example::
 
-  >>> fetch.data_source.set('cxc', 'maude')
+  >>> fetch.data_source.set('cxc', 'maude allow_subset=False')
 
 Now assume the current date is 2016:152:01:00:00 and we want all available data since 2016:100
 
