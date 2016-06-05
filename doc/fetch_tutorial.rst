@@ -1012,13 +1012,13 @@ the MAUDE data.
 The source of data for fetch queries is controlled by the module-level ``fetch.data_source``
 configuration object.  You can first view the current data source with::
 
-  >>> fetch.data_source.get()
+  >>> fetch.data_source.sources()
   ('cxc',)
 
 This shows that the current source of data is the CXC files.  You can change to MAUDE as follows::
 
   >>> fetch.data_source.set('maude')
-  >>> fetch.data_source.get()
+  >>> fetch.data_source.sources()
   ('maude',)
 
 Now if you execute a query MAUDE will be used.  There is not any obvious difference from
@@ -1076,14 +1076,14 @@ change the data source within an enclosed code block.  This is useful because it
 the original data source even if there is an exception within the code block.  For
 instance::
 
-  >>> fetch.data_source.get()
+  >>> fetch.data_source.sources()
   ('cxc',)
   >>> with fetch.data_source('maude'):
   ...     dat = fetch.Msid('tephin', '2016:001', '2016:002')
-  ...     print(fetch.data_source.get())
+  ...     print(fetch.data_source.sources())
   ...
   ('maude',)
-  >>> fetch.data_source.get()
+  >>> fetch.data_source.sources()
   ('cxc',)
 
 Data source differences

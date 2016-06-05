@@ -23,21 +23,21 @@ else:
 
 def test_data_source():
     """Unit test of _DataSource class"""
-    assert fetch.data_source.get() == ('cxc',)
+    assert fetch.data_source.sources() == ('cxc',)
 
     # Context manager
     with fetch.data_source('maude'):
-        assert fetch.data_source.get() == ('maude',)
-    assert fetch.data_source.get() == ('cxc',)
+        assert fetch.data_source.sources() == ('maude',)
+    assert fetch.data_source.sources() == ('cxc',)
 
     with fetch.data_source('cxc', 'maude'):
-        assert fetch.data_source.get() == ('cxc', 'maude',)
-    assert fetch.data_source.get() == ('cxc',)
+        assert fetch.data_source.sources() == ('cxc', 'maude',)
+    assert fetch.data_source.sources() == ('cxc',)
 
     fetch.data_source.set('maude')
-    assert fetch.data_source.get() == ('maude',)
+    assert fetch.data_source.sources() == ('maude',)
     fetch.data_source.set('cxc')
-    assert fetch.data_source.get() == ('cxc',)
+    assert fetch.data_source.sources() == ('cxc',)
 
     with pytest.raises(ValueError) as err:
         fetch.data_source.set('blah')
@@ -47,6 +47,15 @@ def test_data_source():
         with fetch.data_source():
             pass
     assert 'must select at least' in str(err.value)
+
+
+def test_options():
+    with fetch.data_source('cxc', 'maude allow_subset=False param=1'):
+        assert fetch.data_source.options() == {'cxc': {},
+                                               'maude': {'allow_subset': False,
+                                                         'param': 1}
+                                               }
+        assert fetch.data_source.sources() == ('cxc', 'maude')
 
 
 @pytest.mark.skipif("not HAS_MAUDE")

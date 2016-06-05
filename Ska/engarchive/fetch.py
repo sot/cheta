@@ -93,29 +93,46 @@ class _DataSource(object):
 
     @classmethod
     def set(cls, *data_sources):
-        allowed = cls.get(include_test=False)
-        if any(data_source not in cls._allowed for data_source in data_sources):
+        """
+        Set current data sources.
+
+        :param *data_sources: one or more sources (str)
+        """
+        if any(data_source.split()[0] not in cls._allowed for data_source in data_sources):
             raise ValueError('data_sources {} not in allowed set {}'
-                             .format(data_sources, allowed))
+                             .format(data_sources, cls._allowed))
 
         if len(data_sources) == 0:
             raise ValueError('must select at least one data source in {}'
-                             .format(allowed))
+                             .format(cls._allowed))
 
         cls._data_sources = data_sources
 
     @classmethod
-    def get(cls, include_test=True):
+    def sources(cls, include_test=True):
+        """
+        Get tuple of current data sources names.
+
+        :param include_test: include sources that start with 'test'
+        :returns: tuple of data source names
+        """
         if include_test:
             sources = cls._data_sources
         else:
             sources = filter(lambda x: not x.startswith('test'), cls._data_sources)
-        return sources
+
+        return tuple(source.split()[0] for source in sources)
 
     @classmethod
     def get_msids(cls, source):
-        """Get the set of MSID names corresponding to ``source`` ('cxc' or 'maude')
         """
+        Get the set of MSID names corresponding to ``source`` (e.g. 'cxc' or 'maude')
+
+        :param source: str
+        :returns: set of MSIDs
+        """
+        source = source.split()[0]
+
         if source == 'cxc':
             out = content.keys()
         elif source == 'maude':
@@ -126,6 +143,32 @@ class _DataSource(object):
 
         return set(out)
 
+    @classmethod
+    def options(cls):
+        """
+        Get the data sources and corresponding options as a dict.
+
+        Example::
+
+          >>> data_source.set('cxc', 'maude allow_subset=False')
+          >>> data_source.options()
+          {'cxc': {}, 'maude': {'allow_subset': False}}
+
+        :returns: dict of data source options
+        """
+        import ast
+
+        out = {}
+        for source in cls._data_sources:
+            vals = source.split()
+            name, opts = vals[0], vals[1:]
+            out[name] = {}
+            for opt in opts:
+                key, val = opt.split('=')
+                val = ast.literal_eval(val)
+                out[name][key] = val
+
+        return out
 
 # Public interface is a "data_source" module attribute
 data_source = _DataSource
@@ -317,7 +360,7 @@ def msid_glob(msid):
     msids = collections.OrderedDict()
     MSIDS = collections.OrderedDict()
 
-    sources = data_source.get(include_test=False)
+    sources = data_source.sources(include_test=False)
     for source in sources:
         ms, MS = _msid_glob(msid, source)
         msids.update((m, None) for m in ms)
@@ -506,7 +549,7 @@ class MSID(object):
 
             with _set_msid_files_basedir(self.datestart):
                 if self.stat:
-                    if 'maude' in data_source.get():
+                    if 'maude' in data_source.sources():
                         raise ValueError('MAUDE data source does not support telemetry statistics')
                     ft['interval'] = self.stat
                     self._get_stat_data()
@@ -514,7 +557,7 @@ class MSID(object):
                     self.colnames = ['vals', 'times', 'bads']
                     args = (self.content, self.tstart, self.tstop, self.MSID, self.units['system'])
 
-                    if ('cxc' in data_source.get() and
+                    if ('cxc' in data_source.sources() and
                             self.MSID in data_source.get_msids('cxc')):
                         # CACHE is normally True only when doing ingest processing.  Note
                         # also that to support caching the get_msid_data_from_cxc_cached
@@ -525,7 +568,7 @@ class MSID(object):
                         self.data_source['cxc'] = {'start': DateTime(self.times[0]).date,
                                                    'stop': DateTime(self.times[-1]).date}
 
-                    if 'test-drop-half' in data_source.get() and hasattr(self, 'vals'):
+                    if 'test-drop-half' in data_source.sources() and hasattr(self, 'vals'):
                         # For testing purposes drop half the data off the end.  This assumes another
                         # data_source like 'cxc' has been selected.
                         idx = len(self.vals) // 2
@@ -537,7 +580,7 @@ class MSID(object):
                             self.data_source[source] = {'start': DateTime(self.times[0]).date,
                                                         'stop': DateTime(self.times[-1]).date}
 
-                    if ('maude' in data_source.get() and
+                    if ('maude' in data_source.sources() and
                             self.MSID in data_source.get_msids('maude')):
                         # Update self.vals, times, bads in place.  This might concatenate MAUDE
                         # telemetry to existing CXC values.
@@ -712,7 +755,7 @@ class MSID(object):
         out = out['data'][0]
 
         vals = Units(unit_system).convert(msid.upper(), out['values'], from_system='eng')
-        times = out['times'].secs
+        times = out['times']
         bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
 
         self.data_source['maude'] = {'start': DateTime(times[0]).date,
