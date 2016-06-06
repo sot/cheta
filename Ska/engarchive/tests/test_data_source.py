@@ -151,3 +151,18 @@ def test_no_stats_maude():
         with pytest.raises(ValueError) as err:
             fetch.Msid('TEPHIN', date1, date4, stat='5min')
         assert 'MAUDE data source does not support' in str(err.value)
+
+
+def test_zero_length_fetch_cxc():
+    """Zero length fetch gives a data source with empty dict"""
+    with fetch.data_source('cxc'):
+        dat = fetch.Msid('tephin', '2015:001', '2015:001')
+    assert dat.data_source == {'cxc': {}}
+
+
+@pytest.mark.skipif("not HAS_MAUDE")
+def test_zero_length_fetch_maude():
+    """Zero length fetch gives a data source with empty dict"""
+    with fetch.data_source('maude'):
+        dat = fetch.Msid('tephin', '2015:001', '2015:001')
+    assert dat.data_source == {'maude': {'flags': {'tolerance': False, 'subset': False}}}
