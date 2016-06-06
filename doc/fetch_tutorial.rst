@@ -974,6 +974,201 @@ so refer to the
 `Ska.tdb <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html>`_
 documentation for further information.
 
+MAUDE telemetry server
+======================
+
+The ``fetch`` module provides the capability to choose the source of telemetry data used
+in queries.  The historical (and current default) source of telemetry data consists of a
+collection of HDF5 files that are constructed and updated daily using CXC level-0
+engineering telemetry decom products.  This has the bulk of commonly used telemetry but
+typically has a latency of 2-3 days.
+
+In order to fill this gap an interface to the `MAUDE telemetry server
+<http://occweb.cfa.harvard.edu/twiki/Software/MaudeSupport>`_ is also available.
+
+
+The key differences between the CXC and MAUDE telemetry data sources are:
+
+- CXC includes `pseudo-MSIDs <../pseudo_msids.html>`_ such as ephemeris data, ACIS and HRC
+  housekeeping, and derived parameters like the pitch and off-nominal roll angle.
+- CXC has a latency of 2-3 days vs. hours for MAUDE back-orbit telemetry.
+- During a realtime support MAUDE provides near-realime telemetry.
+- As of MAUDE 0.7.2 there is no support for 5-minute and daily stats (coming in 0.7.3).
+- CXC has about 6800 MSIDs while MAUDE has around 11350.  At least some of the MSIDs that
+  are only in MAUDE are somewhat obscure ones like ``ACIMG1D1`` (PEA1 PIXEL D1 DATA IMAGE
+  1) which the CXC decoms into higher-level products.
+- CXC is optimized for large bulk queries using direct disk access.  It is limited only by
+  system memory (gigabytes) and **always returns all available data points**.
+- MAUDE is optimized for smaller, more frequent queries and uses a secure web server to
+  provide data.  It has limits on both the number of returned data values (around 100k)
+  and the total number of bytes in the data (around 1.6 Mb).  **MAUDE will sub-sample
+  the data as necessary to fit in the data limits (see below for example)**.
+
+Basic usage
+-----------
+
+Once you have followed the steps to `Setup for MAUDE authentication`_, you can access
+the MAUDE data.
+
+The source of data for fetch queries is controlled by the module-level ``fetch.data_source``
+configuration object.  You can first view the current data source with::
+
+  >>> fetch.data_source.sources()
+  ('cxc',)
+
+This shows that the current source of data is the CXC files.  You can change to MAUDE as follows::
+
+  >>> fetch.data_source.set('maude')
+  >>> fetch.data_source.sources()
+  ('maude',)
+
+Now if you execute a query MAUDE will be used.  There is not any obvious difference from
+the user perspective and the returned ``Msid`` object looks and behaves exactly as if you
+had queried from the CXC data::
+
+  >>> dat = fetch.Msid('tephin', '2015:001', '2015:002')
+
+The most direct way to be sure of the actual data source is to look at the ``data_source``
+attribute::
+
+  >>> dat.data_source
+  {'maude': {'flags': {'subset': False, 'tolerance': False},
+             'start': '2015:001:12:00:15.037',
+             'stop': '2015:002:11:59:37.452'}}
+
+This shows the ``start`` and ``stop`` time for data values that were returned
+by the MAUDE server.  In addition two status flags are returned.
+
+**Data subsets**
+
+For the purposes here, the important flag is ``subset``.  As mentioned above, the MAUDE
+server will not return more than around 100k data values in a single query.  When a query
+would return more than this number of values then the server automatically subsamples the
+data to return no more than 100k points.  This is done in a clever way such that it
+reproduces what a plot of the fully-sampled dataset would look like at screen resolution.
+Nevertheless one should pay attention to the ``subset`` flag, particularly in cases where
+subsampling could affect analysis results.  One example is examinine attitude quaternions
+(``AOATTQT{1,2,3,4}``) where the four values must be taken from the exact same readout
+frame.
+
+In order to force the MAUDE server to return full resolution data, the MAUDE data source
+needs to be configured with the ``allow_subset=False`` flag.  This will prevent
+sub-sampling by doing multiple small queries.  This has an overhead penalty because it may
+require multiple server requests to piece together the full query.  For example::
+
+  >>> import maude
+  >>> maude.set_logger_level(10)  # Show debugging information from maude
+  >>> fetch.data_source.set('maude allow_subset=False')
+  >>> dat = fetch.Msid('aoattqt1', '2016:001', '2016:003')
+  get_msids: Using .netrc with user=taldcroft
+  get_msids_in_chunks: Chunked reading: max samples / major_frame = 32, chunk dt = 82000.0 secs
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016001120000000&tp=2016002040000000
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002040000000&tp=2016002200000000
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002200000000&tp=2016003120000000
+  >>> len(dat.vals)
+  168586  # MORE than 100000!
+
+When ``allow_subset=False`` then a fetch query is not allowed to span more than 7 days in
+order to prevent swamping the MAUDE server.
+
+**Multiple data sources**
+
+A common use case (indeed a key driver for accessing MAUDE through the Ska interface) is
+to fetch data using *both* the CXC and MAUDE data, taking CXC data where possible and then
+filling in the last couple of days using MAUDE with full-resolution data (no subsetting).
+This is done by specifying the data source as both ``cxc`` and ``maude
+allow_subset=False``, as shown in the following example::
+
+  >>> fetch.data_source.set('cxc', 'maude allow_subset=False')
+
+Now assume the current date is 2016:152:01:00:00 and we want all available data since 2016:100
+
+  >>> dat = fetch.Msid('tephin', '2016:100')
+  >>> dat.data_source
+  {'cxc': {'start': '2016:100:12:00:11.268',
+           'stop': '2016:150:19:38:40.317'},
+   'maude': {'flags': {'subset': False, 'tolerance': False},
+             'start': '2016:150:19:38:56.130',
+             'stop': '2016:151:20:40:37.392'}}
+
+This shows that data have been fetched from both data sources and stitched together
+seamlessly.
+
+Context manager
+---------------
+
+The ``fetch.data_source`` object can also be used as a context manager to *temporarily*
+change the data source within an enclosed code block.  This is useful because it restores
+the original data source even if there is an exception within the code block.  For
+instance::
+
+  >>> fetch.data_source.sources()
+  ('cxc',)
+  >>> with fetch.data_source('maude'):
+  ...     dat = fetch.Msid('tephin', '2016:001', '2016:002')
+  ...     print(fetch.data_source.sources())
+  ...
+  ('maude',)
+  >>> fetch.data_source.sources()
+  ('cxc',)
+
+Data source differences
+-----------------------
+
+There are different MSIDs available in the different data sources (but *mostly* they
+overlap).  To directly understand this you can access the MSID lists as follows.  The
+``get_msids()`` method of ``data_source`` returns a Python ``set`` of MSIDs::
+
+  >>> cxc_msids = fetch.data_source.get_msids('cxc')
+  >>> maude_msids = fetch.data_source.get_msids('maude')
+  >>> sorted(cxc_msids - maude_msids)  # In CXC but not MAUDE
+  ['3W00FILL',
+   '3W05FILL',
+   '3W22FILL',
+   ...
+   'TMP_FEP1_MONG',
+   'TMP_FEP1_PCB',
+   'TMP_FEP1_RAM']
+
+  >>> len(cxc_msids - maude_msids)
+  552
+  >>> len(maude_msids - cxc_msids)
+  5107
+
+If you do a mixed-source query (CXC and MAUDE) for an MSID that is available in
+only one of the sources, then just the one source will be used.  For instance::
+
+  >>> dat = fetch.Msid('pitch', '2016:145')  # from 2016:145 to present
+  >>> dat.data_source
+  {'cxc': {'start': '2016:145:12:00:00.241',
+           'stop': '2016:150:18:37:01.841'}}
+
+
+Setup for MAUDE authentication
+------------------------------
+
+In order to use MAUDE as the data source you must have authentication credentials
+(username and password) to access OCCweb.  One can provide those credentials manually to
+the :func:`~maude.maude.get_msids` function call, but this gets tiresome.
+
+The preferred method to use this from a secure machine is to edit the file ``.netrc`` in
+your home directory and put in your OCCweb credentials.
+
+**IMPORTANT**: make sure the file is readable only by you!
+::
+
+  chmod og-rwx ~/.netrc
+
+
+Once you have done that, add these three lines.  If there are already
+other machines defined you need a blank line between the machine configs.
+::
+
+  machine  occweb
+  login    your-occweb-username
+  password your-occweb-password
+
+
 Pushing it to the limit
 ========================
 

@@ -2,7 +2,6 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
-__docformat__ = 'restructuredtext'
 import sys
 import os
 import time
@@ -70,6 +69,110 @@ STATE_CODES = {'3TSCMOVE': [(0, 'F'), (1, 'T')],
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
 
+# Default source of data.
+DEFAULT_DATA_SOURCE = 'cxc'
+
+
+class _DataSource(object):
+    """
+    Context manager and quasi-singleton configuration object for managing the
+    data_source(s) used for fetching telemetry.
+    """
+    _data_sources = (DEFAULT_DATA_SOURCE,)
+    _allowed = ('cxc', 'maude', 'test-drop-half')
+
+    def __init__(self, *data_sources):
+        self._new_data_sources = data_sources
+
+    def __enter__(self):
+        self._orig_data_sources = self.__class__._data_sources
+        self.set(*self._new_data_sources)
+
+    def __exit__(self, type, value, traceback):
+        self.__class__._data_sources = self._orig_data_sources
+
+    @classmethod
+    def set(cls, *data_sources):
+        """
+        Set current data sources.
+
+        :param *data_sources: one or more sources (str)
+        """
+        if any(data_source.split()[0] not in cls._allowed for data_source in data_sources):
+            raise ValueError('data_sources {} not in allowed set {}'
+                             .format(data_sources, cls._allowed))
+
+        if len(data_sources) == 0:
+            raise ValueError('must select at least one data source in {}'
+                             .format(cls._allowed))
+
+        cls._data_sources = data_sources
+
+    @classmethod
+    def sources(cls, include_test=True):
+        """
+        Get tuple of current data sources names.
+
+        :param include_test: include sources that start with 'test'
+        :returns: tuple of data source names
+        """
+        if include_test:
+            sources = cls._data_sources
+        else:
+            sources = filter(lambda x: not x.startswith('test'), cls._data_sources)
+
+        return tuple(source.split()[0] for source in sources)
+
+    @classmethod
+    def get_msids(cls, source):
+        """
+        Get the set of MSID names corresponding to ``source`` (e.g. 'cxc' or 'maude')
+
+        :param source: str
+        :returns: set of MSIDs
+        """
+        source = source.split()[0]
+
+        if source == 'cxc':
+            out = content.keys()
+        elif source == 'maude':
+            import maude
+            out = maude.MSIDS.keys()
+        else:
+            raise ValueError('source must be "cxc" or "msid"')
+
+        return set(out)
+
+    @classmethod
+    def options(cls):
+        """
+        Get the data sources and corresponding options as a dict.
+
+        Example::
+
+          >>> data_source.set('cxc', 'maude allow_subset=False')
+          >>> data_source.options()
+          {'cxc': {}, 'maude': {'allow_subset': False}}
+
+        :returns: dict of data source options
+        """
+        import ast
+
+        out = {}
+        for source in cls._data_sources:
+            vals = source.split()
+            name, opts = vals[0], vals[1:]
+            out[name] = {}
+            for opt in opts:
+                key, val = opt.split('=')
+                val = ast.literal_eval(val)
+                out[name][key] = val
+
+        return out
+
+# Public interface is a "data_source" module attribute
+data_source = _DataSource
+
 
 def local_or_remote_function(remote_print_output):
     """
@@ -126,6 +229,7 @@ def _split_path(path):
         path, folder = os.path.split(path)
 
         if folder != "":
+
             folders.append(folder)
         else:
             if path == "\\":
@@ -253,12 +357,41 @@ def msid_glob(msid):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
+    msids = collections.OrderedDict()
+    MSIDS = collections.OrderedDict()
+
+    sources = data_source.sources(include_test=False)
+    for source in sources:
+        ms, MS = _msid_glob(msid, source)
+        msids.update((m, None) for m in ms)
+        MSIDS.update((m, None) for m in MS)
+
+    if not msids:
+        raise ValueError('MSID {!r} is not in {} data source(s)'
+                         .format(msid, ' or '.join(x.upper() for x in sources)))
+
+    return list(msids), list(MSIDS)
+
+
+def _msid_glob(msid, source):
+    """Get the archive MSIDs matching ``msid``.
+
+    The function returns a tuple of (msids, MSIDs) where ``msids`` is a list of
+    MSIDs that is all lower case and (where possible) matches the input
+    ``msid``.  The output ``MSIDs`` is all upper case and corresponds to the
+    exact MSID names stored in the archive HDF5 files.
+
+    :param msid: input MSID glob
+    :returns: tuple (msids, MSIDs)
+    """
+
+    source_msids = data_source.get_msids(source)
 
     MSID = msid.upper()
     # First try MSID or DP_<MSID>.  If success then return the upper
     # case version and whatever the user supplied (could be any case).
     for match in (MSID, 'DP_' + MSID):
-        if match in content:
+        if match in source_msids:
             return [msid], [match]
 
     # Next try as a file glob.  If there is a match then return a
@@ -266,7 +399,7 @@ def msid_glob(msid):
     # input was a glob the returned msids are just lower case versions
     # of the matched upper case MSIDs.
     for match in (MSID, 'DP_' + MSID):
-        matches = fnmatch.filter(content.keys(), match)
+        matches = fnmatch.filter(source_msids, match)
         if matches:
             if len(matches) > MAX_GLOB_MATCHES:
                 raise ValueError(
@@ -275,7 +408,8 @@ def msid_glob(msid):
                     .format(msid, MAX_GLOB_MATCHES))
             return [x.lower() for x in matches], matches
 
-    raise ValueError('MSID {} is not in Eng Archive'.format(MSID))
+    # msid not found for this data source
+    return [], []
 
 
 def _get_table_intervals_as_list(table, check_overlaps=True):
@@ -369,11 +503,8 @@ class MSID(object):
                       DateTime(time.time(), format='unix').secs)
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
-
-        try:
-            self.content = content[self.MSID]
-        except KeyError:
-            raise ValueError('MSID %s is not in Eng Archive' % self.MSID)
+        self.data_source = {}
+        self.content = content.get(self.MSID)
 
         if self.datestart < DATE2000_LO and self.datestop > DATE2000_HI:
             intervals = [(self.datestart, DATE2000_HI),
@@ -418,14 +549,42 @@ class MSID(object):
 
             with _set_msid_files_basedir(self.datestart):
                 if self.stat:
+                    if 'maude' in data_source.sources():
+                        raise ValueError('MAUDE data source does not support telemetry statistics')
                     ft['interval'] = self.stat
                     self._get_stat_data()
                 else:
-                    gmd = (self._get_msid_data_cached if CACHE else
-                           self._get_msid_data)
-                    self.vals, self.times, self.bads, self.colnames = \
-                        gmd(self.content, self.tstart, self.tstop, self.MSID,
-                            self.units['system'])
+                    self.colnames = ['vals', 'times', 'bads']
+                    args = (self.content, self.tstart, self.tstop, self.MSID, self.units['system'])
+
+                    if ('cxc' in data_source.sources() and
+                            self.MSID in data_source.get_msids('cxc')):
+                        # CACHE is normally True only when doing ingest processing.  Note
+                        # also that to support caching the get_msid_data_from_cxc_cached
+                        # method must be static.
+                        get_msid_data = (self._get_msid_data_from_cxc_cached if CACHE
+                                         else self._get_msid_data_from_cxc)
+                        self.vals, self.times, self.bads = get_msid_data(*args)
+                        self.data_source['cxc'] = {'start': DateTime(self.times[0]).date,
+                                                   'stop': DateTime(self.times[-1]).date}
+
+                    if 'test-drop-half' in data_source.sources() and hasattr(self, 'vals'):
+                        # For testing purposes drop half the data off the end.  This assumes another
+                        # data_source like 'cxc' has been selected.
+                        idx = len(self.vals) // 2
+                        self.vals = self.vals[:idx]
+                        self.times = self.times[:idx]
+                        self.bads = self.bads[:idx]
+                        # Following assumes only one prior data source but ok for controlled testing
+                        for source in self.data_source:
+                            self.data_source[source] = {'start': DateTime(self.times[0]).date,
+                                                        'stop': DateTime(self.times[-1]).date}
+
+                    if ('maude' in data_source.sources() and
+                            self.MSID in data_source.get_msids('maude')):
+                        # Update self.vals, times, bads in place.  This might concatenate MAUDE
+                        # telemetry to existing CXC values.
+                        self._get_msid_data_from_maude(*args)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
@@ -481,14 +640,14 @@ class MSID(object):
 
     @staticmethod
     @cache.lru_cache(30)
-    def _get_msid_data_cached(content, tstart, tstop, msid, unit_system):
+    def _get_msid_data_from_cxc_cached(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files and cache recent results.  Caching is very beneficial for derived
         parameter updates but not desirable for normal fetch usage."""
-        return MSID._get_msid_data(content, tstart, tstop, msid, unit_system)
+        return MSID._get_msid_data_from_cxc(content, tstart, tstop, msid, unit_system)
 
     @staticmethod
-    def _get_msid_data(content, tstart, tstop, msid, unit_system):
+    def _get_msid_data_from_cxc(content, tstart, tstop, msid, unit_system):
         """Do the actual work of getting time and values for an MSID from HDF5
         files"""
 
@@ -560,20 +719,65 @@ class MSID(object):
         vals = Units(unit_system).convert(msid.upper(), vals[row0:row1])
         times = times[row0:row1]
         bads = bads[row0:row1]
-        colnames = ['times', 'vals', 'bads']
 
         # Possibly expand the bads list for a set of about 30 MSIDs which
         # have incorrect values in CXCDS telemetry
         bads = _fix_ctu_dwell_mode_bads(msid, bads)
 
-        return (vals, times, bads, colnames)
+        return (vals, times, bads)
+
+    def _get_msid_data_from_maude(self, content, tstart, tstop, msid, unit_system):
+        """
+        Get time and values for an MSID from MAUDE.
+        Returned values are (for now) all assumed to be good.
+        """
+        import maude
+
+        # Telemetry values from another data_source may already be available.  If
+        # so then only query MAUDE from after the last available point.
+        telem_already = hasattr(self, 'times') and len(self.times) > 2
+
+        if telem_already:
+            tstart = self.times[-1] + 0.001  # Don't fetch the last point again
+            dt = self.times[-1] - self.times[-2]
+            if tstop - tstart < dt * 2:
+                # Already got enough data from the original query, no need to hit MAUDE
+                return
+
+        # Actually query MAUDE
+        options = data_source.options()['maude']
+        try:
+            out = maude.get_msids(msids=msid, start=tstart, stop=tstop, **options)
+        except Exception as e:
+            raise Exception('MAUDE query failed: {}'.format(e))
+
+        # Only one MSID is queried from MAUDE but maude.get_msids() already returns
+        # a list of results, so select the first element.
+        out = out['data'][0]
+
+        vals = Units(unit_system).convert(msid.upper(), out['values'], from_system='eng')
+        times = out['times']
+        bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
+
+        self.data_source['maude'] = {'start': DateTime(times[0]).date,
+                                     'stop': DateTime(times[-1]).date,
+                                     'flags': out['flags']}
+
+        if telem_already:
+            vals = np.concatenate([self.vals, vals])
+            times = np.concatenate([self.times, times])
+            bads = np.concatenate([self.bads, bads])
+
+        self.vals = vals
+        self.times = times
+        self.bads = bads
 
     @property
     def state_codes(self):
         """List of state codes tuples (raw_count, state_code) for state-valued
         MSIDs
         """
-        if 'S' not in self.vals.dtype.str:
+        if self.vals.dtype.kind not in ('S', 'U'):
             self._state_codes = None
 
         if self.MSID in STATE_CODES:
@@ -598,7 +802,7 @@ class MSID(object):
         stored in ``self.vals``
         """
         # If this is not a string-type value then there are no raw values
-        if 'S' not in self.vals.dtype.str or self.state_codes is None:
+        if self.vals.dtype.kind not in ('S', 'U') or self.state_codes is None:
             self._raw_vals = None
 
         if not hasattr(self, '_raw_vals'):
