@@ -986,6 +986,7 @@ typically has a latency of 2-3 days.
 In order to fill this gap an interface to the `MAUDE telemetry server
 <http://occweb.cfa.harvard.edu/twiki/Software/MaudeSupport>`_ is also available.
 
+
 The key differences between the CXC and MAUDE telemetry data sources are:
 
 - CXC includes `pseudo-MSIDs <../pseudo_msids.html>`_ such as ephemeris data, ACIS and HRC
@@ -1042,13 +1043,13 @@ by the MAUDE server.  In addition two status flags are returned.
 
 For the purposes here, the important flag is ``subset``.  As mentioned above, the MAUDE
 server will not return more than around 100k data values in a single query.  When a query
-would return more than this number of values then it automatically subsamples the data to
-return no more than 100k points.  This is done in a clever way such that it reproduces
-what a plot of the fully-sampled dataset would look like at screen resolution.
-Nevertheless one should pay attention to the ``subset`` flag, particularly in cases
-where subsampling could affect analysis results.  One example is examinine attitude
-quaternions (``AOATTQT{1,2,3,4}``) where the four values must be taken from the
-exact same readout frame.
+would return more than this number of values then the server automatically subsamples the
+data to return no more than 100k points.  This is done in a clever way such that it
+reproduces what a plot of the fully-sampled dataset would look like at screen resolution.
+Nevertheless one should pay attention to the ``subset`` flag, particularly in cases where
+subsampling could affect analysis results.  One example is examinine attitude quaternions
+(``AOATTQT{1,2,3,4}``) where the four values must be taken from the exact same readout
+frame.
 
 In order to force the MAUDE server to return full resolution data, the MAUDE data source
 needs to be configured with the ``allow_subset=False`` flag.  This will prevent
@@ -1066,6 +1067,9 @@ require multiple server requests to piece together the full query.  For example:
   get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002200000000&tp=2016003120000000
   >>> len(dat.vals)
   168586  # MORE than 100000!
+
+When ``allow_subset=False`` then a fetch query is not allowed to span more than 7 days in
+order to prevent swamping the MAUDE server.
 
 **Multiple data sources**
 
