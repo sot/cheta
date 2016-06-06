@@ -86,6 +86,24 @@ def test_maude_data_source():
 
 
 @pytest.mark.skipif("not HAS_MAUDE")
+def test_maude_allow_subset_false():
+    """Fetch data from MAUDE with allow_subset false"""
+    with fetch.data_source('maude allow_subset=False'):
+        datm = fetch.Msid('aogyrct1', '2016:001:00:00:00.1', '2016:001:12:00:00')
+        ds = datm.data_source
+        assert ds.keys() == ['maude']
+        assert ds['maude']['flags']['subset'] is False
+
+    with fetch.data_source('cxc'):
+        datc = fetch.Msid('aogyrct1', '2016:001:00:00:00.1', '2016:001:12:00:00')
+        ds = datc.data_source
+        assert ds.keys() == ['cxc']
+
+    assert len(datc.vals) == len(datm.vals)
+    assert np.all(datc.vals == datm.vals)
+
+
+@pytest.mark.skipif("not HAS_MAUDE")
 def test_units_eng_to_other():
     for fetch_ in fetch_sci, fetch_eng, fetch_cxc:
         dat1 = fetch_.Msid('tephin', date1, date4)
