@@ -241,6 +241,14 @@ def _split_path(path):
     folders.reverse()
     return folders
 
+
+def _get_start_stop_dates(times):
+    if len(times) == 0:
+        return {}
+    else:
+        return {'start': DateTime(times[0]).date,
+                'stop': DateTime(times[-1]).date}
+
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
@@ -565,8 +573,7 @@ class MSID(object):
                         get_msid_data = (self._get_msid_data_from_cxc_cached if CACHE
                                          else self._get_msid_data_from_cxc)
                         self.vals, self.times, self.bads = get_msid_data(*args)
-                        self.data_source['cxc'] = {'start': DateTime(self.times[0]).date,
-                                                   'stop': DateTime(self.times[-1]).date}
+                        self.data_source['cxc'] = _get_start_stop_dates(self.times)
 
                     if 'test-drop-half' in data_source.sources() and hasattr(self, 'vals'):
                         # For testing purposes drop half the data off the end.  This assumes another
@@ -577,8 +584,7 @@ class MSID(object):
                         self.bads = self.bads[:idx]
                         # Following assumes only one prior data source but ok for controlled testing
                         for source in self.data_source:
-                            self.data_source[source] = {'start': DateTime(self.times[0]).date,
-                                                        'stop': DateTime(self.times[-1]).date}
+                            self.data_source[source] = _get_start_stop_dates(self.times)
 
                     if ('maude' in data_source.sources() and
                             self.MSID in data_source.get_msids('maude')):
@@ -759,9 +765,8 @@ class MSID(object):
         times = out['times']
         bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
 
-        self.data_source['maude'] = {'start': DateTime(times[0]).date,
-                                     'stop': DateTime(times[-1]).date,
-                                     'flags': out['flags']}
+        self.data_source['maude'] = _get_start_stop_dates(times)
+        self.data_source['maude']['flags'] = out['flags']
 
         if telem_already:
             vals = np.concatenate([self.vals, vals])
