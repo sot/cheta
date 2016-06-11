@@ -561,7 +561,7 @@ def make_h5_col_file(dats, colname):
     filters = tables.Filters(complevel=5, complib='zlib')
     h5 = tables.openFile(filename, mode='w', filters=filters)
 
-    col = dats[0][colname]
+    col = dats[-1][colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
     h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
@@ -940,9 +940,10 @@ def update_msid_files(filetype, archfiles):
                              .format(data_lens))
 
         # Process any new MSIDs (this is extremely rare)
+        data_len = data_lens.pop()
         for colname in colnames - processed_cols:
             ft['msid'] = colname
-            append_filled_h5_col(dats, colname, data_lens.pop())
+            append_filled_h5_col(dats, colname, data_len)
 
     # Assuming everything worked now commit the db inserts that signify the
     # new archive files have been processed
