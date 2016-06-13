@@ -299,9 +299,25 @@ New thm1eng
 Installation
 ------------
 
-rsync -av data/acis3eng/ /proj/sot/ska/data/eng_archive/data/acis3eng_new/
-rsync -av data/eps10eng/ /proj/sot/ska/data/eng_archive/data/eps10eng_new/
-rsync -av data/obc4eng/ /proj/sot/ska/data/eng_archive/data/obc4eng_new/
-rsync -av data/pcad8eng/ /proj/sot/ska/data/eng_archive/data/pcad8eng_new/
-rsync -av data/tel2eng/ /proj/sot/ska/data/eng_archive/data/tel2eng_new/
-rsync -av data/thm1eng/ /proj/sot/ska/data/eng_archive/data/thm1eng_new/
+rsync -av --exclude=arch data/ NEW/
+mkdir /proj/sot/ska/data/eng_archive/data/NEW
+
+mv acis3eng_new NEW/acis3eng
+mv eps10eng_new NEW/eps10eng
+mv obc4eng_new NEW//obc4eng
+mv pcad8eng_new NEW/pcad8eng
+mv tel2eng_new NEW/tel2eng
+mv thm1eng_new NEW/thm1eng
+mv dp_thermal128_new NEW/dp_thermal128
+
+Install
+^^^^^^^
+cd /proj/sot/ska/data/eng_archive/data
+mkdir OLD
+mv acis3eng eps10eng obc4eng pcad8eng tel2eng thm1eng dp_thermal128 OLD/
+mv NEW/* ./
+
+Backout
+^^^^^^^
+mv acis3eng eps10eng obc4eng pcad8eng tel2eng thm1eng dp_thermal128 NEW/
+mv OLD/* ./
