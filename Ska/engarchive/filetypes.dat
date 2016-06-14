@@ -39,7 +39,6 @@ L0   HRC       HRC0SS          HRC_0{HRCSS}                 *.fits.gz
 L0   HRC       HRC2ENG         HRC_ENG_0{HRC2ENG}           *.fits.gz
 L0   HRC       HRC4ENG         HRC_ENG_0{HRC4ENG}           *.fits.gz
 L0   HRC       HRC5ENG         HRC_ENG_0{HRC5ENG}           *.fits.gz
-L0   HRC       HRC7ENG         HRC_ENG_0{HRC7ENG}           *.fits.gz
 L0   MISC      MISC1ENG        MISC_ENG_0{MISC1ENG}         *.fits.gz
 L0   MISC      MISC2ENG        MISC_ENG_0{MISC2ENG}         *.fits.gz
 L0   MISC      MISC3ENG        MISC_ENG_0{MISC3ENG}         *.fits.gz

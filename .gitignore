@@ -14,7 +14,10 @@ MANIFEST
 *.fits.gz
 stage
 Ska.engarchive.egg-info
-dev_utils
 sken.egg-info
 Ska/engarchive/GIT_VERSION
 test/eng_archive*
+dev_utils/event_filter_1.png
+dev_utils/event_filter_2.png
+dev_utils/l0_5icd.pdf
+dev_utils/memleak.py

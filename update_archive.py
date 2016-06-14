@@ -561,16 +561,48 @@ def make_h5_col_file(dats, colname):
     filters = tables.Filters(complevel=5, complib='zlib')
     h5 = tables.openFile(filename, mode='w', filters=filters)
 
-    col = dats[0][colname]
+    col = dats[-1][colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
     h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
                     expectedrows=n_rows)
     h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
                     expectedrows=n_rows)
-    logger.info('Made {} shape={} with n_rows(1e6)={}'
-                .format(colname, h5shape, n_rows / 1.0e6))
+    logger.verbose('WARNING: made new file {} for column {!r} shape={} with n_rows(1e6)={}'
+                   .format(filename, colname, h5shape, n_rows / 1.0e6))
     h5.close()
+
+
+def append_filled_h5_col(dats, colname, data_len):
+    """
+    For ``colname`` that has newly appeared in the CXC content file due to a TDB
+    change, append a sufficient number of empty, bad-quality rows to offset to the start
+    of the first ``dats`` table with that ``colname``.
+
+    ``data_len`` represents the data length to the END of the current ``dats``
+    for this content type.
+    """
+    # Drop all dats until the first one that has the new colname, then include
+    # all after that.
+    new_dats = list(itertools.dropwhile(lambda x: colname not in x.dtype.names, dats))
+    stacked_data = np.hstack([x[colname] for x in new_dats])
+    fill_len = data_len - len(stacked_data)
+    if fill_len < 0:
+        raise ValueError('impossible negative length error {}'.format(fill_len))
+
+    zeros = np.zeros(fill_len, dtype=stacked_data.dtype)
+    quals = np.zeros(fill_len, dtype=bool)
+
+    # Append zeros (for the data type) and quality=True (bad)
+    h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+    logger.verbose('Appending %d zeros to %s' % (len(zeros), msid_files['msid'].abs))
+    if not opt.dry_run:
+        h5.root.data.append(zeros)
+        h5.root.quality.append(quals)
+    h5.close()
+
+    # Now actually append the new data
+    append_h5_col(new_dats, colname, [])
 
 
 def append_h5_col(dats, colname, files_overlaps):
@@ -610,7 +642,10 @@ def append_h5_col(dats, colname, files_overlaps):
                     logger.verbose('WARNING: Unexpected null file overlap file0=%s file1=%s'
                                    % (file0, file1))
 
+    data_len = len(h5.root.data)
     h5.close()
+
+    return data_len
 
 
 def truncate_archive(filetype, date):
@@ -651,10 +686,11 @@ def truncate_archive(filetype, date):
             del_stats(colname, time0, '5min')
             del_stats(colname, time0, 'daily')
 
+    cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy, year)
     if not opt.dry_run:
-        db.execute('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+        db.execute(cmd)
         db.commit()
-    logger.verbose('DELETE FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy))
+    logger.verbose(cmd)
 
 
 def read_archfile(i, f, filetype, row, colnames, archfiles, db):
@@ -871,22 +907,43 @@ def update_msid_files(filetype, archfiles):
         # Capture the data for subsequent storage in the hdf5 files
         dats.append(dat)
 
-        # Update the running list of column names.  Colnames_all is the maximal
-        # (union) set giving all column names seen in any file for this content
-        # type.  Colnames is the minimal (intersection) set giving the list of
-        # column names seen in every file.
+        # Update the running list of column names.  Colnames_all is the maximal (union)
+        # set giving all column names seen in any file for this content type.  Colnames
+        # was historically the minimal (intersection) set giving the list of column names
+        # seen in every file, but as of 0.39 it is allowed to grow as well to accommodate
+        # adding MSIDs in the TDB.  Include only 1-d columns, not things like AEPERR
+        # in PCAD8ENG which is a 40-element binary vector.
         colnames_all.update(dat.dtype.names)
-        colnames.intersection_update(dat.dtype.names)
+        colnames.update(name for name in dat.dtype.names if dat[name].ndim == 1)
 
         row += len(dat)
 
     if dats:
         logger.verbose('Writing accumulated column data to h5 file at ' + time.ctime())
+        data_lens = set()
+        processed_cols = set()
         for colname in colnames:
             ft['msid'] = colname
-            if opt.create and not os.path.exists(msid_files['msid'].abs):
+            if not os.path.exists(msid_files['msid'].abs):
                 make_h5_col_file(dats, colname)
-            append_h5_col(dats, colname, archfiles_overlaps)
+                if not opt.create:
+                    # New MSID was found for this content type.  This must be associated with
+                    # an update to the TDB.  Skip for the moment to ensure that other MSIDs
+                    # are fully processed.
+                    continue
+            data_len = append_h5_col(dats, colname, archfiles_overlaps)
+            data_lens.add(data_len)
+            processed_cols.add(colname)
+
+        if len(data_lens) != 1:
+            raise ValueError('h5 data length inconsistency {}, investigate NOW!'
+                             .format(data_lens))
+
+        # Process any new MSIDs (this is extremely rare)
+        data_len = data_lens.pop()
+        for colname in colnames - processed_cols:
+            ft['msid'] = colname
+            append_filled_h5_col(dats, colname, data_len)
 
     # Assuming everything worked now commit the db inserts that signify the
     # new archive files have been processed

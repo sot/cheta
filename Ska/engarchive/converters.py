@@ -411,6 +411,36 @@ def obc4eng(dat):
     return out
 
 
+def tel2eng(dat):
+    """
+    At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to
+    read out in wide-mode.  As 4OAVOBAT is an average of all these MSIDs and calculated on board,
+    only the wide version of this MSID is valid after this patch is applied. 
+
+    This converter simply copies the 4OAVOBAT_WIDE values after the time of patch activation to
+    4OAVOBAT.  4OAVOBAT_WIDE is not available in the eng archive (by the _WIDE name).
+    """
+
+    # Convert using the baseline converter
+    out = numpy_converter(dat)
+
+    # 4OAVOBAT is modified by both patches since it is an average of MSIDs in both parts of the
+    # patch. Use the second time value as this is when the process is complete. See obc4eng() for
+    # both times and further details.
+    patch_time = DateTime('2014:342:16:32:45').secs
+
+    mask = out['TIME'] > patch_time
+    if np.any(mask):
+        print('Fixing MSID 4OAVOBAT')
+        out['4OAVOBAT'][mask] = out['4OAVOBAT_WIDE'][mask]
+
+        q_index = quality_index(out, '4OAVOBAT')
+        q_index_wide = quality_index(out, '4OAVOBAT_WIDE')
+        out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
+
+    return out
+
+
 def acisdeahk(dat):
     """Take the archive ACIS-0 DEA HKP data and convert to a format that is
     consistent with normal eng0 files.  ACIS-0 housekeeping has data stored

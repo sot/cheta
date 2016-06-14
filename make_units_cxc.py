@@ -1,14 +1,19 @@
 """
 Create the default unit system as found in the CXC telemetry FITS files.
 """
+from __future__ import print_function
+
+import os
 import re
 import glob
 import argparse
 import cPickle as pickle
-import os
 import pyfits
+import pyyaks
 
-from Ska.engarchive.converters import _get_deahk_cols, ALIASES
+from Ska.engarchive.converters import _get_deahk_cols, CXC_TO_MSID
+from Ska.engarchive import file_defs
+from Ska.engarchive import fetch
 
 
 def get_options(args=None):
@@ -20,31 +25,49 @@ def get_options(args=None):
 
 opt = get_options()
 
-units = {}
-dirs = glob.glob('/data/cosmos2/eng_archive/data/*/arch')
-for dir_ in dirs:
-    content = os.path.basename(os.path.split(dir_)[0])
-    print 'Finding units in', dir_
-    for dirpath, dirnames, filenames in os.walk(dir_, topdown=False):
-        files = [f for f in filenames if f.endswith('.fits.gz')]
-        if not files:
-            print 'No fits files in', dirpath
-            continue
+ft = fetch.ft
+arch_files = pyyaks.context.ContextDict('update_archive.arch_files',
+                                        basedir=os.path.join(file_defs.SKA, 'data', 'eng_archive'))
+arch_files.update(file_defs.arch_files)
 
-        print 'Reading', files[0]
-        hdus = pyfits.open(os.path.join(dirpath, files[0]))
-        cols = hdus[1].columns
-        for msid, unit in zip(cols.names, cols.units):
-            unit = unit.strip()
-            if unit:
-                msid = msid.upper()
-                if content in ALIASES:
-                    msid = ALIASES[content].get(msid, msid)
-                if re.match(r'(orbit|lunar|solar|angle)ephem', content):
-                    msid = '{}_{}'.format(content.upper(), msid)
-                units[msid.upper()] = unit
-        hdus.close()
-        break
+units = {}
+
+# CXC content types
+contents = set(fetch.content.values())
+
+for content in sorted(contents):
+    if content.startswith('dp_'):
+        continue
+    ft['content'] = content
+
+    dir_ = arch_files['archrootdir'].abs
+    print('Finding units in', dir_)
+
+    # Get the most recent directory
+    years = sorted([yr for yr in os.listdir(dir_) if re.match(r'\d{4}', yr)])
+    dir_ = os.path.join(dir_, years[-1])
+
+    days = sorted([day for day in os.listdir(dir_) if re.match(r'\d{3}', day)])
+    dir_ = os.path.join(dir_, days[-1])
+
+    files = glob.glob(os.path.join(dir_, '*.fits.gz'))
+    if not files:
+        print('No {} fits files in {}'.format(content, dir_))
+        continue
+
+    print('Reading', files[0])
+    hdus = pyfits.open(os.path.join(dir_, files[0]))
+    cols = hdus[1].columns
+    for msid, unit in zip(cols.names, cols.units):
+        unit = unit.strip()
+        if unit:
+            msid = msid.upper()
+            if content in CXC_TO_MSID:
+                msid = CXC_TO_MSID[content].get(msid, msid)
+            if re.match(r'(orbit|lunar|solar|angle)ephem', content):
+                msid = '{}_{}'.format(content.upper(), msid)
+            units[msid.upper()] = unit
+    hdus.close()
 
 # AFAIK these are the only temperature MSIDs that are actually temperature
 # differences and which require special handling on conversion.
@@ -68,4 +91,4 @@ for col in _get_deahk_cols():
 if not opt.dry_run:
     pickle.dump(units, open('units_cxc.pkl', 'w'))
 else:
-    print repr(units)
+    print(repr(units))
