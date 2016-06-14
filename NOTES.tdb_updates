@@ -299,16 +299,8 @@ New thm1eng
 Installation
 ------------
 
-rsync -av --exclude=arch data/ NEW/
 mkdir /proj/sot/ska/data/eng_archive/data/NEW
-
-mv acis3eng_new NEW/acis3eng
-mv eps10eng_new NEW/eps10eng
-mv obc4eng_new NEW//obc4eng
-mv pcad8eng_new NEW/pcad8eng
-mv tel2eng_new NEW/tel2eng
-mv thm1eng_new NEW/thm1eng
-mv dp_thermal128_new NEW/dp_thermal128
+rsync -av --exclude=arch data/ /proj/sot/ska/data/eng_archive/data/NEW/
 
 Install
 ^^^^^^^
