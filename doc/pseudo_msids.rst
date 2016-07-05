@@ -327,10 +327,10 @@ MSID          Description
 Science Instrument Module
 -------------------------
 
-Information about the SIM is available via the two following pseudo-MSIDs
+Information about the SIM is available via the three following pseudo-MSIDs
 categories.
 
-SEA telemetry
+SEA standard telemetry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The units shown below are for the CXC and ENG unit systems, respectively.
@@ -390,6 +390,53 @@ MSID     Raw=0   Raw=1
 3SMOTSEL TSC     FA
 3SHTREN  DISABLE ENABLE
 3SEARAMF F       T
+======== ======= ========
+
+SEA diagnostic telemetry
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+============ ========= ===============================================
+MSID         Unit      Description
+============ ========= ===============================================
+3SDSWELF               SEA CSC Exectuting from RAM
+3SDPSTKP               SEA Data Stack Ptr
+3SDTSEDG               TSC Tab Edge Detection Flags
+3SDFAEDG               FA Tab Edge Detection Flags
+3SDMAJFP               Major Frame Period Time Measured by SEA
+3SDRMOVD               Most Recent Motor Move Destination
+3SDTSTSV     V         TSC Tab Position Sensor A/D converter
+3SDFATSV     V         FA Tab Position Sensor A/D Converter
+3SDAGV       V         Analog Ground A/D Converter Reading
+3SDP15V      V         +15V Power Supply A/D Converter Reading
+3SDP5V       V         +5V Power Supply A/D Converter Reading
+3SDM15V      V         -15V Power Supply A/D Converter Reading
+3SDFLXAT     K [degC]  Flexure A Thermistor A/D Converter
+3SDFLXBT     K [degC]  Flexure B Thermistor A/D Converter
+3SDFLXCT     K [degC]  Flexure C Thermistor A/D Converter
+3SDTSMT      K [degC]  TSC Motor Thermistor A/D Converter
+3SDFAMT      K [degC]  FA Motor Thermistor A/D Converter
+3SDPST       K [degC]  SEA Power Supply Thermistor A/D Converter
+3SDBOXT                SEA Box Thermistor A/D Converter
+3SDRMFAD               RAM Most Recent detected Fail Address
+3SDTSTBW               TSC Most Recent detected Tab Width
+3SDFATBW               FA Most Recent detected Tab Width
+3SDSYRS                Process Reset Due Synchronization Loss
+3SDWMRS                Processor Warm Reset
+3SDTSP                 TSC Most Recent PWM Histogram
+3SDFAP                 FA Most Recent PWM Histogram
+3SDINCOD               SEA Invalid CommandCode
+============ ========= ===============================================
+
+The state codes for these MSIDs (where applicable) are defined by the CXC `SIM level-0
+decom specification <http://icxc.harvard.edu/icd/Sim/Level0/1.2/l0icd.ps>`_ and differ
+from the values found in the TDB.  The engineering archive state codes are:
+
+======== ======= ========
+MSID     Raw=0   Raw=1
+======== ======= ========
+3SDSWELF F       T
+3SDSYRS  F       T
+3SDWMRS  F       T
 ======== ======= ========
 
 SIMCOOR (CXC high-level values)

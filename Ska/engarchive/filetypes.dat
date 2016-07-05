@@ -76,6 +76,7 @@ L0   TEL       TEL3ENG         TEL_ENG_0{TEL3ENG}           *.fits.gz
 L0   THM       THM1ENG         THM_ENG_0{THM1ENG}           *.fits.gz
 L0   THM       THM2ENG         THM_ENG_0{THM2ENG}           *.fits.gz
 L0   THM       THM3ENG         THM_ENG_0{THM3ENG}           *.fits.gz
+L0   SIM       SIMDIAG         SIM_0{SIMDIAG}               *.fits.gz
 L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
 L0.5 SIM       SIM_MRG         SIM_0.5{SIM_MRG}             *.fits.gz
 L0   EPHIN     EPHHK           EPHIN_0{EPHHK}               *.fits.gz

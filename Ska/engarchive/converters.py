@@ -169,7 +169,36 @@ def parse_alias_str(alias_str, invert=False):
             aliases[cxcmsid] = msid
     return aliases
 
-ALIASES = {'sim_mrg': """
+ALIASES = {'simdiag': """
+    RAMEXEC          3SDSWELF   SEA CSC Exectuting from RAM
+    DSTACKPTR        3SDPSTKP   SEA Data Stack Ptr
+    TSCEDGE          3SDTSEDG   TSC Tab Edge Detection Flags
+    FAEDGE           3SDFAEDG   FA Tab Edge Detection Flags
+    MJFTIME          3SDMAJFP   Major Frame Period Time Measured by SEA
+    MRMDEST          3SDRMOVD   Most Recent Motor Move Destination
+    TSCTABADC        3SDTSTSV   TSC Tab Position Sensor A/D converter
+    FATABADC         3SDFATSV   FA Tab Position Sensor A/D Converter
+    AGRNDADC         3SDAGV     Analog Ground A/D Converter Reading
+    P15VADC          3SDP15V    +15V Power Supply A/D Converter Reading
+    P5VADC           3SDP5V     +5V Power Supply A/D Converter Reading
+    N15VADC          3SDM15V    -15V Power Supply A/D Converter Reading
+    FLEXATEMPADC     3SDFLXAT   Flexture A Thermistor A/D Converter
+    FLEXBTEMPADC     3SDFLXBT   Flexture B Thermistor A/D Converter
+    FLEXCTEMPADC     3SDFLXCT   Flexture C Thermistor A/D Converter
+    TSCMTRTEMPADC    3SDTSMT    TSC Motor Thermistor A/D Converter
+    FAMTRTEMPADC     3SDFAMT    FA Motor Thermistor A/D Converter
+    PSUTEMPADC       3SDPST     SEA Power Supply Thermistor A/D Converter
+    BOXTEMPADC       3SDBOXT    SEA Box Thermistor A/D Converter
+    RAMFAILADDR      3SDRMFAD   RAM Most Recent detected Fail Address
+    TSCTABWID        3SDTSTBW   TSC Most Recent detected Tab Width
+    FATABWID         3SDFATBW   FA Most Recent detected Tab Width
+    SYNCLOSS         3SDSYRS    Process Reset Due Synchronization Loss
+    WARMRESET        3SDWMRS    Processor Warm Reset
+    TSCHISTO         3SDTSP     TSC Most Recent PWM Histogram
+    FAHISTO          3SDFAP     FA Most Recent PWM Histogram
+    INVCMDCODE       3SDINCOD   SEA Invalid CommandCode
+    """,
+           'sim_mrg': """
     TLMUPDATE    3SEATMUP   "Telemtry Update Flag"
     SEAIDENT     3SEAID     "SEA Identification Flag"
     SEARESET     3SEARSET   "SEA Reset Flag"
@@ -344,6 +373,7 @@ def sim_mrg(dat):
     return out
 
 
+simdiag = generic_converter(aliases=CXC_TO_MSID['simdiag'])
 hrc0ss = generic_converter2(MSID_TO_CXC['hrc0ss'])
 
 
