@@ -370,6 +370,27 @@ MSID         Unit      Description
 3TSCMOVE               SEA TSC in motion flag
 3TSCPOS      mm [step] SEA TSC position
 TLMSTATUS              SEA telemetry status (updated or not updated)
+============ ========= ===============================================
+
+The state codes for these MSIDs (where applicable) are defined by the CXC `SIM level-0
+decom specification <http://icxc.harvard.edu/icd/Sim/Level0/1.2/l0icd.ps>`_ and differ
+from the values found in the TDB.  The engineering archive state codes are:
+
+======== ======= ========
+MSID     Raw=0   Raw=1
+======== ======= ========
+3TSCMOVE F       T
+3FAMOVE  F       T
+3SEAID   SEA-A   SEA-B
+3SEARSET F       T
+3SEAROMF F       T
+3SEAINCM F       T
+3STAB2EN DISABLE ENABLE
+3SMOTPEN ENABLE  DISABLE
+3SMOTSEL TSC     FA
+3SHTREN  DISABLE ENABLE
+3SEARAMF F       T
+======== ======= ========
 
 SEA diagnostic telemetry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -404,7 +425,7 @@ MSID         Unit      Description
 3SDTSP                 TSC Most Recent PWM Histogram
 3SDFAP                 FA Most Recent PWM Histogram
 3SDINCOD               SEA Invalid CommandCode
-= ===============================================
+============ ========= ===============================================
 
 The state codes for these MSIDs (where applicable) are defined by the CXC `SIM level-0
 decom specification <http://icxc.harvard.edu/icd/Sim/Level0/1.2/l0icd.ps>`_ and differ
@@ -413,17 +434,9 @@ from the values found in the TDB.  The engineering archive state codes are:
 ======== ======= ========
 MSID     Raw=0   Raw=1
 ======== ======= ========
-3TSCMOVE F       T
-3FAMOVE  F       T
-3SEAID   SEA-A   SEA-B
-3SEARSET F       T
-3SEAROMF F       T
-3SEAINCM F       T
-3STAB2EN DISABLE ENABLE
-3SMOTPEN ENABLE  DISABLE
-3SMOTSEL TSC     FA
-3SHTREN  DISABLE ENABLE
-3SEARAMF F       T
+3SDSWELF F       T
+3SDSYRS  F       T
+3SDWMRS  F       T
 ======== ======= ========
 
 SIMCOOR (CXC high-level values)
