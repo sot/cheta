@@ -209,7 +209,7 @@ def main():
         colnames = [x for x in pickle.load(open(msid_files['colnames'].abs))
                     if x not in fetch.IGNORE_COLNAMES]
 
-        if not os.path.exists(msid_files['archfiles'].abs):
+        if not os.path.exists(fetch.msid_files['archfiles'].abs):
             logger.info('No archfiles.db3 for %s - skipping' % ft['content'])
             continue
 

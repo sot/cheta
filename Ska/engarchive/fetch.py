@@ -1858,7 +1858,7 @@ def _cache_ft():
 
 
 @contextlib.contextmanager
-def _set_msid_files_basedir(datestart):
+def _set_msid_files_basedir(datestart, msid_files=msid_files):
     """
     If datestart is before 2000:001:00:00:00 then use the 1999 archive files.
     """

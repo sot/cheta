@@ -7,6 +7,8 @@ from .. import fetch
 from .. import fetch_eng
 from Chandra.Time import DateTime
 
+print(fetch.__file__)
+
 DATES_EXPECT1 = np.array(['2008:291:23:59:58.987', '2008:291:23:59:59.244',
                           '2008:291:23:59:59.500', '2008:291:23:59:59.756',
                           '2008:297:00:00:00.121', '2008:297:00:00:00.378',
