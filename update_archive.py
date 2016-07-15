@@ -84,6 +84,8 @@ def get_options(args=None):
     parser.add_argument("--content",
                         action='append',
                         help="Content type to process [match regex] (default = all)")
+    parser.add_argument("--log-level",
+                        help="Logging level")
     return parser.parse_args(args)
 
 # Configure fetch.MSID to cache recent results for performance in
@@ -109,9 +111,13 @@ if opt.data_root:
     fetch.msid_files.basedir = ':'.join([opt.data_root, fetch.ENG_ARCHIVE])
 
 # Set up logging
-loglevel = pyyaks.logger.VERBOSE
+loglevel = pyyaks.logger.VERBOSE if opt.log_level is None else int(opt.log_level)
 logger = pyyaks.logger.get_logger(name='engarchive', level=loglevel,
                                   format="%(asctime)s %(message)s")
+
+# Also adjust fetch logging if non-default log-level supplied (mostly for debug)
+if opt.log_level is not None:
+    fetch.add_logging_handler(level=int(opt.log_level))
 
 archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',
                       'tlmver', 'ascdsver', 'revision', 'date')
