@@ -1,0 +1,33 @@
+*********************************************************************************
+Log in to a machine with at least 16 Gb RAM and get into ska environment
+*********************************************************************************
+
+  ssh kadi
+  cd ~/git/eng_archive
+  ska
+  unset ENG_ARCHIVE
+
+Content types with just one fileset (no distinct 1999 dir):
+
+  dp_eps16, dp_eps8, hrc0hk, hrc0ss, simdiag
+
+First replicate the data structure and existing files that are required.
+
+  cd /proj/sot/ska/data/eng_archive
+  rsync -av --exclude=arch/ --exclude='*.h5' --exclude=archfiles.db3 --exclude=NEW --exclude=OLD 1999/ /data/aca/tmp/eng_archive/1999/
+  rsync -av --exclude=arch/ --exclude='*.h5' --exclude=archfiles.db3 --exclude=NEW --exclude=OLD data/ /data/aca/tmp/eng_archive/data/
+
+  cd ~/git/eng_archive
+  ln -s /data/aca/tmp/eng_archive/data ./
+  ln -s /data/aca/tmp/eng_archive/1999 ./
+
+Now do the computations::
+
+  ./update_archive.py --no-full --state-codes-only --date-now=2000:005 --max-lookback-time=180 --data-root=1999 >& run1.log &
+  ./update_archive.py --no-full --state-codes-only --date-now=2000:010 --max-lookback-time=15 --data-root=. >& run2.log &
+  ./update_archive.py --no-full --state-codes-only --date-start=2000:020 --max-lookback-time=180 --data-root=. >& run3.log &
+
+  ./update_archive.py --no-full --state-codes-only --date-now=2000:005 --max-lookback-time=180 --data-root=1999 >& run10.log &
+  ./update_archive.py --no-full --state-codes-only --date-now=2000:010 --max-lookback-time=15 --data-root=. >& run20.log &
+  ./update_archive.py --no-full --state-codes-only --date-start=2000:020 --max-lookback-time=180 --data-root=. >& run30.log &
+

@@ -18,6 +18,12 @@ Processing template
   ./update_archive.py --content EPS10ENG --data-root=. --date-start=2008:030 >& run7.log &
   ./update_archive.py --content EPS10ENG --data-root=. --date-start=2008:030 >>& run7.log &
 
+Making symlinks in 1999 directories so things work
+--------------------------------------------------
+
+run dev_utils/add_empty_1999_h5.py --data-root=/proj/sot/ska/data/eng_archive
+
+
 Symmetric diffs between colnames_all.pickle and colnames.pickle
 ---------------------------------------------------------------
 From ``dev_utils/find_colname_diffs.py``
