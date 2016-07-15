@@ -535,6 +535,26 @@ class MSID(object):
         if filter_bad:
             self.filter_bad()
 
+    def __len__(self):
+        return len(self.vals)
+
+    @property
+    def dtype(self):
+        return self.vals.dtype
+
+    def __repr__(self):
+        attrs = [self.__class__.__name__]
+        for name, val in (('start', self.datestart),
+                          ('stop', self.datestop),
+                          ('len', len(self)),
+                          ('dtype', self.dtype.name),
+                          ('unit', self.unit),
+                          ('stat', self.stat)):
+            if val is not None:
+                attrs.append('{}={}'.format(name, val))
+
+        return '<' + ' '.join(attrs) + '>'
+
     def _get_data_over_intervals(self, intervals):
         """
         Fetch intervals separately and concatenate the results.
