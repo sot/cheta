@@ -865,8 +865,8 @@ def update_msid_files(filetype, archfiles):
                 # integrate for 5400s and then they are telemetered.  I would
                 # suggest 6000s, but perhaps you would want to double that to
                 # 12000s.
-            elif filetype['content'] == 'CPE1ENG':
-                # 100 years => no max gap for safe mode telemetry
+            elif filetype['content'] in ['CPE1ENG', 'CCDM15ENG']:
+                # 100 years => no max gap for safe mode telemetry or dwell mode telemetry
                 max_gap = 100 * 3.1e7
             else:
                 max_gap = 32.9
