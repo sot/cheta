@@ -1054,12 +1054,12 @@ if __name__ == '__main__':
     if opt.date_start is None:
         date_nows = [opt.date_now]
     else:
-        t_starts = np.arange(DateTime(opt.date_start).secs,
+        t_starts = np.arange((DateTime(opt.date_start) + opt.max_lookback_time).secs,
                              DateTime(opt.date_now).secs,
                              opt.max_lookback_time * 86400.)
         date_nows = [DateTime(t).date for t in t_starts]
         date_nows.append(opt.date_now)
-        opt.max_lookback_time += 10
+        opt.max_lookback_time += 2
 
     for date_now in date_nows:
         opt.date_now = date_now
