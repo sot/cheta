@@ -23,26 +23,42 @@ Check initial conditions
 Run it
 ======
 
-  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
-
 Bulk processing
 -----------------
-HEAD:  /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap.cfg
-OCC:   /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
+HEAD::
+
+  # In Ska flight env on kadi as aldcroft
+  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
+  /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap.cfg
+
+OCC::
+  # In Ska test env on chimchim as SOT
+  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
+  /proj/sot/ska/test/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
 
 More focused processing
 -----------------------
-Edit /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg and change the
+Edit /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg on HEAD and change the
 --content <content>.  Note that <content> is a Python "match" regex, meaning it
 must match from the start of available content types (Ska/engarchive/filetypes.dat).
 For instance "sim" will match SIM{1,2,3}ENG, SIM_MRG, and SIMCOOR.
 
-HEAD: /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
-OCC: /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
+HEAD::
+
+  # In Ska flight env on kadi as aldcroft
+  emacs /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
+  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
+ /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
+
+OCC::
+
+  # In Ska test env on chimchim as SOT
+  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
+ /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
 
 For the OCC it is not necessarily required to use a custom file since it will only
 be processing the new files from the HEAD run, though it will make things go a
-bit faster.
+bit faster (but total time for procedure will probably be longer).
 
 NOTE for OCC: steadily increasing gap
 =====================================
