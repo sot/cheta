@@ -28,12 +28,10 @@ Bulk processing
 HEAD::
 
   # In Ska flight env on kadi as aldcroft
-  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
   /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap.cfg
 
 OCC::
   # In Ska test env on chimchim as SOT
-  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
   /proj/sot/ska/test/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
 
 More focused processing
@@ -47,13 +45,11 @@ HEAD::
 
   # In Ska flight env on kadi as aldcroft
   emacs /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
-  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
  /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
 
 OCC::
 
   # In Ska test env on chimchim as SOT
-  rm /proj/sot/ska/data/eng_archive/task_sched_heartbeat
  /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
 
 For the OCC it is not necessarily required to use a custom file since it will only
