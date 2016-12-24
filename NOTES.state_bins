@@ -46,7 +46,7 @@ HEAD::
   /bin/ls -1 1999/data/*/{5min,daily}/*.h5 >> state_msids
 
   # Make backup directory
-  set tmproot=/data/aca/tmp/eng_archive
+  tmproot=/data/aca/tmp/eng_archive
   mkdir -p $tmproot/stats_bin_backup
 
   # Make backup copy of relevant 5min/daily MSIDs
@@ -56,14 +56,12 @@ HEAD::
 
   # Practice and check
   head -1 state_msids > state_msids_one
-  rsync --dry-run -v --files-from=state_msids_one \  # just the first entry
-     ./
-     /proj/sot/ska/data/eng_archive/
+
+  # just the first entry
+  rsync --dry-run -v --files-from=state_msids_one ./ /proj/sot/ska/data/eng_archive/
 
   # Do it
-  rsync --dry-run -v --files-from=state_msids \
-     ./
-     /proj/sot/ska/data/eng_archive/ \
+  rsync --dry-run -v --files-from=state_msids ./ /proj/sot/ska/data/eng_archive/
 
 - Install version 0.41 of Ska.engarchive to Ska flight (or test on GRETA).
 
