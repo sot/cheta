@@ -8,6 +8,7 @@ import cPickle as pickle
 import argparse
 import shutil
 import itertools
+from collections import OrderedDict
 
 from Chandra.Time import DateTime
 import Ska.File
@@ -50,6 +51,10 @@ def get_options(args=None):
                         action="store_true",
                         default=False,
                         help="Fix errors in ingest file order")
+    parser.add_argument("--state-codes-only",
+                        action="store_true",
+                        default=False,
+                        help="Only process MSIDs that have state codes")
     parser.add_argument("--truncate",
                         help="Truncate archive after <date> (CAUTION!!)")
     parser.add_argument("--max-lookback-time",
@@ -79,6 +84,8 @@ def get_options(args=None):
     parser.add_argument("--content",
                         action='append',
                         help="Content type to process [match regex] (default = all)")
+    parser.add_argument("--log-level",
+                        help="Logging level")
     return parser.parse_args(args)
 
 # Configure fetch.MSID to cache recent results for performance in
@@ -104,9 +111,13 @@ if opt.data_root:
     fetch.msid_files.basedir = ':'.join([opt.data_root, fetch.ENG_ARCHIVE])
 
 # Set up logging
-loglevel = pyyaks.logger.VERBOSE
+loglevel = pyyaks.logger.VERBOSE if opt.log_level is None else int(opt.log_level)
 logger = pyyaks.logger.get_logger(name='engarchive', level=loglevel,
                                   format="%(asctime)s %(message)s")
+
+# Also adjust fetch logging if non-default log-level supplied (mostly for debug)
+if opt.log_level is not None:
+    fetch.add_logging_handler(level=int(opt.log_level))
 
 archfiles_hdr_cols = ('tstart', 'tstop', 'startmjf', 'startmnf', 'stopmjf', 'stopmnf',
                       'tlmver', 'ascdsver', 'revision', 'date')
@@ -149,6 +160,27 @@ def create_content_dir():
         db.commit()
 
 
+_fix_state_code_cache = {}
+
+def fix_state_code(state_code):
+    """
+    Return a version of ``state_code`` that has only alphanumeric chars.  This
+    can be used as a column name, unlike e.g. "n_+1/2".  Since this gets called
+    in an inner loop cache the result.
+    """
+    try:
+        out = _fix_state_code_cache[state_code]
+    except KeyError:
+        out = state_code
+        for sub_in, sub_out in ((r'\+', 'PLUS_'),
+                                (r'\-', 'MINUS_'),
+                                (r'>', '_GREATER_'),
+                                (r'/', '_DIV_')):
+            out = re.sub(sub_in, sub_out, out)
+        _fix_state_code_cache[state_code] = out
+
+    return out
+
 def main():
     logger.info('Run time options: \n{}'.format(opt))
     logger.info('Update_archive file: {}'.format(os.path.abspath(__file__)))
@@ -177,7 +209,7 @@ def main():
         colnames = [x for x in pickle.load(open(msid_files['colnames'].abs))
                     if x not in fetch.IGNORE_COLNAMES]
 
-        if not os.path.exists(msid_files['archfiles'].abs):
+        if not os.path.exists(fetch.msid_files['archfiles'].abs):
             logger.info('No archfiles.db3 for %s - skipping' % ft['content'])
             continue
 
@@ -203,6 +235,13 @@ def main():
 
         if opt.update_stats:
             for colname in colnames:
+                if opt.state_codes_only:
+                    try:
+                        Ska.tdb.msids[colname].Tsc['STATE_CODE']
+                    except:
+                        # Either not in TDB or does not have Tsc defined
+                        continue
+
                 msid = update_stats(colname, 'daily')
                 update_stats(colname, '5min', msid)
 
@@ -324,29 +363,49 @@ def del_stats(colname, time0, interval):
 
 
 def calc_stats_vals(msid, rows, indexes, interval):
+    """
+    Compute statistics values for ``msid`` over specified intervals.
+
+    :param msid: Msid object (filter_bad=True)
+    :param rows: Msid row indices corresponding to stat boundaries
+    :param indexes: Universal index values for stat (row times // dt)
+    :param interval: interval name (5min or daily)
+    """
     quantiles = (1, 5, 16, 50, 84, 95, 99)
-    cols_stats = ('index', 'n', 'val')
     n_out = len(rows) - 1
+
+    # Check if data type is "numeric".  Boolean values count as numeric,
+    # partly for historical reasons, in that they support funcs like
+    # mean (with implicit conversion to float).
     msid_dtype = msid.vals.dtype
-    msid_is_numeric = not msid_dtype.name.startswith('string')
+    msid_is_numeric = issubclass(msid_dtype.type, (np.number, np.bool_))
+
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
-    out = dict(index=np.ndarray((n_out,), dtype=np.int32),
-               n=np.ndarray((n_out,), dtype=np.int32),
-               val=np.ndarray((n_out,), dtype=msid_dtype),
-               )
+    out = OrderedDict()
+    out['index'] = np.ndarray((n_out,), dtype=np.int32)
+    out['n'] = np.ndarray((n_out,), dtype=np.int32)
+    out['val'] = np.ndarray((n_out,), dtype=msid_dtype)
+
     if msid_is_numeric:
-        cols_stats += ('min', 'max', 'mean')
-        out.update(dict(min=np.ndarray((n_out,), dtype=msid_dtype),
-                        max=np.ndarray((n_out,), dtype=msid_dtype),
-                        mean=np.ndarray((n_out,), dtype=np.float32),))
+        out['min'] = np.ndarray((n_out,), dtype=msid_dtype)
+        out['max'] = np.ndarray((n_out,), dtype=msid_dtype)
+        out['mean'] = np.ndarray((n_out,), dtype=np.float32)
+
         if interval == 'daily':
-            cols_stats += ('std',) + tuple('p%02d' % x for x in quantiles)
             out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
-            out.update(('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles)
+            for quantile in quantiles:
+                out['p{:02d}'.format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
+
+    # MSID may have state codes
+    if msid.state_codes:
+        for raw_count, state_code in msid.state_codes:
+            out['n_' + fix_state_code(state_code)] = np.zeros(n_out, dtype=np.int32)
+
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
         vals = msid.vals[row0:row1]
         times = msid.times[row0:row1]
+
         n_vals = len(vals)
         if n_vals > 0:
             out['index'][i] = index
@@ -359,8 +418,8 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     dts = np.empty(n_vals, dtype=np.float64)
                     dts[0] = times[1] - times[0]
                     dts[-1] = times[-1] - times[-2]
-                    dts[1:-1] = ((times[1:-1] - times[:-2])
-                                 + (times[2:] - times[1:-1])) / 2.0
+                    dts[1:-1] = ((times[1:-1] - times[:-2]) +
+                                 (times[2:] - times[1:-1])) / 2.0
                     negs = dts < 0.0
                     if np.any(negs):
                         times_dts = [(DateTime(t).date, dt)
@@ -387,9 +446,20 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
                     for quant_val, quantile in zip(quant_vals, quantiles):
                         out['p%02d' % quantile][i] = quant_val
+
+            if msid.state_codes:
+                # If MSID has state codes then count the number of values in each state
+                # and store.  The MSID values can have trailing spaces to fill out to a
+                # uniform length, so state_code is right padded accordingly.
+                max_len = max(len(state_code) for raw_count, state_code in msid.state_codes)
+                fmtstr = '{:' + str(max_len) + 's}'
+                for raw_count, state_code in msid.state_codes:
+                    state_count = np.count_nonzero(vals == fmtstr.format(state_code))
+                    out['n_' + fix_state_code(state_code)][i] = state_count
+
             i += 1
 
-    return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
+    return np.rec.fromarrays([x[:i] for x in out.values()], names=out.keys())
 
 
 def update_stats(colname, interval, msid=None):
@@ -430,6 +500,7 @@ def update_stats(colname, interval, msid=None):
         if index0 == INDEX0:
             # Must be creating the file, so back up a bit from earliest MSID data
             index0 = msid.times[0] // dt - 2
+
         indexes = np.arange(index0, msid.times[-1] / dt, dtype=np.int32)
         times = indexes * dt
 

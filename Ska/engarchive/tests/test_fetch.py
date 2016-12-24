@@ -7,6 +7,8 @@ from .. import fetch
 from .. import fetch_eng
 from Chandra.Time import DateTime
 
+print(fetch.__file__)
+
 DATES_EXPECT1 = np.array(['2008:291:23:59:58.987', '2008:291:23:59:59.244',
                           '2008:291:23:59:59.500', '2008:291:23:59:59.756',
                           '2008:297:00:00:00.121', '2008:297:00:00:00.378',
@@ -389,3 +391,15 @@ def test_nonexistent_msids():
     with pytest.raises(ValueError) as err:
         fetch.Msid('asdfasdfasdfasdf', '2015:001', '2015:002')
     assert "MSID 'asdfasdfasdfasdf' is not" in str(err.value)
+
+
+def test_daily_state_bins():
+    dat = fetch.Msid('aoacaseq', '2016:232', '2016:235', stat='daily')
+    for attr, val in (('n_BRITs', [0, 136, 0]),
+                      ('n_KALMs', [83994, 83812, 83996]),
+                      ('n_AQXNs', [159, 240, 113]),
+                      ('n_GUIDs', [140, 104, 184])):
+        assert np.all(getattr(dat, attr) == val)
+
+    dat = fetch.Msid('aoacaseq', '2016:234:12:00:00', '2016:234:12:30:00', stat='5min')
+    assert np.all(dat.n_BRITs == [0, 0, 51, 17, 0, 0])

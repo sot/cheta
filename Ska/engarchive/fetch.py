@@ -817,15 +817,19 @@ class MSID(object):
 
         if not hasattr(self, '_state_codes'):
             import Ska.tdb
-            states = Ska.tdb.msids[self.MSID].Tsc
-            if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
-                warnings.warn('MSID {} has string vals but no state codes '
-                              'or multiple calibration sets'.format(self.msid))
+            try:
+                states = Ska.tdb.msids[self.MSID].Tsc
+            except:
                 self._state_codes = None
             else:
-                states = np.sort(states.data, order='LOW_RAW_COUNT')
-                self._state_codes = [(state['LOW_RAW_COUNT'],
-                                      state['STATE_CODE']) for state in states]
+                if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
+                    warnings.warn('MSID {} has string vals but no state codes '
+                                  'or multiple calibration sets'.format(self.msid))
+                    self._state_codes = None
+                else:
+                    states = np.sort(states.data, order='LOW_RAW_COUNT')
+                    self._state_codes = [(state['LOW_RAW_COUNT'],
+                                          state['STATE_CODE']) for state in states]
         return self._state_codes
 
     @property
@@ -1854,7 +1858,7 @@ def _cache_ft():
 
 
 @contextlib.contextmanager
-def _set_msid_files_basedir(datestart):
+def _set_msid_files_basedir(datestart, msid_files=msid_files):
     """
     If datestart is before 2000:001:00:00:00 then use the 1999 archive files.
     """
@@ -1863,7 +1867,8 @@ def _set_msid_files_basedir(datestart):
         if datestart < DATE2000_LO:
             # Note: don't use os.path.join because ENG_ARCHIVE and basedir must
             # use linux '/' convention but this might be running on Windows.
-            msid_files.basedir = msid_files.basedir + '/1999'
+            dirs = msid_files.basedir.split(':')
+            msid_files.basedir = ':'.join(dir_ + '/1999' for dir_ in dirs)
         yield
     finally:
         msid_files.basedir = cache_basedir

@@ -1,6 +1,13 @@
+import sys
 from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
 from Ska.engarchive.version import package_version
+
+try:
+    from testr.setup_helper import cmdclass
+except ImportError:
+    cmdclass = {}
 
 # Write GIT revisions and SHA tag into <this_package/git_version.py>
 # (same directory as version.py)
@@ -20,4 +27,6 @@ setup(name='Ska.engarchive',
       package_dir={'Ska': 'Ska'},
       package_data={'Ska.engarchive': ['*.dat', 'units_*.pkl', 'GIT_VERSION'],
                     'Ska.engarchive.tests': ['*.dat']},
+      tests_require=['pytest'],
+      cmdclass=cmdclass,
       )
