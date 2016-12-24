@@ -928,13 +928,62 @@ in the ``state_codes`` attribute::
    (5, 'RMAN'),
    (6, 'NULL')]
 
-.. Note::
+State value counts
+------------------
 
-   Be aware that the ``stat='daily'`` and ``stat='5min'`` values
-   for state-valued MSIDs represent a single sample of the MSID at the specified
-   interval.  There is no available information for the set of values which
-   occurred during the interval.  For this you eed to use the full resolution
-   sampling.
+For state-valued MSIDs, the 5-minute and daily statistics include attributes that provide
+the count of samples within the interval for each possible state.  The attribute will be
+named ``n_<STATE>s``, for instance ``n_NMANs`` for ``AOPCADMD``.
+
+These counts are useful in at least a couple of different ways.  First, one can determine
+the duty cycle for an ON/OFF bi-level for mission trending::
+
+  >>> dat = fetch.Msid('4ohtrz10', '2000:001', '2000:010', stat='daily')
+  >>> dat.n_ONs
+  array([3674, 3626, 3624, 3615, 3599, 3686, 3654, 3640], dtype=int32)
+  >>> dat.n_OFFs
+  array([6852, 6910, 6913, 6922, 6937, 6850, 6881, 6895], dtype=int32)
+  >>> dat.n_ONs * 1.0 / dat.samples
+  array([ 0.34975323,  0.34925005,  0.34415338,  0.34393091,  0.34307678,
+          0.34159074,  0.34984814,  0.34684385,  0.34551495])
+
+  >>> dat = fetch.Msid('4ohtrz10', '2000:001', '2017:001', stat='daily')
+  >>> duty_cycle = dat.n_ONs * 1.0 / dat.samples
+  >>> plot_cxctime(dat.times, duty_cycle)
+  >>> plt.grid()
+  >>> plt.title('ON duty cycle for 4OHTRZ10')
+
+.. image:: fetchplots/state_bins_4ohtrz10.png
+
+.. # Could use a plot directive here
+   from Ska.engarchive import fetch
+   from Ska.Matplotlib import plot_cxctime
+   import matplotlib.pyplot as plt
+   plt.figure(figsize=(6, 4), dpi=75)
+
+   dat = fetch.Msid('4ohtrz10', '2000:001', '2017:001', stat='daily')
+   duty_cycle = dat.n_ONs * 1.0 / dat.samples
+   plot_cxctime(dat.times, duty_cycle)
+   plt.grid()
+   plt.tight_layout()
+
+Second, one can use the state counts to very quickly look for rare occurrences of an MSID
+in a particular state.  As an example we can easily find every time that PCAD reported
+being in bright star hold (``AOACASEQ == 'BRIT'``).  This could occur due to an
+autonomous safing action or as part of a realtime recovery activity.  In any case
+searching the full-resolution telemetry is slow and memory intensive, but doing this
+via the daily state code counts is a snap::
+
+  >>> dat = fetch.Msid('aoacaseq', '2000:001', stat='daily')
+  >>> ok = dat.n_BRITs > 10  # Require at least 10 BRIT samples
+  >>> print([d[:8] for d in DateTime(dat.times[ok]).date])
+  ['2000:049', '2001:111', '2001:112', '2001:265', '2002:024', '2003:200', '2004:200',
+   '2004:208', '2004:213', '2004:315', '2004:316', '2008:225', '2008:226', '2008:227',
+   '2008:294', '2010:151', '2011:190', '2011:192', '2011:299', '2011:300', '2012:151',
+   '2014:207', '2015:007', '2015:264', '2015:265', '2016:064', '2016:234', '2016:324',
+   '2016:325']
+
+One could then drill down on these dates using 5-minute or full-resolution telemetry.
 
 Telemetry database
 ==================
