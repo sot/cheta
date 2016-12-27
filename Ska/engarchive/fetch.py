@@ -18,7 +18,7 @@ import warnings
 import re
 
 import numpy as np
-import asciitable
+from astropy.io import ascii
 import pyyaks.context
 
 from . import file_defs
@@ -267,7 +267,7 @@ msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names
-filetypes = asciitable.read(os.path.join(DIR_PATH, 'filetypes.dat'))
+filetypes = ascii.read(os.path.join(DIR_PATH, 'filetypes.dat'))
 content = collections.OrderedDict()
 
 # Get the list of filenames (an array is built to pass all the filenames at
@@ -353,8 +353,8 @@ def read_bad_times(table):
     ``DateTime`` format.  Blank lines and any line starting with the #
     character are ignored.
     """
-    bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
-                                names=['msid', 'start', 'stop'])
+    bad_times = ascii.read(table, format='no_header',
+                           names=['msid', 'start', 'stop'])
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
@@ -982,8 +982,8 @@ class MSID(object):
         :param copy: return a copy of MSID object with bad times filtered
         """
         if table is not None:
-            bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
-                                        names=['start', 'stop'])
+            bad_times = ascii.read(table, format='no_header',
+                                   names=['start', 'stop'])
         elif start is None and stop is None:
             bad_times = []
             for msid_glob, times in msid_bad_times.items():
