@@ -36,8 +36,10 @@ Basic units handling and conversion.
  ('VDC', 'V'),
  ('W', 'W')}
 """
+from __future__ import print_function, division, absolute_import
+
 import os
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import logging
 import warnings
 

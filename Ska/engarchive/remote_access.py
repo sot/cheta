@@ -1,10 +1,13 @@
 """
 Settings and functions for remotely accessing an engineering archive.
 """
+from __future__ import print_function, division, absolute_import
+
 import sys
 import os
 import getpass
 import IPython.parallel
+from six.moves import input
 
 # To use remote access, this flag should be set True (it is true by default
 # on Windows systems, but can manually be set to true on Linux systems
@@ -46,24 +49,24 @@ Return success status (True/False)
     # Loop until the user is able to connect or cancels
     while _remote_client is None:
         # Get the username and password if not already set
-        hostname = hostname or raw_input('Enter hostname (or IP) of Ska ' +
+        hostname = hostname or input('Enter hostname (or IP) of Ska ' +
                                          'server (enter to cancel):')
         if hostname=="":
             break
         default_username = getpass.getuser()
-        username = username or raw_input('Enter your login username [' + 
+        username = username or input('Enter your login username [' + 
                                          default_username + ']:')
         password = password or getpass.getpass('Enter your password:')
         
         # Open the connection to the server
-        print 'Establishing connection to ' + hostname + '...'
+        print('Establishing connection to ' + hostname + '...')
         sys.stdout.flush()
         try:
             _remote_client = IPython.parallel.Client(client_key_file,
                                                      sshserver=username+'@'+hostname,
                                                      password=password)
         except:
-            print 'Error connecting to server ',hostname,': ',sys.exc_info()[0]
+            print('Error connecting to server ',hostname,': ',sys.exc_info()[0])
             sys.stdout.flush()
             _remote_client = None
             # Clear out information so the user can try again

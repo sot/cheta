@@ -1,4 +1,4 @@
-import sys
+from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -118,8 +118,8 @@ class MsidPlot(object):
             for _ in range(len(self.ax.lines)):
                 self.ax.lines.pop()
             self.plot_mins = not self.plot_mins
-            print '\nPlotting mins and maxes is {}'.format(
-                'enabled' if self.plot_mins else 'disabled')
+            print('\nPlotting mins and maxes is {}'.format(
+                'enabled' if self.plot_mins else 'disabled'))
             self.draw_plot()
         elif event.key == 'a':
             # self.fig.clf()
@@ -130,11 +130,11 @@ class MsidPlot(object):
             self.xlim_changed(None)
         elif event.key == 'y':
             self.scaley = not self.scaley
-            print 'Autoscaling y axis is {}'.format(
-                'enabled' if self.scaley else 'disabled')
+            print('Autoscaling y axis is {}'.format(
+                'enabled' if self.scaley else 'disabled'))
             self.draw_plot()
         elif event.key == '?':
-            print """
+            print("""
 Interactive MSID plot keys:
 
   a: autoscale for full data range in x and y
@@ -143,7 +143,7 @@ Interactive MSID plot keys:
   y: toggle autoscaling of y-axis
   z: zoom at cursor x
   ?: print help
-"""
+""")
 
     def xlim_changed(self, event):
         x0, x1 = self.ax.get_xlim()

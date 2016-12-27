@@ -32,6 +32,7 @@ Help::
     --outroot OUTROOT  Output file root
 
 """
+from __future__ import print_function, division, absolute_import
 
 import sys
 import os
@@ -39,6 +40,7 @@ import hashlib
 import argparse
 import collections
 
+import six
 import pytest
 from Chandra.Time import DateTime
 import numpy as np
@@ -74,7 +76,7 @@ def get_args(args=None):
 
 def get_contents(fetch, args):
     contents = collections.defaultdict(list)
-    for msid, content_type in fetch.content.iteritems():
+    for msid, content_type in six.iteritems(fetch.content):
         contents[content_type].append(msid)
 
     for content_type, msids in contents.items():
@@ -124,7 +126,7 @@ def main():
 
                 key = '{:20s} {:16s} {:6s}'.format(content_type, msid, stat)
                 md5_hex = get_md5(fetch, args, msid, start, days, stat)
-                print >>fout, key, md5_hex
+                print(key, md5_hex, file=fout)
 
     if args.outfile:
         fout.close()

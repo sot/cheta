@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import print_function, division, absolute_import
+
 import re
 import os
 import glob
 import time
-import cPickle as pickle
+from six.moves import cPickle as pickle
+from six.moves import zip
 import argparse
 import shutil
 import itertools
@@ -408,7 +411,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
             out['n_' + fix_state_code(state_code)] = np.zeros(n_out, dtype=np.int32)
 
     i = 0
-    for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
+    for row0, row1, index in zip(rows[:-1], rows[1:], indexes[:-1]):
         vals = msid.vals[row0:row1]
         times = msid.times[row0:row1]
 
@@ -465,7 +468,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
             i += 1
 
-    return np.rec.fromarrays([x[:i] for x in out.values()], names=out.keys())
+    return np.rec.fromarrays([x[:i] for x in out.values()], names=list(out.keys()))
 
 
 def update_stats(colname, interval, msid=None):

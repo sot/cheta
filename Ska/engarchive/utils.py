@@ -1,8 +1,10 @@
 """
 Utilities for the engineering archive.
 """
-from __future__ import division
+from __future__ import print_function, division, absolute_import
 
+import six
+from six.moves import zip
 import numpy as np
 from Chandra.Time import DateTime
 
@@ -48,7 +50,7 @@ def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True
     from . import fetch
 
     # Allow for a single MSID input and make all values lower-case
-    if isinstance(msids, basestring):
+    if isinstance(msids, six.string_types):
         msids = [msids]
     msids = [msid.lower() for msid in msids]
 
@@ -120,7 +122,7 @@ def ss_vector(start, stop=None, obj='Earth'):
 
     :returns: table of vector values
     """
-    from itertools import count, izip
+    from itertools import count
     from Quaternion import Quat
     from scipy.interpolate import interp1d
     from . import fetch
@@ -129,7 +131,7 @@ def ss_vector(start, stop=None, obj='Earth'):
     obj = obj.lower()
     if obj not in sign:
         raise ValueError('obj parameter must be one of {0}'
-                         .format(sign.keys()))
+                         .format(list(sign.keys())))
 
     tstart = DateTime(start).secs
     tstop = DateTime(stop).secs
@@ -163,7 +165,7 @@ def ss_vector(start, stop=None, obj='Earth'):
 
     bad_q_atts = []  # List of inconsistent quaternion values in telemetry
     p_obj_body = np.ndarray((len(times0), 3), dtype=float)
-    for i, obj_eci, distance, time, q1, q2, q3, q4 in izip(
+    for i, obj_eci, distance, time, q1, q2, q3, q4 in zip(
         count(), obj_ecis, distances, times0, q_atts['aoattqt1'].midvals,
         q_atts['aoattqt2'].midvals, q_atts['aoattqt3'].midvals,
         q_atts['aoattqt4'].midvals):

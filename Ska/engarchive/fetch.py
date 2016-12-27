@@ -2,11 +2,14 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
+from __future__ import print_function, division, absolute_import
+
 import sys
 import os
 import time
 import contextlib
-import cPickle as pickle
+import six
+from six.moves import cPickle as pickle
 import logging
 import operator
 import fnmatch
@@ -126,7 +129,7 @@ class _DataSource(object):
         if include_test:
             sources = cls._data_sources
         else:
-            sources = filter(lambda x: not x.startswith('test'), cls._data_sources)
+            sources = [x for x in cls._data_sources if not x.startswith('test')]
 
         return tuple(source.split()[0] for source in sources)
 
@@ -141,10 +144,10 @@ class _DataSource(object):
         source = source.split()[0]
 
         if source == 'cxc':
-            out = content.keys()
+            out = list(content.keys())
         elif source == 'maude':
             import maude
-            out = maude.MSIDS.keys()
+            out = list(maude.MSIDS.keys())
         else:
             raise ValueError('source must be "cxc" or "msid"')
 
@@ -215,7 +218,7 @@ def local_or_remote_function(remote_print_output):
                                           "info from user.")
                 # Print the output, if specified
                 if remote_access.show_print_output and not remote_print_output is None:
-                    print remote_print_output
+                    print(remote_print_output)
                     sys.stdout.flush()
                 # Execute the function remotely and return the result
                 return remote_access.execute_remotely(func, *args, **kwargs)
@@ -279,9 +282,9 @@ for filetype in filetypes:
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
-    import cPickle as pickle
+    from six.moves import cPickle as pickle
     all_colnames = dict()
-    for k, msid_names_file in all_msid_names_files.iteritems():
+    for k, msid_names_file in six.iteritems(all_msid_names_files):
         try:
             all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file)))
         except IOError:
@@ -291,7 +294,7 @@ def load_msid_names(all_msid_names_files):
 all_colnames = load_msid_names(all_msid_names_files)
 
 # Save the names
-for k, colnames in all_colnames.iteritems():
+for k, colnames in six.iteritems(all_colnames):
     content.update((x, k) for x in sorted(colnames)
                    if x not in IGNORE_COLNAMES)
 
@@ -461,12 +464,11 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
 
     # Got an intervals list, now sort
     if check_overlaps and intervals is not None:
-        from itertools import izip
 
         intervals = sorted(intervals, key=lambda x: x[0])
 
         # Check for overlaps
-        if any(i0[1] > i1[0] for i0, i1 in izip(intervals[:-1], intervals[1:])):
+        if any(i0[1] > i1[0] for i0, i1 in zip(intervals[:-1], intervals[1:])):
             raise ValueError('Input intervals overlap')
 
     return intervals
@@ -1134,7 +1136,7 @@ class MSID(object):
         :param append: append to an existing zipfile
         """
         import zipfile
-        from itertools import izip
+
         colnames = self.colnames[:]
         if self.bads is None and 'bads' in colnames:
             colnames.remove('bads')
@@ -1153,12 +1155,12 @@ class MSID(object):
                                        and os.path.exists(filename)
                                        else 'w'))
         info = zipfile.ZipInfo(self.msid + '.csv')
-        info.external_attr = 0664 << 16L  # Set permissions
+        info.external_attr = 0o664 << 16  # Set permissions
         info.date_time = time.localtime()[:7]
         info.compress_type = zipfile.ZIP_DEFLATED
         f.writestr(info,
                    ",".join(colnames) + '\n' +
-                   '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
+                   '\n'.join(fmt % x for x in zip(*colvals)) + '\n')
         f.close()
 
     def logical_intervals(self, op, val, complete_intervals=True, max_gap=None):
@@ -1526,7 +1528,7 @@ class MSIDset(collections.OrderedDict):
 
         obj = self.copy() if copy else self
 
-        msids = obj.values()  # MSID objects in the MSIDset
+        msids = list(obj.values())  # MSID objects in the MSIDset
 
         # Ensure that tstart / tstop is entirely within the range of available
         # data fetched from the archive.
