@@ -286,7 +286,7 @@ def load_msid_names(all_msid_names_files):
     all_colnames = dict()
     for k, msid_names_file in six.iteritems(all_msid_names_files):
         try:
-            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file)))
+            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), 'rb'))
         except IOError:
             pass
     return all_colnames
@@ -631,7 +631,8 @@ class MSID(object):
                                   " from Ska eng archive server...")
         def get_stat_data_from_server(filename, dt, tstart, tstop):
             import tables
-            h5 = tables.openFile(os.path.join(*filename))
+            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            h5 = open_file(os.path.join(*filename))
             table = h5.root.data
             times = (table.col('index') + 0.5) * dt
             row0, row1 = np.searchsorted(times, [tstart, tstop])
@@ -705,7 +706,8 @@ class MSID(object):
             @local_or_remote_function("Getting time data from Ska eng archive server...")
             def get_time_data_from_server(h5_slice, filename):
                 import tables
-                h5 = tables.openFile(os.path.join(*filename))
+                open_file = getattr(tables, 'open_file', None) or tables.openFile
+                h5 = open_file(os.path.join(*filename))
                 times_ok = ~h5.root.quality[h5_slice]
                 times = h5.root.data[h5_slice]
                 h5.close()
@@ -734,7 +736,8 @@ class MSID(object):
                                   " from Ska eng archive server...")
         def get_msid_data_from_server(h5_slice, filename):
             import tables
-            h5 = tables.openFile(os.path.join(*filename))
+            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            h5 = open_file(os.path.join(*filename))
             vals = h5.root.data[h5_slice]
             bads = h5.root.quality[h5_slice]
             h5.close()
@@ -1738,7 +1741,8 @@ def get_time_range(msid, format=None):
         @local_or_remote_function("Getting time range from Ska eng archive server...")
         def get_time_data_from_server(filename):
             import tables
-            h5 = tables.openFile(os.path.join(*filename))
+            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            h5 = open_file(os.path.join(*filename))
             tstart = h5.root.data[0]
             tstop = h5.root.data[-1]
             h5.close()
