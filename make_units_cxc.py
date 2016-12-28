@@ -89,6 +89,6 @@ for col in _get_deahk_cols():
         units[col['name'].upper()] = col['unit']
 
 if not opt.dry_run:
-    pickle.dump(units, open('units_cxc.pkl', 'w'))
+    pickle.dump(units, open('units_cxc.pkl', 'wb'))
 else:
     print(repr(units))
