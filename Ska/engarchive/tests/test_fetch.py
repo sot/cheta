@@ -136,8 +136,7 @@ def test_interpolate():
 
     assert np.all(dat['aopcadmd'].vals ==
                   np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN',
-                            'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN'],
-                           dtype='|S4'))
+                            'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN']))
 
     assert np.all(dat['aogyrct1'].vals ==
                   np.array([-23261, -22131, -21000, -19878, -18714, -17301,
@@ -170,8 +169,7 @@ def test_interpolate_msid():
     assert np.all(dat.vals ==
                   np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN',
                             'NMAN', 'NMAN', 'NMAN', 'NMAN',
-                            'NMAN', 'NMAN', 'NMAN', 'NMAN'],
-                           dtype='|S4'))
+                            'NMAN', 'NMAN', 'NMAN', 'NMAN']))
 
 
 def test_interpolate_times_raise():

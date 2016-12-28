@@ -674,6 +674,15 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
+        # Possibly convert vals to unicode for Python 3+.  If this MSID is a
+        # state-valued MSID (with string value) then `vals` is the only possible
+        # string attribute.  None of the others like mins/maxes etc will exist.
+        if not six.PY2:
+            for colname in self.colnames:
+                vals = getattr(self, colname)
+                if vals.dtype.kind == 'S':
+                    setattr(self, colname, vals.astype('U'))
+
     @staticmethod
     @cache.lru_cache(30)
     def _get_msid_data_from_cxc_cached(content, tstart, tstop, msid, unit_system):
@@ -761,6 +770,10 @@ class MSID(object):
         # Possibly expand the bads list for a set of about 30 MSIDs which
         # have incorrect values in CXCDS telemetry
         bads = _fix_ctu_dwell_mode_bads(msid, bads)
+
+        # In Python 3+ change bytestring to (unicode) string
+        if not six.PY2 and vals.dtype.kind == 'S':
+            vals = vals.astype('U')
 
         return (vals, times, bads)
 
