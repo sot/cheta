@@ -8,8 +8,6 @@ import sys
 import os
 import time
 import contextlib
-import six
-from six.moves import cPickle as pickle
 import logging
 import operator
 import fnmatch
@@ -20,6 +18,9 @@ import re
 import numpy as np
 from astropy.io import ascii
 import pyyaks.context
+import six
+from six.moves import cPickle as pickle
+from six.moves import zip
 
 from . import file_defs
 from .units import Units
