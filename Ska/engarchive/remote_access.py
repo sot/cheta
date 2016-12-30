@@ -6,7 +6,10 @@ from __future__ import print_function, division, absolute_import
 import sys
 import os
 import getpass
-import IPython.parallel
+try:
+    import ipyparallel as parallel
+except ImportError:
+    from IPython import parallel
 from six.moves import input
 
 # To use remote access, this flag should be set True (it is true by default
@@ -62,9 +65,9 @@ Return success status (True/False)
         print('Establishing connection to ' + hostname + '...')
         sys.stdout.flush()
         try:
-            _remote_client = IPython.parallel.Client(client_key_file,
-                                                     sshserver=username+'@'+hostname,
-                                                     password=password)
+            _remote_client = parallel.Client(client_key_file,
+                                             sshserver=username+'@'+hostname,
+                                             password=password)
         except:
             print('Error connecting to server ',hostname,': ',sys.exc_info()[0])
             sys.stdout.flush()
@@ -91,7 +94,7 @@ def execute_remotely(fcn, *args, **kwargs):
 Function for executing a function remotely
 """
     if not connection_is_established():
-        raise IPython.parallel.ConnectionError(
+        raise parallel.ConnectionError(
                 "Connection not established to remote server")
     dview = _remote_client[0]; # Use the first (and should be only) engine
     dview.block = True
