@@ -52,7 +52,7 @@ def get_options():
 
 
 def check_filetype(filetype):
-    ft['content'] = filetype['content'].lower()
+    ft['content'] = filetype.content.lower()
 
     if not os.path.exists(msid_files['archfiles'].abs):
         logger.info('No archfiles.db3 for %s - skipping' % ft['content'])
