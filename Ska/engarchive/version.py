@@ -33,7 +33,7 @@ import os
 ### SET THESE VALUES
 ############################
 # Major, Minor, Bugfix, Dev
-VERSION = (0, 41, 1, False)
+VERSION = (0, 41, 2, False)
 
 
 class SemanticVersion(object):
