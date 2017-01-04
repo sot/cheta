@@ -14,8 +14,8 @@ import Ska.engarchive.file_defs as file_defs
 import Ska.DBI
 
 opt = None
-ft = None
-msid_files = None
+ft = fetch.ft
+msid_files = fetch.msid_files
 logger = None
 
 
@@ -52,7 +52,7 @@ def get_options():
 
 
 def check_filetype(filetype):
-    ft['content'] = filetype.content.lower()
+    ft['content'] = filetype['content'].lower()
 
     if not os.path.exists(msid_files['archfiles'].abs):
         logger.info('No archfiles.db3 for %s - skipping' % ft['content'])
@@ -134,12 +134,6 @@ def main():
     global logger
 
     opt, args = get_options()
-
-    ft = fetch.ft
-    msid_files = pyyaks.context.ContextDict('msid_files',
-                                            basedir=(opt.data_root or
-                                                     file_defs.msid_root))
-    msid_files.update(file_defs.msid_files)
 
     # Set up fetch so it will first try to read from opt.data_root if that is
     # provided as an option and exists, and if not fall back to the default of
