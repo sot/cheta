@@ -1144,7 +1144,14 @@ def main():
                              opt.max_lookback_time * 86400.)
         date_nows = [DateTime(t).date for t in t_starts]
         date_nows.append(opt.date_now)
-        opt.max_lookback_time += 10
+
+        # Drop the first date_now because that is covered by the second entry
+        # minus the extended max_lookback_time (below).
+        date_nows = date_nows[1:]
+
+        # Increase max_lookback_time by 50%, but by no less than 2 days and no more than
+        # 10 days.
+        opt.max_lookback_time += min(max(opt.max_lookback_time * 0.5, 2), 10)
 
     for date_now in date_nows:
         opt.date_now = date_now
