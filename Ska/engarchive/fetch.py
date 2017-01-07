@@ -267,8 +267,14 @@ ft = pyyaks.context.ContextDict('ft')
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
-# Module-level values defining available content types and column (MSID) names
+# Module-level values defining available content types and column (MSID) names.
+# Then convert from astropy Table to recarray for API stability.
+# Note that filetypes.as_array().view(np.recarray) does not quite work...
 filetypes = ascii.read(os.path.join(DIR_PATH, 'filetypes.dat'))
+filetypes_arr = filetypes.as_array()
+filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
+filetypes[()] = filetypes_arr
+
 content = collections.OrderedDict()
 
 # Get the list of filenames (an array is built to pass all the filenames at
