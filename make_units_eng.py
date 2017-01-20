@@ -8,12 +8,13 @@ from copy import copy
 import Ska.engarchive.converters
 import Ska.tdb
 
-units_cxc = pickle.load(open('units_cxc.pkl'))
+units_cxc = pickle.load(open('units_cxc.pkl', 'rb'))
 units_eng = copy(units_cxc)
 
 # Update with units from TMSRMENT table of the TDB
 dat = Ska.tdb.tables['tmsrment']
-tdb_units = {msid.upper(): unit for msid, unit in zip(dat['MSID'], dat['ENG_UNIT'])}
+tdb_units = {str(msid.upper()): str(unit)  # convert from numpy type to pure Python
+             for msid, unit in zip(dat['MSID'], dat['ENG_UNIT'])}
 units_eng.update({msid: tdb_units[msid] for msid, unit in units_eng.items()
                   if msid in tdb_units})
 
@@ -34,4 +35,4 @@ units_eng['3MRMMXMV'] = 'PWMSTEP'
 
 units_eng['HKEBOXTEMP'] = 'DEGF'
 
-pickle.dump(units_eng, open('units_eng.pkl', 'w'))
+pickle.dump(units_eng, open('units_eng.pkl', 'wb'))

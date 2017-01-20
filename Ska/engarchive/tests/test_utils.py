@@ -1,3 +1,5 @@
+import numpy as np
+
 from ..utils import get_fetch_size
 from .. import fetch
 
@@ -34,12 +36,12 @@ def test_get_fetch_size_accuracy():
 
     fetch_mb, out_mb = get_fetch_size('aopcadmd', '2010:001', '2011:001', stat='5min',
                                       interpolate_dt=328 * 2, fast=False)
-    assert fetch_mb == round(fetch_bytes / 1e6, 2)
+    assert np.isclose(fetch_mb, fetch_bytes / 1e6, rtol=0.0, atol=0.01)
 
     # Now interpolate to 10 minute intervals
     dat.interpolate(328.0 * 2)
     fetch_bytes = sum(getattr(dat, attr).nbytes for attr in dat.colnames)
-    assert out_mb == round(fetch_bytes / 1e6, 2)
+    assert np.isclose(out_mb, fetch_bytes / 1e6, rtol=0.0, atol=0.01)
 
     # By hand for full resolution
     dat = fetch.MSID('aopcadmd', '2011:001', '2011:010')
@@ -47,9 +49,9 @@ def test_get_fetch_size_accuracy():
 
     fetch_mb, out_mb = get_fetch_size('aopcadmd', '2011:001', '2011:010',
                                       interpolate_dt=328 * 2, fast=False)
-    assert fetch_mb == round(fetch_bytes / 1e6, 2)
+    assert np.isclose(fetch_mb, fetch_bytes / 1e6, rtol=0.0, atol=0.01)
 
     # Now interpolate to 10 minute intervals
     dat.interpolate(328.0 * 2)
     fetch_bytes = sum(getattr(dat, attr).nbytes for attr in dat.colnames)
-    assert out_mb == round(fetch_bytes / 1e6, 2)
+    assert np.isclose(out_mb, fetch_bytes / 1e6, rtol=0.0, atol=0.01)

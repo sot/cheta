@@ -36,8 +36,10 @@ Basic units handling and conversion.
  ('VDC', 'V'),
  ('W', 'W')}
 """
+from __future__ import print_function, division, absolute_import
+
 import os
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import logging
 import warnings
 
@@ -58,7 +60,7 @@ module_dir = os.path.dirname(__file__)
 
 units = {}
 units['system'] = 'cxc'
-units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl')))
+units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl'), 'rb'))
 
 
 # Equivalent unit descriptors used in 'eng' and 'cxc' units
@@ -193,7 +195,7 @@ def load_units(unit_system):
     if unit_system not in units:
         filename = os.path.join(module_dir,
                                 'units_{0}.pkl'.format(unit_system))
-        units[unit_system] = pickle.load(open(filename))
+        units[unit_system] = pickle.load(open(filename, 'rb'))
 
 
 def set_units(unit_system):

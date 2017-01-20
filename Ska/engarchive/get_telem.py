@@ -19,14 +19,15 @@ Examples
 Arguments
 =========
 """
-
-from __future__ import print_function, division
+from __future__ import print_function, division, absolute_import
 
 import ast
 import argparse
 import re
 import shlex
-from itertools import izip, count
+from itertools import count
+from six.moves import zip
+import six
 
 import numpy as np
 
@@ -76,7 +77,7 @@ def sanitize_event_expression(expr):
 
     # Now check syntax and do substitutions where needed
     in_arg_list = False
-    for i, p_token, token, n_token in izip(count(1), tokens, tokens[1:], tokens[2:]):
+    for i, p_token, token, n_token in zip(count(1), tokens, tokens[1:], tokens[2:]):
         if token == "SEP":
             if words[i] in '|&':
                 words[i] = ' {} '.format(words[i])
@@ -173,7 +174,7 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     start = stop - 30 if start is None else DateTime(start)
     stat = None if sampling == 'full' else sampling
     filter_bad = interpolate_dt is None
-    if isinstance(msids, basestring):
+    if isinstance(msids, six.string_types):
         msids = [msids]
 
     logger.info('Fetching {}-resolution data for MSIDS={}\n  from {} to {}'

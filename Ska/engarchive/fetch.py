@@ -2,11 +2,12 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
+from __future__ import print_function, division, absolute_import
+
 import sys
 import os
 import time
 import contextlib
-import cPickle as pickle
 import logging
 import operator
 import fnmatch
@@ -15,8 +16,11 @@ import warnings
 import re
 
 import numpy as np
-import asciitable
+from astropy.io import ascii
 import pyyaks.context
+import six
+from six.moves import cPickle as pickle
+from six.moves import zip
 
 from . import file_defs
 from .units import Units
@@ -126,7 +130,7 @@ class _DataSource(object):
         if include_test:
             sources = cls._data_sources
         else:
-            sources = filter(lambda x: not x.startswith('test'), cls._data_sources)
+            sources = [x for x in cls._data_sources if not x.startswith('test')]
 
         return tuple(source.split()[0] for source in sources)
 
@@ -141,10 +145,10 @@ class _DataSource(object):
         source = source.split()[0]
 
         if source == 'cxc':
-            out = content.keys()
+            out = list(content.keys())
         elif source == 'maude':
             import maude
-            out = maude.MSIDS.keys()
+            out = list(maude.MSIDS.keys())
         else:
             raise ValueError('source must be "cxc" or "msid"')
 
@@ -215,7 +219,7 @@ def local_or_remote_function(remote_print_output):
                                           "info from user.")
                 # Print the output, if specified
                 if remote_access.show_print_output and not remote_print_output is None:
-                    print remote_print_output
+                    print(remote_print_output)
                     sys.stdout.flush()
                 # Execute the function remotely and return the result
                 return remote_access.execute_remotely(func, *args, **kwargs)
@@ -263,8 +267,14 @@ ft = pyyaks.context.ContextDict('ft')
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
-# Module-level values defining available content types and column (MSID) names
-filetypes = asciitable.read(os.path.join(DIR_PATH, 'filetypes.dat'))
+# Module-level values defining available content types and column (MSID) names.
+# Then convert from astropy Table to recarray for API stability.
+# Note that filetypes.as_array().view(np.recarray) does not quite work...
+filetypes = ascii.read(os.path.join(DIR_PATH, 'filetypes.dat'))
+filetypes_arr = filetypes.as_array()
+filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
+filetypes[()] = filetypes_arr
+
 content = collections.OrderedDict()
 
 # Get the list of filenames (an array is built to pass all the filenames at
@@ -279,11 +289,11 @@ for filetype in filetypes:
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
-    import cPickle as pickle
+    from six.moves import cPickle as pickle
     all_colnames = dict()
-    for k, msid_names_file in all_msid_names_files.iteritems():
+    for k, msid_names_file in six.iteritems(all_msid_names_files):
         try:
-            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file)))
+            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), 'rb'))
         except IOError:
             pass
     return all_colnames
@@ -291,7 +301,7 @@ def load_msid_names(all_msid_names_files):
 all_colnames = load_msid_names(all_msid_names_files)
 
 # Save the names
-for k, colnames in all_colnames.iteritems():
+for k, colnames in six.iteritems(all_colnames):
     content.update((x, k) for x in sorted(colnames)
                    if x not in IGNORE_COLNAMES)
 
@@ -350,8 +360,8 @@ def read_bad_times(table):
     ``DateTime`` format.  Blank lines and any line starting with the #
     character are ignored.
     """
-    bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
-                                names=['msid', 'start', 'stop'])
+    bad_times = ascii.read(table, format='no_header',
+                           names=['msid', 'start', 'stop'])
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
@@ -461,12 +471,11 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
 
     # Got an intervals list, now sort
     if check_overlaps and intervals is not None:
-        from itertools import izip
 
         intervals = sorted(intervals, key=lambda x: x[0])
 
         # Check for overlaps
-        if any(i0[1] > i1[0] for i0, i1 in izip(intervals[:-1], intervals[1:])):
+        if any(i0[1] > i1[0] for i0, i1 in zip(intervals[:-1], intervals[1:])):
             raise ValueError('Input intervals overlap')
 
     return intervals
@@ -629,7 +638,8 @@ class MSID(object):
                                   " from Ska eng archive server...")
         def get_stat_data_from_server(filename, dt, tstart, tstop):
             import tables
-            h5 = tables.openFile(os.path.join(*filename))
+            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            h5 = open_file(os.path.join(*filename))
             table = h5.root.data
             times = (table.col('index') + 0.5) * dt
             row0, row1 = np.searchsorted(times, [tstart, tstop])
@@ -671,6 +681,15 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
+        # Possibly convert vals to unicode for Python 3+.  If this MSID is a
+        # state-valued MSID (with string value) then `vals` is the only possible
+        # string attribute.  None of the others like mins/maxes etc will exist.
+        if not six.PY2:
+            for colname in self.colnames:
+                vals = getattr(self, colname)
+                if vals.dtype.kind == 'S':
+                    setattr(self, colname, vals.astype('U'))
+
     @staticmethod
     @cache.lru_cache(30)
     def _get_msid_data_from_cxc_cached(content, tstart, tstop, msid, unit_system):
@@ -703,7 +722,8 @@ class MSID(object):
             @local_or_remote_function("Getting time data from Ska eng archive server...")
             def get_time_data_from_server(h5_slice, filename):
                 import tables
-                h5 = tables.openFile(os.path.join(*filename))
+                open_file = getattr(tables, 'open_file', None) or tables.openFile
+                h5 = open_file(os.path.join(*filename))
                 times_ok = ~h5.root.quality[h5_slice]
                 times = h5.root.data[h5_slice]
                 h5.close()
@@ -732,7 +752,8 @@ class MSID(object):
                                   " from Ska eng archive server...")
         def get_msid_data_from_server(h5_slice, filename):
             import tables
-            h5 = tables.openFile(os.path.join(*filename))
+            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            h5 = open_file(os.path.join(*filename))
             vals = h5.root.data[h5_slice]
             bads = h5.root.quality[h5_slice]
             h5.close()
@@ -756,6 +777,10 @@ class MSID(object):
         # Possibly expand the bads list for a set of about 30 MSIDs which
         # have incorrect values in CXCDS telemetry
         bads = _fix_ctu_dwell_mode_bads(msid, bads)
+
+        # In Python 3+ change bytestring to (unicode) string
+        if not six.PY2 and vals.dtype.kind == 'S':
+            vals = vals.astype('U')
 
         return (vals, times, bads)
 
@@ -980,8 +1005,8 @@ class MSID(object):
         :param copy: return a copy of MSID object with bad times filtered
         """
         if table is not None:
-            bad_times = asciitable.read(table, Reader=asciitable.NoHeader,
-                                        names=['start', 'stop'])
+            bad_times = ascii.read(table, format='no_header',
+                                   names=['start', 'stop'])
         elif start is None and stop is None:
             bad_times = []
             for msid_glob, times in msid_bad_times.items():
@@ -1134,7 +1159,7 @@ class MSID(object):
         :param append: append to an existing zipfile
         """
         import zipfile
-        from itertools import izip
+
         colnames = self.colnames[:]
         if self.bads is None and 'bads' in colnames:
             colnames.remove('bads')
@@ -1153,12 +1178,12 @@ class MSID(object):
                                        and os.path.exists(filename)
                                        else 'w'))
         info = zipfile.ZipInfo(self.msid + '.csv')
-        info.external_attr = 0664 << 16L  # Set permissions
+        info.external_attr = 0o664 << 16  # Set permissions
         info.date_time = time.localtime()[:7]
         info.compress_type = zipfile.ZIP_DEFLATED
         f.writestr(info,
                    ",".join(colnames) + '\n' +
-                   '\n'.join(fmt % x for x in izip(*colvals)) + '\n')
+                   '\n'.join(fmt % x for x in zip(*colvals)) + '\n')
         f.close()
 
     def logical_intervals(self, op, val, complete_intervals=True, max_gap=None):
@@ -1526,7 +1551,7 @@ class MSIDset(collections.OrderedDict):
 
         obj = self.copy() if copy else self
 
-        msids = obj.values()  # MSID objects in the MSIDset
+        msids = list(obj.values())  # MSID objects in the MSIDset
 
         # Ensure that tstart / tstop is entirely within the range of available
         # data fetched from the archive.
@@ -1736,7 +1761,8 @@ def get_time_range(msid, format=None):
         @local_or_remote_function("Getting time range from Ska eng archive server...")
         def get_time_data_from_server(filename):
             import tables
-            h5 = tables.openFile(os.path.join(*filename))
+            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            h5 = open_file(os.path.join(*filename))
             tstart = h5.root.data[0]
             tstop = h5.root.data[-1]
             h5.close()

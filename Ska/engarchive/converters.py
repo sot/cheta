@@ -1,8 +1,11 @@
-from itertools import izip
+from __future__ import print_function, division, absolute_import
+
 import logging
 import numpy
 import sys
 from collections import OrderedDict
+
+from six.moves import zip
 
 import numpy as np
 import Ska.Numpy
@@ -126,7 +129,7 @@ def generic_converter2(msid_cxc_map):
     """
     def _convert(dat):
         # Make quality bool array with entries for TIME, QUALITY, then all other cols
-        out_names = ['TIME', 'QUALITY'] + msid_cxc_map.keys()
+        out_names = ['TIME', 'QUALITY'] + list(msid_cxc_map.keys())
         out_quality = np.zeros(shape=(len(dat), len(out_names)), dtype=np.bool)
         out_arrays = {'TIME': dat['TIME'],
                       'QUALITY': out_quality}
@@ -502,21 +505,21 @@ def acisdeahk(dat):
     times = rows['TIME']
 
     outs = []
-    for i0, i1 in izip(block_idxs[:-1], block_idxs[1:]):
+    for i0, i1 in zip(block_idxs[:-1], block_idxs[1:]):
         # Map query_id to an index into rows for each row in the block
         id_idxs = dict((query_ids[i], i) for i in range(i0, i1))
 
         # Make tuples of the values and qual flags corresponding to each DEAHK_COLUMN
         bads = tuple(query_id not in id_idxs for query_id in col_query_ids)
         vals = tuple((0.0 if bad else query_vals[id_idxs[query_id]])
-                     for bad, query_id in izip(bads, col_query_ids))
+                     for bad, query_id in zip(bads, col_query_ids))
         val_tus = tuple((0 if bad else query_val_tus[id_idxs[query_id]])
-                     for bad, query_id in izip(bads, col_query_ids))
+                     for bad, query_id in zip(bads, col_query_ids))
 
         # Now have another pass at finding bad values.  Take these out now so the
         # 5min and daily stats are not frequently corrupted.
         bads = tuple(True if (val_tu == 65535 or numpy.isnan(val)) else bad
-                     for bad, val, val_tu in izip(bads, vals, val_tus))
+                     for bad, val, val_tu in zip(bads, vals, val_tus))
 
         quality = (False, False) + bads
         outs.append((times[i0], quality) + vals)

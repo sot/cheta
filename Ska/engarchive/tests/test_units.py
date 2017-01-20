@@ -100,3 +100,11 @@ def test_equiv_units():
     assert cxc.unit == 'rad/s'
     assert sci.unit == 'rad/s'
     assert eng.unit == 'RADPS'
+
+
+def test_unit_name_value_types():
+    for system in ('eng', 'cxc', 'sci'):
+        units = fetch_cxc.Units()[system]
+        for name, value in units.items():
+            assert type(name) is str
+            assert type(value) is str

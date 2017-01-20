@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import
+
 import numpy as np
 import pytest
 
@@ -91,13 +93,13 @@ def test_maude_allow_subset_false():
     with fetch.data_source('maude allow_subset=False'):
         datm = fetch.Msid('aogyrct1', '2016:001:00:00:00.1', '2016:001:12:00:00')
         ds = datm.data_source
-        assert ds.keys() == ['maude']
+        assert list(ds.keys()) == ['maude']
         assert ds['maude']['flags']['subset'] is False
 
     with fetch.data_source('cxc'):
         datc = fetch.Msid('aogyrct1', '2016:001:00:00:00.1', '2016:001:12:00:00')
         ds = datc.data_source
-        assert ds.keys() == ['cxc']
+        assert list(ds.keys()) == ['cxc']
 
     assert len(datc.vals) == len(datm.vals)
     assert np.all(datc.vals == datm.vals)
@@ -125,7 +127,7 @@ def test_msid_resolution():
     with fetch.data_source('cxc', 'maude', 'test-drop-half'):
         # dp_pitch only in CXC but this succeeds anyway
         dat = fetch.Msid('dp_pitch', date1, date4)
-        assert dat.data_source.keys() == ['cxc']
+        assert list(dat.data_source.keys()) == ['cxc']
         print(len(dat.vals))
 
         # Not in either
@@ -135,7 +137,7 @@ def test_msid_resolution():
 
         # ACIMG1D1 only in MAUDE
         dat = fetch.Msid('ACIMG1D1', date1, date4)
-        assert dat.data_source.keys() == ['maude']
+        assert list(dat.data_source.keys()) == ['maude']
         print(len(dat.vals))
 
     with fetch.data_source('cxc'):

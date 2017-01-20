@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import
+
 from copy import deepcopy
 
 import numpy as np
@@ -134,8 +136,7 @@ def test_interpolate():
 
     assert np.all(dat['aopcadmd'].vals ==
                   np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN',
-                            'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN'],
-                           dtype='|S4'))
+                            'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN']))
 
     assert np.all(dat['aogyrct1'].vals ==
                   np.array([-23261, -22131, -21000, -19878, -18714, -17301,
@@ -168,8 +169,7 @@ def test_interpolate_msid():
     assert np.all(dat.vals ==
                   np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN',
                             'NMAN', 'NMAN', 'NMAN', 'NMAN',
-                            'NMAN', 'NMAN', 'NMAN', 'NMAN'],
-                           dtype='|S4'))
+                            'NMAN', 'NMAN', 'NMAN', 'NMAN']))
 
 
 def test_interpolate_times_raise():
@@ -281,7 +281,7 @@ def test_msidset_copy():
         for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
             assert getattr(msidset1, attr) == getattr(msidset2, attr)
 
-        assert msidset1.keys() == msidset2.keys()
+        assert list(msidset1.keys()) == list(msidset2.keys())
         for name in msidset1.keys():
             _assert_msid_equal(msidset1[name], msidset2[name])
 
