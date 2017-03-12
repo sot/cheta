@@ -15,13 +15,18 @@
 # This will slowly go through each content type, truncate and re-ingest.  Open another
 # window and `tail -f trunc.log`.
 
+# The following have been removed from the CONTENTS list below because quite often
+# they don't need repro in the same way as the others.  But put them back in if
+# it makes sense.
+#
+# lunarephem0
+# solarephem0
+# orbitephem1
+# lunarephem1
+# solarephem1
+# angleephem
+
 CONTENTS="
-lunarephem0
-solarephem0
-orbitephem1
-lunarephem1
-solarephem1
-angleephem
 acisdeahk
 acis2eng
 acis3eng
