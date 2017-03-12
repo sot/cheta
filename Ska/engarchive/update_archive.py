@@ -74,9 +74,13 @@ def get_options(args=None):
     parser.add_argument("--max-gap",
                         type=float,
                         help="Maximum time gap between archive files")
+    parser.add_argument("--allow-gap-after-days",
+                        type=float,
+                        default=4,
+                        help="Allow archive file gap when file is this old (days, default=4)")
     parser.add_argument("--max-arch-files",
                         type=int,
-                        default=100,
+                        default=500,
                         help="Maximum number of archive files to ingest at once")
     parser.add_argument("--data-root",
                         default=".",
@@ -955,6 +959,13 @@ def update_msid_files(filetype, archfiles):
                            time_gap, last_archfile['filename'], archfiles_row['filename'])
             if opt.create:
                 logger.warning('       Allowing gap because of opt.create=True')
+            elif DateTime() - DateTime(archfiles_row['tstart']) > opt.allow_gap_after_days:
+                # After 4 days (by default) just let it go through because this is
+                # likely a real gap and will not be fixed by subsequent processing.
+                # This can happen after normal sun mode to SIM products.
+                logger.warning('       Allowing gap because arch file '
+                               'start is more than {} days old'
+                               .format(opt.allow_gap_after_days))
             else:
                 break
         elif time_gap < 0:
@@ -1083,8 +1094,7 @@ def get_archive_files(filetype):
 
     # If running on the OCC GRETA network the cwd is a staging directory that
     # could already have files.  Also used in testing.
-    # Don't return more than opt.max_arch_files files at once because of memory
-    # issues on gretasot.  This only comes up when there has been some problem or stoppage.
+    # Don't allow arbitrary arch files at once because of memory issues.
     files = sorted(glob.glob(filetype['fileglob']))
     if opt.occ or files:
         return sorted(files)[:opt.max_arch_files]
