@@ -80,7 +80,7 @@ def get_options(args=None):
                         help="Allow archive file gap when file is this old (days, default=4)")
     parser.add_argument("--max-arch-files",
                         type=int,
-                        default=100,
+                        default=500,
                         help="Maximum number of archive files to ingest at once")
     parser.add_argument("--data-root",
                         default=".",
@@ -1094,8 +1094,7 @@ def get_archive_files(filetype):
 
     # If running on the OCC GRETA network the cwd is a staging directory that
     # could already have files.  Also used in testing.
-    # Don't return more than opt.max_arch_files files at once because of memory
-    # issues on gretasot.  This only comes up when there has been some problem or stoppage.
+    # Don't allow arbitrary arch files at once because of memory issues.
     files = sorted(glob.glob(filetype['fileglob']))
     if opt.occ or files:
         return sorted(files)[:opt.max_arch_files]
