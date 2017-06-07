@@ -638,7 +638,7 @@ class MSID(object):
                                   " from Ska eng archive server...")
         def get_stat_data_from_server(filename, dt, tstart, tstop):
             import tables
-            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            open_file = getattr(tables, 'open_file', None) or tables.open_file
             h5 = open_file(os.path.join(*filename))
             table = h5.root.data
             times = (table.col('index') + 0.5) * dt
@@ -722,7 +722,7 @@ class MSID(object):
             @local_or_remote_function("Getting time data from Ska eng archive server...")
             def get_time_data_from_server(h5_slice, filename):
                 import tables
-                open_file = getattr(tables, 'open_file', None) or tables.openFile
+                open_file = getattr(tables, 'open_file', None) or tables.open_file
                 h5 = open_file(os.path.join(*filename))
                 times_ok = ~h5.root.quality[h5_slice]
                 times = h5.root.data[h5_slice]
@@ -752,7 +752,7 @@ class MSID(object):
                                   " from Ska eng archive server...")
         def get_msid_data_from_server(h5_slice, filename):
             import tables
-            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            open_file = getattr(tables, 'open_file', None) or tables.open_file
             h5 = open_file(os.path.join(*filename))
             vals = h5.root.data[h5_slice]
             bads = h5.root.quality[h5_slice]
@@ -1761,7 +1761,7 @@ def get_time_range(msid, format=None):
         @local_or_remote_function("Getting time range from Ska eng archive server...")
         def get_time_data_from_server(filename):
             import tables
-            open_file = getattr(tables, 'open_file', None) or tables.openFile
+            open_file = getattr(tables, 'open_file', None) or tables.open_file
             h5 = open_file(os.path.join(*filename))
             tstart = h5.root.data[0]
             tstop = h5.root.data[-1]

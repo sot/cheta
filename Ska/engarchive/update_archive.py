@@ -302,7 +302,7 @@ def fix_misorders(filetype):
             ft['msid'] = colname
             logger.info('Fixing %s', msid_files['msid'].abs)
             if not opt.dry_run:
-                h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+                h5 = tables.open_file(msid_files['msid'].abs, mode='a')
                 hrd = h5.root.data
                 hrq = h5.root.quality
 
@@ -361,7 +361,7 @@ def del_stats(colname, time0, interval):
 
     logger.info('Fixing stats file %s after time %s', stats_file, DateTime(time0).date)
 
-    stats = tables.openFile(stats_file, mode='a',
+    stats = tables.open_file(stats_file, mode='a',
                             filters=tables.Filters(complevel=5, complib='zlib'))
     index0 = time0 // dt - 1
     indexes = stats.root.data.col('index')[:]
@@ -369,7 +369,7 @@ def del_stats(colname, time0, interval):
     if opt.dry_run:
         n_del = len(stats.root.data) - row0
     else:
-        n_del = stats.root.data.removeRows(row0, len(stats.root.data))
+        n_del = stats.root.data.remove_rows(row0, len(stats.root.data))
     logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0,
                 DateTime(indexes[row0] * dt).date)
     stats.close()
@@ -488,7 +488,7 @@ def update_stats(colname, interval, msid=None):
         logger.info('Making stats dir {}'.format(msid_files['statsdir'].abs))
         os.makedirs(msid_files['statsdir'].abs)
 
-    stats = tables.openFile(stats_file, mode='a',
+    stats = tables.open_file(stats_file, mode='a',
                             filters=tables.Filters(complevel=5, complib='zlib'))
 
     # INDEX0 is somewhat before any CXC archive data (which starts around 1999:205)
@@ -531,7 +531,7 @@ def update_stats(colname, interval, msid=None):
                         logger.info('  Adding %d records', len(vals_stats))
                     except tables.NoSuchNodeError:
                         logger.info('  Creating table with %d records ...', len(vals_stats))
-                        stats.createTable(stats.root, 'data', vals_stats,
+                        stats.create_table(stats.root, 'data', vals_stats,
                                           "{} sampling".format(interval), expectedrows=2e7)
                     stats.root.data.flush()
             else:
@@ -579,7 +579,7 @@ def update_derived(filetype):
         ft['msid'] = 'TIME'
         content = ft['content'] = fetch.content[msid]
         if content not in last_times:
-            h5 = tables.openFile(fetch.msid_files['msid'].abs, mode='r')
+            h5 = tables.open_file(fetch.msid_files['msid'].abs, mode='r')
             last_times[content] = h5.root.data[-1]
             h5.close()
     last_time = min(last_times.values()) - 1000
@@ -643,14 +643,14 @@ def make_h5_col_file(dats, colname):
     n_rows = int(86400 * 365 * 20 / dt)
 
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.openFile(filename, mode='w', filters=filters)
+    h5 = tables.open_file(filename, mode='w', filters=filters)
 
     col = dats[-1][colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
-    h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
+    h5.create_earray(h5.root, 'data', h5type, h5shape, title=colname,
                     expectedrows=n_rows)
-    h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
+    h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
                     expectedrows=n_rows)
     logger.verbose('WARNING: made new file {} for column {!r} shape={} with n_rows(1e6)={}'
                    .format(filename, colname, h5shape, n_rows / 1.0e6))
@@ -678,7 +678,7 @@ def append_filled_h5_col(dats, colname, data_len):
     quals = np.zeros(fill_len, dtype=bool)
 
     # Append zeros (for the data type) and quality=True (bad)
-    h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+    h5 = tables.open_file(msid_files['msid'].abs, mode='a')
     logger.verbose('Appending %d zeros to %s' % (len(zeros), msid_files['msid'].abs))
     if not opt.dry_run:
         h5.root.data.append(zeros)
@@ -699,7 +699,7 @@ def append_h5_col(dats, colname, files_overlaps):
         """Return the index for `colname` in `dat`"""
         return list(dat.dtype.names).index(colname)
 
-    h5 = tables.openFile(msid_files['msid'].abs, mode='a')
+    h5 = tables.open_file(msid_files['msid'].abs, mode='a')
     stacked_data = np.hstack([x[colname] for x in dats])
     stacked_quality = np.hstack([x['QUALITY'][:, i_colname(x)] for x in dats])
     logger.verbose('Appending %d items to %s' % (len(stacked_data), msid_files['msid'].abs))
@@ -758,7 +758,7 @@ def truncate_archive(filetype, date):
         if not os.path.exists(filename):
             raise IOError('MSID file {} not found'.format(filename))
         if not opt.dry_run:
-            h5 = tables.openFile(filename, mode='a')
+            h5 = tables.open_file(filename, mode='a')
             h5.root.data.truncate(rowstart)
             h5.root.quality.truncate(rowstart)
             h5.close()
