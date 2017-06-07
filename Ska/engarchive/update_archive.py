@@ -21,6 +21,7 @@ import pyyaks.logger
 import pyyaks.context
 import pyfits
 import tables
+import tables3_api
 import numpy as np
 import scipy.stats.mstats
 

@@ -6,6 +6,7 @@ import optparse
 from six.moves import cPickle as pickle
 
 import tables
+import tables3_api
 import pyyaks.logger
 import pyyaks.context
 
