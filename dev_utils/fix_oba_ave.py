@@ -15,21 +15,22 @@ Then::
 """
 
 import tables
+import tables3_api
 
 scale = 36. / 35.
 
-h5 = tables.openFile('data/dp_thermal128/DP_OBA_AVE.h5', 'a')
+h5 = tables.open_file('data/dp_thermal128/DP_OBA_AVE.h5', 'a')
 val = h5.root.data
 val[:] = val[:] * scale
 h5.close()
 
-h5 = tables.openFile('data/dp_thermal128/5min/DP_OBA_AVE.h5', 'a')
+h5 = tables.open_file('data/dp_thermal128/5min/DP_OBA_AVE.h5', 'a')
 for attr in 'val min max mean'.split():
     val = getattr(h5.root.data.cols, attr)
     val[:] = val[:] * scale
 h5.close()
 
-h5 = tables.openFile('data/dp_thermal128/daily/DP_OBA_AVE.h5', 'a')
+h5 = tables.open_file('data/dp_thermal128/daily/DP_OBA_AVE.h5', 'a')
 for attr in 'val min max mean std p01 p05 p16 p50 p84 p95 p99'.split():
     val = getattr(h5.root.data.cols, attr)
     val[:] = val[:] * scale

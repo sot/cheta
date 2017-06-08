@@ -1,5 +1,6 @@
 import time
 import tables
+import tables3_api
 import pyfits
 import numpy as np
 import Ska.Table
@@ -22,14 +23,14 @@ def make_h5_col_file(dat, content, colname, n_rows):
         os.makedirs(filedir)
     
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.openFile(filename, mode='w', filters=filters)
+    h5 = tables.open_file(filename, mode='w', filters=filters)
     
     col = dat[colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
-    h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
+    h5.create_earray(h5.root, 'data', h5type, h5shape, title=colname,
                     expectedrows=n_rows)
-    h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
+    h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
                     expectedrows=n_rows)
     print 'Made', colname, 'shape=', h5shape, 'with n_rows(1e6) =', n_rows / 1.0e6
     h5.close()
@@ -38,7 +39,7 @@ def append_h5_col(dats, content, colname):
     def i_colname(dat):
         return list(dat.dtype.names).index(colname)
     filename = os.path.join('data', content, colname + '.h5')
-    h5 = tables.openFile(filename, mode='a')
+    h5 = tables.open_file(filename, mode='a')
     newdata = np.hstack([x[colname] for x in dats])
     print 'Appending to', colname, 'with shape', newdata.shape
     h5.root.data.append(newdata)

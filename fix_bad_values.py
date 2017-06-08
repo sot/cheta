@@ -45,6 +45,7 @@ import contextlib
 
 import numpy as np
 import tables
+import tables3_api
 import scipy.stats.mstats
 
 import pyyaks.context
@@ -198,7 +199,7 @@ def fix_stats_h5(msid, tstart, tstop, interval):
     vals_stats = calc_stats_vals(dat, rows, indexes, interval)
 
     try:
-        h5 = tables.openFile(stats_file, 'a')
+        h5 = tables.open_file(stats_file, 'a')
         table = h5.root.data
         row0, row1 = np.searchsorted(table.col('index'), [index0, index1])
         for row_idx, vals_stat in itertools.izip(range(row0, row1), vals_stats):
@@ -227,7 +228,7 @@ def fix_msid_h5(msid, tstart, tstop):
     filename = msid_files['data'].abs
     logger.info('Reading TIME file {}'.format(filename))
 
-    h5 = tables.openFile(filename)
+    h5 = tables.open_file(filename)
     times = h5.root.data[row_slice]
     h5.close()
 
@@ -240,7 +241,7 @@ def fix_msid_h5(msid, tstart, tstop):
     filename = msid_files['msid'].abs
     logger.info('Reading msid file {}'.format(filename))
 
-    h5 = tables.openFile(filename, 'a')
+    h5 = tables.open_file(filename, 'a')
     try:
         if opt.value is not None:
             # Set data to <value> over the specified time range

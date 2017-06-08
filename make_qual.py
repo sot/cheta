@@ -14,6 +14,7 @@ import Ska.File
 import Ska.Table
 
 import tables
+import tables3_api
 import numpy as np
 
 from context_def import ft, files
@@ -34,17 +35,17 @@ for filetype in filetypes:
             continue
 
         print 'Reading', files['oldmsid'].abs
-        h5 = tables.openFile(files['oldmsid'].abs)
+        h5 = tables.open_file(files['oldmsid'].abs)
         iqual = np.int8(h5.root.quality[:])
         h5.close()
 
         filters = tables.Filters(complevel=5, complib='zlib')
 
         print 'Creating', files['qual'].abs
-        h5 = tables.openFile(files['qual'].abs, mode='w', filters=filters)
+        h5 = tables.open_file(files['qual'].abs, mode='w', filters=filters)
         h5shape = (0,)
         h5type = tables.Atom.from_dtype(iqual.dtype)
-        h5.createEArray(h5.root, 'quality', h5type, h5shape, title=colname + ' quality',
+        h5.create_earray(h5.root, 'quality', h5type, h5shape, title=colname + ' quality',
                         expectedrows=len(iqual))
         h5.root.quality.append(iqual)
         h5.close()

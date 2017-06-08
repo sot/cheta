@@ -6,6 +6,7 @@ import optparse
 import shutil
 
 import tables
+import tables3_api
 import numpy as np
 import cPickle as pickle
 
@@ -110,12 +111,12 @@ def copy_msidfiles_to_test(file_records, rowstart, rowstop):
             continue
         logger.info('Copying MSID {0}'.format(colname))
         shutil.copy(msid_files['data'].abs, test_msid_files['data.tmp'].abs)
-        h5 = tables.openFile(test_msid_files['data.tmp'].abs, 'a')
+        h5 = tables.open_file(test_msid_files['data.tmp'].abs, 'a')
         h5.root.data[:n_rows] = h5.root.data[rowstart:rowstop]
         h5.root.quality[:n_rows] = h5.root.quality[rowstart:rowstop]
         h5.root.data.truncate(n_rows)
         h5.root.quality.truncate(n_rows)
-        h5.copyFile(test_msid_files['data'].abs, overwrite=True)
+        h5.copy_file(test_msid_files['data'].abs, overwrite=True)
         #print h5.root.data[0], h5.root.data[-1], len(h5.root.data), rowstart, rowstop
         h5.close()
         os.unlink(test_msid_files['data.tmp'].abs)
@@ -133,16 +134,16 @@ def copy_statfiles_to_test(stat, dt, tstart, tstop):
             if not os.path.exists(statdir):
                 os.makedirs(statdir)
             shutil.copy(msid_files['stats'].abs, test_msid_files['stats.tmp'].abs)
-            h5 = tables.openFile(test_msid_files['stats.tmp'].abs, 'a')
+            h5 = tables.open_file(test_msid_files['stats.tmp'].abs, 'a')
             times = (h5.root.data.col('index') + 0.5) * dt
             row0, row1 = np.searchsorted(times, [tstart, tstop])
             #print colname, row0, row1, len(times), DateTime(times[row0]).date, DateTime(times[row1]).date,
             # Remove from row1-1 to end.  The row1-1 is because it is possible
             # to get the daily stat without the rest of the 5min data if
             # tstop is past noon of the day.  This messes up update_archive.
-            h5.root.data.removeRows(row1 - 1, h5.root.data.nrows)
-            h5.root.data.removeRows(0, row0)
-            h5.copyFile(test_msid_files['stats'].abs, overwrite=True)
+            h5.root.data.remove_rows(row1 - 1, h5.root.data.nrows)
+            h5.root.data.remove_rows(0, row0)
+            h5.copy_file(test_msid_files['stats'].abs, overwrite=True)
             newtimes = (h5.root.data.col('index') + 0.5) * dt
             #print len(newtimes), DateTime(newtimes[0]).date, DateTime(newtimes[-1]).date
             h5.close()

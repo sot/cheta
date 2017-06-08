@@ -1,6 +1,7 @@
 import pyfits
 import time
 import tables
+import tables3_api
 import numpy as np
 import Ska.Table
 import re
@@ -18,21 +19,21 @@ def make_h5_col_file(dat, content, colname):
         os.makedirs(filedir)
     
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.openFile(filename, mode='w', filters=filters)
+    h5 = tables.open_file(filename, mode='w', filters=filters)
     
     col = dat[colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
-    h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
+    h5.create_earray(h5.root, 'data', h5type, h5shape, title=colname,
                     expectedrows=86400*365*10)
-    h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
+    h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
                     expectedrows=86400*365*10)
     print 'Made', colname
     h5.close()
 
 def append_h5_col(hdus, content, colname, i_colname):
     filename = os.path.join('data', content, 'msid', colname + '.h7')
-    h5 = tables.openFile(filename, mode='a')
+    h5 = tables.open_file(filename, mode='a')
     h5.root.data.append(np.hstack([x[1].field(colname) for x in hdus]))
     h5.root.quality.append(np.hstack([x[1].field('QUALITY')[:,i_colname] for x in hdus]))
     h5.close()

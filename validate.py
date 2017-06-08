@@ -4,13 +4,14 @@ while negative gaps are duplicate data.  The latter need to be excised (via bad 
 """
 
 import tables
+import tables3_api
 from context_def import datadir, ft, files
 from Chandra.Time import DateTime
 
 ft['content'] = 'acis2eng'
 ft['msid'] = 'TIME'
 
-h5 = tables.openFile(files['oldmsid'].abs)
+h5 = tables.open_file(files['oldmsid'].abs)
 qual = h5.root.quality[:]
 times = h5.root.data[:][~ qual]
 

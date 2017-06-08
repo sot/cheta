@@ -1,4 +1,5 @@
 import tables
+import tables3_api
 import numpy as np
 import Ska.Table
 import re
@@ -17,14 +18,14 @@ def make_h5_file(dat, filename):
     
     colnames = dat.dtype.names
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.openFile(filename, mode='w', filters=filters)
+    h5 = tables.open_file(filename, mode='w', filters=filters)
     
     for colname in colnames:
         col = dat[colname]
         h5shape = (0,) + col.shape[1:]
         h5colname = get_h5_colname(colname)
         h5type = tables.Atom.from_dtype(col.dtype)
-        h5.createEArray(h5.root, h5colname, h5type, h5shape, title=colname,
+        h5.create_earray(h5.root, h5colname, h5type, h5shape, title=colname,
                         expectedrows=86400*30)
         print 'Made', colname
 
@@ -37,20 +38,20 @@ def make_h5_col_file(dat, colname):
         os.unlink(filename)
     
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.openFile(filename, mode='w', filters=filters)
+    h5 = tables.open_file(filename, mode='w', filters=filters)
     
     col = dat[colname]
     h5shape = (0,) + col.shape[1:]
     h5colname = get_h5_colname(colname)
     h5type = tables.Atom.from_dtype(col.dtype)
-    h5.createEArray(h5.root, h5colname, h5type, h5shape, title=colname,
+    h5.create_earray(h5.root, h5colname, h5type, h5shape, title=colname,
                     expectedrows=86400*30)
     print 'Made', colname
     h5.close()
 
 def append_h5_col(dat, colname):
     filename = 'thm1eng/msid/' + colname + '.h5'
-    h5 = tables.openFile(filename, mode='a')
+    h5 = tables.open_file(filename, mode='a')
     h5colname = get_h5_colname(colname)
     h5col = h5.root.__getattr__(h5colname)
     h5col.append(dat[colname])

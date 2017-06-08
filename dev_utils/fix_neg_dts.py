@@ -8,6 +8,7 @@ import optparse
 
 import numpy as np
 import tables
+import tables3_api
 import asciitable
 
 from context_def import ft, files
@@ -40,7 +41,7 @@ for filetype in filetypes:
         continue
 
     # Open the TIME.h5 file for this content type
-    h5 = tables.openFile(files['oldmsid'].abs, mode=('r' if opt.dry_run else 'a'))
+    h5 = tables.open_file(files['oldmsid'].abs, mode=('r' if opt.dry_run else 'a'))
     goods = ~h5.root.quality[:]
     times = h5.root.data[:]
     print(len(times))

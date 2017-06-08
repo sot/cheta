@@ -1,4 +1,5 @@
 import tables
+import tables3_api
 import numpy as np
 import Ska.Table
 import re
@@ -10,12 +11,12 @@ cols = tlm.dtype.names
 
 filters = tables.Filters(complevel=9, complib='zlib')
 f32 = tables.Float32Atom()
-fileh = tables.openFile('%s.h5' % col, mode='w', filters=filters)
+fileh = tables.open_file('%s.h5' % col, mode='w', filters=filters)
 
 for col in cols:
     # Use ``a`` as the object type for the enlargeable array.
     h5col = col if re.match(r'^[a-zA-Z_]', col) else '_' + col
-    array_f = fileh.createEArray(fileh.root, h5col, f32, (0,), title=col)
+    array_f = fileh.create_earray(fileh.root, h5col, f32, (0,), title=col)
     array_f.append(tlm[col])
     array_f.flush()
     print 'made and appended', col
@@ -24,7 +25,7 @@ fileh.close()
 
 if 0:
     # Use ``a`` as the object type for the enlargeable array.
-    array_f = fileh.createEArray(fileh.root, 'array_f', f32, (0,), "Floats")
+    array_f = fileh.create_earray(fileh.root, 'array_f', f32, (0,), "Floats")
     print 'created file'
     nxx = 100
     for i in range(nxx):
@@ -43,7 +44,7 @@ if 0:
     print 'closed file'
 
     if 0:
-        fileh = tables.openFile('earray1.h5')
+        fileh = tables.open_file('earray1.h5')
         print np.mean(fileh.root.array_f)
         fileh.close()
 

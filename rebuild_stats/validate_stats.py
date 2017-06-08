@@ -7,6 +7,7 @@ import re
 import os
 import numpy as np
 import tables
+import tables3_api
 import matplotlib.pyplot as plt
 from Ska.engarchive import fetch
 from Chandra.Time import DateTime
@@ -43,7 +44,7 @@ class NotEnoughRows(ValueError):
 
 def getstats(filename):
     try:
-        h5f = tables.openFile(filename, 'r')
+        h5f = tables.open_file(filename, 'r')
         if len(h5f.root.data) < IMAX:
             raise NotEnoughRows
         means = h5f.root.data.col('mean')[:IMAX]

@@ -10,6 +10,7 @@ import optparse
 
 import numpy
 import tables
+import tables3_api
 import Ska.DBI
 import asciitable
 
@@ -61,7 +62,7 @@ for filetype in filetypes:
     file1s = archfiles[1:][overlaps]
 
     # Open the TIME.h5 file for this content type
-    h5 = tables.openFile(files['oldmsid'].abs, mode=('r' if opt.dry_run else 'a'))
+    h5 = tables.open_file(files['oldmsid'].abs, mode=('r' if opt.dry_run else 'a'))
 
     # Iterate through overlapping files and set bad quality in TIME for rows
     # coming from the file with lower revision
