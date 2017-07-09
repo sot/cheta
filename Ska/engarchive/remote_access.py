@@ -12,10 +12,12 @@ except ImportError:
     from IPython import parallel
 from six.moves import input
 
+from .file_defs import ENG_ARCHIVE
+
 # To use remote access, this flag should be set True (it is true by default
 # on Windows systems, but can manually be set to true on Linux systems
 # if you don't have direct access to the archive)
-access_remotely = sys.platform.startswith('win')
+access_remotely = sys.platform.startswith('win') or not os.path.exists(ENG_ARCHIVE)
 
 # Hostname (IP), username, and password for remote access to the eng archive
 hostname = None
