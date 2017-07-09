@@ -13,6 +13,7 @@ all MSIDs in the same content-type group (e.g. ACIS2ENG).
 import os
 
 SKA = os.environ.get('SKA') or '/proj/sot/ska'
+ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
 
 # Root directories for MSID files.  msid_root is prime, others are backups.
 # NOTE: msid_root(s) used ONLY in one-off or legacy code, not in update_archive.py or
