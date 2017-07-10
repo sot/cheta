@@ -123,3 +123,145 @@ Function to close the connection to the remote server
     _remote_client.close()
     _remote_client = None
     
+
+def local_or_remote_function(remote_print_output):
+    """
+    Decorator maker so that a function gets run either locally or remotely
+    depending on the state of remote_access.access_remotely.  This decorator
+    maker takes an optional remote_print_output argument that will be
+    be printed (locally) if the function is executed remotely,
+
+    For functions that are decorated using this wrapper:
+
+    Every path that may be generated locally but used remotely should be
+    split with _split_path(). Conversely the functions that use
+    the resultant path should re-join them with os.path.join. In the
+    remote case the join will happen using the remote rules.
+    """
+    def the_decorator(func):
+        def wrapper(*args, **kwargs):
+            if access_remotely:
+                # If accessing a remote archive, establish the connection (if
+                # necessary)
+                if not connection_is_established():
+                    try:
+                        if not establish_connection():
+                            raise RemoteConnectionError(
+                                "Unable to establish connection for remote fetch.")
+                    except EOFError:
+                        # An EOF error can be raised if the python interpreter is being
+                        # called in such a way that input cannot be received from the
+                        # user (e.g. when the python interpreter is called from MATLAB)
+                        # If that is the case (and remote access is enabled), then
+                        # raise an import error
+                        raise ImportError("Unable to interactively get remote access "
+                                          "info from user.")
+                # Print the output, if specified
+                if show_print_output and remote_print_output is not None:
+                    print(remote_print_output)
+                    sys.stdout.flush()
+                # Execute the function remotely and return the result
+                return execute_remotely(func, *args, **kwargs)
+            else:
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return the_decorator
+
+#########################################################################
+# Functions pulled from fetch.py that do the low-level work of accessing
+# the CXC data files.
+#########################################################################
+
+
+# Load the MSID names
+# Function to load MSID names from the files (executed remotely, if necessary)
+@local_or_remote_function("Loading MSID names from Ska eng archive server...")
+def load_msid_names(all_msid_names_files):
+    from six.moves import cPickle as pickle
+    all_colnames = dict()
+    for k, msid_names_file in all_msid_names_files.items():
+        try:
+            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), 'rb'))
+        except IOError:
+            pass
+    return all_colnames
+
+
+@local_or_remote_function("Getting stat data "
+                          " from Ska eng archive server...")
+def get_stat_data_from_server(filename, dt, tstart, tstop):
+    import tables
+    import numpy as np
+    open_file = getattr(tables, 'open_file', None) or tables.openFile
+    h5 = open_file(os.path.join(*filename))
+    table = h5.root.data
+    times = (table.col('index') + 0.5) * dt
+    row0, row1 = np.searchsorted(times, [tstart, tstop])
+    table_rows = table[row0:row1]  # returns np.ndarray (structured array)
+    h5.close()
+    return (times[row0:row1], table_rows, row0, row1)
+
+
+@local_or_remote_function("Getting time data from Ska eng archive server...")
+def get_time_data_from_server(h5_slice, filename):
+    import tables
+    open_file = getattr(tables, 'open_file', None) or tables.openFile
+    h5 = open_file(os.path.join(*filename))
+    times_ok = ~h5.root.quality[h5_slice]
+    times = h5.root.data[h5_slice]
+    h5.close()
+    return(times_ok, times)
+
+
+@local_or_remote_function("Getting msid data "
+                          " from Ska eng archive server...")
+def get_msid_data_from_server(h5_slice, filename):
+    import tables
+    open_file = getattr(tables, 'open_file', None) or tables.openFile
+    h5 = open_file(os.path.join(*filename))
+    vals = h5.root.data[h5_slice]
+    bads = h5.root.quality[h5_slice]
+    h5.close()
+    return(vals, bads)
+
+
+@local_or_remote_function("Getting time range from Ska eng archive server...")
+def get_time_range_from_server(filename):
+    import tables
+    open_file = getattr(tables, 'open_file', None) or tables.openFile
+    h5 = open_file(os.path.join(*filename))
+    tstart = h5.root.data[0]
+    tstop = h5.root.data[-1]
+    h5.close()
+    return tstart, tstop
+
+
+@local_or_remote_function("Getting interval data from " +
+                          "DB on Ska eng archive server...")
+def get_interval_from_db(tstart, tstop, server):
+
+    import Ska.DBI
+
+    db = Ska.DBI.DBI(dbi='sqlite', server=os.path.join(*server))
+
+    query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
+                            'WHERE filetime < ? order by filetime desc',
+                            (tstart,))
+    if not query_row:
+        query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
+                                'order by filetime asc')
+
+    rowstart = query_row['rowstart']
+
+    query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
+                            'WHERE filetime > ? order by filetime asc',
+                            (tstop,))
+    if not query_row:
+        query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
+                                'order by filetime desc')
+
+    rowstop = query_row['rowstop']
+
+    return slice(rowstart, rowstop)

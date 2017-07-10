@@ -25,7 +25,9 @@ from six.moves import zip
 from . import file_defs
 from .units import Units
 from . import cache
-from . import remote_access
+from .remote_access import (load_msid_names, get_interval_from_db,
+                            get_stat_data_from_server, get_time_data_from_server,
+                            get_msid_data_from_server, get_time_range_from_server)
 from .version import __version__, __git_version__
 from .file_defs import ENG_ARCHIVE
 
@@ -141,6 +143,7 @@ class _DataSource(object):
         :param source: str
         :returns: set of MSIDs
         """
+        global content  # Not ideal, references global in this method
         source = source.split()[0]
 
         if source == 'cxc':
@@ -182,50 +185,6 @@ class _DataSource(object):
 
 # Public interface is a "data_source" module attribute
 data_source = _DataSource
-
-
-def local_or_remote_function(remote_print_output):
-    """
-    Decorator maker so that a function gets run either locally or remotely
-    depending on the state of remote_access.access_remotely.  This decorator
-    maker takes an optional remote_print_output argument that will be
-    be printed (locally) if the function is executed remotely,
-
-    For functions that are decorated using this wrapper:
-
-    Every path that may be generated locally but used remotely should be
-    split with _split_path(). Conversely the functions that use
-    the resultant path should re-join them with os.path.join. In the
-    remote case the join will happen using the remote rules.
-    """
-    def the_decorator(func):
-        def wrapper(*args, **kwargs):
-            if remote_access.access_remotely:
-                # If accessing a remote archive, establish the connection (if
-                # necessary)
-                if not remote_access.connection_is_established():
-                    try:
-                        if not remote_access.establish_connection():
-                            raise remote_access.RemoteConnectionError(
-                                "Unable to establish connection for remote fetch.")
-                    except EOFError:
-                        # An EOF error can be raised if the python interpreter is being
-                        # called in such a way that input cannot be received from the
-                        # user (e.g. when the python interpreter is called from MATLAB)
-                        # If that is the case (and remote access is enabled), then
-                        # raise an import error
-                        raise ImportError("Unable to interactively get remote access "
-                                          "info from user.")
-                # Print the output, if specified
-                if remote_access.show_print_output and not remote_print_output is None:
-                    print(remote_print_output)
-                    sys.stdout.flush()
-                # Execute the function remotely and return the result
-                return remote_access.execute_remotely(func, *args, **kwargs)
-            else:
-                return func(*args, **kwargs)
-        return wrapper
-    return the_decorator
 
 
 def _split_path(path):
@@ -285,18 +244,6 @@ for filetype in filetypes:
         _split_path(msid_files['colnames'].abs)
 
 
-# Function to load MSID names from the files (executed remotely, if necessary)
-@local_or_remote_function("Loading MSID names from Ska eng archive server...")
-def load_msid_names(all_msid_names_files):
-    from six.moves import cPickle as pickle
-    all_colnames = dict()
-    for k, msid_names_file in six.iteritems(all_msid_names_files):
-        try:
-            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), 'rb'))
-        except IOError:
-            pass
-    return all_colnames
-# Load the MSID names
 all_colnames = load_msid_names(all_msid_names_files)
 
 # Save the names
@@ -633,18 +580,6 @@ class MSID(object):
         filename = msid_files['stats'].abs
         logger.info('Opening %s', filename)
 
-        @local_or_remote_function("Getting stat data for " + self.MSID +
-                                  " from Ska eng archive server...")
-        def get_stat_data_from_server(filename, dt, tstart, tstop):
-            import tables
-            open_file = getattr(tables, 'open_file', None) or tables.openFile
-            h5 = open_file(os.path.join(*filename))
-            table = h5.root.data
-            times = (table.col('index') + 0.5) * dt
-            row0, row1 = np.searchsorted(times, [tstart, tstop])
-            table_rows = table[row0:row1]  # returns np.ndarray (structured array)
-            h5.close()
-            return (times[row0:row1], table_rows, row0, row1)
         times, table_rows, row0, row1 = \
             get_stat_data_from_server(_split_path(filename),
                                       self.dt, self.tstart, self.tstop)
@@ -718,16 +653,6 @@ class MSID(object):
             filename = msid_files['msid'].abs
             logger.info('Reading %s', filename)
 
-            @local_or_remote_function("Getting time data from Ska eng archive server...")
-            def get_time_data_from_server(h5_slice, filename):
-                import tables
-                open_file = getattr(tables, 'open_file', None) or tables.openFile
-                h5 = open_file(os.path.join(*filename))
-                times_ok = ~h5.root.quality[h5_slice]
-                times = h5.root.data[h5_slice]
-                h5.close()
-                return(times_ok, times)
-
             times_ok, times = get_time_data_from_server(h5_slice, _split_path(filename))
 
             # Filter bad times.  Last instance of bad times in archive is 2004
@@ -746,17 +671,6 @@ class MSID(object):
         ft['msid'] = msid
         filename = msid_files['msid'].abs
         logger.info('Reading %s', filename)
-
-        @local_or_remote_function("Getting msid data for " + msid +
-                                  " from Ska eng archive server...")
-        def get_msid_data_from_server(h5_slice, filename):
-            import tables
-            open_file = getattr(tables, 'open_file', None) or tables.openFile
-            h5 = open_file(os.path.join(*filename))
-            vals = h5.root.data[h5_slice]
-            bads = h5.root.quality[h5_slice]
-            h5.close()
-            return(vals, bads)
 
         vals, bads = get_msid_data_from_server(h5_slice, _split_path(filename))
 
@@ -1757,20 +1671,10 @@ def get_time_range(msid, format=None):
         filename = msid_files['msid'].abs
         logger.info('Reading %s', filename)
 
-        @local_or_remote_function("Getting time range from Ska eng archive server...")
-        def get_time_data_from_server(filename):
-            import tables
-            open_file = getattr(tables, 'open_file', None) or tables.openFile
-            h5 = open_file(os.path.join(*filename))
-            tstart = h5.root.data[0]
-            tstop = h5.root.data[-1]
-            h5.close()
-            return tstart, tstop
-
         if filename in CONTENT_TIME_RANGES:
             tstart, tstop = CONTENT_TIME_RANGES[filename]
         else:
-            tstart, tstop = get_time_data_from_server(_split_path(filename))
+            tstart, tstop = get_time_range_from_server(_split_path(filename))
             CONTENT_TIME_RANGES[filename] = (tstart, tstop)
 
     if format is not None:
@@ -1833,34 +1737,6 @@ def get_interval(content, tstart, tstop):
     """
 
     ft['content'] = content
-
-    @local_or_remote_function("Getting interval data from " +
-                              "DB on Ska eng archive server...")
-    def get_interval_from_db(tstart, tstop, server):
-
-        import Ska.DBI
-
-        db = Ska.DBI.DBI(dbi='sqlite', server=os.path.join(*server))
-
-        query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
-                                'WHERE filetime < ? order by filetime desc',
-                                (tstart,))
-        if not query_row:
-            query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
-                                    'order by filetime asc')
-
-        rowstart = query_row['rowstart']
-
-        query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
-                                'WHERE filetime > ? order by filetime asc',
-                                (tstop,))
-        if not query_row:
-            query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
-                                    'order by filetime desc')
-
-        rowstop = query_row['rowstop']
-
-        return slice(rowstart, rowstop)
 
     return get_interval_from_db(tstart, tstop, _split_path(msid_files['archfiles'].abs))
 
