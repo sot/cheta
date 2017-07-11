@@ -14,10 +14,16 @@ from six.moves import input
 
 from .file_defs import ENG_ARCHIVE
 
+# Check if data directory for ENG_ARCHIVE exists.  In the local_or_remote_function
+# decorator, if access_remotely is False and HAS_LOCAL_CXC_FILES is False then
+# it will try using the kadi web server.
+USE_KADI_SERVER = not os.path.exists(ENG_ARCHIVE)
+KADI_REMOTE_URL = 'http://localhost:8000'
+
 # To use remote access, this flag should be set True (it is true by default
 # on Windows systems, but can manually be set to true on Linux systems
 # if you don't have direct access to the archive)
-access_remotely = sys.platform.startswith('win') or not os.path.exists(ENG_ARCHIVE)
+access_remotely = sys.platform.startswith('win')
 
 # Hostname (IP), username, and password for remote access to the eng archive
 hostname = None
@@ -163,11 +169,23 @@ def local_or_remote_function(remote_print_output):
                 # Execute the function remotely and return the result
                 return execute_remotely(func, *args, **kwargs)
             else:
-                return func(*args, **kwargs)
+                if USE_KADI_SERVER:
+                    # Use the kadi web server to run function remotely
+                    import requests
+                    from six.moves import cPickle as pickle
+                    func_info = dict(func_name=func.__name__, args=args, kwargs=kwargs)
+                    data = {'func_info': pickle.dumps(func_info, protocol=0)}
+                    url = KADI_REMOTE_URL + '/eng_archive/remote_func/'
+                    r = requests.post(url, data=data)
+                    out = pickle.loads(r.content)
+                else:
+                    out = func(*args, **kwargs)
+                return out
 
         return wrapper
 
     return the_decorator
+
 
 #########################################################################
 # Functions pulled from fetch.py that do the low-level work of accessing
