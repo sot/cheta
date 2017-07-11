@@ -23,6 +23,7 @@ from six.moves import cPickle as pickle
 from six.moves import zip
 
 from . import file_defs
+from .lazy_dict import LazyDict
 from .units import Units
 from . import cache
 from .remote_access import (load_msid_names, get_interval_from_db,
@@ -225,31 +226,34 @@ ft = pyyaks.context.ContextDict('ft')
 msid_files = pyyaks.context.ContextDict('msid_files', basedir=ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
-# Module-level values defining available content types and column (MSID) names.
-# Then convert from astropy Table to recarray for API stability.
-# Note that filetypes.as_array().view(np.recarray) does not quite work...
-filetypes = ascii.read(os.path.join(DIR_PATH, 'filetypes.dat'))
-filetypes_arr = filetypes.as_array()
-filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
-filetypes[()] = filetypes_arr
 
-content = collections.OrderedDict()
+def load_content():
+    # Module-level values defining available content types and column (MSID) names.
+    # Then convert from astropy Table to recarray for API stability.
+    # Note that filetypes.as_array().view(np.recarray) does not quite work...
+    filetypes = ascii.read(os.path.join(DIR_PATH, 'filetypes.dat'))
+    filetypes_arr = filetypes.as_array()
+    filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
+    filetypes[()] = filetypes_arr
 
-# Get the list of filenames (an array is built to pass all the filenames at
-# once to the remote machine since passing them one at a time is rather slow)
-all_msid_names_files = dict()
-for filetype in filetypes:
-    ft['content'] = filetype['content'].lower()
-    all_msid_names_files[str(ft['content'])] = \
-        _split_path(msid_files['colnames'].abs)
+    # Get the list of filenames (an array is built to pass all the filenames at
+    # once to the remote machine since passing them one at a time is rather slow)
+    all_msid_names_files = dict()
+    for filetype in filetypes:
+        ft['content'] = filetype['content'].lower()
+        all_msid_names_files[str(ft['content'])] = \
+            _split_path(msid_files['colnames'].abs)
 
+    all_colnames = load_msid_names(all_msid_names_files)
 
-all_colnames = load_msid_names(all_msid_names_files)
-
-# Save the names
-for k, colnames in six.iteritems(all_colnames):
-    content.update((x, k) for x in sorted(colnames)
+    # Save the names
+    out = []
+    for k, colnames in six.iteritems(all_colnames):
+        out.extend((x, k) for x in sorted(colnames)
                    if x not in IGNORE_COLNAMES)
+    return out
+
+content = LazyDict(load_func=load_content)
 
 # Cache of the most-recently used TIME array and associated bad values mask.
 # The key is (content_type, tstart, tstop).
