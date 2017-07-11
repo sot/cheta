@@ -1577,14 +1577,15 @@ To explicitly enable or disable using the kadi web server, do the following comm
 *before* importing ``Ska.engarchive.fetch``::
 
   from Ska.engarchive import remote_access
-  remote_access.USE_KADI_SERVER = True  # or False
+  remote_access.KADI_REMOTE_ENABLED = True  # or False
+  remote_access.KADI_REMOTE_TIMEOUT = 30  # seconds (default=20)
 
 One common reason to use this idiom is for testing remote access on a platform that does
 actually have access to the archive files.  For instance to force using a local django
 test kadi server do this::
 
   from Ska.engarchive import remote_access
-  remote_access.USE_KADI_SERVER = True
+  remote_access.KADI_REMOTE_ENABLED = True
   remote_access.KADI_REMOTE_URL = 'http://localhost:8000'
 
 chimchim

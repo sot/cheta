@@ -6,6 +6,7 @@ from __future__ import print_function, division, absolute_import
 import sys
 import os
 import getpass
+import warnings
 try:
     import ipyparallel as parallel
 except ImportError:
@@ -17,8 +18,9 @@ from .file_defs import ENG_ARCHIVE
 # Check if data directory for ENG_ARCHIVE exists.  In the local_or_remote_function
 # decorator, if access_remotely is False and HAS_LOCAL_CXC_FILES is False then
 # it will try using the kadi web server.
-USE_KADI_SERVER = not os.path.exists(ENG_ARCHIVE)
+KADI_REMOTE_ENABLED = not os.path.exists(ENG_ARCHIVE)
 KADI_REMOTE_URL = 'http://localhost:8000'
+KADI_REMOTE_TIMEOUT = 20
 
 # To use remote access, this flag should be set True (it is true by default
 # on Windows systems, but can manually be set to true on Linux systems
@@ -169,16 +171,35 @@ def local_or_remote_function(remote_print_output):
                 # Execute the function remotely and return the result
                 return execute_remotely(func, *args, **kwargs)
             else:
-                if USE_KADI_SERVER:
-                    # Use the kadi web server to run function remotely
+                if KADI_REMOTE_ENABLED:
+                    # Let the user know
+                    warnings.warn('using {} for remote data access'.format(KADI_REMOTE_URL))
+                    if show_print_output and remote_print_output is not None:
+                        print(remote_print_output)
+                        sys.stdout.flush()
+
+                    # Set up to use the kadi web server to run function remotely
                     import requests
                     from six.moves import cPickle as pickle
                     func_info = dict(func_name=func.__name__, args=args, kwargs=kwargs)
                     data = {'func_info': pickle.dumps(func_info, protocol=0)}
                     url = KADI_REMOTE_URL + '/eng_archive/remote_func/'
-                    r = requests.post(url, data=data)
-                    out = pickle.loads(r.content)
+
+                    # Run the remote function and get response
+                    r = requests.post(url, data=data, timeout=KADI_REMOTE_TIMEOUT)
+
+                    if r.status_code != 200:
+                        raise RuntimeError('kadi remote function {} failed with status {}'
+                                           .format(func.__name__, r.status_code))
+
+                    # Try unpickling the output
+                    try:
+                        out = pickle.loads(r.content)
+                    except:
+                        raise ValueError('kadi remote function {} returned content that '
+                                         'failed unpickling'.format(func.__name__))
                 else:
+                    # Plain old local call
                     out = func(*args, **kwargs)
                 return out
 

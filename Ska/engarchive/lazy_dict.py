@@ -16,6 +16,7 @@ class LazyDict(OrderedDict):
 
             # update() calls methods like __contains__ so need to disable loading.
             self._loading = True
+            self.clear()
             self.update(vals)
             self._loading = False
 
