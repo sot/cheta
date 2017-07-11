@@ -1384,7 +1384,7 @@ Argument       Description
 ============== ======================================================
 interpolate_dt Interpolate to uniform time steps (secs, default=None)
 ============== ======================================================
-G
+
 In general different MSIDs will come down in telemetry with different sampling and time
 stamps.  Interpolation allows you to put all the MSIDs onto a common time sequence so you
 can compare them, plot one against the other, and so forth.  You can see the
@@ -1568,8 +1568,8 @@ kadi
 ^^^^^
 
 On a machine without any Ska telemetry archive files directly accessible, the default is
-to attempt to use the kadi web server (http://kadi.cfa.harvard.edu) to perform
-telemetry queries.  Normally the code looks for telemetry files in the directory
+to use the kadi web server (http://kadi.cfa.harvard.edu) to perform telemetry queries.
+Normally the code looks for telemetry files in the directory
 ``/proj/sot/ska/data/eng_archive`` or ``${SKA}/data/eng_archive`` where ``${SKA}`` is the
 root of the Ska installation.
 
