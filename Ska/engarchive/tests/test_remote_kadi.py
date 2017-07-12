@@ -60,3 +60,17 @@ def test_kadi_remote_get_time_range():
         tstart, tstop = fetch.get_time_range('aopcadmd')
 
     assert abs(tstart - 63067297) < 2
+
+
+@pytest.mark.skipif('not HAS_KADI')
+def test_kadi_remote_max_rows():
+    max_rows = remote_access.KADI_REMOTE_MAX_ROWS
+    remote_access.KADI_REMOTE_MAX_ROWS = 10
+
+    # Make sure kadi web remote stops because max rows exceeded
+    with remote_access_enabled():
+        with pytest.raises(ValueError) as err:
+            fetch.Msid('aogyrct1', '2010:001', '2010:002')
+        assert 'max rows' in str(err)
+
+    remote_access.KADI_REMOTE_MAX_ROWS = max_rows

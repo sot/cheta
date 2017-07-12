@@ -16,11 +16,14 @@ from six.moves import input
 from .file_defs import ENG_ARCHIVE
 
 # Check if data directory for ENG_ARCHIVE exists.  In the local_or_remote_function
-# decorator, if access_remotely is False and HAS_LOCAL_CXC_FILES is False then
-# it will try using the kadi web server.
+# decorator, if access_remotely is False and KADI_REMOTE_ENABLED is True then it will try
+# using the kadi web server.  The KADI_REMOTE_TIMEOUT limits how long the kadi web server
+# (via fetch) will work on a single function call.  This effectively limits the remote
+# ingest size since read speed is of order 10^7 elements / second.
 KADI_REMOTE_ENABLED = not os.path.exists(ENG_ARCHIVE)
 KADI_REMOTE_URL = 'http://localhost:8000'
-KADI_REMOTE_TIMEOUT = 20
+KADI_REMOTE_TIMEOUT = 20  # seconds
+KADI_REMOTE_MAX_ROWS = 1e7  # max rows of data
 
 # To use remote access, this flag should be set True (it is true by default
 # on Windows systems, but can manually be set to true on Linux systems
@@ -183,26 +186,37 @@ def local_or_remote_function(remote_print_output):
                     import requests
                     import zlib
                     from six.moves import cPickle as pickle
+
+                    # Special case three functions that get potentially large datasets
+                    # from the HDF5 file archives.  Add a ``max_rows`` kwarg.
+                    if func.__name__.endswith('_data_from_server'):
+                        kwargs['max_rows'] = KADI_REMOTE_MAX_ROWS
                     func_info = dict(func_name=func.__name__, args=args, kwargs=kwargs)
                     data = {'func_info': pickle.dumps(func_info, protocol=0)}
                     url = KADI_REMOTE_URL + '/eng_archive/remote_func/'
 
-                    # Run the remote function and get response
+                    # Run the remote function and get response.
                     r = requests.post(url, data=data, timeout=KADI_REMOTE_TIMEOUT)
 
                     if r.status_code != 200:
                         raise RuntimeError('kadi remote function {} failed with status {}'
                                            .format(func.__name__, r.status_code))
 
-                    # Try unpickling the output
+                    # Unzip and unpickle the output
                     try:
                         out = pickle.loads(zlib.decompress(r.content))
                     except:
                         raise ValueError('kadi remote function {} returned content that '
                                          'failed unpickling'.format(func.__name__))
+
+                    # Remote function raised an exception so re-raise here
+                    if isinstance(out, Exception):
+                        raise out
+
                 else:
                     # Plain old local call
                     out = func(*args, **kwargs)
+
                 return out
 
         return wrapper
@@ -232,7 +246,7 @@ def load_msid_names(all_msid_names_files):
 
 @local_or_remote_function("Getting stat data "
                           " from Ska eng archive server...")
-def get_stat_data_from_server(filename, dt, tstart, tstop):
+def get_stat_data_from_server(filename, dt, tstart, tstop, max_rows=None):
     import tables
     import numpy as np
     open_file = getattr(tables, 'open_file', None) or tables.openFile
@@ -240,13 +254,17 @@ def get_stat_data_from_server(filename, dt, tstart, tstop):
     table = h5.root.data
     times = (table.col('index') + 0.5) * dt
     row0, row1 = np.searchsorted(times, [tstart, tstop])
+    if max_rows and row1 - row0 > max_rows:
+        raise ValueError('max rows exceeded for remote query')
     table_rows = table[row0:row1]  # returns np.ndarray (structured array)
     h5.close()
     return (times[row0:row1], table_rows, row0, row1)
 
 
 @local_or_remote_function("Getting time data from Ska eng archive server...")
-def get_time_data_from_server(h5_slice, filename):
+def get_time_data_from_server(h5_slice, filename, max_rows=None):
+    if max_rows and h5_slice.stop - h5_slice.start > max_rows:
+        raise ValueError('max rows exceeded for remote query')
     import tables
     open_file = getattr(tables, 'open_file', None) or tables.openFile
     h5 = open_file(os.path.join(*filename))
@@ -258,7 +276,9 @@ def get_time_data_from_server(h5_slice, filename):
 
 @local_or_remote_function("Getting msid data "
                           " from Ska eng archive server...")
-def get_msid_data_from_server(h5_slice, filename):
+def get_msid_data_from_server(h5_slice, filename, max_rows=None):
+    if max_rows and h5_slice.stop - h5_slice.start > max_rows:
+        raise ValueError('max rows exceeded for remote query')
     import tables
     open_file = getattr(tables, 'open_file', None) or tables.openFile
     h5 = open_file(os.path.join(*filename))
