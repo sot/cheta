@@ -21,7 +21,7 @@ from .file_defs import ENG_ARCHIVE
 # (via fetch) will work on a single function call.  This effectively limits the remote
 # ingest size since read speed is of order 10^7 elements / second.
 KADI_REMOTE_ENABLED = not os.path.exists(ENG_ARCHIVE)
-KADI_REMOTE_URL = 'http://localhost:8000'
+KADI_REMOTE_URL = 'http://kadi.cfa.harvard.edu'
 KADI_REMOTE_TIMEOUT = 20  # seconds
 KADI_REMOTE_MAX_ROWS = 1e7  # max rows of data
 
