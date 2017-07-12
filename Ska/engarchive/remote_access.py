@@ -134,10 +134,11 @@ Function to close the connection to the remote server
 
 def local_or_remote_function(remote_print_output):
     """
-    Decorator maker so that a function gets run either locally or remotely
-    depending on the state of remote_access.access_remotely.  This decorator
-    maker takes an optional remote_print_output argument that will be
-    be printed (locally) if the function is executed remotely,
+    Decorator maker so that a function gets run either locally or remotely depending on
+    the state of ``access_remotely`` (IPython parallel via SSH) and
+    ``KADI_REMOTE_ENABLED`` (kadi web server).  This decorator maker takes an optional
+    remote_print_output argument that will be be printed (locally) if the function is
+    executed remotely,
 
     For functions that are decorated using this wrapper:
 
@@ -172,7 +173,7 @@ def local_or_remote_function(remote_print_output):
                 return execute_remotely(func, *args, **kwargs)
             else:
                 if KADI_REMOTE_ENABLED:
-                    # Let the user know
+                    # Let the user know that kadi web server being used for data access
                     warnings.warn('using {} for remote data access'.format(KADI_REMOTE_URL))
                     if show_print_output and remote_print_output is not None:
                         print(remote_print_output)
@@ -180,6 +181,7 @@ def local_or_remote_function(remote_print_output):
 
                     # Set up to use the kadi web server to run function remotely
                     import requests
+                    import zlib
                     from six.moves import cPickle as pickle
                     func_info = dict(func_name=func.__name__, args=args, kwargs=kwargs)
                     data = {'func_info': pickle.dumps(func_info, protocol=0)}
@@ -194,7 +196,7 @@ def local_or_remote_function(remote_print_output):
 
                     # Try unpickling the output
                     try:
-                        out = pickle.loads(r.content)
+                        out = pickle.loads(zlib.decompress(r.content))
                     except:
                         raise ValueError('kadi remote function {} returned content that '
                                          'failed unpickling'.format(func.__name__))
