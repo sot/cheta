@@ -17,6 +17,26 @@ else:
     HAS_KADI = True
 
 
+@pytest.mark.skipif(True)
+def test_remote_chimchim():
+    """
+    Manual testing of remote access to chimchim
+
+    In [1]: from Ska.engarchive import fetch
+
+    In [2]: dat = fetch.Msid('tephin', '2008:001', '2008:002')
+    Enter your login username [aldcroft]:SOT
+    Enter your password:
+    Establishing connection to chimchim...
+
+    In [3]: %matplotlib
+    Using matplotlib backend: MacOSX
+
+    In [4]: dat.plot()
+    """
+    pass
+
+
 @contextmanager
 def remote_access_enabled():
     remote_enabled = remote_access.access_remotely
