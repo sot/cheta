@@ -1032,11 +1032,13 @@ collection of HDF5 files that are constructed and updated daily using CXC level-
 engineering telemetry decom products.  This has the bulk of commonly used telemetry but
 typically has a latency of 2-3 days.  Two production copies of this large archive (few
 hundred Gb) are available, one on the HEAD network and one on GRETA (chimchim).  See
-the `Remote access`_ section for ways of remotely accessing these archives.
+the `Remote access`_ section for ways of remotely accessing these CXC archives
+if you are running on a machine that is not on either of these networks
+(e.g. your laptop).
 
-In order to fill this gap an interface to the `MAUDE telemetry server
+In order to provide access to the most recently availalbe telemetry,
+an interface to the `MAUDE telemetry server
 <http://occweb.cfa.harvard.edu/twiki/Software/MaudeSupport>`_ is also available.
-
 
 The key differences between the CXC and MAUDE telemetry data sources are:
 
@@ -1537,15 +1539,42 @@ rates to those derived on the ground using raw gyro data.
 .. image:: fetchplots/gyro_sc_rates.png
 
 Remote access
-=====================
+=============
 
-This section shows how to access the Ska telemetry archive on a remote machine that does
-not have a local copy of the archive data files.
+On a machine without any Ska telemetry archive files accessible on disk, the
+default is to find a remote server that can provide the CXC telemetry.  The
+code first looks for telemetry files in the directory
+``/proj/sot/ska/data/eng_archive`` or ``${SKA}/data/eng_archive`` where
+``${SKA}`` is the root of the Ska installation.
 
-Windows GRETA
--------------
+There are two remote servers that can provide Ska CXC telemetry: the kadi web
+server and the chimchim machine on GRETA.  Note that this is different from the
+`MAUDE telemetry server`_, which uses a fundamentally different backend
+database.
 
-The telemetry archive can be accessed remotely from a Windows PC, if ssh access to
+To explicitly enable or disable remote access, do the following commands
+*before* importing ``Ska.engarchive.fetch``::
+
+  from Ska.engarchive import remote_access
+  remote_access.access_remotely = True  # or False
+
+One common reason to use this idiom is for testing remote access on a platform that does
+actually have access to the archive files.  For instance to force using a local django
+test kadi server do this::
+
+  from Ska.engarchive import remote_access
+  remote_access.access_remotely = True
+  remote_access.remote_hosts = ['http://localhost:8000']
+
+The ``remote_hosts`` variable is a list of hosts that are tried in order to
+find one that is available to serve telemetry.  The default is
+``['http://kadi.cfa.harvard.edu', '131.142.113.4']`` which means to try the
+production kadi web server and then chimchim.
+
+chimchim
+--------
+
+The telemetry archive on chimchim can be accessed remotely if ssh access to
 chimchim is available.  The user will be queried for ssh credentials and
 Ska.engarchive.fetch will connect with a controller running on chimchim to retrieve the
 data.  Besides the initial query for credentials (and slower speeds when fetching data, of
@@ -1553,56 +1582,24 @@ course), the use of Ska.engarchive.fetch is essentially the same whether the arc
 local or remote.
 
 The key file
-`<http://donut/svn/fot/Deployment/MATLAB_Tools/Python/python_Windows_64bit/ska_remote_access.json>`_
+`<http://svn.occ.ipa.harvard/svn/fot/Deployment/MATLAB_Tools/Python/python_Windows_64bit/ska_remote_access.json>`_
 needs to be in the user’s Python installation folder (the folder that contains python.exe,
-libs, Doc, etc.) for this to work.  This is normally bundled in the GRETA Windows
+libs, Doc, etc.) for this to work.  The directory can be found with ``python -c
+'import sys; print(sys.prefix)'``.  This file is normally bundled in the GRETA Windows
 installation of Ska Python.
 
-MacOS or Linux
---------------
-
-On a remote MacOS or Linux systems there are two ways of accessing the Ska telemetry
-archive.
+Note also that this option is only available if you are locally running Python
+2.7.  It does not work if you are using Python 3 on your local client.
 
 kadi
 ^^^^^
 
 On a machine without any Ska telemetry archive files directly accessible, the default is
-to use the kadi web server (http://kadi.cfa.harvard.edu) to perform telemetry queries.
-Normally the code looks for telemetry files in the directory
-``/proj/sot/ska/data/eng_archive`` or ``${SKA}/data/eng_archive`` where ``${SKA}`` is the
-root of the Ska installation.
+to use the kadi web server (http://kadi.cfa.harvard.edu) to perform telemetry
+queries.  The only requirement is that the kadi web server be visible, which
+means being VPN'd to the HEAD or GRETA networks.
 
-To explicitly enable or disable using the kadi web server, do the following commands
-*before* importing ``Ska.engarchive.fetch``::
+This option works for both Python 2 and 3.
 
-  from Ska.engarchive import remote_access
-  remote_access.KADI_REMOTE_ENABLED = True  # or False
-  remote_access.KADI_REMOTE_TIMEOUT = 30  # seconds (default=20)
 
-One common reason to use this idiom is for testing remote access on a platform that does
-actually have access to the archive files.  For instance to force using a local django
-test kadi server do this::
 
-  from Ska.engarchive import remote_access
-  remote_access.KADI_REMOTE_ENABLED = True
-  remote_access.KADI_REMOTE_URL = 'http://localhost:8000'
-
-chimchim
-^^^^^^^^
-
-One can use the same remote chimchim access as for Windows, assuming ssh access to
-chimchim is available.  To do so, issue the following commands *before* importing
-``Ska.engarchive.fetch``::
-
-  from Ska.engarchive import remote_access
-  remote_access.access_remotely = True
-
-To do
-======
-
-* Add telemetry:
-
-  - ACA header-3
-
-* Add MSID method to determine exact time of mins or maxes
