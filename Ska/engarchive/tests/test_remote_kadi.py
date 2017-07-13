@@ -19,16 +19,16 @@ else:
 
 @contextmanager
 def remote_access_enabled():
-    remote_enabled = remote_access.KADI_REMOTE_ENABLED
+    remote_enabled = remote_access.access_remotely
     show_print = remote_access.show_print_output
 
-    remote_access.KADI_REMOTE_ENABLED = True
+    remote_access.access_remotely = True
     remote_access.show_print_output = True
     fetch.content._loaded = False  # Force remote reload of content
 
     yield
 
-    remote_access.KADI_REMOTE_ENABLED = remote_enabled
+    remote_access.access_remotely = remote_enabled
     remote_access.show_print_output = show_print
     fetch.content._loaded = False  # Force remote reload of content
 
@@ -64,8 +64,8 @@ def test_kadi_remote_get_time_range():
 
 @pytest.mark.skipif('not HAS_KADI')
 def test_kadi_remote_max_rows():
-    max_rows = remote_access.KADI_REMOTE_MAX_ROWS
-    remote_access.KADI_REMOTE_MAX_ROWS = 10
+    max_rows = remote_access.remote_max_rows
+    remote_access.remote_max_rows = 10
 
     # Make sure kadi web remote stops because max rows exceeded
     with remote_access_enabled():
@@ -73,4 +73,4 @@ def test_kadi_remote_max_rows():
             fetch.Msid('aogyrct1', '2010:001', '2010:002')
         assert 'max rows' in str(err)
 
-    remote_access.KADI_REMOTE_MAX_ROWS = max_rows
+    remote_access.remote_max_rows = max_rows

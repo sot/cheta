@@ -8,6 +8,9 @@ import zlib
 def remote_func(request):
     from . import remote_access
 
+    if 'func_info' not in request.POST:
+        return HttpResponse('ping')
+
     try:
         func_info = pickle.loads(str(request.POST['func_info']))
         func = getattr(remote_access, func_info['func_name'])

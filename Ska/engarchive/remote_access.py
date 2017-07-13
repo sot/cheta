@@ -7,48 +7,85 @@ import sys
 import os
 import getpass
 import warnings
+import socket
+import requests
+
 try:
     import ipyparallel as parallel
 except ImportError:
     from IPython import parallel
+
 from six.moves import input
+from six.moves import urllib
 
 from .file_defs import ENG_ARCHIVE
 
-# Check if data directory for ENG_ARCHIVE exists.  In the local_or_remote_function
-# decorator, if access_remotely is False and KADI_REMOTE_ENABLED is True then it will try
-# using the kadi web server.  The KADI_REMOTE_TIMEOUT limits how long the kadi web server
-# (via fetch) will work on a single function call.  This effectively limits the remote
-# ingest size since read speed is of order 10^7 elements / second.
-KADI_REMOTE_ENABLED = not os.path.exists(ENG_ARCHIVE)
-KADI_REMOTE_URL = 'http://kadi.cfa.harvard.edu'
-KADI_REMOTE_TIMEOUT = 20  # seconds
-KADI_REMOTE_MAX_ROWS = 1e7  # max rows of data
 
-# To use remote access, this flag should be set True (it is true by default
-# on Windows systems, but can manually be set to true on Linux systems
-# if you don't have direct access to the archive)
-access_remotely = sys.platform.startswith('win')
+remote_hosts = ['http://kadi.cfa.harvard.edu', 'chimchim.ipa.harvard.edu']
+# Temporary for testing with local django test server
+remote_hosts = ['http://localhost:8000', 'chimchim.ipa.harvard.edu']
+
+remote_timeout = 20  # seconds
+remote_max_rows = 1e7  # max rows of data
+remote_eng_archive_func = '/eng_archive/remote_func/'
+
+# To use remote access for the 'cxc' data source, this flag should be set True.  It is
+# True by default if the eng archive data directory is not found on local (or LAN) disk.
+access_remotely = not os.path.exists(ENG_ARCHIVE)
+
+# Client key file for connecting to the remote server (ipcontroller)
+client_key_file = os.path.join(sys.prefix, "ska_remote_access.json")
 
 # Hostname (IP), username, and password for remote access to the eng archive
 hostname = None
 username = None
 password = None
+host_type = None
 
 # Flag to ask the user for credentials if the ssh login fails
 ask_again_if_connect_fails = True
 
 # Flag to show print output for remote calls
-show_print_output = sys.platform.startswith('win')
-
-# Client key file for connecting to the remote server (ipcontroller)
-client_key_file = os.path.join(sys.prefix,"ska_remote_access.json")
+show_print_output = False
 
 # IPython parallel client for accessing the remote python engine
 _remote_client = None
 
+
+def get_first_responding_host(hosts):
+    """
+    Get the first ``host`` from the list of ``hosts`` that is responding.
+    The input hosts can be either web server URLs or machine names that
+    are accessible via ssh.  The ssh machine names are only tried if there
+    is a client key file that exists (otherwise running commands via ssh
+    and IPython parallel machinery will always fail).
+
+    :param hosts: list of host names or URLs
+    :returns: hostname, host_type ('ssh' or 'http')
+    """
+    for host in hosts:
+        url = urllib.parse.urlparse(host)
+        if url.netloc and url.scheme.startswith('http'):
+            # ``host`` is an http(s) web server URL
+            r = requests.get(host + remote_eng_archive_func, timeout=3)
+            if r.status_code == 200:
+                return host, 'http'
+        elif os.path.exists(client_key_file):
+            # For a hostname try connecting to port 22
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                s.connect((host, 22))
+                return host, 'ssh'
+            except:
+                pass
+            finally:
+                s.close()
+    return None, None
+
+
 class RemoteConnectionError(Exception):
     pass
+
 
 def establish_connection():
     """
@@ -59,21 +96,19 @@ Return success status (True/False)
     global hostname
     global username
     global password
-    
-    try_to_connect = True
-    
+
     # Loop until the user is able to connect or cancels
     while _remote_client is None:
         # Get the username and password if not already set
         hostname = hostname or input('Enter hostname (or IP) of Ska ' +
-                                         'server (enter to cancel):')
-        if hostname=="":
+                                     'server (enter to cancel):')
+        if hostname == "":
             break
         default_username = getpass.getuser()
-        username = username or input('Enter your login username [' + 
-                                         default_username + ']:')
+        username = username or input('Enter your login username [' +
+                                     default_username + ']:')
         password = password or getpass.getpass('Enter your password:')
-        
+
         # Open the connection to the server
         print('Establishing connection to ' + hostname + '...')
         sys.stdout.flush()
@@ -82,7 +117,7 @@ Return success status (True/False)
                                              sshserver=username+'@'+hostname,
                                              password=password)
         except:
-            print('Error connecting to server ',hostname,': ',sys.exc_info()[0])
+            print('Error connecting to server ', hostname, ': ', sys.exc_info()[0])
             sys.stdout.flush()
             _remote_client = None
             # Clear out information so the user can try again
@@ -91,34 +126,34 @@ Return success status (True/False)
             password = None
             if not ask_again_if_connect_fails:
                 break
-        
+
     return(connection_is_established())
 
 
 def connection_is_established():
     """
-Function to check if a connection to the remote server has been established
-"""
-    return (not _remote_client is None)
-    
+    Function to check if a connection to the remote server has been established
+    """
+    return (_remote_client is not None)
+
 
 def execute_remotely(fcn, *args, **kwargs):
     """
-Function for executing a function remotely
-"""
+    Function for executing a function remotely
+    """
     if not connection_is_established():
         raise parallel.ConnectionError(
                 "Connection not established to remote server")
-    dview = _remote_client[0]; # Use the first (and should be only) engine
+    dview = _remote_client[0]  # Use the first (and should be only) engine
     dview.block = True
     return dview.apply_sync(fcn, *args, **kwargs)
-    
+
 
 def test_connection():
     """
-Function to perform a quick test of the connection to the
-remote server
-"""
+    Function to perform a quick test of the connection to the
+    remote server
+    """
     def remote_fcn():
         import os
         return os.sys.version
@@ -127,21 +162,20 @@ remote server
 
 def close_connection():
     """
-Function to close the connection to the remote server
-"""
+    Function to close the connection to the remote server
+    """
     global _remote_client
-    
+
     _remote_client.close()
     _remote_client = None
-    
+
 
 def local_or_remote_function(remote_print_output):
     """
     Decorator maker so that a function gets run either locally or remotely depending on
-    the state of ``access_remotely`` (IPython parallel via SSH) and
-    ``KADI_REMOTE_ENABLED`` (kadi web server).  This decorator maker takes an optional
+    the state of ``access_remotely``.  This decorator maker takes an optional
     remote_print_output argument that will be be printed (locally) if the function is
-    executed remotely,
+    executed remotely.
 
     For functions that are decorated using this wrapper:
 
@@ -152,7 +186,24 @@ def local_or_remote_function(remote_print_output):
     """
     def the_decorator(func):
         def wrapper(*args, **kwargs):
-            if access_remotely:
+            global hostname
+            global host_type
+
+            if not access_remotely:
+                # Normal local call
+                return func(*args, **kwargs)
+
+            # If hostname is not set yet then do so now.  Remember the name
+            # and type in the global config vars.
+            if hostname is None:
+                hostname, host_type = get_first_responding_host(remote_hosts)
+
+            # Special case three functions that get potentially large datasets
+            # from the HDF5 file archives.  Add a ``max_rows`` kwarg.
+            if func.__name__.endswith('_data_from_server'):
+                kwargs['max_rows'] = remote_max_rows
+
+            if host_type == 'ssh':
                 # If accessing a remote archive, establish the connection (if
                 # necessary)
                 if not connection_is_established():
@@ -174,50 +225,43 @@ def local_or_remote_function(remote_print_output):
                     sys.stdout.flush()
                 # Execute the function remotely and return the result
                 return execute_remotely(func, *args, **kwargs)
-            else:
-                if KADI_REMOTE_ENABLED:
-                    # Let the user know that kadi web server being used for data access
-                    warnings.warn('using {} for remote data access'.format(KADI_REMOTE_URL))
-                    if show_print_output and remote_print_output is not None:
-                        print(remote_print_output)
-                        sys.stdout.flush()
 
-                    # Set up to use the kadi web server to run function remotely
-                    import requests
-                    import zlib
-                    from six.moves import cPickle as pickle
+            elif host_type == 'http':
+                # Let the user know that kadi web server being used for data access
+                warnings.warn('using {} for remote data access'.format(hostname))
+                if show_print_output and remote_print_output is not None:
+                    print(remote_print_output)
+                    sys.stdout.flush()
 
-                    # Special case three functions that get potentially large datasets
-                    # from the HDF5 file archives.  Add a ``max_rows`` kwarg.
-                    if func.__name__.endswith('_data_from_server'):
-                        kwargs['max_rows'] = KADI_REMOTE_MAX_ROWS
-                    func_info = dict(func_name=func.__name__, args=args, kwargs=kwargs)
-                    data = {'func_info': pickle.dumps(func_info, protocol=0)}
-                    url = KADI_REMOTE_URL + '/eng_archive/remote_func/'
+                # Set up to use the kadi web server to run function remotely
+                import requests
+                import zlib
+                from six.moves import cPickle as pickle
 
-                    # Run the remote function and get response.
-                    r = requests.post(url, data=data, timeout=KADI_REMOTE_TIMEOUT)
+                func_info = dict(func_name=func.__name__, args=args, kwargs=kwargs)
+                data = {'func_info': pickle.dumps(func_info, protocol=0)}
+                url = hostname + remote_eng_archive_func
 
-                    if r.status_code != 200:
-                        raise RuntimeError('kadi remote function {} failed with status {}'
-                                           .format(func.__name__, r.status_code))
+                # Run the remote function and get response.
+                r = requests.post(url, data=data, timeout=remote_timeout)
 
-                    # Unzip and unpickle the output
-                    try:
-                        out = pickle.loads(zlib.decompress(r.content))
-                    except:
-                        raise ValueError('kadi remote function {} returned content that '
-                                         'failed unpickling'.format(func.__name__))
-
-                    # Remote function raised an exception so re-raise here
-                    if isinstance(out, Exception):
-                        raise out
-
+                if r.status_code != 200:
+                    raise RuntimeError('kadi remote function {} failed with status {}'
+                                       .format(func.__name__, r.status_code))
+                # Unzip and unpickle the output
+                try:
+                    out = pickle.loads(zlib.decompress(r.content))
+                except:
+                    raise ValueError('kadi remote function {} returned content that '
+                                     'failed unpickling'.format(func.__name__))
+                # Remote function raised an exception so re-raise here
+                if isinstance(out, Exception):
+                    raise out
                 else:
-                    # Plain old local call
-                    out = func(*args, **kwargs)
+                    return out
 
-                return out
+            else:  # host_type is None => no remote found
+                raise ValueError('access_remotely is True but no remote_hosts responded')
 
         return wrapper
 
