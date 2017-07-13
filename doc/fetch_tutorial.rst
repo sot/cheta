@@ -1571,6 +1571,16 @@ find one that is available to serve telemetry.  The default is
 ``['http://kadi.cfa.harvard.edu', '131.142.113.4']`` which means to try the
 production kadi web server and then chimchim.
 
+kadi
+----
+
+On a machine without any Ska telemetry archive files directly accessible, the default is
+to use the kadi web server (http://kadi.cfa.harvard.edu) to perform telemetry
+queries.  The only requirement is that the kadi web server be visible, which
+means being VPN'd to the HEAD or GRETA networks.
+
+This option works for both Python 2 and 3.
+
 chimchim
 --------
 
@@ -1590,16 +1600,3 @@ installation of Ska Python.
 
 Note also that this option is only available if you are locally running Python
 2.7.  It does not work if you are using Python 3 on your local client.
-
-kadi
-^^^^^
-
-On a machine without any Ska telemetry archive files directly accessible, the default is
-to use the kadi web server (http://kadi.cfa.harvard.edu) to perform telemetry
-queries.  The only requirement is that the kadi web server be visible, which
-means being VPN'd to the HEAD or GRETA networks.
-
-This option works for both Python 2 and 3.
-
-
-
