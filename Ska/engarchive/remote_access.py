@@ -9,6 +9,7 @@ import getpass
 import warnings
 import socket
 import requests
+import re
 
 try:
     import ipyparallel as parallel
@@ -16,14 +17,14 @@ except ImportError:
     from IPython import parallel
 
 from six.moves import input
-from six.moves import urllib
 
 from .file_defs import ENG_ARCHIVE
 
 
-remote_hosts = ['http://kadi.cfa.harvard.edu', 'chimchim.ipa.harvard.edu']
+# Kadi web server and chimchim
+remote_hosts = ['http://kadi.cfa.harvard.edu', '131.142.113.4']
 # Temporary for testing with local django test server
-remote_hosts = ['http://localhost:8000', 'chimchim.ipa.harvard.edu']
+# remote_hosts = ['http://localhost:8000', '131.142.113.4']
 
 remote_timeout = 20  # seconds
 remote_max_rows = 1e7  # max rows of data
@@ -64,8 +65,7 @@ def get_first_responding_host(hosts):
     :returns: hostname, host_type ('ssh' or 'http')
     """
     for host in hosts:
-        url = urllib.parse.urlparse(host)
-        if url.netloc and url.scheme.startswith('http'):
+        if re.match(r'http[s]?://', host):
             # ``host`` is an http(s) web server URL
             r = requests.get(host + remote_eng_archive_func, timeout=3)
             if r.status_code == 200:
@@ -250,7 +250,12 @@ def local_or_remote_function(remote_print_output):
                                        .format(func.__name__, r.status_code))
                 # Unzip and unpickle the output
                 try:
-                    out = pickle.loads(zlib.decompress(r.content))
+                    out0 = zlib.decompress(r.content)
+                    # See https://stackoverflow.com/questions/28218466/
+                    #             unpickling-a-python-2-object-with-python-3
+                    # It is quite possible that running Py2 on the client and Py3 on
+                    # the kadi server will fail.
+                    out = pickle.loads(out0, fix_imports=True, encoding='latin1')
                 except:
                     raise ValueError('kadi remote function {} returned content that '
                                      'failed unpickling'.format(func.__name__))
