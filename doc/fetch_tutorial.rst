@@ -1036,7 +1036,7 @@ the `Remote access`_ section for ways of remotely accessing these CXC archives
 if you are running on a machine that is not on either of these networks
 (e.g. your laptop).
 
-In order to provide access to the most recently availalbe telemetry,
+In order to provide access to the most recently available telemetry,
 an interface to the `MAUDE telemetry server
 <http://occweb.cfa.harvard.edu/twiki/Software/MaudeSupport>`_ is also available.
 
