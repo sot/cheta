@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Settings and functions for remotely accessing an engineering archive.
 """

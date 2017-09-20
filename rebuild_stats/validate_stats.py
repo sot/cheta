@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Check that the 5min and daily stats are consistent between two different
 builds of the stats archive.
 """

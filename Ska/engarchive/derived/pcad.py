@@ -1,4 +1,5 @@
-﻿"""
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 Derived parameter MSIDs related to PCAD subsystem.
 
 Author: A. Arvai

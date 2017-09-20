@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 def plot_pitch(event, stat=None):
     figure()
     start = DateTime(event.start)

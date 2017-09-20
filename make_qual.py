@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Convert boolean quality vectors within each content/MSID.h5 file to an int8
 content/MSID_qual.h5 file.  This is a one-off for Matt to be able to use files

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """
 Transfer stage files from HEAD network to OCC GRETA network via ftp server lucky.

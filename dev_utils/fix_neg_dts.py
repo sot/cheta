@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Fix residual overlaps within the original archive and h5 ingest.  These
 are short overlaps that for some reason were not fixed by fix_h5_ingest.py

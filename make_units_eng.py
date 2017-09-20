@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Make a unit_system consistent with usual OCC/FOT engineering units via P009.
 """
