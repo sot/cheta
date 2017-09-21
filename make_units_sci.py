@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Make a unit_system consistent with usual CXC Science units where all temperatures
 are in degC instead of Kelvins.  Otherwise leave the CXC units untouched.

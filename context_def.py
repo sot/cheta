@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from pyyaks.context import ContextDict
 
 # datadir = '/data/baffin3/telem_archive/data'

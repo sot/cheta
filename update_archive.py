@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Update the engineering archive database.  Normally this
 includes new telemetry from the CXC archive and updating

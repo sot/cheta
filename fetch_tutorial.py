@@ -1,5 +1,6 @@
 ## The basic process of fetching data always starts with importing the module
 ## into the python session::
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 print "Welcome to the fetch module!"
 import Ska.engarchive.fetch as fetch

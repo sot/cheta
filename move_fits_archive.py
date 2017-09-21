@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 One-off tool to move archive files from original flat structure (everything in
 one directory per content-type) to <content>/arch/<year>/<doy>/[files] structure.

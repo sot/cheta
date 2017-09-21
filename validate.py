@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Find gaps (positive and negative) in telemetry times.  Positive gaps are missing data
 while negative gaps are duplicate data.  The latter need to be excised (via bad quality).

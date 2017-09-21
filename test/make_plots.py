@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 # Make a few plots for a sanity check of test archive correctness
 # run in pylab

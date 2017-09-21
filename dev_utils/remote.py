@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from IPython.parallel import Client
 client = Client()
 dview = client[0]  # direct view object

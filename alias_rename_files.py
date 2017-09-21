@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Rename MSID, 5min and daily h5 files based on a set of MSID aliases.
 Also updates colnames.pickle and colnames_all.pickle.

@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Apply a scale factor of 36.0/35.0 to account for a mistake in the original specification
 of the OBC_AVE thermal derived parameter.

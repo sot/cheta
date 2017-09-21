@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Fix overlaps within the original archive and h5 ingest.  These are due to
 problems with different versioned files that cover same time range being
