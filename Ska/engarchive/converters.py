@@ -118,7 +118,7 @@ def get_bit_array(dat, in_name, out_name, bit_index):
     return out_array
 
 
-def generic_converter2(msid_cxc_map):
+def generic_converter2(msid_cxc_map, default_dtypes=None):
     """Convert an input FITS recarray assuming that it has a TIME column.  Use the
     ``msid_cxc_map`` to define the list of output eng archive MSIDs (keys) and the
     corresponding colnames in the CXC archive FITS file (values).
@@ -136,18 +136,23 @@ def generic_converter2(msid_cxc_map):
                       'QUALITY': out_quality}
 
         for out_name, in_name in msid_cxc_map.items():
-            i_in = quality_index(dat, in_name)  # Index into input QUALITY array
-
             if ':' in in_name:
                 in_name, bit_index = in_name.split(':')
                 out_array = get_bit_array(dat, in_name, out_name, bit_index)
-
+                quality = dat['QUALITY'][:, quality_index(dat, in_name)]
             else:
-                out_array = dat[in_name]
+                if in_name in dat.dtype.names:
+                    out_array = dat[in_name]
+                    quality = dat['QUALITY'][:, quality_index(dat, in_name)]
+                else:
+                    # Handle column that is intermittently available in `dat` by using the
+                    # supplied default dtype.  Quality is True (missing) everywhere.
+                    out_array = np.zeros(shape=len(dat), dtype=default_dtypes[out_name])
+                    quality = True
 
             assert out_array.ndim == 1
             out_arrays[out_name] = out_array
-            out_quality[:, out_names.index(out_name)] = dat['QUALITY'][:, i_in]
+            out_quality[:, out_names.index(out_name)] = quality
 
         out = Ska.Numpy.structured_array(out_arrays, out_names)
         return out
@@ -337,13 +342,11 @@ ALIASES = {'simdiag': """
     IMHVATM       2IMHVATM
     SMTRATM       2SMTRATM
     FE00ATM       2FE00ATM
+    CE00ATM       2CE00ATM
+    CE01ATM       2CE01ATM
     """,
-           # These HRC HK temperature MSIDs do not always appear in telemetry due to a
-           # wiring issue, and are frequently not in the CXC archive files.  Per HRC ops
-           # input these are ignored by the Ska eng. archive.
-           # CE00ATM 2CE00ATM
-           # CE01ATM 2CE01ATM
            }
+
 
 CXC_TO_MSID = {key: parse_alias_str(val) for key, val in ALIASES.items()}
 MSID_TO_CXC = {key: parse_alias_str(val, invert=True) for key, val in ALIASES.items()}
@@ -382,7 +385,11 @@ hrc0ss = generic_converter2(MSID_TO_CXC['hrc0ss'])
 
 
 def hrc0hk(dat):
-    out = generic_converter2(MSID_TO_CXC['hrc0hk'])(dat)
+    # Read the data and allow for missing columns in input L0 HK file.
+    default_dtypes = {'2CE00ATM': 'f4',
+                      '2CE01ATM': 'f4'}
+    out = generic_converter2(MSID_TO_CXC['hrc0hk'], default_dtypes)(dat)
+
     # Set all HRC HK data columns to bad quality where HRC_SS_HK_BAD is not zero
     # First three columns are TIME, QUALITY, and HRC_SS_HK_BAD -- do not filter these.
     bad = out['HRC_SS_HK_BAD'] > 0
