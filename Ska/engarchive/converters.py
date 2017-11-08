@@ -424,7 +424,8 @@ def obc4eng(dat):
     # MSIDs OOBTHR<msid_num> that went to _WIDE after the patch, which was done in parts A
     # and B.
     msid_nums = {'a': '08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29'.split(),
-                 'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split()
+                 'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split(),
+                 'c': '02 03 04 05 06 07'.split()
                  }
 
     # Convert using the baseline converter
@@ -433,9 +434,10 @@ def obc4eng(dat):
     # The patch times below correspond to roughly the middle of the major frame where
     # patches A and B were applied, respectively.
     patch_times = {'a': DateTime('2014:342:16:29:30').secs,
-                   'b': DateTime('2014:342:16:32:45').secs}
+                   'b': DateTime('2014:342:16:32:45').secs,
+                   'c': DateTime('2017:312:16:11:16').secs}
 
-    for patch in ('a', 'b'):
+    for patch in ('a', 'b', 'c'):
         # Set a mask defining times after the activation of wide-range telemetry in PR-361
         mask = out['TIME'] > patch_times[patch]
         if np.any(mask):
@@ -456,7 +458,7 @@ def tel2eng(dat):
     """
     At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to
     read out in wide-mode.  As 4OAVOBAT is an average of all these MSIDs and calculated on board,
-    only the wide version of this MSID is valid after this patch is applied. 
+    only the wide version of this MSID is valid after this patch is applied.
 
     This converter simply copies the 4OAVOBAT_WIDE values after the time of patch activation to
     4OAVOBAT.  4OAVOBAT_WIDE is not available in the eng archive (by the _WIDE name).
