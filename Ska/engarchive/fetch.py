@@ -290,6 +290,7 @@ for filetype in filetypes:
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
+    import six
     from six.moves import cPickle as pickle
     all_colnames = dict()
     for k, msid_names_file in six.iteritems(all_msid_names_files):
