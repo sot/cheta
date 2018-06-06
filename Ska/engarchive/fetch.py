@@ -762,6 +762,7 @@ class MSID(object):
             return(vals, bads)
 
         vals, bads = get_msid_data_from_server(h5_slice, _split_path(filename))
+        bads.flags['WRITEABLE'] = True  # Remote access can return a readonly bads
 
         # Filter bad times rows if needed
         if not times_all_ok:
