@@ -50,7 +50,11 @@ files is not helpful because they are already compressed::
 
   mkdir data
   rsync -av --ignore=arch /proj/sot/ska/data/eng_archive/data/lunarephem0/ data/lunarephem0/
-  export ENG_ARCHIVE=$PWD
+
+  # Set directories where fetch *reads*.  The flight /proj/sot/ska bit is needed for
+  # reading telemetry to compute derived parameters, if you are doing dp_orbit1280 or
+  # dp_pcad4 on the side.
+  export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 
   /proj/sot/ska/share/eng_archive/update_archive.py --content=lunarephem0 --truncate 2018:130 --data-root=.
   /proj/sot/ska/share/eng_archive/update_archive.py --content=lunarephem0 --data-root=. --max-lookback-time=100
@@ -79,17 +83,19 @@ Now do the rest::
   /proj/sot/ska/share/eng_archive/update_archive.py --content=orbitephem1 --truncate 2018:130 --data-root=/proj/sot/ska/data/eng_archive
   /proj/sot/ska/share/eng_archive/update_archive.py --content=solarephem0 --truncate 2018:130 --data-root=/proj/sot/ska/data/eng_archive
   /proj/sot/ska/share/eng_archive/update_archive.py --content=solarephem1 --truncate 2018:130 --data-root=/proj/sot/ska/data/eng_archive
-  /proj/sot/ska/share/eng_archive/update_archive.py --content=dp_orbit --truncate 2018:130 --data-root=/proj/sot/ska/data/eng_archive
+  /proj/sot/ska/share/eng_archive/update_archive.py --content=dp_orbit1280 --truncate 2018:130 --data-root=/proj/sot/ska/data/eng_archive
+  /proj/sot/ska/share/eng_archive/update_archive.py --content=dp_pcad4 --truncate 2018:130 --data-root=/proj/sot/ska/data/eng_archive
 
   /proj/sot/ska/share/eng_archive/update_archive.py --content=lunarephem1 --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
   /proj/sot/ska/share/eng_archive/update_archive.py --content=solarephem0 --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
   /proj/sot/ska/share/eng_archive/update_archive.py --content=solarephem1 --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
   /proj/sot/ska/share/eng_archive/update_archive.py --content=orbitephem0 --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
   /proj/sot/ska/share/eng_archive/update_archive.py --content=orbitephem1 --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
-  /proj/sot/ska/share/eng_archive/update_archive.py --content=dp_orbit --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
+  /proj/sot/ska/share/eng_archive/update_archive.py --content=dp_orbit1280 --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
+  /proj/sot/ska/share/eng_archive/update_archive.py --content=dp_pcad4 --data-root=/proj/sot/ska/data/eng_archive --max-lookback-time=100
 
 You can test a few, but if these go through with no errors then everything should be OK.
-particular the ``dp_orbit`` processing will give errors if the other products are not consistent.
+particular the ``dp_orbit1280`` and ``dp_pcad4`` processing will give errors if the other products are not consistent.
 
 Fixing on GRETA
 ---------------
@@ -107,3 +113,4 @@ Log in as ``SOT`` and rsync the files over::
   rsync -av --exclude=arch aldcroft@ccosmos:/proj/sot/ska/data/eng_archive/data/solarephem0/ solarephem0/
   rsync -av --exclude=arch aldcroft@ccosmos:/proj/sot/ska/data/eng_archive/data/solarephem1/ solarephem1/
   rsync -av --exclude=arch aldcroft@ccosmos:/proj/sot/ska/data/eng_archive/data/dp_orbit1280/ dp_orbit1280/
+  rsync -av --exclude=arch aldcroft@ccosmos:/proj/sot/ska/data/eng_archive/data/dp_orbit1280/ dp_pcad4/
