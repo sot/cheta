@@ -650,10 +650,10 @@ def make_h5_col_file(dats, colname):
     col = dats[-1][colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
-    h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
-                    expectedrows=n_rows)
-    h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
-                    expectedrows=n_rows)
+    h5.create_earray(h5.root, 'data', h5type, h5shape, title=colname,
+                     expectedrows=n_rows)
+    h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
+                     expectedrows=n_rows)
     logger.verbose('WARNING: made new file {} for column {!r} shape={} with n_rows(1e6)={}'
                    .format(filename, colname, h5shape, n_rows / 1.0e6))
     h5.close()
@@ -1111,7 +1111,7 @@ def get_archive_files(filetype):
     # do not look back further than --max-lookback-time
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
     vals = db.fetchone("select max(filetime) from archfiles")
-    datestart = DateTime(max(vals['max(filetime)'],
+    datestart = DateTime(max(vals['max(filetime)'] or 0.0,
                              datestop.secs - opt.max_lookback_time * 86400))
 
     # For *ephem0 the query needs to extend well into the future
