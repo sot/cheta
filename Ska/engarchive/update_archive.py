@@ -533,8 +533,8 @@ def update_stats(colname, interval, msid=None):
                         logger.info('  Adding %d records', len(vals_stats))
                     except tables.NoSuchNodeError:
                         logger.info('  Creating table with %d records ...', len(vals_stats))
-                        stats.createTable(stats.root, 'data', vals_stats,
-                                          "{} sampling".format(interval), expectedrows=2e7)
+                        stats.create_table(stats.root, 'data', vals_stats,
+                                           "{} sampling".format(interval), expectedrows=2e7)
                     stats.root.data.flush()
             else:
                 logger.info('  No stat records within available fetched values')

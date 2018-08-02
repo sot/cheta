@@ -75,7 +75,7 @@ def add_colname(filename, colname):
         with open(filename, 'wb') as f:
             pickle.dump(set(), f)
 
-    colnames = pickle.load(open(filename, 'r'))
+    colnames = pickle.load(open(filename, 'rb'))
     if colname not in colnames:
         logger.info('Adding colname {} to colnames pickle {}'.format(colname, filename))
         colnames.add(colname)
@@ -102,15 +102,15 @@ def make_msid_file(colname, content, content_def):
 
     # Finally make the actual MSID data file
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.openFile(filename, mode='w', filters=filters)
+    h5 = tables.open_file(filename, mode='w', filters=filters)
 
     n_rows = int(20 * 3e7 / content_def['time_step'])
     h5shape = (0,)
     h5type = tables.Atom.from_dtype(dp_vals.dtype)
-    h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
-                    expectedrows=n_rows)
-    h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
-                    expectedrows=n_rows)
+    h5.create_earray(h5.root, 'data', h5type, h5shape, title=colname,
+                     expectedrows=n_rows)
+    h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
+                     expectedrows=n_rows)
 
     logger.info('Made {} shape={} with n_rows(1e6)={}'.format(colname, h5shape, n_rows / 1.0e6))
     h5.close()
