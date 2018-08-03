@@ -798,7 +798,7 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
 
     # Read FITS archive file and accumulate data into dats list and header into headers dict
     logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
-    hdus = pyfits.open(f)
+    hdus = pyfits.open(f, character_as_bytes=True)
     hdu = hdus[1]
 
     try:
