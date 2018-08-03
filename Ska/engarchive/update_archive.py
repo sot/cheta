@@ -395,6 +395,11 @@ def calc_stats_vals(msid, rows, indexes, interval):
     msid_dtype = msid.vals.dtype
     msid_is_numeric = issubclass(msid_dtype.type, (np.number, np.bool_))
 
+    # If MSID data is unicode, then for stats purposes cast back to bytes
+    # by creating the output array as a like-sized S-type array.
+    if msid_dtype.kind == 'U':
+        msid_dtype = re.sub(r'U', 'S', msid.vals.dtype.str)
+
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = OrderedDict()
     out['index'] = np.ndarray((n_out,), dtype=np.int32)
