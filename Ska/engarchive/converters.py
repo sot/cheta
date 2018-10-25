@@ -97,6 +97,8 @@ def get_bit_array(dat, in_name, out_name, bit_index):
         mult = 1
         out_array = np.zeros(len(dat), dtype=np.uint32)  # no more than 32 bit indexes
         for bit_index in reversed(bit_indexes):
+            # Note: require casting mult and 0 to uint32 because recent versions of numpy
+            # disallow in-place adding of int64 to uint32.
             out_array += np.where(dat[in_name][:, bit_index], np.uint32(mult), np.uint32(0))
             mult *= 2
     else:

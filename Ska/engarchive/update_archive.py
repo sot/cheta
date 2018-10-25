@@ -22,7 +22,6 @@ import pyyaks.logger
 import pyyaks.context
 import astropy.io.fits as pyfits
 import tables
-import tables3_api
 import numpy as np
 import scipy.stats.mstats
 
