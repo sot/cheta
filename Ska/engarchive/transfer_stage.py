@@ -5,7 +5,9 @@
 Transfer stage files from HEAD network to OCC GRETA network via ftp server lucky.
 """
 
-import re, os, sys
+import re
+import os
+import sys
 import time
 import optparse
 import tarfile
@@ -26,6 +28,7 @@ logger = None
 def get_options():
     parser = optparse.OptionParser()
     parser.add_option("--data-root",
+                      default=".",
                       help="Engineering archive root directory for MSID and arch files")
     parser.add_option("--ftp-dir",
                       default='eng_archive',
