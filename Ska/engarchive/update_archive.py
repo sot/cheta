@@ -155,10 +155,10 @@ def create_content_dir():
     empty = set()
     if not os.path.exists(msid_files['colnames'].abs):
         with open(msid_files['colnames'].abs, 'wb') as f:
-            pickle.dump(empty, f)
+            pickle.dump(empty, f, protocol=0)
     if not os.path.exists(msid_files['colnames_all'].abs):
         with open(msid_files['colnames_all'].abs, 'wb') as f:
-            pickle.dump(empty, f)
+            pickle.dump(empty, f, protocol=0)
 
     if not os.path.exists(msid_files['archfiles'].abs):
         archfiles_def = open('archfiles_def.sql').read()
@@ -1053,12 +1053,12 @@ def update_msid_files(filetype, archfiles):
         logger.warning('WARNING: updating %s because colnames changed: %s'
                        % (msid_files['colnames'].abs, old_colnames ^ colnames))
         if not opt.dry_run:
-            pickle.dump(colnames, open(msid_files['colnames'].abs, 'wb'))
+            pickle.dump(colnames, open(msid_files['colnames'].abs, 'wb'), protocol=0)
     if colnames_all != old_colnames_all:
         logger.warning('WARNING: updating %s because colnames_all changed: %s'
                        % (msid_files['colnames_all'].abs, colnames_all ^ old_colnames_all))
         if not opt.dry_run:
-            pickle.dump(colnames_all, open(msid_files['colnames_all'].abs, 'wb'))
+            pickle.dump(colnames_all, open(msid_files['colnames_all'].abs, 'wb'), protocol=0)
 
     return archfiles_processed
 
