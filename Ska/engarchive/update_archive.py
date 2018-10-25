@@ -1073,23 +1073,10 @@ def move_archive_files(filetype, archfiles):
     for f in archfiles:
         if not os.path.exists(f):
             continue
-        ft['basename'] = os.path.basename(f)
-        tstart = re.search(r'(\d+)', str(ft['basename'])).group(1)
-        datestart = DateTime(tstart).date
-        ft['year'], ft['doy'] = re.search(r'(\d\d\d\d):(\d\d\d)', datestart).groups()
 
-        archdir = arch_files['archdir'].abs
-        archfile = arch_files['archfile'].abs
-
-        if not os.path.exists(archdir):
-            os.makedirs(archdir)
-
-        if not os.path.exists(archfile):
-            logger.info('mv %s %s' % (os.path.abspath(f), archfile))
-            if not opt.dry_run:
-                if not opt.occ:
-                    shutil.copy2(f, stagedir)
-                shutil.move(f, archfile)
+        if not opt.dry_run and not opt.occ:
+            logger.info('mv %s %s' % (os.path.abspath(f), stagedir))
+            shutil.move(f, stagedir)
 
         if os.path.exists(f):
             logger.verbose('Unlinking %s' % os.path.abspath(f))
