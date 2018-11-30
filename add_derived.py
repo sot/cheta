@@ -73,14 +73,14 @@ def add_colname(filename, colname):
     if not os.path.exists(filename):
         logger.info('Creating colnames pickle {}'.format(filename))
         with open(filename, 'wb') as f:
-            pickle.dump(set(), f)
+            pickle.dump(set(), f, protocol=0)
 
     colnames = pickle.load(open(filename, 'rb'))
     if colname not in colnames:
         logger.info('Adding colname {} to colnames pickle {}'.format(colname, filename))
         colnames.add(colname)
         with open(filename, 'wb') as f:
-            pickle.dump(colnames, f)
+            pickle.dump(colnames, f, protocol=0)
 
 
 def make_msid_file(colname, content, content_def):
