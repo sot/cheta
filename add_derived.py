@@ -7,7 +7,6 @@ from six.moves import cPickle as pickle
 import optparse
 
 import tables
-import tables3_api
 from Chandra.Time import DateTime
 
 import Ska.DBI
