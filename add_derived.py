@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import re, os, sys
-import cPickle as pickle
+import re
+import os
+from six.moves import cPickle as pickle
 import optparse
 
 import tables
@@ -13,9 +14,10 @@ import pyyaks.logger
 import pyyaks.context
 import numpy as np
 
-import Ska.engarchive.fetch as fetch 
+import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
 import Ska.engarchive.derived as derived
+
 
 def get_options():
     parser = optparse.OptionParser()
@@ -32,6 +34,7 @@ def get_options():
                       action='append',
                       help="Content type to process [match regex] (default = all)")
     return parser.parse_args()
+
 
 def make_archfiles_db(filename, content_def):
     # Do nothing if it is already there
@@ -56,10 +59,11 @@ def make_archfiles_db(filename, content_def):
                          tstop=tstop,
                          rowstart=0,
                          rowstop=0,
-                         startmjf=indexes[0], # really index0
+                         startmjf=indexes[0],  # really index0
                          stopmjf=indexes[-1],  # really index1
                          date=datestart.date)
     db.insert(archfiles_row, 'archfiles')
+
 
 def add_colname(filename, colname):
     """Add ``colname`` to the pickled set() in ``filename``.  Create the pickle
@@ -67,16 +71,17 @@ def add_colname(filename, colname):
     """
     if not os.path.exists(filename):
         logger.info('Creating colnames pickle {}'.format(filename))
-        with open(filename, 'w') as f:
-            pickle.dump(set(), f)
+        with open(filename, 'wb') as f:
+            pickle.dump(set(), f, protocol=0)
 
-    colnames = pickle.load(open(filename, 'r'))
+    colnames = pickle.load(open(filename, 'rb'))
     if colname not in colnames:
         logger.info('Adding colname {} to colnames pickle {}'.format(colname, filename))
         colnames.add(colname)
-        with open(filename, 'w') as f:
-            pickle.dump(colnames, f)
-    
+        with open(filename, 'wb') as f:
+            pickle.dump(colnames, f, protocol=0)
+
+
 def make_msid_file(colname, content, content_def):
     ft['content'] = content
     ft['msid'] = colname
@@ -96,18 +101,19 @@ def make_msid_file(colname, content, content_def):
 
     # Finally make the actual MSID data file
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.openFile(filename, mode='w', filters=filters)
-    
+    h5 = tables.open_file(filename, mode='w', filters=filters)
+
     n_rows = int(20 * 3e7 / content_def['time_step'])
-    h5shape = (0,) 
+    h5shape = (0,)
     h5type = tables.Atom.from_dtype(dp_vals.dtype)
-    h5.createEArray(h5.root, 'data', h5type, h5shape, title=colname,
-                    expectedrows=n_rows)
-    h5.createEArray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
-                    expectedrows=n_rows)
+    h5.create_earray(h5.root, 'data', h5type, h5shape, title=colname,
+                     expectedrows=n_rows)
+    h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
+                     expectedrows=n_rows)
 
     logger.info('Made {} shape={} with n_rows(1e6)={}'.format(colname, h5shape, n_rows / 1.0e6))
     h5.close()
+
 
 def main():
     global opt, ft, msid_files, logger
@@ -116,13 +122,13 @@ def main():
     ft = fetch.ft
     msid_files = pyyaks.context.ContextDict('add_derived.msid_files', basedir=opt.data_root)
     msid_files.update(file_defs.msid_files)
-    logger = pyyaks.logger.get_logger(name='engarchive', level=pyyaks.logger.VERBOSE, 
+    logger = pyyaks.logger.get_logger(name='engarchive', level=pyyaks.logger.VERBOSE,
                                       format="%(asctime)s %(message)s")
 
     # Get the derived parameter classes
     dp_classes = (getattr(derived, x) for x in dir(derived) if x.startswith('DP_'))
-    dp_classes = [x for x in dp_classes if hasattr(x, '__base__') and
-                                           issubclass(x, derived.DerivedParameter)]
+    dp_classes = [x for x in dp_classes
+                  if hasattr(x, '__base__') and issubclass(x, derived.DerivedParameter)]
     content_defs = {}
     for dp_class in dp_classes:
         colname = dp_class.__name__.upper()
@@ -161,4 +167,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

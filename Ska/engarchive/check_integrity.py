@@ -84,7 +84,7 @@ def check_filetype(filetype):
     for colname in colnames:
         ft['msid'] = colname
 
-        h5 = tables.openFile(msid_files['msid'].abs, mode='r')
+        h5 = tables.open_file(msid_files['msid'].abs, mode='r')
         length = len(h5.root.data)
         h5.root.data[length - 1]
         h5.close()
@@ -109,7 +109,7 @@ def check_filetype(filetype):
 
 def find_glitch():
     ft['msid'] = 'TIME'
-    h5 = tables.openFile(msid_files['msid'].abs, mode='r')
+    h5 = tables.open_file(msid_files['msid'].abs, mode='r')
     times = h5.root.data
 
     db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
