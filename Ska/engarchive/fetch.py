@@ -763,16 +763,14 @@ class MSID(object):
 
         vals, bads = get_msid_data_from_server(h5_slice, _split_path(filename))
 
-        # Remote access can return arrays that don't own their data, see #150.
-        # In lieu of understanding the root cause of that, just make a fresh
-        # copy if that is the case.
+        # Remote access will return arrays that don't own their data, see #150.
+        # For an explanation see:
+        # https://ipyparallel.readthedocs.io/en/latest/details.html#non-copying-sends-and-numpy-arrays
         try:
-            bads.flags['WRITEABLE'] = True
+            bads.flags.writeable = True
+            vals.flags.writeable = True
         except ValueError:
             bads = bads.copy()
-        try:
-            vals.flags['WRITEABLE'] = True
-        except ValueError:
             vals = vals.copy()
 
         # Filter bad times rows if needed
