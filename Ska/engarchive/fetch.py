@@ -762,7 +762,18 @@ class MSID(object):
             return(vals, bads)
 
         vals, bads = get_msid_data_from_server(h5_slice, _split_path(filename))
-        bads.flags['WRITEABLE'] = True  # Remote access can return a readonly bads
+
+        # Remote access can return arrays that don't own their data, see #150.
+        # In lieu of understanding the root cause of that, just make a fresh
+        # copy if that is the case.
+        try:
+            bads.flags['WRITEABLE'] = True
+        except ValueError:
+            bads = bads.copy()
+        try:
+            vals.flags['WRITEABLE'] = True
+        except ValueError:
+            vals = vals.copy()
 
         # Filter bad times rows if needed
         if not times_all_ok:
