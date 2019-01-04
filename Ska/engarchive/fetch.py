@@ -762,7 +762,16 @@ class MSID(object):
             return(vals, bads)
 
         vals, bads = get_msid_data_from_server(h5_slice, _split_path(filename))
-        bads.flags['WRITEABLE'] = True  # Remote access can return a readonly bads
+
+        # Remote access will return arrays that don't own their data, see #150.
+        # For an explanation see:
+        # https://ipyparallel.readthedocs.io/en/latest/details.html#non-copying-sends-and-numpy-arrays
+        try:
+            bads.flags.writeable = True
+            vals.flags.writeable = True
+        except ValueError:
+            bads = bads.copy()
+            vals = vals.copy()
 
         # Filter bad times rows if needed
         if not times_all_ok:
