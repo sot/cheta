@@ -45,6 +45,11 @@ arch_files = {'stagedir': 'stage/{{ft.content}}/',
               'archfile':     'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
               }
 
+sync_files = {'index': 'sync/{{ft.content}}/index.ecsv',
+              'datadir':  'sync/{{ft.content}}/{{ft.filetime0}}-{{ft.filetime1}}/'
+                              '{{ft.interval}}.npz',
+              }
+
 # Used when originally creating database.
 orig_arch_root = '/data/cosmos2/tlm'
 orig_arch_files = {'contentdir':   '{{ft.content}}/'}
