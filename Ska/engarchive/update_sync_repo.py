@@ -1,5 +1,5 @@
 import argparse
-import gzip
+import re
 from itertools import count
 from pathlib import Path
 
@@ -78,7 +78,6 @@ def update_sync_repo(opt, sync_files, logger, content):
     # File types context dict
     ft = fetch.ft
     ft['content'] = content
-    ft['interval'] = 'full'
 
     index_file = Path(sync_files['index'].abs)
     index_tbl = update_index_file(index_file, opt, logger)
@@ -91,16 +90,19 @@ def update_sync_repo(opt, sync_files, logger, content):
     for row in index_tbl:
         update_sync_data_full(content, sync_files, logger, row)
 
-        for stat in ('full', '5min', 'daily'):
+        for stat in ('5min', 'daily'):
             update_sync_data_stat(content, sync_files, logger, row, stat)
 
 
 def get_row_from_archfiles(archfiles):
+    # Make a row that encapsulates info for this setup of data updates. The ``date_id`` key is a
+    # date like 2019-02-20T2109z, human-readable and Windows-friendly (no :) for a unique
+    # identifier for this set of updates.
     row = {'filetime0': archfiles[0]['filetime'],
            'filetime1': archfiles[-1]['filetime'],
-           'date0': archfiles[0]['date'],
-           'rowstart': archfiles[0]['rowstart'],
-           'rowstop': archfiles[-1]['rowstop']}
+           'date_id': re.sub(':', '', archfiles[0]['date'][:16]) + 'z',
+           'row0': archfiles[0]['rowstart'],
+           'row1': archfiles[-1]['rowstop']}
     return row
 
 
@@ -121,7 +123,7 @@ def check_index_tbl_consistency(index_tbl):
         return msg
 
     for idx, row0, row1 in zip(count(), index_tbl[:-1], index_tbl[1:]):
-        if row0['rowstop'] != row1['rowstart']:
+        if row0['row1'] != row1['row0']:
             msg = f'rows not contiguous at table date0={index_tbl["date0"][idx]}'
             return msg
 
@@ -211,9 +213,8 @@ def update_sync_data_full(content, sync_files, logger, row):
     :return:
     """
     ft = fetch.ft
-    ft['rowstart'] = row['rowstart']
-    ft['rowstop'] = row['rowstop']
     ft['interval'] = 'full'
+    ft['date_id'] = row['date_id']
 
     outfile = Path(sync_files['data'].abs)
     if outfile.exists():
@@ -225,17 +226,59 @@ def update_sync_data_full(content, sync_files, logger, row):
 
     for msid in msids:
         ft['msid'] = msid
-        with tables.open_file(fetch.msid_files['msid'].abs) as h5:
-            out[f'{msid}.quality'] = h5.root.quality[row['rowstart']:row['rowstop']]
-            out[f'{msid}.data'] = h5.root.data[row['rowstart']:row['rowstop']]
+        with tables.open_file(fetch.msid_files['msid'].abs, 'r') as h5:
+            out[f'{msid}.quality'] = h5.root.quality[row['row0']:row['row1']]
+            out[f'{msid}.data'] = h5.root.data[row['row0']:row['row1']]
+            out[f'{msid}.row0'] = row['row0']
+            out[f'{msid}.row1'] = row['row1']
 
-    n_rows = row['rowstop'] - row['rowstart']
+    n_rows = row['row1'] - row['row0']
     n_msids = len(msids)
-    logger.info(f'Writing {outfile} with {n_rows} of data and {n_msids} msids')
+    logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
     # TODO: increase compression to max (gzip?)
     np.savez_compressed(outfile, **out)
+
+
+def _get_stat_data_from_archive(filename, stat, tstart, tstop):
+    """
+    Return stat table rows in the range tstart <= time < tstop.
+
+    Also returns the corresponding table row indexes.
+
+    :param filename: HDF5 file to read
+    :param stat: stat (5min or daily)
+    :param tstart: min time
+    :param tstop: max time
+    :return:
+    """
+    dt = {'5min': 328, 'daily': 86400}[stat]
+
+    with tables.open_file(filename, 'r') as h5:
+        # Check if tstart is beyond the end of the table.  If so, return an empty table
+        table = h5.root.data
+        last_index = table[-1]['index']
+        last_time = (last_index + 0.5) * dt
+        if tstart > last_time:
+            row0 = row1 = len(table)
+            table_rows = table[row0:row1]
+        else:
+            # Compute approx number of rows from the end for tstart.  Normally the index value
+            # goes in lock step with row, but it can happen that an index is missed because of
+            # missing data.  But if we back up by delta_rows, we are guaranteed to get to at
+            # least the row corresponding to tstart.
+            delta_rows = int((last_time - tstart) / dt) + 10
+            times = (table[-delta_rows:]['index'] + 0.5) * dt
+
+            sub_row0, sub_row1 = np.searchsorted(times, [tstart, tstop])
+            sub_row_offset = len(table) - delta_rows
+            row0 = sub_row0 + sub_row_offset
+            row1 = sub_row1 + sub_row_offset
+
+            table_rows = table[row0:row1]  # returns np.ndarray (structured array)
+
+    return table_rows, row0, row1
 
 
 def update_sync_data_stat(content, sync_files, logger, row, stat):
@@ -249,7 +292,54 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
     :param stat:
     :return:
     """
-    pass
+    ft = fetch.ft
+    ft['row0'] = row['row0']
+    ft['row1'] = row['row1']
+    ft['interval'] = stat
+
+    outfile = Path(sync_files['data'].abs)
+    if outfile.exists():
+        logger.debug(f'Skipping {outfile}, already exists')
+        return
+
+    # First get the times corresponding to row0 and row1
+    ft['msid'] = 'TIME'
+    with tables.open_file(fetch.msid_files['msid'].abs, 'r') as h5:
+        table = h5.root.data
+        tstart = table[row['row0']]
+        # Ensure that table row1 (for tstop) doesn't fall off the edge since the last
+        # index file row will have row1 exactly equal to the table length.
+        row1 = min(row['row1'], len(table) -1)
+        tstop = table[row1]
+
+    out = {}
+    msids = list(fetch.all_colnames[content] - set(fetch.IGNORE_COLNAMES))
+
+    # Go through each MSID and get the raw HDF5 table data corresponding to the
+    # time range tstart:tstop found above.
+    n_rows_set = set()
+    row0 = None
+    row1 = None
+    for msid in msids:
+        ft['msid'] = msid
+        filename = fetch.msid_files['stats'].abs
+        stat_rows, row0, row1 = _get_stat_data_from_archive(filename, stat, tstart, tstop)
+        n_rows_set.add(row1 - row0)
+        if row1 > row0:
+            out[f'{msid}.data'] = stat_rows
+            out[f'{msid}.row0'] = row0
+            out[f'{msid}.row1'] = row1
+
+    if len(n_rows_set) > 1:
+        logger.warning(f'Unexpected difference in number of rows: {n_rows_set}')
+
+    n_msids = len(msids)
+    n_rows = n_rows_set.pop() if len(n_rows_set) == 1 else n_rows_set
+    logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
+
+    outfile.parent.mkdir(exist_ok=True, parents=True)
+    # TODO: increase compression to max (gzip?)
+    np.savez_compressed(outfile, **out)
 
 
 if __name__ == '__main__':

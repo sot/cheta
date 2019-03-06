@@ -45,9 +45,9 @@ arch_files = {'stagedir': 'stage/{{ft.content}}/',
               'archfile':     'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
               }
 
+# 2018-03-05T0003z
 sync_files = {'index': 'sync/{{ft.content}}/index.ecsv',
-              'data': 'sync/{{ft.content}}/rows-{{ft.rowstart}}-{{ft.rowstop}}/'
-                      '{{ft.interval}}.npy.gz'}
+              'data': 'sync/{{ft.content}}/{{ft.date_id}}/{{ft.interval}}.npz'}
 
 # Used when originally creating database.
 orig_arch_root = '/data/cosmos2/tlm'
