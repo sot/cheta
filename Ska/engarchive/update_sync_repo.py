@@ -1,10 +1,12 @@
 import argparse
+import gzip
 from itertools import count
 from pathlib import Path
 
 import numpy as np
 import pyyaks.context
 import pyyaks.logger
+import tables
 from Chandra.Time import DateTime
 from Ska.DBI import DBI
 from astropy.table import Table
@@ -15,9 +17,6 @@ import Ska.engarchive.file_defs as file_defs
 
 def get_options(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dry-run",
-                        action="store_true",
-                        help="Dry run (no actual file or database updatees)")
     parser.add_argument("--data-root",
                         default=".",
                         help="Root directory for sync files")
@@ -90,8 +89,10 @@ def update_sync_repo(opt, sync_files, logger, content):
         return
 
     for row in index_tbl:
+        update_sync_data_full(content, sync_files, logger, row)
+
         for stat in ('full', '5min', 'daily'):
-            update_sync_data(opt, sync_files, logger, row, stat)
+            update_sync_data_stat(content, sync_files, logger, row, stat)
 
 
 def get_row_from_archfiles(archfiles):
@@ -199,10 +200,49 @@ def update_index_file(index_file, opt, logger):
     return index_tbl
 
 
-def update_sync_data(opt, sync_files, logger, row, stat):
+def update_sync_data_full(content, sync_files, logger, row):
     """
+    Update full-resolution sync data including archfiles for index table ``row``
 
-    :param opt:
+    :param content:
+    :param sync_files:
+    :param logger:
+    :param row:
+    :return:
+    """
+    ft = fetch.ft
+    ft['rowstart'] = row['rowstart']
+    ft['rowstop'] = row['rowstop']
+    ft['interval'] = 'full'
+
+    outfile = Path(sync_files['data'].abs)
+    if outfile.exists():
+        logger.debug(f'Skipping {outfile}, already exists')
+        return
+
+    out = {}
+    msids = list(fetch.all_colnames[content]) + ['TIME']
+
+    for msid in msids:
+        ft['msid'] = msid
+        with tables.open_file(fetch.msid_files['msid'].abs) as h5:
+            out[f'{msid}.quality'] = h5.root.quality[row['rowstart']:row['rowstop']]
+            out[f'{msid}.data'] = h5.root.data[row['rowstart']:row['rowstop']]
+
+    n_rows = row['rowstop'] - row['rowstart']
+    n_msids = len(msids)
+    logger.info(f'Writing {outfile} with {n_rows} of data and {n_msids} msids')
+
+    outfile.parent.mkdir(exist_ok=True, parents=True)
+    # TODO: increase compression to max (gzip?)
+    np.savez_compressed(outfile, **out)
+
+
+def update_sync_data_stat(content, sync_files, logger, row, stat):
+    """
+    Update stats (5min, daily) sync data for index table ``row``
+
+    :param content:
     :param sync_files:
     :param logger:
     :param row:
