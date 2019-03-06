@@ -373,9 +373,9 @@ def sim_mrg(dat):
 
     # Now do the fixes.  FOT mech has stated that 3LDRTMEK is always 'FA'
     # in practice.
-    bad = out['3LDRTMEK'] == 'FA '
+    bad = out['3LDRTMEK'] == b'FA '
     if np.count_nonzero(bad):
-        out['3LDRTMEK'][bad] = 'TSC'
+        out['3LDRTMEK'][bad] = b'TSC'
         pos_tsc_steps = units.converters['mm', 'FASTEP'](out['3LDRTPOS'][bad])
         out['3LDRTPOS'][bad] = units.converters['TSCSTEP', 'mm'](pos_tsc_steps)
 
