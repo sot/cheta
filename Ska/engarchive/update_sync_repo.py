@@ -1,10 +1,12 @@
 import argparse
+from itertools import count
 from pathlib import Path
 
+import numpy as np
 import pyyaks.context
 import pyyaks.logger
 from Chandra.Time import DateTime
-import Ska.DBI
+from Ska.DBI import DBI
 from astropy.table import Table
 
 import Ska.engarchive.fetch as fetch
@@ -65,15 +67,65 @@ def main(args=None):
         update_sync_repo(opt, sync_files, logger, content)
 
 
+def update_sync_repo(opt, sync_files, logger, content):
+    """
+
+    :param opt: argparse options
+    :param sync_files: Sync repo files context dict
+    :param logger: logger instance
+    :param content: content type
+    :return:
+    """
+    # File types context dict
+    ft = fetch.ft
+    ft['content'] = content
+    ft['interval'] = 'full'
+
+    index_file = Path(sync_files['index'].abs)
+    index_tbl = update_index_file(index_file, opt, logger)
+
+    if index_tbl is None:
+        # Index table was not created, nothing more to do here
+        logger.warning(f'No index table for {content}')
+        return
+
+    for row in index_tbl:
+        for stat in ('full', '5min', 'daily'):
+            update_sync_data(opt, sync_files, logger, row, stat)
+
+
 def get_row_from_archfiles(archfiles):
     row = {'filetime0': archfiles[0]['filetime'],
            'filetime1': archfiles[-1]['filetime'],
-           'n_archfiles': len(archfiles),
            'date0': archfiles[0]['date'],
-           'date1': archfiles[-1]['date'],
            'rowstart': archfiles[0]['rowstart'],
            'rowstop': archfiles[-1]['rowstop']}
     return row
+
+
+def check_index_tbl_consistency(index_tbl):
+    """
+    Check for consistency of the index table.
+
+    :param index_tbl: index table (astropy Table)
+    :return msg: inconsistency message or None
+    """
+    filetimes = []
+    for row in index_tbl:
+        filetimes.append(row['filetime0'])
+        filetimes.append(row['filetime1'])
+
+    if np.any(np.diff(filetimes) <= 0):
+        msg = 'filetime values not monotonically increasing'
+        return msg
+
+    for idx, row0, row1 in zip(count(), index_tbl[:-1], index_tbl[1:]):
+        if row0['rowstop'] != row1['rowstart']:
+            msg = f'rows not contiguous at table date0={index_tbl["date0"][idx]}'
+            return msg
+
+    # No problems
+    return None
 
 
 def update_index_file(index_file, opt, logger):
@@ -98,7 +150,7 @@ def update_index_file(index_file, opt, logger):
     # Step through the archfile files entries and collect them into groups of up
     # to --max-days based on file time stamp (which is an integer in CXC secs).
     rows = []
-    with Ska.DBI.DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
+    with DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
         while True:
             filetime1 = filetime0 + max_secs
             archfiles = dbi.fetchall(f'select * from archfiles '
@@ -134,10 +186,18 @@ def update_index_file(index_file, opt, logger):
         logger.info(f'Making directory {index_file.parent}')
         index_file.parent.mkdir(exist_ok=True, parents=True)
 
+    msg = check_index_tbl_consistency(index_tbl)
+    if msg:
+        msg += '\n'
+        msg += '\n'.join(index_tbl.pformat(max_lines=-1, max_width=-1))
+        logger.error(f'Index table inconsistency: {msg}')
+        return None
+
     logger.info(f'Writing {len(rows)} row(s) to index file {index_file}')
     index_tbl.write(index_file, format='ascii.ecsv')
 
     return index_tbl
+
 
 def update_sync_data(opt, sync_files, logger, row, stat):
     """
@@ -150,30 +210,6 @@ def update_sync_data(opt, sync_files, logger, row, stat):
     :return:
     """
     pass
-
-
-def update_sync_repo(opt, sync_files, logger, content):
-    """
-
-    :param opt: argparse options
-    :param msid_files: MSID files context dict
-    :param sync_files: Sync repo files context dict
-    :param logger: logger instance
-    :param content: content type
-    :return:
-    """
-    # File types context dict
-    ft = fetch.ft
-    ft['content'] = content
-    ft['interval'] = 'full'
-
-    index_file = Path(sync_files['index'].abs)
-    index_tbl = update_index_file(index_file, opt, logger)
-
-    if index_tbl is not None:
-        for row in index_tbl:
-            for stat in ('full', '5min', 'daily'):
-                update_sync_data(opt, sync_files, logger, row, stat)
 
 
 if __name__ == '__main__':
