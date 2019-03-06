@@ -4,16 +4,10 @@ import sys
 import os
 from setuptools import setup
 
-from Ska.engarchive.version import package_version
-
 try:
     from testr.setup_helper import cmdclass
 except ImportError:
     cmdclass = {}
-
-# Write GIT revisions and SHA tag into <this_package/git_version.py>
-# (same directory as version.py)
-package_version.write_git_version_file()
 
 # On Windows the `cheta` soft link can turn into a plain file, so work
 # around this by temporarily moving that file to the side and doing a
@@ -29,14 +23,15 @@ try:
           author='Tom Aldcroft',
           description='Modules supporting Ska engineering telemetry archive',
           author_email='aldcroft@head.cfa.harvard.edu',
+          use_scm_version=True,
+          setup_requires=['setuptools_scm'],
           entry_points={'console_scripts': ['ska_fetch = Ska.engarchive.get_telem:main']},
-          version=package_version.version,
           zip_safe=False,
           packages=['Ska', 'Ska.engarchive', 'Ska.engarchive.derived', 'Ska.engarchive.tests',
                     'cheta', 'cheta.derived', 'cheta.tests'],
-          package_data={'Ska.engarchive': ['*.dat', 'units_*.pkl', 'GIT_VERSION'],
+          package_data={'Ska.engarchive': ['*.dat', 'units_*.pkl'],
                         'Ska.engarchive.tests': ['*.dat'],
-                        'cheta': ['*.dat', 'units_*.pkl', 'GIT_VERSION'],
+                        'cheta': ['*.dat', 'units_*.pkl'],
                         'cheta.tests': ['*.dat']},
 
           tests_require=['pytest'],
