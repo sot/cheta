@@ -1905,8 +1905,8 @@ def _set_msid_files_basedir(datestart, msid_files=msid_files):
         if datestart < DATE2000_LO:
             # Note: don't use os.path.join because ENG_ARCHIVE and basedir must
             # use linux '/' convention but this might be running on Windows.
-            dirs = msid_files.basedir.split(':')
-            msid_files.basedir = ':'.join(dir_ + '/1999' for dir_ in dirs)
+            dirs = msid_files.basedir.split(os.pathsep)
+            msid_files.basedir = os.pathsep.join(dir_ + '/1999' for dir_ in dirs)
         yield
     finally:
         msid_files.basedir = cache_basedir
