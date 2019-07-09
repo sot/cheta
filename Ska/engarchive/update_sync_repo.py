@@ -19,7 +19,7 @@ def get_options(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root",
                         default=".",
-                        help="Root directory for sync files")
+                        help="Root directory for sync files (default='.')")
     parser.add_argument("--content",
                         action='append',
                         help="Content type to process [match regex] (default = all)")
@@ -224,8 +224,17 @@ def update_sync_data_full(content, sync_files, logger, row):
     out = {}
     msids = list(fetch.all_colnames[content]) + ['TIME']
 
+    with DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
+        query = (f'select * from archfiles '
+                 f'where filetime >= {row["filetime0"]} '
+                 f'and filetime <= {row["filetime1"]} '
+                 f'order by filetime ')
+        archfiles = dbi.fetchall(query)
+        out['archfiles'] = archfiles
+
     for msid in msids:
         ft['msid'] = msid
+
         with tables.open_file(fetch.msid_files['msid'].abs, 'r') as h5:
             out[f'{msid}.quality'] = h5.root.quality[row['row0']:row['row1']]
             out[f'{msid}.data'] = h5.root.data[row['row0']:row['row1']]
@@ -309,7 +318,7 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
         tstart = table[row['row0']]
         # Ensure that table row1 (for tstop) doesn't fall off the edge since the last
         # index file row will have row1 exactly equal to the table length.
-        row1 = min(row['row1'], len(table) -1)
+        row1 = min(row['row1'], len(table) - 1)
         tstop = table[row1]
 
     out = {}
@@ -318,8 +327,6 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
     # Go through each MSID and get the raw HDF5 table data corresponding to the
     # time range tstart:tstop found above.
     n_rows_set = set()
-    row0 = None
-    row1 = None
     for msid in msids:
         ft['msid'] = msid
         filename = fetch.msid_files['stats'].abs
