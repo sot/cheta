@@ -2,6 +2,7 @@
 
 import argparse
 import re
+import sqlite3
 from itertools import count
 from pathlib import Path
 
@@ -57,15 +58,17 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
         logger.debug('Skipping full data for {content}: no {time_file} file')
         return
 
+    logger.info('')
     logger.info(f'Processing full data for {content}')
+
+    # Read the index file to know what is available for new data
+    index_file = sync_files['index'].abs
+    logger.info(f'Reading index file {index_file}')
+    index_tbl = Table.read(index_file)
 
     # Get the 0-based index of last available full data row
     with tables.open_file(str(time_file), 'r') as h5:
         last_row = len(h5.root.data) - 1
-
-    # Read the index file to know what is available for new data
-    index_file = sync_files['index'].abs
-    index_tbl = Table.read(index_file)
 
     # Look for index table rows that have new data => the row ends after the last existing
     # data.  Note: row0 and row1 correspond to the slice row0:row1, so up to but
@@ -79,6 +82,9 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
 
     index_tbl = index_tbl[ok]
 
+    # List of tables of archfiles rows, one for each row in index_tbl
+    archfiles_list = []
+
     # Iterate over sync files that contain new data
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # File names like sync/acis4eng/2019-07-08T1150z/full.npz
@@ -88,6 +94,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
         # archfiles rows.
+        logger.info(f'Reading update date file {datafile}')
         dat = np.load(datafile)
 
         # Find the MSIDs in this file
@@ -109,6 +116,24 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
                 vals['row0'] += idx0
 
             append_h5_col(opt, msid, vals, logger, msid_files)
+
+        # Update the archfiles.db3 database to include the associated archive files
+        server_file = msid_files['archfiles'].abs
+        logger.debug(f'Updating {server_file}')
+
+        with DBI(dbi='sqlite', server=server_file) as db:
+            for archfile in dat['archfiles']:
+                vals = {name: archfile[name].item() for name in archfile.dtype.names}
+                logger.debug(f'Inserting {vals["filename"]}')
+                if not opt.dry_run:
+                    try:
+                        db.insert(vals, 'archfiles')
+                    except sqlite3.IntegrityError as err:
+                        # Expected exception for archfiles already in the table
+                        assert 'UNIQUE constraint failed: archfiles.filename' in str(err)
+
+            if not opt.dry_run:
+                db.commit()
 
 
 def append_h5_col(opt, msid, vals, logger, msid_files):
