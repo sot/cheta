@@ -26,7 +26,11 @@ def get_options(args=None):
                         action='append',
                         help="Content type to process [match regex] (default = all)")
     parser.add_argument("--log-level",
+                        default=1,
                         help="Logging level")
+    parser.add_argument("--dry-run",
+                        action="store_true",
+                        help="Dry run (no actual file or database updatees)")
     return parser.parse_args(args)
 
 
@@ -48,7 +52,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     ft['interval'] = 'full'
 
     # If no TIME.h5 file then no point in going further
-    time_file = Path(sync_files['msid'].abs)
+    time_file = Path(msid_files['msid'].abs)
     if not time_file.exists():
         logger.debug('Skipping full data for {content}: no {time_file} file')
         return
@@ -56,7 +60,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     logger.info(f'Processing full data for {content}')
 
     # Get the 0-based index of last available full data row
-    with tables.open_file(time_file, 'r') as h5:
+    with tables.open_file(str(time_file), 'r') as h5:
         last_row = len(h5.root.data) - 1
 
     # Read the index file to know what is available for new data
@@ -76,9 +80,9 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     index_tbl = index_tbl[ok]
 
     # Iterate over sync files that contain new data
-    for filetime0, filetime1, date_id, row0, row1 in index_tbl:
-        ft['date_id'] = date_id
+    for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # File names like sync/acis4eng/2019-07-08T1150z/full.npz
+        ft['date_id'] = date_id
         datafile = sync_files['data'].abs
 
         # Read the file with all the MSID data as a hash with keys like {msid}.data
@@ -89,11 +93,10 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
         # Find the MSIDs in this file
         msids = {key[:-5] for key in dat if key.endswith('.data')}
 
-        keys = ('data', 'quality', 'row0', 'row1')
-        vals = {}
-
         for msid in msids:
-            for key in keys:
+            vals = {}
+
+            for key in ('data', 'quality', 'row0', 'row1'):
                 vals[key] = dat[f'{msid}.{key}']
 
             # If this row begins before then end of current data then chop the
@@ -105,31 +108,35 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
                     vals[key] = vals[key][idx0:]
                 vals['row0'] += idx0
 
-            append_h5_col(vals, logger, msid_files)
+            append_h5_col(opt, msid, vals, logger, msid_files)
 
 
-def append_h5_col(vals, logger, msid_files):
+def append_h5_col(opt, msid, vals, logger, msid_files):
     """Append new values to an HDF5 MSID data table.
 
+    :param opt:
+    :param msid:
     :param vals: dict with `data`, `quality`, `row0` and `row1` keys
     :param logger:
     :param msid_files:
     """
     n_vals = len(vals['data'])
+    fetch.ft['msid'] = msid
 
     msid_file = Path(msid_files['msid'].abs)
     if not msid_file.exists():
         logger.debug('Skipping MSID update no {msid_file}')
         return
 
-    with tables.open_file(msid_file, mode='a') as h5:
+    with tables.open_file(str(msid_file), mode='a') as h5:
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
         if vals['row0'] != len(h5.root.data):
             raise ValueError('ERROR: ')
 
-        # h5.root.data.append(vals['data'])
-        # h5.root.quality.append(vals['quality'])
+        if not opt.dry_run:
+            h5.root.data.append(vals['data'])
+            h5.root.quality.append(vals['quality'])
 
 
 def main(args=None):
@@ -156,3 +163,7 @@ def main(args=None):
 
     for content in contents:
         sync_full_archive(opt, sync_files, fetch.msid_files, logger, content)
+
+
+if __name__ == '__main__':
+    main()
