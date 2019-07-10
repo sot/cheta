@@ -1189,3 +1189,7 @@ def main():
     for date_now in date_nows:
         opt.date_now = date_now
         main_loop()
+
+
+if __name__ == '__main__':
+    main()
