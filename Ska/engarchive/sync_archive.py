@@ -186,7 +186,7 @@ def main(args=None):
     else:
         contents = set(fetch.content.values())
 
-    for content in contents:
+    for content in sorted(contents):
         sync_full_archive(opt, sync_files, fetch.msid_files, logger, content)
 
 

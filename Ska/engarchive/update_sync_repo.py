@@ -64,7 +64,7 @@ def main(args=None):
     else:
         contents = set(fetch.content.values())
 
-    for content in contents:
+    for content in sorted(contents):
         update_sync_repo(opt, sync_files, logger, content)
 
 
