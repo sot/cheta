@@ -27,7 +27,7 @@ from . import file_defs
 from .units import Units
 from . import cache
 from . import remote_access
-from .version import __version__, __git_version__
+from . import __version__
 
 from Chandra.Time import DateTime
 

@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from .fetch import *
 from . import fetch
-from .version import version as __version__
+from . import __version__
 
 # Module-level units, defaults to CXC units (e.g. Kelvins etc)
 UNITS = Units('sci')
