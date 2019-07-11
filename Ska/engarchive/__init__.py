@@ -5,7 +5,10 @@ from pkg_resources import get_distribution, DistributionNotFound
 try:
     _dist = get_distribution('Ska.engarchive')  # hard-code only for this dual-name package
     __version__ = _dist.version
-    assert __file__.startswith(_dist.location)
+
+    # Check if this file is the same as what was found in the distribution.
+    # Windows does not necessarily respect the case so downcase everything.
+    assert __file__.lower().startswith(_dist.location.lower())
 
 except (AssertionError, DistributionNotFound):
     try:
