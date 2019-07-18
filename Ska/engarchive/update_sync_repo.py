@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import argparse
+import pickle
 import re
 from itertools import count
 from pathlib import Path
@@ -42,6 +43,25 @@ def get_options(args=None):
     return parser.parse_args(args)
 
 
+def update_msid_contents_pkl(sync_files, logger):
+    """
+    Update the `msid_contents.pkl` file to contain a dict of the msid:content pairs.
+
+    :return: None
+    """
+    filename = Path(sync_files['msid_contents'].abs)
+
+    # Check if an existing version of the file is the same and do not overwrite
+    # in that case.
+    if filename.exists():
+        msid_contents = pickle.load(open(filename, 'rb'))
+        if msid_contents == fetch.content:
+            return
+
+    logger.info(f'Writing contents pickle {filename}')
+    pickle.dump(fetch.content, open(filename, 'wb'), protocol=-1)
+
+
 def main(args=None):
     # Setup for updating the sync repository
     opt = get_options(args)
@@ -66,6 +86,9 @@ def main(args=None):
 
     for content in sorted(contents):
         update_sync_repo(opt, sync_files, logger, content)
+
+    # Make the main msid_contents.pkl file
+    update_msid_contents_pkl(sync_files, logger)
 
 
 def update_sync_repo(opt, sync_files, logger, content):
