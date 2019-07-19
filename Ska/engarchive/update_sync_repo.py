@@ -126,9 +126,11 @@ def get_row_from_archfiles(archfiles):
     # Make a row that encapsulates info for this setup of data updates. The ``date_id`` key is a
     # date like 2019-02-20T2109z, human-readable and Windows-friendly (no :) for a unique
     # identifier for this set of updates.
+    date_id = DateTime(archfiles[0]['date']).fits
+    date_id = re.sub(':', '', date_id[:16]) + 'z'
     row = {'filetime0': archfiles[0]['filetime'],
            'filetime1': archfiles[-1]['filetime'],
-           'date_id': re.sub(':', '', archfiles[0]['date'][:16]) + 'z',
+           'date_id': date_id,
            'row0': archfiles[0]['rowstart'],
            'row1': archfiles[-1]['rowstop']}
     return row
