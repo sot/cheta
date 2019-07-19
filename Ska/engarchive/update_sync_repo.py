@@ -149,7 +149,7 @@ def check_index_tbl_consistency(index_tbl):
 
     for idx, row0, row1 in zip(count(), index_tbl[:-1], index_tbl[1:]):
         if row0['row1'] != row1['row0']:
-            msg = f'rows not contiguous at table date0={index_tbl["date0"][idx]}'
+            msg = f'rows not contiguous at table date0={index_tbl["date_id"][idx]}'
             return msg
 
     # No problems
