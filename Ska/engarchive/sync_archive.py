@@ -13,6 +13,7 @@ import numpy as np
 import pyyaks.context
 import pyyaks.logger
 import tables
+from Chandra.Time import DateTime
 from Ska.DBI import DBI
 from astropy.table import Table
 from astropy.utils.data import download_file
@@ -32,12 +33,15 @@ def get_options(args=None):
     parser.add_argument("--log-level",
                         default=1,
                         help="Logging level")
+    parser.add_argument("--date-stop",
+                        help="Stop process date (mostly for testing, default=NOW)")
     parser.add_argument("--dry-run",
                         action="store_true",
                         help="Dry run (no actual file or database updatees)")
 
     opt = parser.parse_args(args)
     opt.is_url = re.match(r'http[s]?://', opt.data_root)
+    opt.date_stop = DateTime(opt.date_stop)
 
     return opt
 
@@ -111,6 +115,10 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
 
     # Iterate over sync files that contain new data
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
+        # Limit processed archfiles by date
+        if filetime0 > DateTime(opt.date_stop).secs:
+            break
+
         # File names like sync/acis4eng/2019-07-08T1150z/full.npz
         ft['date_id'] = date_id
         datafile = sync_files['data'].rel
