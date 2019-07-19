@@ -155,9 +155,15 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
         server_file = msid_files['archfiles'].abs
         logger.debug(f'Updating {server_file}')
 
+        def as_python(val):
+            try:
+                return val.item()
+            except AttributeError:
+                return val
+
         with DBI(dbi='sqlite', server=server_file) as db:
             for archfile in dat['archfiles']:
-                vals = {name: archfile[name].item() for name in archfile.dtype.names}
+                vals = {name: as_python(archfile[name]) for name in archfile.dtype.names}
                 logger.debug(f'Inserting {vals["filename"]}')
                 if not opt.dry_run:
                     try:
