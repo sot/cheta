@@ -3,6 +3,7 @@
 import argparse
 import contextlib
 import os
+import re
 import sqlite3
 from pathlib import Path
 
@@ -21,9 +22,6 @@ import Ska.engarchive.file_defs as file_defs
 def get_options(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root",
-                        default='.',
-                        help="Root dir for sync files")
-    parser.add_argument("--url",
                         default='https://icxc.cfa.harvard.edu/aspect/cheta/',
                         help="URL for sync files")
     parser.add_argument("--content",
@@ -37,15 +35,15 @@ def get_options(args=None):
                         help="Dry run (no actual file or database updatees)")
 
     opt = parser.parse_args(args)
-    opt.url = opt.url.strip().rstrip('/')
+    opt.is_url = re.match(r'http[s]?://', opt.data_root)
 
     return opt
 
 
 @contextlib.contextmanager
-def get_readable(base_url, filename):
-    if base_url:
-        uri = base_url.rstrip('/') + '/' + filename
+def get_readable(data_root, is_url, filename):
+    if is_url:
+        uri = data_root.rstrip('/') + '/' + filename
         filename = download_file(uri, show_progress=False, cache=False, timeout=60)
     else:
         uri = filename
@@ -53,7 +51,7 @@ def get_readable(base_url, filename):
     try:
         yield filename, uri
     finally:
-        if base_url:
+        if is_url:
             # Clean up tmp file
             os.unlink(filename)
 
@@ -78,7 +76,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     # If no TIME.h5 file then no point in going further
     time_file = Path(msid_files['msid'].abs)
     if not time_file.exists():
-        logger.debug('Skipping full data for {content}: no {time_file} file')
+        logger.debug(f'Skipping full data for {content}: no {time_file} file')
         return
 
     logger.info('')
@@ -86,7 +84,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
 
     # Read the index file to know what is available for new data
     index_file = sync_files['index'].rel
-    with get_readable(opt.url, index_file) as (index_input, uri):
+    with get_readable(opt.data_root, opt.is_url, index_file) as (index_input, uri):
         logger.info(f'Reading index file {uri}')
         index_tbl = Table.read(index_input, format='ascii.ecsv')
 
@@ -118,7 +116,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
         # archfiles rows.
-        with get_readable(opt.url, datafile) as (data_input, uri):
+        with get_readable(opt.data_root, opt.is_url, datafile) as (data_input, uri):
             logger.info(f'Reading update date file {uri}')
             dat = np.load(data_input)
 
@@ -193,8 +191,9 @@ def main(args=None):
     # Setup for updating the sync repository
     opt = get_options(args)
 
+    basedir = '.' if opt.is_url else opt.data_root
     sync_files = pyyaks.context.ContextDict('update_sync_repo.sync_files',
-                                            basedir=opt.data_root)
+                                            basedir=basedir)
     sync_files.update(file_defs.sync_files)
 
     # Set up logging
