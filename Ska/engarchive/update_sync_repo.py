@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import argparse
+import gzip
 import pickle
 import re
 from itertools import count
@@ -59,7 +60,8 @@ def update_msid_contents_pkl(sync_files, logger):
             return
 
     logger.info(f'Writing contents pickle {filename}')
-    pickle.dump(fetch.content, open(filename, 'wb'), protocol=-1)
+    with gzip.open(filename, 'wb') as fh:
+        pickle.dump(fetch.content, fh, protocol=-1)
 
 
 def main(args=None):
@@ -272,7 +274,8 @@ def update_sync_data_full(content, sync_files, logger, row):
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
     # TODO: increase compression to max (gzip?)
-    np.savez_compressed(outfile, **out)
+    with gzip.open(outfile, 'wb') as fh:
+        pickle.dump(out, fh)
 
 
 def _get_stat_data_from_archive(filename, stat, tstart, tstop):
@@ -371,7 +374,8 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
     # TODO: increase compression to max (gzip?)
-    np.savez_compressed(outfile, **out)
+    with gzip.open(outfile, 'wb') as fh:
+        pickle.dump(out, fh)
 
 
 if __name__ == '__main__':
