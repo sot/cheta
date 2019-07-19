@@ -1,18 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import argparse
-import re
+import contextlib
 import sqlite3
-from itertools import count
 from pathlib import Path
 
 import numpy as np
 import pyyaks.context
 import pyyaks.logger
 import tables
-from Chandra.Time import DateTime
 from Ska.DBI import DBI
 from astropy.table import Table
+from astropy.utils.data import download_file
 
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
@@ -21,8 +20,11 @@ import Ska.engarchive.file_defs as file_defs
 def get_options(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root",
-                        default=".",
-                        help="Root directory for sync files (default='.')")
+                        default='.',
+                        help="Root dir for sync files")
+    parser.add_argument("--url",
+                        default='https://icxc.cfa.harvard.edu/aspect/cheta/',
+                        help="URL for sync files")
     parser.add_argument("--content",
                         action='append',
                         help="Content type to process [match regex] (default = all)")
@@ -32,7 +34,22 @@ def get_options(args=None):
     parser.add_argument("--dry-run",
                         action="store_true",
                         help="Dry run (no actual file or database updatees)")
-    return parser.parse_args(args)
+
+    opt = parser.parse_args(args)
+    opt.url = opt.url.strip().rstrip('/')
+
+    return opt
+
+
+@contextlib.contextmanager
+def get_readable(base_url, filename):
+    if not base_url:
+        uri = filename
+    else:
+        uri = base_url.rstrip('/') + '/' + filename
+        filename = download_file(uri, show_progress=False, cache=False, timeout=60)
+
+    yield filename, uri
 
 
 def sync_full_archive(opt, sync_files, msid_files, logger, content):
@@ -62,9 +79,10 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     logger.info(f'Processing full data for {content}')
 
     # Read the index file to know what is available for new data
-    index_file = sync_files['index'].abs
-    logger.info(f'Reading index file {index_file}')
-    index_tbl = Table.read(index_file)
+    index_file = sync_files['index'].rel
+    with get_readable(opt.url, index_file) as (index_input, uri):
+        logger.info(f'Reading index file {uri}')
+        index_tbl = Table.read(index_input, format='ascii.ecsv')
 
     # Get the 0-based index of last available full data row
     with tables.open_file(str(time_file), 'r') as h5:
@@ -89,13 +107,14 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # File names like sync/acis4eng/2019-07-08T1150z/full.npz
         ft['date_id'] = date_id
-        datafile = sync_files['data'].abs
+        datafile = sync_files['data'].rel
 
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
         # archfiles rows.
-        logger.info(f'Reading update date file {datafile}')
-        dat = np.load(datafile)
+        with get_readable(opt.url, datafile) as (data_input, uri):
+            logger.info(f'Reading update date file {uri}')
+            dat = np.load(data_input)
 
         # Find the MSIDs in this file
         msids = {key[:-5] for key in dat if key.endswith('.data')}
