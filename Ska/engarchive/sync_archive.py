@@ -2,6 +2,7 @@
 
 import argparse
 import contextlib
+import os
 import sqlite3
 from pathlib import Path
 
@@ -43,13 +44,18 @@ def get_options(args=None):
 
 @contextlib.contextmanager
 def get_readable(base_url, filename):
-    if not base_url:
-        uri = filename
-    else:
+    if base_url:
         uri = base_url.rstrip('/') + '/' + filename
         filename = download_file(uri, show_progress=False, cache=False, timeout=60)
+    else:
+        uri = filename
 
-    yield filename, uri
+    try:
+        yield filename, uri
+    finally:
+        if base_url:
+            # Clean up tmp file
+            os.unlink(filename)
 
 
 def sync_full_archive(opt, sync_files, msid_files, logger, content):
