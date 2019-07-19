@@ -2,7 +2,9 @@
 
 import argparse
 import contextlib
+import gzip
 import os
+import pickle
 import re
 import sqlite3
 from pathlib import Path
@@ -118,7 +120,8 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
         # archfiles rows.
         with get_readable(opt.data_root, opt.is_url, datafile) as (data_input, uri):
             logger.info(f'Reading update date file {uri}')
-            dat = np.load(data_input)
+            with gzip.open(data_input, 'rb') as fh:
+                dat = pickle.load(fh)
 
         # Find the MSIDs in this file
         msids = {key[:-5] for key in dat if key.endswith('.data')}

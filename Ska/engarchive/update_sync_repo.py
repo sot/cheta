@@ -55,7 +55,8 @@ def update_msid_contents_pkl(sync_files, logger):
     # Check if an existing version of the file is the same and do not overwrite
     # in that case.
     if filename.exists():
-        msid_contents = pickle.load(open(filename, 'rb'))
+        with gzip.open(filename, 'rb') as fh:
+            msid_contents = pickle.load(fh)
         if msid_contents == fetch.content:
             return
 
