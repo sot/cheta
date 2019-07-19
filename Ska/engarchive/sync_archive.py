@@ -90,14 +90,14 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
 
     # Get the 0-based index of last available full data row
     with tables.open_file(str(time_file), 'r') as h5:
-        last_row = len(h5.root.data) - 1
+        last_row_idx = len(h5.root.data) - 1
 
     # Look for index table rows that have new data => the row ends after the last existing
     # data.  Note: row0 and row1 correspond to the slice row0:row1, so up to but
     # not including the row indexed row1 (0-based).  So for 3 existing rows,
-    # last_row=2 so to get the new row with index=3 you need row1=4.  By def'n
-    # we know that row0 <= 3 at this point.
-    ok = index_tbl['row1'] >= last_row
+    # last_row_idx=2 so to get the new row with index=3 you need row1=4, or equivalently
+    # row1 > n_rows. By def'n we know that row0 <= 3 at this point.
+    ok = index_tbl['row1'] > last_row_idx + 1
 
     if np.count_nonzero(ok) == 0:
         logger.info(f'No new sync data for {content}')
@@ -131,8 +131,8 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
 
             # If this row begins before then end of current data then chop the
             # beginning of data for this row.
-            if vals['row0'] <= last_row:
-                idx0 = last_row + 1 - vals['row0']
+            if vals['row0'] <= last_row_idx:
+                idx0 = last_row_idx + 1 - vals['row0']
                 logger.debug(f'Chopping {idx0 + 1} rows from data')
                 for key in ('data', 'quality'):
                     vals[key] = vals[key][idx0:]
