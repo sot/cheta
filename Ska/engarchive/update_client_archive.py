@@ -207,12 +207,14 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
         index_tbl = Table.read(index_input, format='ascii.ecsv')
 
     # Get the MSIDs that are in client archive
-    msids = [str(fn)[:-3] for fn in stats_dir.glob('*.h5')]
+    msids = [str(fn.name)[:-3] for fn in stats_dir.glob('*.h5')]
     if not msids:
         logger.debug('Skipping {stat} data for {content}: no stats h5 files')
+    else:
+        logger.debug(f'Stat msids are {msids}')
 
     last_date_id, last_date_id_file = get_last_date_id(
-        msid_files, msids, stat)
+        msid_files, msids, stat, logger)
     logger.debug(f'Got {last_date_id} as last date_id that was applied to archive')
 
     # Iterate over sync files that contain new data
@@ -243,10 +245,12 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
         msids = {key[:-5] for key in dat if key.endswith('.data')}
 
         for msid in msids:
-            append_stat_col(dat, msid_files['stat'].rel, msid, date_id, opt, logger)
+            fetch.ft['msid'] = msid
+            append_stat_col(dat, msid_files['stats'].rel, msid, date_id, opt, logger)
 
+        logger.debug(f'Updating {last_date_id_file} with {date_id}')
         with open(last_date_id_file, 'w') as fh:
-            fh.write(f'{last_date_id:.3f}')
+            fh.write(f'{date_id}')
 
 
 def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
@@ -262,6 +266,8 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
     :return: None
     """
     vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'row0', 'row1')}
+    logger.debug(f'append_stat_col msid={msid} date_id={date_id}, '
+                 f'row0,1 = {vals["row0"]} {vals["row1"]}')
 
     with tables.open_file(stat_file, 'a') as h5:
         last_row_idx = len(h5.root.data) - 1
@@ -269,8 +275,8 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
         # Check if there is any new data in this chunk
         if vals['row1'] - 1 <= last_row_idx:
             logger.debug(f'Skipping {date_id} for {msid}: no new data '
-                         'row1={vals["row1"]} last_row_idx={last_row_idx}')
-            # continue
+                         f'row1={vals["row1"]} last_row_idx={last_row_idx}')
+            return
 
         # If this row begins before then end of current data then chop the
         # beginning of data for this row.
@@ -280,17 +286,16 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             vals['data'] = vals['data'][idx0:]
             vals['row0'] += idx0
 
-        logger.verbose(f'Appending {len(vals["data"])} rows to {stat_file}')
-
         if vals['row0'] != len(h5.root.data):
             raise ValueError('ERROR: unexpected discontinuity '
                              'row0 {vals[{"row0"]} != len {len(h5.root.data)}')
 
+        logger.debug(f'Appending {len(vals["data"])} rows to {stat_file}')
         if not opt.dry_run:
             h5.root.data.append(vals['data'])
 
 
-def get_last_date_id(msid_files, msids, stat):
+def get_last_date_id(msid_files, msids, stat, logger):
     """
     Get the last date_id used for syncing the client archive.  First try the
     last_date_id file.  If this does not exist then infer a reasonable value
@@ -310,7 +315,9 @@ def get_last_date_id(msid_files, msids, stat):
         times = []
         for msid in msids:
             fetch.ft['msid'] = msid
-            with tables.open_file(msid_files['stats'].rel, 'r') as h5:
+            filename = msid_files['stats'].abs
+            logger.debug(f'Reading {filename} to check stat times')
+            with tables.open_file(filename, 'r') as h5:
                 index = h5.root.data.cols.index[-1]
                 times.append((index + 0.5) * STATS_DT[stat])
 
@@ -377,6 +384,8 @@ def main(args=None):
 
     for content in sorted(contents):
         sync_full_archive(opt, sync_files, fetch.msid_files, logger, content)
+        for stat in STATS_DT:
+            sync_stat_archive(opt, sync_files, fetch.msid_files, logger, content, stat)
 
 
 if __name__ == '__main__':
