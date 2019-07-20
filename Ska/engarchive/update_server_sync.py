@@ -17,6 +17,7 @@ from astropy.table import Table
 
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
+from Ska.engarchive.utils import get_date_id
 
 
 def get_options(args=None):
@@ -126,8 +127,7 @@ def get_row_from_archfiles(archfiles):
     # Make a row that encapsulates info for this setup of data updates. The ``date_id`` key is a
     # date like 2019-02-20T2109z, human-readable and Windows-friendly (no :) for a unique
     # identifier for this set of updates.
-    date_id = DateTime(archfiles[0]['date']).fits
-    date_id = re.sub(':', '', date_id[:16]) + 'z'
+    date_id = get_date_id(archfiles[0]['date'])
     row = {'filetime0': archfiles[0]['filetime'],
            'filetime1': archfiles[-1]['filetime'],
            'date_id': date_id,

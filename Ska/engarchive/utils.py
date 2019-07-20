@@ -4,6 +4,8 @@ Utilities for the engineering archive.
 """
 from __future__ import print_function, division, absolute_import
 
+import re
+
 import six
 from six.moves import zip
 import numpy as np
@@ -323,3 +325,15 @@ def state_intervals(times, vals):
                  'val': state_vals}
 
     return Table(intervals, names=sorted(intervals))
+
+
+def get_date_id(date):
+    """
+    Get date_id format used in sync repo index.
+
+    :param date:
+    :return: date_id
+    """
+    date_id = DateTime(date).fits
+    date_id = re.sub(':', '', date_id[:16]) + 'z'
+    return date_id
