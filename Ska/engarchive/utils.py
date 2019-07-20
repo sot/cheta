@@ -15,6 +15,10 @@ from Chandra.Time import DateTime
 # Cache the results of fetching 3 days of telemetry keyed by MSID
 FETCH_SIZES = {}
 
+# Standard intervals for 5min and daily telemetry
+STATS_DT = {'5min': 328,
+            'daily': 86400}
+
 
 def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True):
     """

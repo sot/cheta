@@ -17,7 +17,7 @@ from astropy.table import Table
 
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
-from Ska.engarchive.utils import get_date_id
+from Ska.engarchive.utils import get_date_id, STATS_DT
 
 
 def get_options(args=None):
@@ -293,7 +293,7 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop):
     :param tstop: max time
     :return:
     """
-    dt = {'5min': 328, 'daily': 86400}[stat]
+    dt = STATS_DT[stat]
 
     with tables.open_file(filename, 'r') as h5:
         # Check if tstart is beyond the end of the table.  If so, return an empty table

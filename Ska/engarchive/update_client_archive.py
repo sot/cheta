@@ -20,10 +20,7 @@ from astropy.utils.data import download_file
 
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
-from Ska.engarchive.utils import get_date_id
-
-STATS_DT = {'5min': 328,
-            'daily': 86400}
+from Ska.engarchive.utils import get_date_id, STATS_DT
 
 
 def get_options(args=None):
@@ -139,10 +136,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
         msids = {key[:-5] for key in dat if key.endswith('.data')}
 
         for msid in msids:
-            vals = {}
-
-            for key in ('data', 'quality', 'row0', 'row1'):
-                vals[key] = dat[f'{msid}.{key}']
+            vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
 
             # If this row begins before then end of current data then chop the
             # beginning of data for this row.
@@ -197,7 +191,7 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
     ft['content'] = content
     ft['interval'] = stat
 
-    stats_dir = Path(msid_files['statsdir'])
+    stats_dir = Path(msid_files['statsdir'].rel)
     if not stats_dir.exists():
         logger.debug('Skipping {stat} data for {content}: no directory')
         return
@@ -215,10 +209,11 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
     # Get the MSIDs that are in client archive
     msids = [str(fn)[:-3] for fn in stats_dir.glob('*.h5')]
     if not msids:
-        logger.debug('Skpping {stat} data for {content}: no stats h5 files')
+        logger.debug('Skipping {stat} data for {content}: no stats h5 files')
 
     last_date_id, last_date_id_file = get_last_date_id(
         msid_files, msids, stat)
+    logger.debug(f'Got {last_date_id} as last date_id that was applied to archive')
 
     # Iterate over sync files that contain new data
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
@@ -229,17 +224,16 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
 
         # Compare date_id of this row to last one that was processed.  These
         # are lexically ordered
-        if date_id < last_date_id:
+        if date_id <= last_date_id:
             logger.debug(f'Index {date_id} already processed, skipping')
             continue
 
-        # File names like sync/acis4eng/2019-07-08T1150z/full.npz
+        # File names like sync/acis4eng/2019-07-08T1150z/5min.npz
         ft['date_id'] = date_id
         datafile = sync_files['data'].rel
 
-        # Read the file with all the MSID data as a hash with keys like {msid}.data
-        # {msid}.quality etc, plus an `archive` key with the table of corresponding
-        # archfiles rows.
+        # Read the file with all the MSID data as a hash with keys {msid}.data
+        # {msid}.row0, {msid}.row1
         with get_readable(opt.data_root, opt.is_url, datafile) as (data_input, uri):
             logger.info(f'Reading update date file {uri}')
             with gzip.open(data_input, 'rb') as fh:
@@ -249,30 +243,64 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
         msids = {key[:-5] for key in dat if key.endswith('.data')}
 
         for msid in msids:
-            vals = {}
-
-            for key in ('data', 'row0', 'row1'):
-                vals[key] = dat[f'{msid}.{key}']
-
-            with tables.open_file(msid_files['stat'], 'a') as h5:
-                last_row_idx = len(h5.root.data) - 1
-
-                # If this row begins before then end of current data then chop the
-                # beginning of data for this row.
-                if vals['row0'] <= last_row_idx:
-                    idx0 = last_row_idx + 1 - vals['row0']
-                    logger.debug(f'Chopping {idx0 + 1} rows from data')
-                    for key in ('data', 'quality'):
-                        vals[key] = vals[key][idx0:]
-                    vals['row0'] += idx0
-
-                append_h5_col(opt, msid, vals, logger, msid_files)
+            append_stat_col(dat, msid_files['stat'].rel, msid, date_id, opt, logger)
 
         with open(last_date_id_file, 'w') as fh:
             fh.write(f'{last_date_id:.3f}')
 
 
+def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
+    """
+    Append ``dat`` to the appropriate stats h5 file.
+
+    :param dat:
+    :param stat_file:
+    :param msid:
+    :param date_id:
+    :param opt:
+    :param logger:
+    :return: None
+    """
+    vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'row0', 'row1')}
+
+    with tables.open_file(stat_file, 'a') as h5:
+        last_row_idx = len(h5.root.data) - 1
+
+        # Check if there is any new data in this chunk
+        if vals['row1'] - 1 <= last_row_idx:
+            logger.debug(f'Skipping {date_id} for {msid}: no new data '
+                         'row1={vals["row1"]} last_row_idx={last_row_idx}')
+            # continue
+
+        # If this row begins before then end of current data then chop the
+        # beginning of data for this row.
+        if vals['row0'] <= last_row_idx:
+            idx0 = last_row_idx + 1 - vals['row0']
+            logger.debug(f'Chopping {idx0 + 1} rows from data')
+            vals['data'] = vals['data'][idx0:]
+            vals['row0'] += idx0
+
+        logger.verbose(f'Appending {len(vals["data"])} rows to {stat_file}')
+
+        if vals['row0'] != len(h5.root.data):
+            raise ValueError('ERROR: unexpected discontinuity '
+                             'row0 {vals[{"row0"]} != len {len(h5.root.data)}')
+
+        if not opt.dry_run:
+            h5.root.data.append(vals['data'])
+
+
 def get_last_date_id(msid_files, msids, stat):
+    """
+    Get the last date_id used for syncing the client archive.  First try the
+    last_date_id file.  If this does not exist then infer a reasonable value
+    by looking at stat data for ``msids``
+
+    :param msid_files:
+    :param msids:
+    :param stat:
+    :return:
+    """
     last_date_id_file = msid_files['last_date_id'].rel
 
     if Path(last_date_id_file).exists():
@@ -316,7 +344,8 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError('ERROR: ')
+            raise ValueError('ERROR: unexpected discontinuity '
+                             'row0 {vals[{"row0"]} != len {len(h5.root.data)}')
 
         if not opt.dry_run:
             h5.root.data.append(vals['data'])
