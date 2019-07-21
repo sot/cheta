@@ -18,9 +18,9 @@ from Ska.DBI import DBI
 from astropy.table import Table
 from astropy.utils.data import download_file
 
-import Ska.engarchive.fetch as fetch
-import Ska.engarchive.file_defs as file_defs
-from Ska.engarchive.utils import get_date_id, STATS_DT
+from . import fetch
+from . import file_defs
+from .utils import get_date_id, STATS_DT
 
 
 def get_options(args=None):

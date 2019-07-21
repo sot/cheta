@@ -3,7 +3,6 @@
 import argparse
 import gzip
 import pickle
-import re
 from itertools import count
 from pathlib import Path
 
@@ -15,9 +14,9 @@ from Chandra.Time import DateTime
 from Ska.DBI import DBI
 from astropy.table import Table
 
-import Ska.engarchive.fetch as fetch
-import Ska.engarchive.file_defs as file_defs
-from Ska.engarchive.utils import get_date_id, STATS_DT
+from . import fetch
+from . import file_defs
+from .utils import get_date_id, STATS_DT
 
 
 def get_options(args=None):
