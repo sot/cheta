@@ -796,6 +796,14 @@ def truncate_archive(filetype, date):
             else:
                 logger.verbose(f'Stats file {filename} not found - skipping')
 
+    # Remove the last_date_id file if it exists
+    for interval in ('5min', 'daily'):
+        ft['interval'] = interval
+        filename = os.path.join(msid_files['statsdir'].abs, 'last_date_id')
+        if os.path.exists(filename):
+            os.unlink(filename)
+            logger.info(f'Removed {filename}')
+
     cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy, year)
     if not opt.dry_run:
         db.execute(cmd)
