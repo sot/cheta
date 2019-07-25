@@ -238,19 +238,19 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
 
     last_date_id, last_date_id_file = get_last_date_id(
         msid_files, msids, stat, logger)
-    logger.debug(f'Got {last_date_id} as last date_id that was applied to archive')
+    logger.verbose(f'Got {last_date_id} as last date_id that was applied to archive')
 
     # Iterate over sync files that contain new data
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # Limit processed archfiles by date
         if filetime0 > DateTime(opt.date_stop).secs:
-            logger.debug(f'Index {date_id} filetime0 > date_stop, breaking')
+            logger.verbose(f'Index {date_id} filetime0 > date_stop, breaking')
             break
 
         # Compare date_id of this row to last one that was processed.  These
         # are lexically ordered
         if date_id <= last_date_id:
-            logger.debug(f'Index {date_id} already processed, skipping')
+            logger.verbose(f'Index {date_id} already processed, skipping')
             continue
 
         # File names like sync/acis4eng/2019-07-08T1150z/5min.npz
@@ -335,9 +335,11 @@ def get_last_date_id(msid_files, msids, stat, logger):
     last_date_id_file = msid_files['last_date_id'].rel
 
     if Path(last_date_id_file).exists():
+        logger.verbose(f'Reading {last_date_id_file} to get last update time')
         with open(last_date_id_file, 'r') as fh:
             last_date_id = fh.read()
     else:
+        logger.verbose(f'Reading stat h5 files to get last update time')
         times = []
         for msid in msids:
             fetch.ft['msid'] = msid
