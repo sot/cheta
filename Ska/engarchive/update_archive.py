@@ -218,12 +218,15 @@ def main_loop():
         if opt.create:
             create_content_dir()
 
-        colnames = [x for x in pickle.load(open(msid_files['colnames'].abs, 'rb'))
-                    if x not in fetch.IGNORE_COLNAMES]
+        if not os.path.exists(msid_files['contentdir'].abs):
+            logger.info(f'Data for {ft["content"]} not found, skipping')
 
         if not os.path.exists(fetch.msid_files['archfiles'].abs):
             logger.info('No archfiles.db3 for %s - skipping' % ft['content'])
             continue
+
+        colnames = [x for x in pickle.load(open(msid_files['colnames'].abs, 'rb'))
+                    if x not in fetch.IGNORE_COLNAMES]
 
         logger.info('Processing %s content type', ft['content'])
 
@@ -742,7 +745,11 @@ def truncate_archive(filetype, date):
     """Truncate msid and statfiles for every archive file after date (to nearest
     year:doy)
     """
-    colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
+    try:
+        colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
+    except IOError:
+        logger.info(f'Colnames file for filetype {filetype} not found: skipping')
+        return
 
     date = DateTime(date).date
     year, doy = date[0:4], date[5:8]
@@ -761,20 +768,28 @@ def truncate_archive(filetype, date):
     for colname in colnames:
         ft['msid'] = colname
         filename = msid_files['msid'].abs
-        if not os.path.exists(filename):
-            raise IOError('MSID file {} not found'.format(filename))
-        if not opt.dry_run:
-            h5 = tables.open_file(filename, mode='a')
-            h5.root.data.truncate(rowstart)
-            h5.root.quality.truncate(rowstart)
-            h5.close()
-        logger.verbose('Removed rows from {0} for filetype {1}:{2}'.format(
-            rowstart, filetype['content'], colname))
+        if os.path.exists(filename):
+            if not opt.dry_run:
+                h5 = tables.open_file(filename, mode='a')
+                h5.root.data.truncate(rowstart)
+                h5.root.quality.truncate(rowstart)
+                h5.close()
+            logger.verbose('Removed rows from {0} for filetype {1}:{2}'.format(
+                rowstart, filetype['content'], colname))
+        else:
+            logger.info('MSID file {} not found: skipping'.format(filename))
 
         # Delete the 5min and daily stats, with a little extra margin
         if colname not in fetch.IGNORE_COLNAMES:
-            del_stats(colname, time0, '5min')
-            del_stats(colname, time0, 'daily')
+            for interval in ('5min', 'daily'):
+                ft['interval'] = interval
+                filename = msid_files['stats'].abs
+                if os.path.exists(filename):
+                    if not opt.dry_run:
+                        del_stats(colname, time0, interval)
+                    logger.verbose(f'Removed {interval} rows from {filename}')
+                else:
+                    logger.info(f'Stats file {filename} not found: skipping')
 
     cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy, year)
     if not opt.dry_run:
