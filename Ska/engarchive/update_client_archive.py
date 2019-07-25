@@ -212,7 +212,7 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
 
     stats_dir = Path(msid_files['statsdir'].rel)
     if not stats_dir.exists():
-        logger.debug('Skipping {stat} data for {content}: no directory')
+        logger.debug(f'Skipping {stat} data for {content}: no directory')
         return
 
     logger.info('')
@@ -232,7 +232,7 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
     # Get the MSIDs that are in client archive
     msids = [str(fn.name)[:-3] for fn in stats_dir.glob('*.h5')]
     if not msids:
-        logger.debug('Skipping {stat} data for {content}: no stats h5 files')
+        logger.debug(f'Skipping {stat} data for {content}: no stats h5 files')
     else:
         logger.debug(f'Stat msids are {msids}')
 
@@ -312,8 +312,8 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             vals['row0'] += idx0
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError('ERROR: unexpected discontinuity '
-                             'row0 {vals[{"row0"]} != len {len(h5.root.data)}')
+            raise ValueError(f'ERROR: unexpected discontinuity '
+                             f'row0 {vals["row0"]} != len {len(h5.root.data)}')
 
         logger.debug(f'Appending {len(vals["data"])} rows to {stat_file}')
         if not opt.dry_run:
@@ -329,6 +329,7 @@ def get_last_date_id(msid_files, msids, stat, logger):
     :param msid_files:
     :param msids:
     :param stat:
+    :param logger:
     :return:
     """
     last_date_id_file = msid_files['last_date_id'].rel
@@ -347,10 +348,10 @@ def get_last_date_id(msid_files, msids, stat, logger):
                 times.append((index + 0.5) * STATS_DT[stat])
 
         # Get the most recent stats data available.  Since these are always updated
-        # in lock step we can use the most recent but then go back 2.5 days to be
+        # in lock step we can use the most recent but then go back 5 days to be
         # sure nothing gets missed.
         last_time = max(times)
-        last_date_id = get_date_id(DateTime(last_time - 86400).fits)
+        last_date_id = get_date_id(DateTime(last_time - 5 * 86400).fits)
 
     return last_date_id, last_date_id_file
 
@@ -369,7 +370,7 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
 
     msid_file = Path(msid_files['msid'].abs)
     if not msid_file.exists():
-        logger.debug('Skipping MSID update no {msid_file}')
+        logger.debug(f'Skipping MSID update no {msid_file}')
         return
 
     with tables.open_file(str(msid_file), mode='a') as h5:

@@ -32,7 +32,7 @@ msid_files = {'filetypes':    'filetypes.dat',
               'data':         'data/{{ft.content}}/{{ft.msid | upper}}.h5',
               'statsdir':     'data/{{ft.content}}/{{ft.interval}}/',
               'stats':        'data/{{ft.content}}/{{ft.interval}}/{{ft.msid | upper}}.h5',
-              'last_date_id': 'data/{{ft.content}}/last_date_id_{{ft.interval}}',
+              'last_date_id': 'data/{{ft.content}}/{{ft.interval}}/last_date_id',
               }
 
 
