@@ -7,6 +7,7 @@ import os
 import pickle
 import re
 import sqlite3
+import urllib
 from pathlib import Path
 
 import numpy as np
@@ -49,16 +50,30 @@ def get_options(args=None):
 
 @contextlib.contextmanager
 def get_readable(data_root, is_url, filename):
-    if is_url:
-        uri = data_root.rstrip('/') + '/' + filename
-        filename = download_file(uri, show_progress=False, cache=False, timeout=60)
-    else:
-        uri = filename
+    """
+    Get readable filename from either a local file or remote URL.
+
+    Returns None for the output filename if input does not exist.
+
+    :param data_root:
+    :param is_url:
+    :param filename:
+    :return: filename, URI
+    """
+    try:
+        if is_url:
+            uri = data_root.rstrip('/') + '/' + filename
+            filename = download_file(uri, show_progress=False, cache=False, timeout=60)
+        else:
+            uri = filename
+            assert os.path.exists(uri)
+    except (AssertionError, urllib.error.HTTPError):
+        filename = None
 
     try:
         yield filename, uri
     finally:
-        if is_url:
+        if is_url and filename is not None:
             # Clean up tmp file
             os.unlink(filename)
 
@@ -92,6 +107,10 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     # Read the index file to know what is available for new data
     index_file = sync_files['index'].rel
     with get_readable(opt.data_root, opt.is_url, index_file) as (index_input, uri):
+        if index_input is None:
+            # If index_file is not found then get_readable returns None
+            logger.info(f'No new sync data for {content}: {uri} not found')
+            return
         logger.info(f'Reading index file {uri}')
         index_tbl = Table.read(index_input, format='ascii.ecsv')
 
@@ -107,7 +126,7 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
     ok = index_tbl['row1'] > last_row_idx + 1
 
     if np.count_nonzero(ok) == 0:
-        logger.info(f'No new sync data for {content}')
+        logger.info(f'No new sync data for {content}: no new rows in index table')
 
     index_tbl = index_tbl[ok]
 
@@ -203,6 +222,10 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
     # TODO: factor this out
     index_file = sync_files['index'].rel
     with get_readable(opt.data_root, opt.is_url, index_file) as (index_input, uri):
+        if index_input is None:
+            # If index_file is not found then get_readable returns None
+            logger.info(f'No new {stat} sync data for {content}: {uri} not found')
+            return
         logger.info(f'Reading index file {uri}')
         index_tbl = Table.read(index_input, format='ascii.ecsv')
 
