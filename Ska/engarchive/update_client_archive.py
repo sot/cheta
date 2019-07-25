@@ -269,7 +269,9 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
 
         for msid in msids:
             fetch.ft['msid'] = msid
-            append_stat_col(dat, msid_files['stats'].rel, msid, date_id, opt, logger)
+            stat_file = msid_files['stats'].rel
+            if os.path.exists(stat_file):
+                append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
         logger.debug(f'Updating {last_date_id_file} with {date_id}')
         with open(last_date_id_file, 'w') as fh:
