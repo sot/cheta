@@ -218,13 +218,15 @@ def main_loop():
         if opt.create:
             create_content_dir()
 
-        if not os.path.exists(msid_files['contentdir'].abs):
-            logger.info(f'Data for {ft["content"]} not found, skipping')
-
-        if not os.path.exists(fetch.msid_files['archfiles'].abs):
-            logger.info('No archfiles.db3 for %s - skipping' % ft['content'])
+        if not os.path.exists(msid_files['colnames'].abs):
+            logger.info(f'No colnames.pickle for {ft["content"]} - skipping')
             continue
 
+        if not os.path.exists(fetch.msid_files['archfiles'].abs):
+            logger.info(f'No archfiles.db3 for {ft["content"]} - skipping')
+            continue
+
+        # Column names for stats updates (without TIME, MJF, MNF, TLM_FMT)
         colnames = [x for x in pickle.load(open(msid_files['colnames'].abs, 'rb'))
                     if x not in fetch.IGNORE_COLNAMES]
 
@@ -745,11 +747,8 @@ def truncate_archive(filetype, date):
     """Truncate msid and statfiles for every archive file after date (to nearest
     year:doy)
     """
-    try:
-        colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
-    except IOError:
-        logger.info(f'Colnames file for filetype {filetype} not found: skipping')
-        return
+    logger.info(f'Truncating {filetype["content"]} full and stat files after {date}')
+    colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
 
     date = DateTime(date).date
     year, doy = date[0:4], date[5:8]
@@ -761,7 +760,10 @@ def truncate_archive(filetype, date):
     out = db.fetchall('SELECT rowstart FROM archfiles '
                       'WHERE year>={0} AND doy>={1}'.format(year, doy))
     if len(out) == 0:
+        logger.verbose(f'No rows to delete - skipping')
+        db.conn.close()
         return
+
     rowstart = out['rowstart'].min()
     time0 = DateTime("{0}:{1}:00:00:00".format(year, doy)).secs
 
@@ -777,24 +779,29 @@ def truncate_archive(filetype, date):
             logger.verbose('Removed rows from {0} for filetype {1}:{2}'.format(
                 rowstart, filetype['content'], colname))
         else:
-            logger.info('MSID file {} not found: skipping'.format(filename))
+            logger.verbose('MSID file {} not found - skipping'.format(filename))
+
+        if colname in fetch.IGNORE_COLNAMES:
+            # Colnames like TIME, MNF etc that are not in stats
+            continue
 
         # Delete the 5min and daily stats, with a little extra margin
-        if colname not in fetch.IGNORE_COLNAMES:
-            for interval in ('5min', 'daily'):
-                ft['interval'] = interval
-                filename = msid_files['stats'].abs
-                if os.path.exists(filename):
-                    if not opt.dry_run:
-                        del_stats(colname, time0, interval)
-                    logger.verbose(f'Removed {interval} rows from {filename}')
-                else:
-                    logger.info(f'Stats file {filename} not found: skipping')
+        for interval in ('5min', 'daily'):
+            ft['interval'] = interval
+            filename = msid_files['stats'].abs
+            if os.path.exists(filename):
+                if not opt.dry_run:
+                    del_stats(colname, time0, interval)
+                logger.verbose(f'Removed {interval} rows from {filename}')
+            else:
+                logger.verbose(f'Stats file {filename} not found - skipping')
 
     cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy, year)
     if not opt.dry_run:
         db.execute(cmd)
         db.commit()
+    db.conn.close()
+
     logger.verbose(cmd)
 
 
