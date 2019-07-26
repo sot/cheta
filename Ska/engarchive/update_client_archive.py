@@ -294,7 +294,8 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
     logger.debug(f'append_stat_col msid={msid} date_id={date_id}, '
                  f'row0,1 = {vals["row0"]} {vals["row1"]}')
 
-    with tables.open_file(stat_file, 'a') as h5:
+    mode = 'r' if opt.dry_run else 'a'
+    with tables.open_file(stat_file, mode=mode) as h5:
         last_row_idx = len(h5.root.data) - 1
 
         # Check if there is any new data in this chunk
@@ -375,7 +376,8 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
         logger.debug(f'Skipping MSID update no {msid_file}')
         return
 
-    with tables.open_file(str(msid_file), mode='a') as h5:
+    mode = 'r' if opt.dry_run else 'a'
+    with tables.open_file(str(msid_file), mode=mode) as h5:
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
         if vals['row0'] != len(h5.root.data):
