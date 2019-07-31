@@ -62,7 +62,7 @@ def get_readable(data_root, is_url, filename):
     """
     try:
         if is_url:
-            uri = data_root.rstrip('/') + '/' + filename
+            uri = data_root.rstrip('/') + '/' + Path(filename).as_posix()
             filename = download_file(uri, show_progress=False, cache=False, timeout=60)
         else:
             uri = filename
