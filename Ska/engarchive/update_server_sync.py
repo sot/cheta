@@ -1,5 +1,35 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+"""
+Update the repository of sync files on the server which can be used by
+clients to maintain a local copy of the cheta telemetry archive.
+
+The basic concept is to bundle about a day of raw telemetry values
+(full-resolution, 5-minute stats and daily stats) for each MSID into
+compressed data files that are served by the icxc web server and can
+be easily downloaded to client machines.
+
+This pairs with the ``cheta_update_client_archive`` script which uses
+these sync files to keep a local cheta archive up to date.
+
+The file structure is as follows::
+
+  sync/                                        Top-level, accessible from icxc URL
+  sync/msid_contents.pkl.gz                    Dict of all MSID:content key pairs
+  sync/acis4eng/                               Content type
+  sync/acis4eng/index.ecsv                     Index of bundles
+  sync/acis4eng/last_rows_5min.pkl             Last row index for 5min data for each MSID
+  sync/acis4eng/last_rows_daily.pkl            Last row index for daily data for each MSID
+  sync/acis4eng/2019-07-29T2340z/              One bundle of sync data
+  sync/acis4eng/2019-07-29T2340z/full.pkl.gz   Full-resolution data for all acis4eng MSIDs
+  sync/acis4eng/2019-07-29T2340z/5min.pkl.gz   5-minute data
+  sync/acis4eng/2019-07-29T2340z/daily.pkl.gz  Daily data
+
+This script reads from the cheta telemetry archive and updates the
+sync repository to capture newly-available data since the last bundle.
+"""
+
+
 import argparse
 import gzip
 import pickle
@@ -21,7 +51,7 @@ from .utils import get_date_id, STATS_DT
 
 
 def get_options(args=None):
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-root",
                         default=".",
                         help="Root directory for sync files (default='.')")
@@ -31,15 +61,15 @@ def get_options(args=None):
     parser.add_argument("--max-days",
                         type=float,
                         default=1.5,
-                        help="Max number of days of files per sync directory")
+                        help="Max number of days of files per sync directory (default=1.5)")
     parser.add_argument("--max-lookback",
                         type=float,
                         default=30,
-                        help="Maximum number of days to look back from --date-stop")
+                        help="Maximum number of days to look back from --date-stop (default=30)")
     parser.add_argument("--log-level",
                         help="Logging level")
     parser.add_argument("--date-start",
-                        help="Start process date (for initial index creation)")
+                        help="Start process date (default=NOW - max-lookback)")
     parser.add_argument("--date-stop",
                         help="Stop process date (default=NOW)")
     return parser.parse_args(args)

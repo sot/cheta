@@ -1,4 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+Synchronize local client copy of cheta archive to the server version.
+
+This uses the bundles of sync data that are available on the ICXC server
+to update the local HDF5 files that comprise the cheta telemetry archive.
+It also updates the archfiles.db3 that serve as a date index for queries.
+
+Note that this updates cheta files in $SKA/data/eng_archive.  One can
+change the output directory by setting the environment variable
+``ENG_ARCHIVE``.
+"""
 
 import argparse
 import contextlib
@@ -25,21 +36,22 @@ from .utils import get_date_id, STATS_DT
 
 
 def get_options(args=None):
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-root",
                         default='https://icxc.cfa.harvard.edu/aspect/cheta/',
-                        help="URL for sync files")
+                        help=("URL or file dir for sync files "
+                              "(default=https://icxc.cfa.harvard.edu/aspect/cheta/)"))
     parser.add_argument("--content",
                         action='append',
-                        help="Content type to process [match regex] (default = all)")
+                        help="Content type to process [match regex] (default=all)")
     parser.add_argument("--log-level",
-                        default=1,
-                        help="Logging level")
+                        default=20,
+                        help="Logging level (default=20 (info))")
     parser.add_argument("--date-stop",
-                        help="Stop process date (mostly for testing, default=NOW)")
+                        help="Stop process date (default=NOW)")
     parser.add_argument("--dry-run",
                         action="store_true",
-                        help="Dry run (no actual file or database updatees)")
+                        help="Dry run (no actual file or database updates)")
 
     opt = parser.parse_args(args)
     opt.is_url = re.match(r'http[s]?://', opt.data_root)
