@@ -30,17 +30,17 @@ def get_options(args=None):
     parser.add_argument("--max-days",
                         type=float,
                         default=1.5,
-                        help="Maximum number of days of files per sync directory")
-    parser.add_argument("--min-days",
+                        help="Max number of days of files per sync directory")
+    parser.add_argument("--max-lookback",
                         type=float,
-                        default=0.5,
-                        help="Minimum number of days of files per sync directory")
+                        default=30,
+                        help="Maximum number of days to look back from --date-stop")
     parser.add_argument("--log-level",
                         help="Logging level")
     parser.add_argument("--date-start",
-                        help="Start process date for initial index creation")
+                        help="Start process date (for initial index creation)")
     parser.add_argument("--date-stop",
-                        help="Stop process date (mostly for testing, default=process all)")
+                        help="Stop process date (default=NOW)")
     return parser.parse_args(args)
 
 
@@ -170,15 +170,18 @@ def update_index_file(index_file, opt, logger):
     """
     if index_file.exists():
         index_tbl = Table.read(index_file)
-        # Start time of last archfile contained in the sync repo
-        filetime0 = index_tbl['filetime1'][-1]
+        # Start time of last archfile contained in the sync repo, but do not look
+        # back more than max_lookback days.  This is relevant for rarely sampled
+        # content like cpe1eng.
+        filetime0 = max(index_tbl['filetime1'][-1],
+                        (DateTime(opt.date_stop) - opt.max_lookback).secs)
     else:
         # For initial index file creation use the --date-start option
         index_tbl = None
         filetime0 = DateTime(opt.date_start).secs
 
     max_secs = int(opt.max_days * 86400)
-    min_secs = int(opt.min_days * 86400)
+    time_stop = DateTime(opt.date_stop).secs
 
     # Step through the archfile files entries and collect them into groups of up
     # to --max-days based on file time stamp (which is an integer in CXC secs).
@@ -187,7 +190,7 @@ def update_index_file(index_file, opt, logger):
     logger.debug(f'Opening archfiles {filename}')
     with DBI(dbi='sqlite', server=filename) as dbi:
         while True:
-            filetime1 = filetime0 + max_secs
+            filetime1 = min(filetime0 + max_secs, time_stop)
             logger.verbose(f'select from archfiles '
                            f'filetime > {DateTime(filetime0).fits} '
                            f'filetime <= {DateTime(filetime1).fits} '
@@ -197,8 +200,8 @@ def update_index_file(index_file, opt, logger):
                                      f'and filetime <= {filetime1} '
                                      f'order by filetime ')
 
-            # Require new archfiles and don't allow a small "hanging" row at the end
-            if len(archfiles) > 0 and archfiles['filetime'][-1] - filetime0 > min_secs:
+            # Found new archfiles?  If so get a new index table row for them.
+            if len(archfiles) > 0:
                 rows.append(get_row_from_archfiles(archfiles))
                 filedates = DateTime(archfiles['filetime']).fits
                 logger.verbose(f'Got {len(archfiles)} rows {filedates}')
@@ -206,9 +209,8 @@ def update_index_file(index_file, opt, logger):
             else:
                 break
 
-            # User-specified stop date instead of processing to end of available entries.
-            # Mostly for initial testing.
-            if opt.date_stop is not None and filetime1 > DateTime(opt.date_stop).secs:
+            # Stop if already queried out to the end of desired time range
+            if filetime1 >= time_stop:
                 break
 
     if not rows:
