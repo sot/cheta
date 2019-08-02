@@ -4,7 +4,6 @@ import glob
 import os
 
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 from Ska.engarchive.version import package_version
 
@@ -17,6 +16,9 @@ except ImportError:
 # (same directory as version.py)
 package_version.write_git_version_file()
 
+console_scripts = ['ska_fetch = Ska.engarchive.get_telem:main',
+                   'cheta_update_client_archive = cheta.update_client_archive:main',
+                   'cheta_update_server_sync = cheta.update_server_sync:main']
 
 # Install following into sys.prefix/share/eng_archive/ via the data_files directive.
 if "--user" not in sys.argv:
@@ -32,8 +34,8 @@ else:
 setup(name='Ska.engarchive',
       author='Tom Aldcroft',
       description='Modules supporting Ska engineering telemetry archive',
-      author_email='aldcroft@head.cfa.harvard.edu',
-      entry_points={'console_scripts': ['ska_fetch = Ska.engarchive.get_telem:main']},
+      author_email='taldcroft@cfa.harvard.edu',
+      entry_points={'console_scripts': console_scripts},
       version=package_version.version,
       zip_safe=False,
       package_dir={'Ska': 'Ska', 'cheta': 'Ska/engarchive'},
