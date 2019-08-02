@@ -46,10 +46,12 @@ arch_files = {'stagedir': 'stage/{{ft.content}}/',
               'archfile':     'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
               }
 
-# 2018-03-05T0003z
-sync_files = {'index': 'sync/{{ft.content}}/index.ecsv',
+# Files within the sync repo (for maintaining client archive)
+sync_files = {'index':         'sync/{{ft.content}}/index.ecsv',
               'msid_contents': 'sync/msid_contents.pkl.gz',
-              'data': 'sync/{{ft.content}}/{{ft.date_id}}/{{ft.interval}}.pkl.gz'}
+              'last_rows':     'sync/{{ft.content}}/last_rows_{{ft.interval}}.pkl',
+              'data':          'sync/{{ft.content}}/{{ft.date_id}}/{{ft.interval}}.pkl.gz',
+              }
 
 # Used when originally creating database.
 orig_arch_root = '/data/cosmos2/tlm'

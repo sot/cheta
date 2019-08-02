@@ -295,7 +295,7 @@ def update_sync_data_full(content, sync_files, logger, row):
         pickle.dump(out, fh)
 
 
-def _get_stat_data_from_archive(filename, stat, tstart, tstop):
+def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger):
     """
     Return stat table rows in the range tstart <= time < tstop.
 
@@ -305,6 +305,8 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop):
     :param stat: stat (5min or daily)
     :param tstart: min time
     :param tstop: max time
+    :param last_row1: row1 for previous index table entry
+    :param logger: logger
     :return:
     """
     dt = STATS_DT[stat]
@@ -327,8 +329,18 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop):
 
             sub_row0, sub_row1 = np.searchsorted(times, [tstart, tstop])
             sub_row_offset = len(table) - delta_rows
+
             row0 = sub_row0 + sub_row_offset
             row1 = sub_row1 + sub_row_offset
+
+            # If we have the last value of row1 (from previous sync entry) then use
+            # that instead of computed value for row0.  Issue a warning if they are different
+            # (not really a problem but maybe useful for finding off-by-one issues).
+            if last_row1 is not None:
+                if last_row1 != row0:
+                    logger.info(f'Warning: last_row1={last_row1} != computed row0={row0} '
+                                f'for {filename}')
+                row0 = last_row1
 
             table_rows = table[row0:row1]  # returns np.ndarray (structured array)
 
@@ -339,16 +351,14 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
     """
     Update stats (5min, daily) sync data for index table ``row``
 
-    :param content:
-    :param sync_files:
-    :param logger:
-    :param row:
-    :param stat:
+    :param content: content name (e.g. acis4eng)
+    :param sync_files: sync files context object (for file paths)
+    :param logger: logger
+    :param row: one row of the full-res index table
+    :param stat: stat interval (5min or daily)
     :return:
     """
     ft = fetch.ft
-    ft['row0'] = row['row0']
-    ft['row1'] = row['row1']
     ft['interval'] = stat
 
     outfile = Path(sync_files['data'].abs)
@@ -356,7 +366,7 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
         logger.debug(f'Skipping {outfile}, already exists')
         return
 
-    # First get the times corresponding to row0 and row1
+    # First get the times corresponding to row0 and row1 in the full resolution archive
     ft['msid'] = 'TIME'
     with tables.open_file(fetch.msid_files['msid'].abs, 'r') as h5:
         table = h5.root.data
@@ -369,35 +379,52 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
     out = {}
     msids = list(fetch.all_colnames[content] - set(fetch.IGNORE_COLNAMES))
 
+    # Get dict of last sync repo row for each MSID.  This is keyed as {msid: last_row1},
+    # where row1 is (as always) the slice row1.
+    last_rows_filename = sync_files['last_rows'].abs
+    if Path(last_rows_filename).exists():
+        logger.verbose(f'Reading {last_rows_filename}')
+        last_rows = pickle.load(open(last_rows_filename, 'rb'))
+    else:
+        last_rows = {}
+
     # Go through each MSID and get the raw HDF5 table data corresponding to the
     # time range tstart:tstop found above.
     n_rows_set = set()
     for msid in msids:
+        last_row1 = last_rows.get(msid)
         ft['msid'] = msid
         filename = fetch.msid_files['stats'].abs
         if not Path(filename).exists():
             logger.debug(f'No {stat} stat data for {msid} - skipping')
             continue
 
-        stat_rows, row0, row1 = _get_stat_data_from_archive(filename, stat, tstart, tstop)
+        stat_rows, row0, row1 = _get_stat_data_from_archive(
+            filename, stat, tstart, tstop, last_row1, logger)
         logger.verbose(f'Got stat rows {row0} {row1} for stat {stat} {msid}')
         n_rows_set.add(row1 - row0)
         if row1 > row0:
             out[f'{msid}.data'] = stat_rows
             out[f'{msid}.row0'] = row0
             out[f'{msid}.row1'] = row1
+            last_rows[msid] = row1
 
     if len(n_rows_set) > 1:
         logger.warning(f'Unexpected difference in number of rows: {n_rows_set}')
 
     n_msids = len(msids)
     n_rows = n_rows_set.pop() if len(n_rows_set) == 1 else n_rows_set
-    logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
     # TODO: increase compression to max (gzip?)
+    logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
     with gzip.open(outfile, 'wb') as fh:
         pickle.dump(out, fh)
+
+    # Save the row1 value for each MSID to use as row0 for the next update
+    logger.verbose(f'Writing {last_rows_filename}')
+    with open(last_rows_filename, 'wb') as fh:
+        pickle.dump(last_rows, fh)
 
 
 if __name__ == '__main__':
