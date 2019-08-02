@@ -126,7 +126,7 @@ def get_row_from_archfiles(archfiles):
     # Make a row that encapsulates info for this setup of data updates. The ``date_id`` key is a
     # date like 2019-02-20T2109z, human-readable and Windows-friendly (no :) for a unique
     # identifier for this set of updates.
-    date_id = get_date_id(archfiles[0]['date'])
+    date_id = get_date_id(DateTime(archfiles[0]['filetime']).fits)
     row = {'filetime0': archfiles[0]['filetime'],
            'filetime1': archfiles[-1]['filetime'],
            'date_id': date_id,
@@ -170,6 +170,7 @@ def update_index_file(index_file, opt, logger):
     """
     if index_file.exists():
         index_tbl = Table.read(index_file)
+        # Start time of last archfile contained in the sync repo
         filetime0 = index_tbl['filetime1'][-1]
     else:
         # For initial index file creation use the --date-start option
@@ -182,17 +183,25 @@ def update_index_file(index_file, opt, logger):
     # Step through the archfile files entries and collect them into groups of up
     # to --max-days based on file time stamp (which is an integer in CXC secs).
     rows = []
-    with DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
+    filename = fetch.msid_files['archfiles'].abs
+    logger.debug(f'Opening archfiles {filename}')
+    with DBI(dbi='sqlite', server=filename) as dbi:
         while True:
             filetime1 = filetime0 + max_secs
+            logger.verbose(f'select from archfiles '
+                           f'filetime > {DateTime(filetime0).fits} '
+                           f'filetime <= {DateTime(filetime1).fits} '
+                           )
             archfiles = dbi.fetchall(f'select * from archfiles '
                                      f'where filetime > {filetime0} '
-                                     f'and filetime < {filetime1} '
+                                     f'and filetime <= {filetime1} '
                                      f'order by filetime ')
 
             # Require new archfiles and don't allow a small "hanging" row at the end
             if len(archfiles) > 0 and archfiles['filetime'][-1] - filetime0 > min_secs:
                 rows.append(get_row_from_archfiles(archfiles))
+                filedates = DateTime(archfiles['filetime']).fits
+                logger.verbose(f'Got {len(archfiles)} rows {filedates}')
                 filetime0 = filetime1
             else:
                 break
@@ -263,8 +272,12 @@ def update_sync_data_full(content, sync_files, logger, row):
 
     for msid in msids:
         ft['msid'] = msid
+        filename = fetch.msid_files['msid'].abs
+        if not Path(filename).exists():
+            logger.debug(f'No MSID file for {msid} - skipping')
+            continue
 
-        with tables.open_file(fetch.msid_files['msid'].abs, 'r') as h5:
+        with tables.open_file(filename, 'r') as h5:
             out[f'{msid}.quality'] = h5.root.quality[row['row0']:row['row1']]
             out[f'{msid}.data'] = h5.root.data[row['row0']:row['row1']]
             out[f'{msid}.row0'] = row['row0']
@@ -360,7 +373,12 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
     for msid in msids:
         ft['msid'] = msid
         filename = fetch.msid_files['stats'].abs
+        if not Path(filename).exists():
+            logger.debug(f'No {stat} stat data for {msid} - skipping')
+            continue
+
         stat_rows, row0, row1 = _get_stat_data_from_archive(filename, stat, tstart, tstop)
+        logger.verbose(f'Got stat rows {row0} {row1} for stat {stat} {msid}')
         n_rows_set.add(row1 - row0)
         if row1 > row0:
             out[f'{msid}.data'] = stat_rows
