@@ -1,5 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import sys
+import glob
+import os
+
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
@@ -15,6 +18,17 @@ except ImportError:
 package_version.write_git_version_file()
 
 
+# Install following into sys.prefix/share/eng_archive/ via the data_files directive.
+if "--user" not in sys.argv:
+    share_path = os.path.join(sys.prefix, "share", "eng_archive")
+    task_files = glob.glob('task_schedule*.cfg')
+    # TODO: make these into console scripts
+    script_files = ['update_archive.py', 'transfer_stage.py', 'check_integrity.py',
+                    'fetch_tutorial.py', 'fix_bad_values.py']
+    data_files = [(share_path, task_files + script_files)]
+else:
+    data_files = None
+
 setup(name='Ska.engarchive',
       author='Tom Aldcroft',
       description='Modules supporting Ska engineering telemetry archive',
@@ -29,6 +43,7 @@ setup(name='Ska.engarchive',
                     'Ska.engarchive.tests': ['*.dat'],
                     'cheta': ['*.dat', 'units_*.pkl'],
                     'cheta.tests': ['*.dat']},
+      data_files=data_files,
       tests_require=['pytest'],
       cmdclass=cmdclass,
       )
