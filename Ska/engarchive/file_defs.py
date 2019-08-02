@@ -50,6 +50,7 @@ arch_files = {'stagedir': 'stage/{{ft.content}}/',
 sync_files = {'index':         'sync/{{ft.content}}/index.ecsv',
               'msid_contents': 'sync/msid_contents.pkl.gz',
               'last_rows':     'sync/{{ft.content}}/last_rows_{{ft.interval}}.pkl',
+              'data_dir':      'sync/{{ft.content}}/{{ft.date_id}}',
               'data':          'sync/{{ft.content}}/{{ft.date_id}}/{{ft.interval}}.pkl.gz',
               }
 

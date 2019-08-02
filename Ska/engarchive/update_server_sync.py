@@ -3,6 +3,7 @@
 import argparse
 import gzip
 import pickle
+import shutil
 from itertools import count
 from pathlib import Path
 
@@ -94,6 +95,33 @@ def main(args=None):
     update_msid_contents_pkl(sync_files, logger)
 
 
+def remove_outdated_sync_files(opt, sync_files, logger, index_tbl):
+    """
+    Remove the sync data dirs and index file rows which correspond to data
+    that is more than opt.max_lookback days older than opt.date_stop (typically
+    NOW).
+
+    :param opt: options
+    :param sync_files: sync files context dict
+    :param logger: logger
+    :param index_tbl: table containing sync repo entries
+    :return: mask of rows that were removed
+    """
+    min_time = (DateTime(opt.date_stop) - opt.max_lookback).secs
+    remove_mask = np.zeros(len(index_tbl), dtype=bool)
+
+    for idx, row in enumerate(index_tbl):
+        if row['filetime0'] < min_time:
+            fetch.ft['date_id'] = row['date_id']
+            remove_mask[idx] = True
+            data_dir = sync_files['data_dir'].abs
+            if Path(data_dir).exists():
+                logger.info(f'Removing sync directory {data_dir}')
+                shutil.rmtree(data_dir)
+
+    return remove_mask
+
+
 def update_sync_repo(opt, sync_files, logger, content):
     """
 
@@ -116,10 +144,18 @@ def update_sync_repo(opt, sync_files, logger, content):
         return
 
     for row in index_tbl:
-        update_sync_data_full(content, sync_files, logger, row)
+        ft = fetch.ft
+        ft['date_id'] = row['date_id']
 
-        for stat in ('5min', 'daily'):
-            update_sync_data_stat(content, sync_files, logger, row, stat)
+        update_sync_data_full(content, sync_files, logger, row)
+        update_sync_data_stat(content, sync_files, logger, row, '5min')
+        update_sync_data_stat(content, sync_files, logger, row, 'daily')
+
+    remove_mask = remove_outdated_sync_files(opt, sync_files, logger, index_tbl)
+    if np.any(remove_mask):
+        index_tbl = index_tbl[~remove_mask]
+        logger.info(f'Writing {len(index_tbl)} row(s) to index file {index_file}')
+        index_tbl.write(index_file, format='ascii.ecsv')
 
 
 def get_row_from_archfiles(archfiles):
@@ -254,7 +290,6 @@ def update_sync_data_full(content, sync_files, logger, row):
     """
     ft = fetch.ft
     ft['interval'] = 'full'
-    ft['date_id'] = row['date_id']
 
     outfile = Path(sync_files['data'].abs)
     if outfile.exists():
