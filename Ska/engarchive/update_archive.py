@@ -734,6 +734,13 @@ def append_h5_col(dats, colname, files_overlaps):
                 if  bad_rowstop > bad_rowstart:
                     h5.root.quality[bad_rowstart:bad_rowstop] = True
                 else:
+                    # What's happening here is that tstart for file1 was slightly before
+                    # tstop for file0, but in actuality there are no overlapping rows.
+                    # This occurs because tstop is the *projected* time of the *next* record
+                    # after the end of the archfile, it is not the time stamp of the last
+                    # record.  Thus file0['tstop'] is generally very close to file1['tstart'],
+                    # but in this case there can a tiny overlap (<< 1 ms) that triggers an
+                    # overlap entry.
                     logger.verbose('WARNING: Unexpected null file overlap file0=%s file1=%s'
                                    % (file0, file1))
 
@@ -971,6 +978,8 @@ def update_msid_files(filetype, archfiles):
             time_gap = 0
         else:
             time_gap = archfiles_row['tstart'] - last_archfile['tstop']
+            # NOTE: tstop is the projected tstop for the next record, it is NOT the
+            # actual time of the last record.  This is important for overlaps.
         max_gap = opt.max_gap
         if max_gap is None:
             if filetype['instrum'] in ['EPHEM', 'DERIVED']:
