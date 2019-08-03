@@ -213,7 +213,7 @@ def check_index_tbl_consistency(index_tbl):
         filetimes.append(row['filetime0'])
         filetimes.append(row['filetime1'])
 
-    if np.any(np.diff(filetimes) <= 0):
+    if np.any(np.diff(filetimes) < 0):
         msg = 'filetime values not monotonically increasing'
         return msg
 
@@ -258,8 +258,8 @@ def update_index_file(index_file, opt, logger):
         while True:
             filetime1 = min(filetime0 + max_secs, time_stop)
             logger.verbose(f'select from archfiles '
-                           f'filetime > {DateTime(filetime0).fits} '
-                           f'filetime <= {DateTime(filetime1).fits} '
+                           f'filetime > {DateTime(filetime0).fits[:-4]} {filetime0} '
+                           f'filetime <= {DateTime(filetime1).fits[:-4]} {filetime1} '
                            )
             archfiles = dbi.fetchall(f'select * from archfiles '
                                      f'where filetime > {filetime0} '
@@ -271,9 +271,8 @@ def update_index_file(index_file, opt, logger):
                 rows.append(get_row_from_archfiles(archfiles))
                 filedates = DateTime(archfiles['filetime']).fits
                 logger.verbose(f'Got {len(archfiles)} rows {filedates}')
-                filetime0 = filetime1
-            else:
-                break
+
+            filetime0 = filetime1
 
             # Stop if already queried out to the end of desired time range
             if filetime1 >= time_stop:
