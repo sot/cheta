@@ -391,8 +391,8 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError('ERROR: unexpected discontinuity '
-                             'row0 {vals[{"row0"]} != len {len(h5.root.data)}')
+            raise ValueError(f'ERROR: unexpected discontinuity '
+                             f'row0 {vals["row0"]} != len {len(h5.root.data)}')
 
         # For the TIME column include special processing to effectively remove
         # existing rows that are superceded by new rows in time.  This is done by

@@ -398,12 +398,8 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
             row1 = sub_row1 + sub_row_offset
 
             # If we have the last value of row1 (from previous sync entry) then use
-            # that instead of computed value for row0.  Issue a warning if they are different
-            # (not really a problem but maybe useful for finding off-by-one issues).
+            # that instead of computed value for row0.
             if last_row1 is not None:
-                if last_row1 != row0:
-                    logger.info(f'Warning: last_row1={last_row1} != computed row0={row0} '
-                                f'for {filename}')
                 row0 = last_row1
 
             table_rows = table[row0:row1]  # returns np.ndarray (structured array)
