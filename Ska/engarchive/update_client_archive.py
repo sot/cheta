@@ -142,9 +142,6 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
 
     index_tbl = index_tbl[ok]
 
-    # List of tables of archfiles rows, one for each row in index_tbl
-    archfiles_list = []
-
     # Iterate over sync files that contain new data
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # Limit processed archfiles by date
@@ -245,6 +242,7 @@ def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
     msids = [str(fn.name)[:-3] for fn in stats_dir.glob('*.h5')]
     if not msids:
         logger.debug(f'Skipping {stat} data for {content}: no stats h5 files')
+        return
     else:
         logger.debug(f'Stat msids are {msids}')
 
@@ -395,6 +393,23 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
         if vals['row0'] != len(h5.root.data):
             raise ValueError('ERROR: unexpected discontinuity '
                              'row0 {vals[{"row0"]} != len {len(h5.root.data)}')
+
+        # For the TIME column include special processing to effectively remove
+        # existing rows that are superceded by new rows in time.  This is done by
+        # marking the TIME value as bad quality.  This process happens regularly
+        # for ephemeris content, which gets updated once weekly and has substantial
+        # overlaps in the archive data.  Here we only worry about the beginning of
+        # new data because anything in the middle will have already been marked
+        # bad by update_archive.py.
+        if msid == 'TIME':
+            time0 = vals['data'][0]
+            idx1 = len(h5.root.data) - 1
+            ii = 0
+            while h5.root.data[idx1 - ii] - time0 > -0.0001:
+                h5.root.quality[idx1 - ii] = True
+                ii += 1
+            if ii > 0:
+                logger.verbose(f'Excluded {ii} rows due to overlap')
 
         if not opt.dry_run:
             h5.root.data.append(vals['data'])
