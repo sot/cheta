@@ -67,6 +67,7 @@ def get_options(args=None):
                         default=45,
                         help="Maximum number of days to look back from --date-stop (default=45)")
     parser.add_argument("--log-level",
+                        default=20,
                         help="Logging level")
     parser.add_argument("--date-start",
                         help="Start process date (default=NOW - max-lookback)")
@@ -100,18 +101,14 @@ def main(args=None):
     # Setup for updating the sync repository
     opt = get_options(args)
 
-    sync_files = pyyaks.context.ContextDict('update_sync_repo.sync_files',
+    sync_files = pyyaks.context.ContextDict('update_server_sync.sync_files',
                                             basedir=opt.data_root)
     sync_files.update(file_defs.sync_files)
 
     # Set up logging
-    loglevel = pyyaks.logger.VERBOSE if opt.log_level is None else int(opt.log_level)
-    logger = pyyaks.logger.get_logger(name='engarchive_update_sync', level=loglevel,
+    loglevel = int(opt.log_level)
+    logger = pyyaks.logger.get_logger(name='cheta_update_server_sync', level=loglevel,
                                       format="%(asctime)s %(message)s")
-
-    # Also adjust fetch logging if non-default log-level supplied (mostly for debug)
-    if opt.log_level is not None:
-        fetch.add_logging_handler(level=int(opt.log_level))
 
     if opt.content:
         contents = opt.content
@@ -336,6 +333,7 @@ def update_sync_data_full(content, sync_files, logger, row):
         archfiles = dbi.fetchall(query)
         out['archfiles'] = archfiles
 
+    n_msids = 0
     for msid in msids:
         ft['msid'] = msid
         filename = fetch.msid_files['msid'].abs
@@ -343,6 +341,7 @@ def update_sync_data_full(content, sync_files, logger, row):
             logger.debug(f'No MSID file for {msid} - skipping')
             continue
 
+        n_msids += 1
         with tables.open_file(filename, 'r') as h5:
             out[f'{msid}.quality'] = h5.root.quality[row['row0']:row['row1']]
             out[f'{msid}.data'] = h5.root.data[row['row0']:row['row1']]
@@ -350,7 +349,6 @@ def update_sync_data_full(content, sync_files, logger, row):
             out[f'{msid}.row1'] = row['row1']
 
     n_rows = row['row1'] - row['row0']
-    n_msids = len(msids)
     logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
@@ -451,6 +449,7 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
     # Go through each MSID and get the raw HDF5 table data corresponding to the
     # time range tstart:tstop found above.
     n_rows_set = set()
+    n_msids = 0
     for msid in msids:
         last_row1 = last_rows.get(msid)
         ft['msid'] = msid
@@ -459,6 +458,7 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
             logger.debug(f'No {stat} stat data for {msid} - skipping')
             continue
 
+        n_msids += 1
         stat_rows, row0, row1 = _get_stat_data_from_archive(
             filename, stat, tstart, tstop, last_row1, logger)
         logger.verbose(f'Got stat rows {row0} {row1} for stat {stat} {msid}')
@@ -472,7 +472,6 @@ def update_sync_data_stat(content, sync_files, logger, row, stat):
     if len(n_rows_set) > 1:
         logger.warning(f'Unexpected difference in number of rows: {n_rows_set}')
 
-    n_msids = len(msids)
     n_rows = n_rows_set.pop() if len(n_rows_set) == 1 else n_rows_set
 
     outfile.parent.mkdir(exist_ok=True, parents=True)

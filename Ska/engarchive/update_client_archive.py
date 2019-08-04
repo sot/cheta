@@ -421,18 +421,14 @@ def main(args=None):
     opt = get_options(args)
 
     basedir = '.' if opt.is_url else opt.data_root
-    sync_files = pyyaks.context.ContextDict('update_sync_repo.sync_files',
+    sync_files = pyyaks.context.ContextDict('update_client_archive.sync_files',
                                             basedir=basedir)
     sync_files.update(file_defs.sync_files)
 
     # Set up logging
-    loglevel = pyyaks.logger.VERBOSE if opt.log_level is None else int(opt.log_level)
-    logger = pyyaks.logger.get_logger(name='engarchive_update_sync', level=loglevel,
+    loglevel = int(opt.log_level)
+    logger = pyyaks.logger.get_logger(name='cheta_update_client_archive', level=loglevel,
                                       format="%(asctime)s %(message)s")
-
-    # Also adjust fetch logging if non-default log-level supplied (mostly for debug)
-    if opt.log_level is not None:
-        fetch.add_logging_handler(level=int(opt.log_level))
 
     if opt.content:
         contents = opt.content
