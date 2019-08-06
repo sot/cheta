@@ -21,7 +21,8 @@ console_scripts = ['ska_fetch = cheta.get_telem:main',
                    'cheta_update_server_sync = cheta.update_server_sync:main'
                    'cheta_update_server_archive = cheta.update_archive:main',
                    'cheta_check_integrity = cheta.check_integrity:main',
-                   'cheta_fix_bad_values = cheta.fix_bad_values:main']
+                   'cheta_fix_bad_values = cheta.fix_bad_values:main',
+                   'cheta_add_derived = cheta.add_derived:main']
 
 # Install following into sys.prefix/share/eng_archive/ via the data_files directive.
 if "--user" not in sys.argv:
