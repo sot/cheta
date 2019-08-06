@@ -32,6 +32,17 @@ if "--user" not in sys.argv:
 else:
     data_files = None
 
+# Duplicate Ska.engarchive packages and package_data to cheta
+packages = ['Ska', 'Ska.engarchive', 'Ska.engarchive.derived', 'Ska.engarchive.tests']
+for package in list(packages)[1:]:
+    packages.append(package.replace('Ska.engarchive', 'cheta'))
+
+package_data = {'Ska.engarchive': ['*.dat', 'units_*.pkl', 'archfiles_def.sql'],
+                'Ska.engarchive.tests': ['*.dat']}
+for key in list(package_data):
+    cheta_key = key.replace('Ska.engarchive', 'cheta')
+    package_data[cheta_key] = package_data[key]
+
 setup(name='Ska.engarchive',
       author='Tom Aldcroft',
       description='Modules supporting Ska engineering telemetry archive',
@@ -40,12 +51,8 @@ setup(name='Ska.engarchive',
       version=package_version.version,
       zip_safe=False,
       package_dir={'Ska': 'Ska', 'cheta': 'Ska/engarchive'},
-      packages=['Ska', 'Ska.engarchive', 'Ska.engarchive.derived', 'Ska.engarchive.tests',
-                'cheta', 'cheta.derived', 'cheta.tests'],
-      package_data={'Ska.engarchive': ['*.dat', 'units_*.pkl'],
-                    'Ska.engarchive.tests': ['*.dat'],
-                    'cheta': ['*.dat', 'units_*.pkl'],
-                    'cheta.tests': ['*.dat']},
+      packages=packages,
+      package_data=package_data,
       data_files=data_files,
       tests_require=['pytest'],
       cmdclass=cmdclass,
