@@ -3,6 +3,8 @@
 
 import re
 import os
+from pathlib import Path
+
 from six.moves import cPickle as pickle
 import optparse
 
@@ -48,7 +50,7 @@ def make_archfiles_db(filename, content_def):
     times, indexes = derived.times_indexes(tstart, tstop, content_def['time_step'])
 
     logger.info('Creating db {}'.format(filename))
-    archfiles_def = open('archfiles_def.sql').read()
+    archfiles_def = open(Path(__file__).parent / 'archfiles_def.sql').read()
     db = Ska.DBI.DBI(dbi='sqlite', server=filename)
     db.execute(archfiles_def)
     archfiles_row = dict(filename='{}:0:1'.format(content_def['content']),
