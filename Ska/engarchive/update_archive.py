@@ -7,6 +7,8 @@ import re
 import os
 import glob
 import time
+from pathlib import Path
+
 from six.moves import cPickle as pickle
 from six.moves import zip
 import argparse
@@ -157,7 +159,7 @@ def create_content_dir():
             pickle.dump(empty, f, protocol=0)
 
     if not os.path.exists(msid_files['archfiles'].abs):
-        archfiles_def = open('archfiles_def.sql').read()
+        archfiles_def = open(Path(__file__).parent / 'archfiles_def.sql').read()
         filename = msid_files['archfiles'].abs
         logger.info('Creating db {}'.format(filename))
         db = Ska.DBI.DBI(dbi='sqlite', server=filename, autocommit=False)
