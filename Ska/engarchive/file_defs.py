@@ -32,6 +32,7 @@ msid_files = {'filetypes':    'filetypes.dat',
               'data':         'data/{{ft.content}}/{{ft.msid | upper}}.h5',
               'statsdir':     'data/{{ft.content}}/{{ft.interval}}/',
               'stats':        'data/{{ft.content}}/{{ft.interval}}/{{ft.msid | upper}}.h5',
+              'last_date_id': 'data/{{ft.content}}/{{ft.interval}}/last_date_id',
               }
 
 
@@ -43,6 +44,14 @@ arch_files = {'stagedir': 'stage/{{ft.content}}/',
               'archrootdir':  'data/{{ft.content}}/arch/',
               'archdir':      'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/',
               'archfile':     'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
+              }
+
+# Files within the sync repo (for maintaining client archive)
+sync_files = {'index':         'sync/{{ft.content}}/index.ecsv',
+              'msid_contents': 'sync/msid_contents.pkl.gz',
+              'last_rows':     'sync/{{ft.content}}/last_rows_{{ft.interval}}.pkl',
+              'data_dir':      'sync/{{ft.content}}/{{ft.date_id}}',
+              'data':          'sync/{{ft.content}}/{{ft.date_id}}/{{ft.interval}}.pkl.gz',
               }
 
 # Used when originally creating database.

@@ -4,6 +4,8 @@ Utilities for the engineering archive.
 """
 from __future__ import print_function, division, absolute_import
 
+import re
+
 import six
 from six.moves import zip
 import numpy as np
@@ -12,6 +14,10 @@ from Chandra.Time import DateTime
 
 # Cache the results of fetching 3 days of telemetry keyed by MSID
 FETCH_SIZES = {}
+
+# Standard intervals for 5min and daily telemetry
+STATS_DT = {'5min': 328,
+            'daily': 86400}
 
 
 def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True):
@@ -323,3 +329,15 @@ def state_intervals(times, vals):
                  'val': state_vals}
 
     return Table(intervals, names=sorted(intervals))
+
+
+def get_date_id(date):
+    """
+    Get date_id format used in sync repo index.
+
+    :param date:
+    :return: date_id
+    """
+    date_id = DateTime(date).fits
+    date_id = re.sub(':', '', date_id[:16]) + 'z'
+    return date_id
