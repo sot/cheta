@@ -86,9 +86,6 @@ def get_options(args=None):
     parser.add_argument("--data-root",
                         default=".",
                         help="Engineering archive root directory for MSID and arch files")
-    parser.add_argument("--occ",
-                        action="store_true",
-                        help="Running on the OCC GRETA network (no arc5gl)")
     parser.add_argument("--content",
                         action='append',
                         help="Content type to process [match regex] (default = all)")
@@ -626,19 +623,14 @@ def update_archive(filetype):
     """Get new CXC archive files for ``filetype`` and update the full-resolution MSID
     archive files.
     """
-    if opt.occ:
-        dirname = arch_files['stagedir'].abs
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-    else:
-        tmpdir = Ska.File.TempDir(dir=opt.data_root)
-        dirname = tmpdir.name
+    tmpdir = Ska.File.TempDir(dir=opt.data_root)
+    dirname = tmpdir.name
 
     with Ska.File.chdir(dirname):
         archfiles = get_archive_files(filetype)
         if archfiles:
             archfiles_processed = update_msid_files(filetype, archfiles)
-            move_archive_files(filetype, archfiles_processed)
+            unlink_archive_files(filetype, archfiles_processed)
 
 
 def make_h5_col_file(dats, colname):
@@ -1033,9 +1025,7 @@ def update_msid_files(filetype, archfiles):
         # Mark the archfile as ingested in the database and add to list for
         # subsequent relocation into arch_files archive.  In the case of a gap
         # where ingest is stopped before all archfiles are processed, this will
-        # leave files either in a tmp dir (HEAD) or in the stage dir (OCC).
-        # In the latter case this allows for successful processing later when the
-        # gap gets filled.
+        # leave files in a tmp dir.
         archfiles_processed.append(f)
         if not opt.dry_run:
             db.insert(archfiles_row, 'archfiles')
@@ -1101,21 +1091,10 @@ def update_msid_files(filetype, archfiles):
     return archfiles_processed
 
 
-def move_archive_files(filetype, archfiles):
+def unlink_archive_files(filetype, archfiles):
     ft['content'] = filetype.content.lower()
 
-    stagedir = arch_files['stagedir'].abs
-    if not os.path.exists(stagedir):
-        os.makedirs(stagedir)
-
     for f in archfiles:
-        if not os.path.exists(f):
-            continue
-
-        if not opt.dry_run and not opt.occ:
-            logger.info('mv %s %s' % (os.path.abspath(f), stagedir))
-            shutil.move(f, stagedir)
-
         if os.path.exists(f):
             logger.verbose('Unlinking %s' % os.path.abspath(f))
             os.unlink(f)
@@ -1124,11 +1103,10 @@ def move_archive_files(filetype, archfiles):
 def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
 
-    # If running on the OCC GRETA network the cwd is a staging directory that
-    # could already have files.  Also used in testing.
+    # Files could exist already in testing.
     # Don't allow arbitrary arch files at once because of memory issues.
     files = sorted(glob.glob(filetype['fileglob']))
-    if opt.occ or files:
+    if files:
         return sorted(files)[:opt.max_arch_files]
 
     # Retrieve CXC archive files in a temp directory with arc5gl
