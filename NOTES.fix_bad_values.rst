@@ -24,9 +24,8 @@ This is a single bad point and can be fixed by providing that precise date
 as the --start argument.  To do a dry run (which is the default) to see
 what the tool will do::
 
-  % ska
-  % cd ~/git/eng_archive
-  % ./fix_bad_values.py --msid aomantim --start=2013:233:12:19:26.158 \\
+  % ska3
+  % cheta_fix_bad_values.py --msid aomantim --start=2013:233:12:19:26.158 \\
        --data-root=/proj/sot/ska/data/eng_archive
 
   ** If something gets corrupted then there is the NetApp snapshot for recovery **
@@ -62,9 +61,8 @@ can be helpful to substitute new "correct" values.  The poster-child here is DP_
 which gets reported in CXC telemetry incorrectly.  The fix procedure here is similar
 to above except that the ``--value=<value>`` command line argument is supplied::
 
-  % ska
-  % cd ~/git/eng_archive
-  % ./fix_bad_values.py --msid dp_pitch --value=90.0 --start=2011:188 --stop=2011:190 \\
+  % ska3
+  % cheta_fix_bad_values.py --msid dp_pitch --value=90.0 --start=2011:188 --stop=2011:190 \\
        --data-root=/proj/sot/ska/data/eng_archive [--run]
 
 Again it is crucial to record each of these commands and validate the results
