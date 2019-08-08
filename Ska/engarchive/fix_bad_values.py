@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """
@@ -11,7 +10,7 @@ computations.  The database (HDF5 file) values are updated in place.
 
 Usage::
 
-  fix_bad_values.py [-h] [--msid MSID] [--start START] [--stop STOP]
+  cheta_fix_bad_values [-h] [--msid MSID] [--start START] [--stop STOP]
                            [--run] [--data-root DATA_ROOT]
 
   Fix bad values in eng archive
@@ -29,11 +28,11 @@ Usage::
 Example::
 
   # First dry run
-  % ./fix_bad_values.py --msid aorate3 --start=2013:146:16:12:44.600 \
+  % cheta_fix_bad_values --msid aorate3 --start=2013:146:16:12:44.600 \
                         --data-root=/proj/sot/ska/data/eng_archive
 
   # Now the real thing
-  % ./fix_bad_values.py --msid aorate3 --start=2013:146:16:12:44.600 \
+  % cheta_fix_bad_values --msid aorate3 --start=2013:146:16:12:44.600 \
                         --data-root=/proj/sot/ska/data/eng_archive --run
 
   % emacs NOTES.fix_bad_values  # copy the above into NOTES for the record
