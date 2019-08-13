@@ -387,12 +387,17 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
     """
     dt = STATS_DT[stat]
 
+    logger.debug(f'_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, '
+                 f'{DateTime(tstop).fits}, {last_row1})')
+
     with tables.open_file(filename, 'r') as h5:
         # Check if tstart is beyond the end of the table.  If so, return an empty table
         table = h5.root.data
         last_index = table[-1]['index']
         last_time = (last_index + 0.5) * dt
         if tstart > last_time:
+            logger.debug(f'No available stats data {DateTime(tstart).fits} > '
+                         f'{DateTime(last_time).fits} (returning empty table)')
             row0 = row1 = len(table)
             table_rows = table[row0:row1]
         else:
@@ -403,7 +408,13 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
             delta_rows = int((last_time - tstart) / dt) + 10
             times = (table[-delta_rows:]['index'] + 0.5) * dt
 
-            sub_row0, sub_row1 = np.searchsorted(times, [tstart, tstop])
+            # In the worst case of starting to sync a client archive for a rarely-sampled
+            # content like cpe1eng, we need to back up by an extra ``dt`` to ensure that
+            # the first row is caught.  If there are a few full-res samples at the tail
+            # end of the 5min or daily bin, that will generate a time stamp *before* the
+            # time stamp of the first full-res data.  Having extra rows is OK because they
+            # just get clipped.
+            sub_row0, sub_row1 = np.searchsorted(times, [tstart - dt, tstop])
             sub_row_offset = len(table) - delta_rows
 
             row0 = sub_row0 + sub_row_offset
