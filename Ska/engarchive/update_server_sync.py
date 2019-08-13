@@ -308,11 +308,16 @@ def update_sync_data_full(content, sync_files, logger, row):
     """
     Update full-resolution sync data including archfiles for index table ``row``
 
-    :param content:
-    :param sync_files:
-    :param logger:
-    :param row:
-    :return:
+    This generates a gzipped pickle file with a dict that has sync update values
+    for all available  MSIDs in this chunk of ``content`` telemetry.  This has
+    `archfiles` (structured ndarray of rows) to store archfiles rows and then
+    {msid}.quality, {msid}.data, {msid}.row0 and {msid}.row1.
+
+    :param content: content type
+    :param sync_files: context dict of sync file paths
+    :param logger: global logger
+    :param row: archfile row
+    :return: None
     """
     ft = fetch.ft
     ft['interval'] = 'full'
@@ -325,6 +330,9 @@ def update_sync_data_full(content, sync_files, logger, row):
     out = {}
     msids = list(fetch.all_colnames[content]) + ['TIME']
 
+    # row{filetime0} and row{filetime1} are the *inclusive* `filetime` stamps
+    # for the archfiles to be included  in this row.  They do not overlap, so
+    # the selection below must be equality.
     with DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
         query = (f'select * from archfiles '
                  f'where filetime >= {row["filetime0"]} '
@@ -333,6 +341,12 @@ def update_sync_data_full(content, sync_files, logger, row):
         archfiles = dbi.fetchall(query)
         out['archfiles'] = archfiles
 
+    # Row slice indexes into full-resolution MSID h5 files.  All MSIDs share the
+    # same row0:row1 range.
+    row0 = row['row0']
+    row1 = row['row1']
+
+    # Go through each MSID and collect values
     n_msids = 0
     for msid in msids:
         ft['msid'] = msid
@@ -343,12 +357,12 @@ def update_sync_data_full(content, sync_files, logger, row):
 
         n_msids += 1
         with tables.open_file(filename, 'r') as h5:
-            out[f'{msid}.quality'] = h5.root.quality[row['row0']:row['row1']]
-            out[f'{msid}.data'] = h5.root.data[row['row0']:row['row1']]
-            out[f'{msid}.row0'] = row['row0']
-            out[f'{msid}.row1'] = row['row1']
+            out[f'{msid}.quality'] = h5.root.quality[row0:row1]
+            out[f'{msid}.data'] = h5.root.data[row0:row1]
+            out[f'{msid}.row0'] = row0
+            out[f'{msid}.row1'] = row1
 
-    n_rows = row['row1'] - row['row0']
+    n_rows = row1 - row0
     logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
@@ -373,12 +387,17 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
     """
     dt = STATS_DT[stat]
 
+    logger.debug(f'_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, '
+                 f'{DateTime(tstop).fits}, {last_row1})')
+
     with tables.open_file(filename, 'r') as h5:
         # Check if tstart is beyond the end of the table.  If so, return an empty table
         table = h5.root.data
         last_index = table[-1]['index']
         last_time = (last_index + 0.5) * dt
         if tstart > last_time:
+            logger.debug(f'No available stats data {DateTime(tstart).fits} > '
+                         f'{DateTime(last_time).fits} (returning empty table)')
             row0 = row1 = len(table)
             table_rows = table[row0:row1]
         else:
@@ -389,7 +408,13 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
             delta_rows = int((last_time - tstart) / dt) + 10
             times = (table[-delta_rows:]['index'] + 0.5) * dt
 
-            sub_row0, sub_row1 = np.searchsorted(times, [tstart, tstop])
+            # In the worst case of starting to sync a client archive for a rarely-sampled
+            # content like cpe1eng, we need to back up by an extra ``dt`` to ensure that
+            # the first row is caught.  If there are a few full-res samples at the tail
+            # end of the 5min or daily bin, that will generate a time stamp *before* the
+            # time stamp of the first full-res data.  Having extra rows is OK because they
+            # just get clipped.
+            sub_row0, sub_row1 = np.searchsorted(times, [tstart - dt, tstop])
             sub_row_offset = len(table) - delta_rows
 
             row0 = sub_row0 + sub_row_offset
