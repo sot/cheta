@@ -308,11 +308,16 @@ def update_sync_data_full(content, sync_files, logger, row):
     """
     Update full-resolution sync data including archfiles for index table ``row``
 
-    :param content:
-    :param sync_files:
-    :param logger:
-    :param row:
-    :return:
+    This generates a gzipped pickle file with a dict that has sync update values
+    for all available  MSIDs in this chunk of ``content`` telemetry.  This has
+    `archfiles` (structured ndarray of rows) to store archfiles rows and then
+    {msid}.quality, {msid}.data, {msid}.row0 and {msid}.row1.
+
+    :param content: content type
+    :param sync_files: context dict of sync file paths
+    :param logger: global logger
+    :param row: archfile row
+    :return: None
     """
     ft = fetch.ft
     ft['interval'] = 'full'
@@ -325,6 +330,9 @@ def update_sync_data_full(content, sync_files, logger, row):
     out = {}
     msids = list(fetch.all_colnames[content]) + ['TIME']
 
+    # row{filetime0} and row{filetime1} are the *inclusive* `filetime` stamps
+    # for the archfiles to be included  in this row.  They do not overlap, so
+    # the selection below must be equality.
     with DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
         query = (f'select * from archfiles '
                  f'where filetime >= {row["filetime0"]} '
@@ -333,6 +341,12 @@ def update_sync_data_full(content, sync_files, logger, row):
         archfiles = dbi.fetchall(query)
         out['archfiles'] = archfiles
 
+    # Row slice indexes into full-resolution MSID h5 files.  All MSIDs share the
+    # same row0:row1 range.
+    row0 = row['row0']
+    row1 = row['row1']
+
+    # Go through each MSID and collect values
     n_msids = 0
     for msid in msids:
         ft['msid'] = msid
@@ -343,12 +357,12 @@ def update_sync_data_full(content, sync_files, logger, row):
 
         n_msids += 1
         with tables.open_file(filename, 'r') as h5:
-            out[f'{msid}.quality'] = h5.root.quality[row['row0']:row['row1']]
-            out[f'{msid}.data'] = h5.root.data[row['row0']:row['row1']]
-            out[f'{msid}.row0'] = row['row0']
-            out[f'{msid}.row1'] = row['row1']
+            out[f'{msid}.quality'] = h5.root.quality[row0:row1]
+            out[f'{msid}.data'] = h5.root.data[row0:row1]
+            out[f'{msid}.row0'] = row0
+            out[f'{msid}.row1'] = row1
 
-    n_rows = row['row1'] - row['row0']
+    n_rows = row1 - row0
     logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
