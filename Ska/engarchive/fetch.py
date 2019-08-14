@@ -37,8 +37,8 @@ UNITS = Units(system='cxc')
 # Module-level control of whether MSID.fetch will cache the last 30 results
 CACHE = False
 
-SKA = os.getenv('SKA') or '/proj/sot/ska'
-ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or SKA + '/data/eng_archive'
+SKA = os.getenv('SKA')
+ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or os.path.join(SKA, 'data', 'eng_archive')
 IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
 DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
