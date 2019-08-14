@@ -79,7 +79,7 @@ def get_options(args=None):
     return parser.parse_args(args)
 
 
-def update_msid_contents_pkl(sync_files, logger):
+def update_msid_contents_pkl(logger):
     """
     Update the `msid_contents.pkl` file to contain a dict of the msid:content pairs.
 
@@ -116,20 +116,19 @@ def main(args=None):
         contents = set(fetch.content.values())
 
     for content in sorted(contents):
-        update_sync_repo(opt, sync_files, logger, content)
+        update_sync_repo(opt, logger, content)
 
     # Make the main msid_contents.pkl file
-    update_msid_contents_pkl(sync_files, logger)
+    update_msid_contents_pkl(logger)
 
 
-def remove_outdated_sync_files(opt, sync_files, logger, index_tbl):
+def remove_outdated_sync_files(opt, logger, index_tbl):
     """
     Remove the sync data dirs and index file rows which correspond to data
     that is more than opt.max_lookback days older than opt.date_stop (typically
     NOW).
 
     :param opt: options
-    :param sync_files: sync files context dict
     :param logger: logger
     :param index_tbl: table containing sync repo entries
     :return: mask of rows that were removed
@@ -149,11 +148,10 @@ def remove_outdated_sync_files(opt, sync_files, logger, index_tbl):
     return remove_mask
 
 
-def update_sync_repo(opt, sync_files, logger, content):
+def update_sync_repo(opt, logger, content):
     """
 
     :param opt: argparse options
-    :param sync_files: Sync repo files context dict
     :param logger: logger instance
     :param content: content type
     :return:
@@ -174,11 +172,11 @@ def update_sync_repo(opt, sync_files, logger, content):
         ft = fetch.ft
         ft['date_id'] = row['date_id']
 
-        update_sync_data_full(content, sync_files, logger, row)
-        update_sync_data_stat(content, sync_files, logger, row, '5min')
-        update_sync_data_stat(content, sync_files, logger, row, 'daily')
+        update_sync_data_full(content, logger, row)
+        update_sync_data_stat(content, logger, row, '5min')
+        update_sync_data_stat(content, logger, row, 'daily')
 
-    remove_mask = remove_outdated_sync_files(opt, sync_files, logger, index_tbl)
+    remove_mask = remove_outdated_sync_files(opt, logger, index_tbl)
     if np.any(remove_mask):
         index_tbl = index_tbl[~remove_mask]
         logger.info(f'Writing {len(index_tbl)} row(s) to index file {index_file}')
@@ -304,7 +302,7 @@ def update_index_file(index_file, opt, logger):
     return index_tbl
 
 
-def update_sync_data_full(content, sync_files, logger, row):
+def update_sync_data_full(content, logger, row):
     """
     Update full-resolution sync data including archfiles for index table ``row``
 
@@ -314,7 +312,6 @@ def update_sync_data_full(content, sync_files, logger, row):
     {msid}.quality, {msid}.data, {msid}.row0 and {msid}.row1.
 
     :param content: content type
-    :param sync_files: context dict of sync file paths
     :param logger: global logger
     :param row: archfile row
     :return: None
@@ -430,12 +427,11 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
     return table_rows, row0, row1
 
 
-def update_sync_data_stat(content, sync_files, logger, row, stat):
+def update_sync_data_stat(content, logger, row, stat):
     """
     Update stats (5min, daily) sync data for index table ``row``
 
     :param content: content name (e.g. acis4eng)
-    :param sync_files: sync files context object (for file paths)
     :param logger: logger
     :param row: one row of the full-res index table
     :param stat: stat interval (5min or daily)
