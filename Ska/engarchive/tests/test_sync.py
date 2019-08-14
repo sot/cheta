@@ -13,9 +13,9 @@ from cheta import fetch
 from cheta import update_client_archive, update_server_sync
 from cheta.utils import STATS_DT, set_fetch_basedir
 
+# Covers safe mode and IRU swap activities around 2018:283.  This is a time
+# with rarely-seen telemetry.
 START, STOP = '2018:281', '2018:293'
-DATA_ORIG = str(Path('data-orig').absolute())
-DATA_STUB = str(Path('data-stub').absolute())
 
 # Content types and associated MSIDs that will be tested
 CONTENTS = {'acis4eng': ['1WRAT'],  # [float]
@@ -221,8 +221,8 @@ def make_stub_colnames(basedir_ref, basedir_stub):
     return msids
 
 
-def make_stub_content(content=None, date=DateTime(START) - 2,
-                      basedir_ref=DATA_ORIG, basedir_stub=DATA_STUB,
+def make_stub_content(content=None, date=None,
+                      basedir_ref=None, basedir_stub=None,
                       msids=None, msids_5min=None, msids_daily=None):
     # If no content then require msids has been passed
     if content is None:
@@ -295,6 +295,7 @@ def check_content(outdir, content, msids=None):
     # Make stubs of archive content, meaning filled with mostly zeros until about
     # before before test start date, then some real data to get the sync'ing going.
     make_stub_content(content,
+                      date=DateTime(START) - 2,
                       basedir_stub=basedir_test,
                       basedir_ref=basedir_ref,
                       msids=msids)
