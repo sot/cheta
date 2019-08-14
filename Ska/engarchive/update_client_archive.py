@@ -34,6 +34,9 @@ from . import fetch
 from . import file_defs
 from .utils import get_date_id, STATS_DT
 
+sync_files = pyyaks.context.ContextDict('update_client_archive.sync_files')
+sync_files.update(file_defs.sync_files)
+
 
 def get_options(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
@@ -90,12 +93,11 @@ def get_readable(data_root, is_url, filename):
             os.unlink(filename)
 
 
-def sync_full_archive(opt, sync_files, msid_files, logger, content):
+def sync_full_archive(opt, msid_files, logger, content):
     """
     Sync the archive for ``content``.
 
     :param opt:
-    :param sync_files:
     :param msid_files:
     :param logger:
     :param content:
@@ -202,12 +204,11 @@ def sync_full_archive(opt, sync_files, msid_files, logger, content):
                 db.commit()
 
 
-def sync_stat_archive(opt, sync_files, msid_files, logger, content, stat):
+def sync_stat_archive(opt, msid_files, logger, content, stat):
     """
     Sync the archive for ``content``.
 
     :param opt:
-    :param sync_files:
     :param msid_files:
     :param logger:
     :param content:
@@ -421,9 +422,7 @@ def main(args=None):
     opt = get_options(args)
 
     basedir = '.' if opt.is_url else opt.data_root
-    sync_files = pyyaks.context.ContextDict('update_client_archive.sync_files',
-                                            basedir=basedir)
-    sync_files.update(file_defs.sync_files)
+    sync_files.basedir = basedir
 
     # Set up logging
     loglevel = int(opt.log_level)
@@ -436,9 +435,9 @@ def main(args=None):
         contents = set(fetch.content.values())
 
     for content in sorted(contents):
-        sync_full_archive(opt, sync_files, fetch.msid_files, logger, content)
+        sync_full_archive(opt, fetch.msid_files, logger, content)
         for stat in STATS_DT:
-            sync_stat_archive(opt, sync_files, fetch.msid_files, logger, content, stat)
+            sync_stat_archive(opt, fetch.msid_files, logger, content, stat)
 
 
 if __name__ == '__main__':
