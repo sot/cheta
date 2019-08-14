@@ -1,7 +1,6 @@
 import os
 import pickle
 import shutil
-from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -12,7 +11,7 @@ from Chandra.Time import DateTime
 
 from cheta import fetch
 from cheta import update_client_archive, update_server_sync
-from cheta.utils import STATS_DT
+from cheta.utils import STATS_DT, set_fetch_basedir
 
 START, STOP = '2018:281', '2018:293'
 DATA_ORIG = str(Path('data-orig').absolute())
@@ -23,22 +22,12 @@ CONTENTS = {'acis4eng': ['1WRAT'],  # [float]
             'dp_pcad32': ['DP_SYS_MOM_TOT'],  # Derived parameter [float]
             'orbitephem0': ['ORBITEPHEM0_X'],  # Heavily overlapped [float]
             'cpe1eng': ['6GYRCT1', '6RATE1'],  # Safe mode, [int, float]
-            'pcad13eng': ['ASPAGYC2A'],  # PCAD subformat [int]
+            'pcad13eng': ['ASPAGYC2A'],  # PCAD subformat and rarely sampled [int]
             'sim_mrg': ['3TSCMOVE', '3TSCPOS'],  # [str, float]
             'simcoor': ['SIM_Z_MOVED'],  # [bool]
             }
 
 LOG_LEVEL = 50  # quiet
-
-
-@contextmanager
-def set_basedir(basedir):
-    orig_basedir = fetch.msid_files.basedir
-    fetch.msid_files.basedir = str(basedir)
-    try:
-        yield
-    finally:
-        fetch.msid_files.basedir = orig_basedir
 
 
 def make_linked_local_archive(outdir, content, msids):
@@ -100,7 +89,7 @@ def make_sync_repo(outdir, content):
 def make_stub_archfiles(date, basedir_ref, basedir_stub):
     archfiles_def = open('cheta/archfiles_def.sql').read()
 
-    with set_basedir(basedir_ref):
+    with set_fetch_basedir(basedir_ref):
         filename = fetch.msid_files['archfiles'].abs
 
     with Ska.DBI.DBI(dbi='sqlite', server=filename) as db:
@@ -111,7 +100,7 @@ def make_stub_archfiles(date, basedir_ref, basedir_stub):
                                f'order by filetime desc'
                               )
 
-    with set_basedir(basedir_stub):
+    with set_fetch_basedir(basedir_stub):
         filename = fetch.msid_files['archfiles'].abs
     if os.path.exists(filename):
         os.unlink(filename)
@@ -128,7 +117,7 @@ def make_stub_stats_col(msid, stat, row1, basedir_ref, basedir_stub, date_stop):
     # Max allowed tstop.
     tstop = DateTime(date_stop).secs
 
-    with set_basedir(basedir_ref):
+    with set_fetch_basedir(basedir_ref):
         fetch.ft['msid'] = 'TIME'
         file_time = fetch.msid_files['msid'].abs
 
@@ -139,7 +128,7 @@ def make_stub_stats_col(msid, stat, row1, basedir_ref, basedir_stub, date_stop):
     if not Path(file_stats_ref).exists():
         return
 
-    with set_basedir(basedir_stub):
+    with set_fetch_basedir(basedir_stub):
         file_stats_stub = fetch.msid_files['stats'].abs
 
     with tables.open_file(file_time, 'r') as h5:
@@ -177,7 +166,7 @@ def make_stub_stats_col(msid, stat, row1, basedir_ref, basedir_stub, date_stop):
 def make_stub_h5_col(msid, row0, row1, basedir_ref, basedir_stub):
     fetch.ft['msid'] = msid
 
-    with set_basedir(basedir_ref):
+    with set_fetch_basedir(basedir_ref):
         file_ref = fetch.msid_files['data'].abs
 
     if not Path(file_ref).exists():
@@ -191,7 +180,7 @@ def make_stub_h5_col(msid, row0, row1, basedir_ref, basedir_stub):
     data_fill = np.zeros(row0, dtype=data_stub.dtype)
     qual_fill = np.ones(row0, dtype=qual_stub.dtype)  # True => bad
 
-    with set_basedir(basedir_stub):
+    with set_fetch_basedir(basedir_stub):
         file_stub = fetch.msid_files['data'].abs
 
     if os.path.exists(file_stub):
@@ -218,10 +207,10 @@ def make_stub_colnames(basedir_ref, basedir_stub):
     Copy colnames.pickle to the stub dir.  Also get the list of MSIDs that are
     actually in the reference archive.
     """
-    with set_basedir(basedir_ref):
+    with set_fetch_basedir(basedir_ref):
         file_ref = fetch.msid_files['colnames'].abs
 
-    with set_basedir(basedir_stub):
+    with set_fetch_basedir(basedir_stub):
         file_stub = fetch.msid_files['colnames'].abs
 
     shutil.copy(file_ref, file_stub)
@@ -244,7 +233,7 @@ def make_stub_content(content=None, date=DateTime(START) - 2,
     print(f'Making stub archive for {content}')
 
     fetch.ft['content'] = content
-    with set_basedir(basedir_stub):
+    with set_fetch_basedir(basedir_stub):
         dirname = Path(fetch.msid_files['contentdir'].abs)
     if dirname.exists():
         shutil.rmtree(dirname)
@@ -281,6 +270,8 @@ def check_content(outdir, content, msids=None):
     if outdir.exists():
         shutil.rmtree(outdir)
 
+    print(f'Test dir: {outdir}')
+
     if msids is None:
         msids = CONTENTS[content]
 
@@ -298,7 +289,7 @@ def check_content(outdir, content, msids=None):
 
     # Make the sync repo, using basedir_ref as input data and outputting the
     # sync/ dir to basedir_test.
-    with set_basedir(basedir_ref):
+    with set_fetch_basedir(basedir_ref):
         make_sync_repo(basedir_test, content)
 
     # Make stubs of archive content, meaning filled with mostly zeros until about
@@ -310,7 +301,7 @@ def check_content(outdir, content, msids=None):
 
     date_stop = (DateTime(STOP) + 2).date
 
-    with set_basedir(basedir_test):
+    with set_fetch_basedir(basedir_test):
         print(f'Updating client archive {content}')
         update_client_archive.main([f'--content={content}',
                                     f'--log-level={LOG_LEVEL}',
@@ -321,11 +312,11 @@ def check_content(outdir, content, msids=None):
     for stat in None, '5min', 'daily':
         for msid in msids:
             fetch.times_cache['key'] = None
-            with set_basedir(basedir_test):
+            with set_fetch_basedir(basedir_test):
                 dat_stub = fetch.Msid(msid, START, STOP, stat=stat)
 
             fetch.times_cache['key'] = None
-            with set_basedir(basedir_ref):
+            with set_fetch_basedir(basedir_ref):
                 dat_orig = fetch.Msid(msid, START, STOP, stat=stat)
 
             for attr in dat_orig.colnames:
@@ -335,3 +326,7 @@ def check_content(outdir, content, msids=None):
 @pytest.mark.parametrize('content', list(CONTENTS))
 def test_sync(tmpdir, content):
     check_content(tmpdir, content)
+
+    # Clean up if test successful (otherwise check_content raises)
+    if Path(tmpdir).exists():
+        shutil.rmtree(tmpdir)

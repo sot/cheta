@@ -5,6 +5,7 @@ Utilities for the engineering archive.
 from __future__ import print_function, division, absolute_import
 
 import re
+from contextlib import contextmanager
 
 import six
 from six.moves import zip
@@ -341,3 +342,24 @@ def get_date_id(date):
     date_id = DateTime(date).fits
     date_id = re.sub(':', '', date_id[:16]) + 'z'
     return date_id
+
+
+@contextmanager
+def set_fetch_basedir(basedir):
+    """
+    Temporarily override the base directory that fetch uses for telemetry data.
+
+    Example to use local data::
+
+      >>> with set_fetch_basedir('.'):
+      ...     dat = fetch.Msid('aacccdpt', '2018:001', '2018:100')
+
+    :param basedir: str or os.PathLike, base directory for cheta data
+    """
+    from . import fetch
+    orig_basedir = fetch.msid_files.basedir
+    fetch.msid_files.basedir = str(basedir)
+    try:
+        yield
+    finally:
+        fetch.msid_files.basedir = orig_basedir
