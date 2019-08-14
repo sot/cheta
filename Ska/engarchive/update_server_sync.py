@@ -49,6 +49,9 @@ from . import fetch
 from . import file_defs
 from .utils import get_date_id, STATS_DT
 
+sync_files = pyyaks.context.ContextDict('update_server_sync.sync_files')
+sync_files.update(file_defs.sync_files)
+
 
 def get_options(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
@@ -100,10 +103,7 @@ def update_msid_contents_pkl(sync_files, logger):
 def main(args=None):
     # Setup for updating the sync repository
     opt = get_options(args)
-
-    sync_files = pyyaks.context.ContextDict('update_server_sync.sync_files',
-                                            basedir=opt.data_root)
-    sync_files.update(file_defs.sync_files)
+    sync_files.basedir = opt.data_root
 
     # Set up logging
     loglevel = int(opt.log_level)
