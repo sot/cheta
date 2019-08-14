@@ -58,12 +58,24 @@ def make_linked_local_archive(outdir, content, msids):
                     basedir_out / content / file)
     for msid in msids:
         file = f'{msid}.h5'
-        os.link(basedir_in / content / file,
-                basedir_out / content / file)
-        os.link(basedir_in / content / '5min' / file,
-                basedir_out / content / '5min' / file)
-        os.link(basedir_in / content / 'daily' / file,
-                basedir_out / content / 'daily' / file)
+        try:
+            os.link(basedir_in / content / file,
+                    basedir_out / content / file)
+        except OSError:
+            os.symlink(basedir_in / content / file,
+                       basedir_out / content / file)
+        try:
+            os.link(basedir_in / content / '5min' / file,
+                    basedir_out / content / '5min' / file)
+        except OSError:
+            os.symlink(basedir_in / content / '5min' / file,
+                       basedir_out / content / '5min' / file)
+        try:
+            os.link(basedir_in / content / 'daily' / file,
+                    basedir_out / content / 'daily' / file)
+        except OSError:
+            os.symlink(basedir_in / content / 'daily' / file,
+                       basedir_out / content / 'daily' / file)
 
 
 def make_sync_repo(outdir, content):
@@ -270,6 +282,7 @@ def check_content(outdir, content, msids=None):
     if outdir.exists():
         shutil.rmtree(outdir)
 
+    print()
     print(f'Test dir: {outdir}')
 
     if msids is None:
