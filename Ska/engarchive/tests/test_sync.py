@@ -9,9 +9,9 @@ import Ska.DBI
 import tables
 from Chandra.Time import DateTime
 
-from cheta import fetch
-from cheta import update_client_archive, update_server_sync
-from cheta.utils import STATS_DT, set_fetch_basedir
+from .. import fetch
+from .. import update_client_archive, update_server_sync
+from ..utils import STATS_DT, set_fetch_basedir
 
 # Covers safe mode and IRU swap activities around 2018:283.  This is a time
 # with rarely-seen telemetry.
@@ -99,7 +99,7 @@ def make_sync_repo(outdir, content):
 
 
 def make_stub_archfiles(date, basedir_ref, basedir_stub):
-    archfiles_def = open('cheta/archfiles_def.sql').read()
+    archfiles_def = (Path(fetch.__file__).parent / 'archfiles_def.sql').read_text()
 
     with set_fetch_basedir(basedir_ref):
         filename = fetch.msid_files['archfiles'].abs
@@ -339,6 +339,7 @@ def check_content(outdir, content, msids=None):
 
 @pytest.mark.parametrize('content', list(CONTENTS))
 def test_sync(tmpdir, content):
+    print(f'CWD = {os.getcwd()}')
     check_content(tmpdir, content)
 
     # Clean up if test successful (otherwise check_content raises)

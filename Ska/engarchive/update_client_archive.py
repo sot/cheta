@@ -119,7 +119,7 @@ def sync_full_archive(opt, msid_files, logger, content):
     logger.info(f'Processing full data for {content}')
 
     # Read the index file to know what is available for new data
-    index_file = sync_files['index'].rel
+    index_file = sync_files['index'].abs
     with get_readable(opt.data_root, opt.is_url, index_file) as (index_input, uri):
         if index_input is None:
             # If index_file is not found then get_readable returns None
@@ -152,7 +152,7 @@ def sync_full_archive(opt, msid_files, logger, content):
 
         # File names like sync/acis4eng/2019-07-08T1150z/full.npz
         ft['date_id'] = date_id
-        datafile = sync_files['data'].rel
+        datafile = sync_files['data'].abs
 
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
@@ -220,7 +220,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
     ft['content'] = content
     ft['interval'] = stat
 
-    stats_dir = Path(msid_files['statsdir'].rel)
+    stats_dir = Path(msid_files['statsdir'].abs)
     if not stats_dir.exists():
         logger.debug(f'Skipping {stat} data for {content}: no directory')
         return
@@ -230,7 +230,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
     # Read the index file to know what is available for new data
     # TODO: factor this out
-    index_file = sync_files['index'].rel
+    index_file = sync_files['index'].abs
     with get_readable(opt.data_root, opt.is_url, index_file) as (index_input, uri):
         if index_input is None:
             # If index_file is not found then get_readable returns None
@@ -266,7 +266,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
         # File names like sync/acis4eng/2019-07-08T1150z/5min.npz
         ft['date_id'] = date_id
-        datafile = sync_files['data'].rel
+        datafile = sync_files['data'].abs
 
         # Read the file with all the MSID data as a hash with keys {msid}.data
         # {msid}.row0, {msid}.row1
@@ -280,7 +280,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
         for msid in msids:
             fetch.ft['msid'] = msid
-            stat_file = msid_files['stats'].rel
+            stat_file = msid_files['stats'].abs
             if os.path.exists(stat_file):
                 append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
@@ -344,7 +344,7 @@ def get_last_date_id(msid_files, msids, stat, logger):
     :param logger:
     :return:
     """
-    last_date_id_file = msid_files['last_date_id'].rel
+    last_date_id_file = msid_files['last_date_id'].abs
 
     if Path(last_date_id_file).exists():
         logger.verbose(f'Reading {last_date_id_file} to get last update time')
