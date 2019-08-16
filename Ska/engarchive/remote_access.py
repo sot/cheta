@@ -16,7 +16,8 @@ from six.moves import input
 # To use remote access, this flag should be set True (it is true by default
 # on Windows systems, but can manually be set to true on Linux systems
 # if you don't have direct access to the archive).  The environment variable
-# SKA_ACCESS_REMOTELY can be set to always disable remote access.
+# SKA_ACCESS_REMOTELY can be set to "False" or "True"  to control remote
+# access explicitly.
 if 'SKA_ACCESS_REMOTELY' in os.environ:
     import ast
     access_remotely = ast.literal_eval(os.environ['SKA_ACCESS_REMOTELY'])
