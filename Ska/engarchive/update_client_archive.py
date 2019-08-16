@@ -221,7 +221,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
     ft['content'] = content
     ft['interval'] = stat
 
-    stats_dir = Path(msid_files['statsdir'].rel)
+    stats_dir = Path(msid_files['statsdir'].abs)
     if not stats_dir.exists():
         logger.debug(f'Skipping {stat} data for {content}: no directory')
         return
@@ -279,7 +279,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
         for msid in msids:
             fetch.ft['msid'] = msid
-            stat_file = msid_files['stats'].rel
+            stat_file = msid_files['stats'].abs
             if os.path.exists(stat_file):
                 append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
@@ -343,7 +343,7 @@ def get_last_date_id(msid_files, msids, stat, logger):
     :param logger:
     :return:
     """
-    last_date_id_file = msid_files['last_date_id'].rel
+    last_date_id_file = msid_files['last_date_id'].abs
 
     if Path(last_date_id_file).exists():
         logger.verbose(f'Reading {last_date_id_file} to get last update time')
