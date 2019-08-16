@@ -265,7 +265,8 @@ def update_index_file(index_file, opt, logger):
             if len(archfiles) > 0:
                 rows.append(get_row_from_archfiles(archfiles))
                 filedates = DateTime(archfiles['filetime']).fits
-                logger.verbose(f'Got {len(archfiles)} rows {filedates}')
+                logger.verbose(f'Got {len(archfiles)} archfiles rows from '
+                               f'{filedates[0]} to {filedates[-1]}')
 
             filetime0 = filetime1
 
