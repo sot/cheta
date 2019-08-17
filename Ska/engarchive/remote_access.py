@@ -7,22 +7,50 @@ from __future__ import print_function, division, absolute_import
 import sys
 import os
 import getpass
+from pathlib import Path
+
 try:
     import ipyparallel as parallel
 except ImportError:
     from IPython import parallel
 from six.moves import input
 
-# To use remote access, this flag should be set True (it is true by default
-# on Windows systems, but can manually be set to true on Linux systems
-# if you don't have direct access to the archive).  The environment variable
-# SKA_ACCESS_REMOTELY can be set to "False" or "True"  to control remote
-# access explicitly.
+# Define the path to eng archive data (if possible), using either the ENG_ARCHIVE env var or
+# looking in the standard SKA place.  In the case that accessing data remotely this is all moot (
+# and SKA is not required to be defined), so just make sure this bit runs without failing.
+# These two values get exported to the ``fetch`` module.
+SKA = os.getenv('SKA')
+ENG_ARCHIVE = os.getenv('ENG_ARCHIVE')
+if ENG_ARCHIVE is None and SKA is not None:
+    ENG_ARCHIVE = os.path.join(SKA, 'data', 'eng_archive')
+
+# Remote access is controlled as follows:
+# - The environment variable SKA_ACCESS_REMOTELY can be set to "False" or "True"
+# - Remote access defaults to True on Windows systems unless the SKA environment
+#   variable is set and data on $SKA\data\eng_archive are found.
+# - Remote access defaults to False on non-Windows systems.
+
+# First check if there is a local data archive
+if ENG_ARCHIVE:
+    eng_data_dir = Path(ENG_ARCHIVE) / 'data'
+    has_ska_data = eng_data_dir.exists()
+else:
+    has_ska_data = False
+
 if 'SKA_ACCESS_REMOTELY' in os.environ:
+    # User explicitly specified, so that is the end of the story.
     import ast
     access_remotely = ast.literal_eval(os.environ['SKA_ACCESS_REMOTELY'])
 else:
-    access_remotely = sys.platform.startswith('win')
+    access_remotely = False if has_ska_data else sys.platform.startswith('win')
+
+if not access_remotely and not has_ska_data:
+    if ENG_ARCHIVE is None:
+        msg = 'need to define SKA or ENG_ARCHIVE environment variable'
+    else:
+        msg = f'no {eng_data_dir.absolute()} directory'
+    raise RuntimeError(f'no local Ska data found and remote access is not selected: {msg}')
+
 
 # Hostname (IP), username, and password for remote access to the eng archive
 hostname = None
@@ -53,9 +81,9 @@ Return success status (True/False)
     global hostname
     global username
     global password
-    
+
     try_to_connect = True
-    
+
     # Loop until the user is able to connect or cancels
     while _remote_client is None:
         # Get the username and password if not already set
@@ -64,10 +92,10 @@ Return success status (True/False)
         if hostname=="":
             break
         default_username = getpass.getuser()
-        username = username or input('Enter your login username [' + 
+        username = username or input('Enter your login username [' +
                                          default_username + ']:')
         password = password or getpass.getpass('Enter your password:')
-        
+
         # Open the connection to the server
         print('Establishing connection to ' + hostname + '...')
         sys.stdout.flush()
@@ -85,7 +113,7 @@ Return success status (True/False)
             password = None
             if not ask_again_if_connect_fails:
                 break
-        
+
     return(connection_is_established())
 
 
@@ -94,7 +122,7 @@ def connection_is_established():
 Function to check if a connection to the remote server has been established
 """
     return (not _remote_client is None)
-    
+
 
 def execute_remotely(fcn, *args, **kwargs):
     """
@@ -106,7 +134,7 @@ Function for executing a function remotely
     dview = _remote_client[0]; # Use the first (and should be only) engine
     dview.block = True
     return dview.apply_sync(fcn, *args, **kwargs)
-    
+
 
 def test_connection():
     """
@@ -124,7 +152,7 @@ def close_connection():
 Function to close the connection to the remote server
 """
     global _remote_client
-    
+
     _remote_client.close()
     _remote_client = None
-    
+
