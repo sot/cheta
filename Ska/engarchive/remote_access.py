@@ -16,7 +16,7 @@ except ImportError:
 from six.moves import input
 
 
-def get_data_access_info():
+def get_data_access_info(is_windows=sys.platform.startswith('win')):
     """
     Determine path to eng archive data and whether to access data remotely.
 
@@ -38,8 +38,9 @@ def get_data_access_info():
     # - Remote access defaults to False on non-Windows systems.
 
     # First check if there is a local data archive
-    if eng_archive:
+    if eng_archive is not None:
         eng_data_dir = Path(eng_archive) / 'data'
+        eng_archive = str(Path(eng_archive).absolute())
         has_ska_data = eng_data_dir.exists()
     else:
         has_ska_data = False
@@ -49,7 +50,7 @@ def get_data_access_info():
         import ast
         ska_access_remotely = ast.literal_eval(os.environ['SKA_ACCESS_REMOTELY'])
     else:
-        ska_access_remotely = False if has_ska_data else sys.platform.startswith('win')
+        ska_access_remotely = False if has_ska_data else is_windows
 
     if not ska_access_remotely and not has_ska_data:
         if eng_archive is None:
