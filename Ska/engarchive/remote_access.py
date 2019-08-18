@@ -20,12 +20,19 @@ def get_data_access_info(is_windows=sys.platform.startswith('win')):
     """
     Determine path to eng archive data and whether to access data remotely.
 
+    Returns path to data, equivalent of the ENG_ARCHIVE variable, i.e.
+    Path(SKA, 'data', 'eng_archive').  This is returned as a string absolute
+    path.
+
+    Also returns whether to access data using the remote server.
+
+    :param is_windows: bool, is this windows platform?
     :return: eng_archive, access_remotely
     """
-    # Define the path to eng archive data (if possible), using either the ENG_ARCHIVE env var or
-    # looking in the standard SKA place.  In the case that accessing data remotely this is all
-    # moot ( and SKA is not required to be defined), so just make sure this bit runs without
-    # failing. These two values get exported to the ``fetch`` module.
+    # Define the path to eng archive data (``eng_archive``), using either the ENG_ARCHIVE env var
+    # or looking in the standard SKA place.  In the case of accessing data remotely this is all
+    # moot (and SKA is not required to be defined), so just make sure this bit runs without
+    # failing.
     ska = os.getenv('SKA')
     eng_archive = os.getenv('ENG_ARCHIVE')
     if eng_archive is None and ska is not None:
@@ -39,9 +46,8 @@ def get_data_access_info(is_windows=sys.platform.startswith('win')):
 
     # First check if there is a local data archive
     if eng_archive is not None:
-        eng_data_dir = Path(eng_archive) / 'data'
         eng_archive = str(Path(eng_archive).absolute())
-        has_ska_data = eng_data_dir.exists()
+        has_ska_data = Path(eng_archive).exists()
     else:
         has_ska_data = False
 
@@ -56,8 +62,14 @@ def get_data_access_info(is_windows=sys.platform.startswith('win')):
         if eng_archive is None:
             msg = 'need to define SKA or ENG_ARCHIVE environment variable'
         else:
-            msg = f'no {eng_data_dir.absolute()} directory'
+            msg = f'no {eng_archive} directory'
         raise RuntimeError(f'no local Ska data found and remote access is not selected: {msg}')
+
+    if ska_access_remotely:
+        # If accessing remotely, then hardwire eng_archive to the linux path where
+        # the data are stored on the server.  This prevents a local SKA repository
+        # from getting used on the remote server.
+        eng_archive = '/proj/sot/ska/data/eng_archive'
 
     return eng_archive, ska_access_remotely
 
