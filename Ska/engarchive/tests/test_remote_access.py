@@ -19,17 +19,23 @@ def setenv(name, val):
         os.environ.pop(name, None)
 
 
-def test_remote_access_get_data_access_info(tmpdir):
-    """
-    Unit test of the get_data_access_info() function.
-    """
-    # Make a fake Ska data installation
+@pytest.fixture()
+def remote_setup_dirs(tmpdir):
     ska_dir = Path(tmpdir)
     eng_archive_dir = ska_dir / 'data' / 'eng_archive'
     (eng_archive_dir / 'data').mkdir(parents=True)
 
-    # Check some possible use cases:
+    yield (ska_dir, eng_archive_dir)
 
+    # Teardown: return environment to original
+    for name in 'SKA', 'ENG_ARCHIVE', 'SKA_ACCESS_REMOTELY':
+        setenv(name, ORIG_ENV[name])
+
+
+def test_remote_access_get_data_access_info1(remote_setup_dirs):
+    """
+    Unit test of the get_data_access_info() function with no env vars set.
+    """
     # No env vars set
     setenv('SKA', None)
     setenv('ENG_ARCHIVE', None)  # I.e. not set
@@ -37,7 +43,7 @@ def test_remote_access_get_data_access_info(tmpdir):
 
     # Windows
     eng_archive, ska_access_remotely = get_data_access_info(is_windows=True)
-    assert eng_archive is None
+    assert eng_archive == '/proj/sot/ska/data/eng_archive'
     assert ska_access_remotely is True
 
     # Not windows
@@ -45,7 +51,13 @@ def test_remote_access_get_data_access_info(tmpdir):
         get_data_access_info(is_windows=False)
     assert 'need to define SKA or ENG_ARCHIVE environment variable' in str(err)
 
-    # Just SKA set to a valid directory (typical case on linux/mac)
+
+def test_remote_access_get_data_access_info2(remote_setup_dirs):
+    """
+    Just SKA set to a valid directory (typical case on linux/mac)
+    """
+    ska_dir, eng_archive_dir = remote_setup_dirs
+
     setenv('SKA', ska_dir)
     setenv('ENG_ARCHIVE', None)  # I.e. not set
     setenv('SKA_ACCESS_REMOTELY', None)
@@ -54,8 +66,14 @@ def test_remote_access_get_data_access_info(tmpdir):
         assert eng_archive == str(eng_archive_dir.absolute())
         assert ska_access_remotely is False
 
-    # Just ENG_ARCHIVE set to a valid directory (typical for testing)
-    # SKA either unset or set to a bad directory
+
+def test_remote_access_get_data_access_info3(remote_setup_dirs):
+    """
+    Just ENG_ARCHIVE set to a valid directory (typical for testing)
+    SKA either unset or set to a bad directory
+    """
+    ska_dir, eng_archive_dir = remote_setup_dirs
+
     for ska_env in None, INVALID_DIR:
         setenv('SKA', ska_env)
         setenv('ENG_ARCHIVE', eng_archive_dir)
@@ -65,18 +83,34 @@ def test_remote_access_get_data_access_info(tmpdir):
             assert eng_archive == str(eng_archive_dir.absolute())
             assert ska_access_remotely is False
 
-    # ENG_ARCHIVE set to a bad directory
-    setenv('SKA', ska_dir)
+
+def test_remote_access_get_data_access_info4(remote_setup_dirs):
+    """
+    ENG_ARCHIVE set to a non-existent directory
+    """
+    setenv('SKA', None)
     setenv('ENG_ARCHIVE', INVALID_DIR)
     setenv('SKA_ACCESS_REMOTELY', None)
-    # Windows
+
+    # Windows doesn't care about an invalid ENG_ARCHIVE, goes to remote access
+    # with hardwired /proj/sot/ska root for remote data.
     eng_archive, ska_access_remotely = get_data_access_info(is_windows=True)
-    assert eng_archive == INVALID_DIR
+    assert eng_archive == '/proj/sot/ska/data/eng_archive'
     assert ska_access_remotely is True
 
-    # No SKA or ENG_ARCHIVE and SKA_ACCESS_REMOTELY=False
+    # Not windows: raises RuntimeError because no local data around found
+    with pytest.raises(RuntimeError) as err:
+        get_data_access_info(is_windows=False)
+
+
+def test_remote_access_get_data_access_info5(remote_setup_dirs):
+    """
+    No SKA or ENG_ARCHIVE and SKA_ACCESS_REMOTELY=False
+
+    Raises RuntimeError on windows and not-windows.
+    """
     setenv('SKA', None)
-    setenv('ENG_ARCHIVE', None)  # I.e. not set
+    setenv('ENG_ARCHIVE', None)
     setenv('SKA_ACCESS_REMOTELY', False)
 
     for is_windows in True, False:
@@ -84,6 +118,18 @@ def test_remote_access_get_data_access_info(tmpdir):
             get_data_access_info(is_windows)
         assert 'need to define SKA or ENG_ARCHIVE environment variable' in str(err)
 
-    # Teardown
-    for name in 'SKA', 'ENG_ARCHIVE', 'SKA_ACCESS_REMOTELY':
-        setenv(name, ORIG_ENV[name])
+
+def test_remote_access_get_data_access_info6(remote_setup_dirs):
+    """
+    SKA set to a valid directory and SKA_ACCESS_REMOTELY=True
+    """
+    ska_dir, eng_archive_dir = remote_setup_dirs
+
+    setenv('SKA', ska_dir)
+    setenv('ENG_ARCHIVE', None)  # I.e. not set
+    setenv('SKA_ACCESS_REMOTELY', 'True')
+    for is_windows in True, False:
+        eng_archive, ska_access_remotely = get_data_access_info(is_windows)
+        assert eng_archive == '/proj/sot/ska/data/eng_archive'
+        assert ska_access_remotely is True
+
