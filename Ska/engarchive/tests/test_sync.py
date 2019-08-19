@@ -19,12 +19,12 @@ START, STOP = '2018:281', '2018:293'
 
 # Content types and associated MSIDs that will be tested
 CONTENTS = {'acis4eng': ['1WRAT'],  # [float]
-            #'dp_pcad32': ['DP_SYS_MOM_TOT'],  # Derived parameter [float]
-            #'orbitephem0': ['ORBITEPHEM0_X'],  # Heavily overlapped [float]
-            #'cpe1eng': ['6GYRCT1', '6RATE1'],  # Safe mode, [int, float]
-            #'pcad13eng': ['ASPAGYC2A'],  # PCAD subformat and rarely sampled [int]
-            #'sim_mrg': ['3TSCMOVE', '3TSCPOS'],  # [str, float]
-            #'simcoor': ['SIM_Z_MOVED'],  # [bool]
+            'dp_pcad32': ['DP_SYS_MOM_TOT'],  # Derived parameter [float]
+            'orbitephem0': ['ORBITEPHEM0_X'],  # Heavily overlapped [float]
+            'cpe1eng': ['6GYRCT1', '6RATE1'],  # Safe mode, [int, float]
+            'pcad13eng': ['ASPAGYC2A'],  # PCAD subformat and rarely sampled [int]
+            'sim_mrg': ['3TSCMOVE', '3TSCPOS'],  # [str, float]
+            'simcoor': ['SIM_Z_MOVED'],  # [bool]
             }
 
 LOG_LEVEL = 50  # quiet
