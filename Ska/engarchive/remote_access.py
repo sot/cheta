@@ -130,7 +130,7 @@ def establish_connection():
         try:
             _remote_client = parallel.Client(client_key_file,
                                              sshserver=f'{username}@{hostname}',
-                                             password=password, timeout=30, debug=True)
+                                             password=password)
         except Exception:
             raise
             print('Error connecting to server ', hostname, ': ', sys.exc_info()[0])
