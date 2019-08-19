@@ -14,9 +14,9 @@ installed at the Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
   Confirm that remote access is enabled and works by fetching an MSID::
 
     import os
-    os.environ.pop('SKA')
-    os.environ.pop('ENG_ARCHIVE')
-    os.environ.pop('SKA_ACCESS_REMOTELY')
+    os.environ.pop('SKA', None)
+    os.environ.pop('ENG_ARCHIVE', None)
+    os.environ.pop('SKA_ACCESS_REMOTELY', None)
     from Ska.engarchive import fetch, remote_access
     fetch.add_logging_handler()
     assert remote_access.access_remotely is True
@@ -29,12 +29,12 @@ installed at the Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
 
     import os
     os.environ['SKA'] = <path_to_ska_root>
-    os.environ.pop('ENG_ARCHIVE')
-    os.environ.pop('SKA_ACCESS_REMOTELY')
+    os.environ.pop('ENG_ARCHIVE', None)
+    os.environ.pop('SKA_ACCESS_REMOTELY', None)
     from Ska.engarchive import fetch, remote_access
     fetch.add_logging_handler()
-    assert remote_access.access_remotely is True
-    dat = fetch.Msid('tephin', '2018:001', '2018:010')
+    assert remote_access.access_remotely is False
+    dat = fetch.Msid('1wrat', '2018:001', '2018:010')
     print(dat.vals)
 
 - Override remote access on non-Windows by setting SKA_ACCESS_REMOTELY to 'True'::
@@ -43,13 +43,14 @@ installed at the Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
     os.environ['SKA_ACCESS_REMOTELY'] = 'True'
     from Ska.engarchive import fetch, remote_access
     fetch.add_logging_handler()
-    assert remote_access.access_remotely is False
+    assert remote_access.access_remotely is True
     dat = fetch.Msid('tephin', '2018:001', '2018:010')
     print(dat.vals)
 
 """
 import os
 from pathlib import Path
+import shutil
 
 import pytest
 
@@ -70,6 +71,12 @@ def setenv(name, val):
 
 @pytest.fixture()
 def remote_setup_dirs(tmpdir):
+    """
+    Pytest fixture to provide temporary mock Ska eng archive data
+    directory structure.
+
+    :param tmpdir: temp directory supplied by pytest
+    """
     ska_dir = Path(tmpdir)
     eng_archive_dir = ska_dir / 'data' / 'eng_archive'
     (eng_archive_dir / 'data').mkdir(parents=True)
@@ -79,6 +86,8 @@ def remote_setup_dirs(tmpdir):
     # Teardown: return environment to original
     for name in 'SKA', 'ENG_ARCHIVE', 'SKA_ACCESS_REMOTELY':
         setenv(name, ORIG_ENV[name])
+
+    shutil.rmtree(tmpdir)
 
 
 def test_remote_access_get_data_access_info1(remote_setup_dirs):
@@ -177,6 +186,7 @@ def test_remote_access_get_data_access_info6(remote_setup_dirs):
     setenv('SKA', ska_dir)
     setenv('ENG_ARCHIVE', None)  # I.e. not set
     setenv('SKA_ACCESS_REMOTELY', 'True')
+
     for is_windows in True, False:
         eng_archive, ska_access_remotely = get_data_access_info(is_windows)
         assert eng_archive == '/proj/sot/ska/data/eng_archive'
