@@ -20,6 +20,7 @@ import re
 import sqlite3
 import urllib
 from pathlib import Path
+import importlib
 
 import numpy as np
 import pyyaks.context
@@ -30,7 +31,6 @@ from Ska.DBI import DBI
 from astropy.table import Table
 from astropy.utils.data import download_file
 
-from . import fetch
 from . import file_defs
 from .utils import get_date_id, STATS_DT
 
@@ -40,10 +40,13 @@ sync_files.update(file_defs.sync_files)
 
 def get_options(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root",
+    parser.add_argument("--sync-root",
                         default='https://icxc.cfa.harvard.edu/aspect/cheta/',
-                        help=("URL or file dir for sync files "
+                        help=("URL or file dir for sync files to read from "
                               "(default=https://icxc.cfa.harvard.edu/aspect/cheta/)"))
+    parser.add_argument("--data-root",
+                        help=("Data directory of eng archive data files to update "
+                              "(default=usual fetch default)"))
     parser.add_argument("--content",
                         action='append',
                         help="Content type to process [match regex] (default=all)")
@@ -57,21 +60,21 @@ def get_options(args=None):
                         help="Dry run (no actual file or database updates)")
 
     opt = parser.parse_args(args)
-    opt.is_url = re.match(r'http[s]?://', opt.data_root)
+    opt.is_url = re.match(r'http[s]?://', opt.sync_root)
     opt.date_stop = DateTime(opt.date_stop)
 
     return opt
 
 
 @contextlib.contextmanager
-def get_readable(data_root, is_url, filename):
+def get_readable(sync_root, is_url, filename):
     """
     Get readable filename from either a local file or remote URL.
 
     Returns None for the output filename if input does not exist.
 
-    :param data_root: str, root directory of sync data (URL or local dir name)
-    :param is_url: bool, True if ``data_root`` is a URL
+    :param sync_root: str, root directory of sync data (URL or local dir name)
+    :param is_url: bool, True if ``sync_root`` is a URL
     :param filename: ContextVal, relative filename
     :return: filename, URI
     """
@@ -79,10 +82,10 @@ def get_readable(data_root, is_url, filename):
 
     try:
         if is_url:
-            uri = data_root.rstrip('/') + '/' + Path(filename).as_posix()
+            uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
             filename = download_file(uri, show_progress=False, cache=False, timeout=60)
         else:
-            uri = Path(data_root, filename)
+            uri = Path(sync_root, filename)
             filename = uri.absolute()
             assert uri.exists()
     except (AssertionError, urllib.error.HTTPError):
@@ -122,7 +125,7 @@ def sync_full_archive(opt, msid_files, logger, content):
     logger.info(f'Processing full data for {content}')
 
     # Read the index file to know what is available for new data
-    with get_readable(opt.data_root, opt.is_url, sync_files['index']) as (index_input, uri):
+    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
         if index_input is None:
             # If index_file is not found then get_readable returns None
             logger.info(f'No new sync data for {content}: {uri} not found')
@@ -158,7 +161,7 @@ def sync_full_archive(opt, msid_files, logger, content):
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
         # archfiles rows.
-        with get_readable(opt.data_root, opt.is_url, sync_files['data']) as (data_input, uri):
+        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
             logger.info(f'Reading update date file {uri}')
             with gzip.open(data_input, 'rb') as fh:
                 dat = pickle.load(fh)
@@ -231,7 +234,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
     # Read the index file to know what is available for new data
     # TODO: factor this out
-    with get_readable(opt.data_root, opt.is_url, sync_files['index']) as (index_input, uri):
+    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
         if index_input is None:
             # If index_file is not found then get_readable returns None
             logger.info(f'No new {stat} sync data for {content}: {uri} not found')
@@ -269,7 +272,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
         # Read the file with all the MSID data as a hash with keys {msid}.data
         # {msid}.row0, {msid}.row1
-        with get_readable(opt.data_root, opt.is_url, sync_files['data']) as (data_input, uri):
+        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
             logger.info(f'Reading update date file {uri}')
             with gzip.open(data_input, 'rb') as fh:
                 dat = pickle.load(fh)
@@ -417,6 +420,8 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
 
 
 def main(args=None):
+    global fetch  # fetch module, see below
+
     # Setup for updating the sync repository
     opt = get_options(args)
 
@@ -425,9 +430,19 @@ def main(args=None):
     logger = pyyaks.logger.get_logger(name='cheta_update_client_archive', level=loglevel,
                                       format="%(asctime)s %(message)s")
 
+    # If --data-root is supplied then set the fetch msid_files basedir via ENG_ARCHIVE
+    # prior to importing fetch.  This ensures that ``content`` is consistent with
+    # the destination archive.
+    if opt.data_root is not None:
+        os.environ['ENG_ARCHIVE'] = opt.data_root
+
+    fetch = importlib.import_module('.fetch', __package__)
+    logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
+
     if opt.content:
         contents = opt.content
     else:
+        # fetch.content is a dict of {MSID: content_type} values
         contents = set(fetch.content.values())
 
     for content in sorted(contents):
