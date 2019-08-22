@@ -27,6 +27,7 @@ from . import file_defs
 from .units import Units
 from . import cache
 from . import remote_access
+from .remote_access import ENG_ARCHIVE
 from .version import __version__, __git_version__
 
 from Chandra.Time import DateTime
@@ -37,8 +38,6 @@ UNITS = Units(system='cxc')
 # Module-level control of whether MSID.fetch will cache the last 30 results
 CACHE = False
 
-SKA = os.getenv('SKA')
-ENG_ARCHIVE = os.getenv('ENG_ARCHIVE') or os.path.join(SKA, 'data', 'eng_archive')
 IGNORE_COLNAMES = ('TIME', 'MJF', 'MNF', 'TLM_FMT')
 DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -317,14 +316,10 @@ class NullHandler(logging.Handler):
     def emit(self, record):
         pass
 
+
 logger = logging.getLogger('Ska.engarchive.fetch')
 logger.addHandler(NullHandler())
 logger.propagate = False
-
-# Warn the user if ENG_ARCHIVE is set such that the data path is non-standard
-if os.getenv('ENG_ARCHIVE'):
-    print('fetch: using ENG_ARCHIVE={} for archive path'
-          .format(os.getenv('ENG_ARCHIVE')))
 
 
 def get_units():

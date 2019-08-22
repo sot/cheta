@@ -20,6 +20,7 @@ import re
 import sqlite3
 import urllib
 from pathlib import Path
+import importlib
 
 import numpy as np
 import pyyaks.context
@@ -30,7 +31,6 @@ from Ska.DBI import DBI
 from astropy.table import Table
 from astropy.utils.data import download_file
 
-from . import fetch
 from . import file_defs
 from .utils import get_date_id, STATS_DT
 
@@ -40,10 +40,13 @@ sync_files.update(file_defs.sync_files)
 
 def get_options(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root",
+    parser.add_argument("--sync-root",
                         default='https://icxc.cfa.harvard.edu/aspect/cheta/',
-                        help=("URL or file dir for sync files "
+                        help=("URL or file dir for sync files to read from "
                               "(default=https://icxc.cfa.harvard.edu/aspect/cheta/)"))
+    parser.add_argument("--data-root",
+                        help=("Data directory of eng archive data files to update "
+                              "(default=usual fetch default)"))
     parser.add_argument("--content",
                         action='append',
                         help="Content type to process [match regex] (default=all)")
@@ -57,31 +60,34 @@ def get_options(args=None):
                         help="Dry run (no actual file or database updates)")
 
     opt = parser.parse_args(args)
-    opt.is_url = re.match(r'http[s]?://', opt.data_root)
+    opt.is_url = re.match(r'http[s]?://', opt.sync_root)
     opt.date_stop = DateTime(opt.date_stop)
 
     return opt
 
 
 @contextlib.contextmanager
-def get_readable(data_root, is_url, filename):
+def get_readable(sync_root, is_url, filename):
     """
     Get readable filename from either a local file or remote URL.
 
     Returns None for the output filename if input does not exist.
 
-    :param data_root:
-    :param is_url:
-    :param filename:
+    :param sync_root: str, root directory of sync data (URL or local dir name)
+    :param is_url: bool, True if ``sync_root`` is a URL
+    :param filename: ContextVal, relative filename
     :return: filename, URI
     """
+    filename = str(filename)  # Not needed with pyyaks >= 4.4.
+
     try:
         if is_url:
-            uri = data_root.rstrip('/') + '/' + Path(filename).as_posix()
+            uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
             filename = download_file(uri, show_progress=False, cache=False, timeout=60)
         else:
-            uri = filename
-            assert os.path.exists(uri)
+            uri = Path(sync_root, filename)
+            filename = uri.absolute()
+            assert uri.exists()
     except (AssertionError, urllib.error.HTTPError):
         filename = None
 
@@ -119,8 +125,7 @@ def sync_full_archive(opt, msid_files, logger, content):
     logger.info(f'Processing full data for {content}')
 
     # Read the index file to know what is available for new data
-    index_file = sync_files['index'].rel
-    with get_readable(opt.data_root, opt.is_url, index_file) as (index_input, uri):
+    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
         if index_input is None:
             # If index_file is not found then get_readable returns None
             logger.info(f'No new sync data for {content}: {uri} not found')
@@ -152,12 +157,11 @@ def sync_full_archive(opt, msid_files, logger, content):
 
         # File names like sync/acis4eng/2019-07-08T1150z/full.npz
         ft['date_id'] = date_id
-        datafile = sync_files['data'].rel
 
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
         # archfiles rows.
-        with get_readable(opt.data_root, opt.is_url, datafile) as (data_input, uri):
+        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
             logger.info(f'Reading update date file {uri}')
             with gzip.open(data_input, 'rb') as fh:
                 dat = pickle.load(fh)
@@ -220,7 +224,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
     ft['content'] = content
     ft['interval'] = stat
 
-    stats_dir = Path(msid_files['statsdir'].rel)
+    stats_dir = Path(msid_files['statsdir'].abs)
     if not stats_dir.exists():
         logger.debug(f'Skipping {stat} data for {content}: no directory')
         return
@@ -230,8 +234,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
     # Read the index file to know what is available for new data
     # TODO: factor this out
-    index_file = sync_files['index'].rel
-    with get_readable(opt.data_root, opt.is_url, index_file) as (index_input, uri):
+    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
         if index_input is None:
             # If index_file is not found then get_readable returns None
             logger.info(f'No new {stat} sync data for {content}: {uri} not found')
@@ -266,11 +269,10 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
         # File names like sync/acis4eng/2019-07-08T1150z/5min.npz
         ft['date_id'] = date_id
-        datafile = sync_files['data'].rel
 
         # Read the file with all the MSID data as a hash with keys {msid}.data
         # {msid}.row0, {msid}.row1
-        with get_readable(opt.data_root, opt.is_url, datafile) as (data_input, uri):
+        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
             logger.info(f'Reading update date file {uri}')
             with gzip.open(data_input, 'rb') as fh:
                 dat = pickle.load(fh)
@@ -280,7 +282,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
 
         for msid in msids:
             fetch.ft['msid'] = msid
-            stat_file = msid_files['stats'].rel
+            stat_file = msid_files['stats'].abs
             if os.path.exists(stat_file):
                 append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
@@ -344,7 +346,7 @@ def get_last_date_id(msid_files, msids, stat, logger):
     :param logger:
     :return:
     """
-    last_date_id_file = msid_files['last_date_id'].rel
+    last_date_id_file = msid_files['last_date_id'].abs
 
     if Path(last_date_id_file).exists():
         logger.verbose(f'Reading {last_date_id_file} to get last update time')
@@ -418,20 +420,29 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
 
 
 def main(args=None):
+    global fetch  # fetch module, see below
+
     # Setup for updating the sync repository
     opt = get_options(args)
-
-    basedir = '.' if opt.is_url else opt.data_root
-    sync_files.basedir = basedir
 
     # Set up logging
     loglevel = int(opt.log_level)
     logger = pyyaks.logger.get_logger(name='cheta_update_client_archive', level=loglevel,
                                       format="%(asctime)s %(message)s")
 
+    # If --data-root is supplied then set the fetch msid_files basedir via ENG_ARCHIVE
+    # prior to importing fetch.  This ensures that ``content`` is consistent with
+    # the destination archive.
+    if opt.data_root is not None:
+        os.environ['ENG_ARCHIVE'] = opt.data_root
+
+    fetch = importlib.import_module('.fetch', __package__)
+    logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
+
     if opt.content:
         contents = opt.content
     else:
+        # fetch.content is a dict of {MSID: content_type} values
         contents = set(fetch.content.values())
 
     for content in sorted(contents):

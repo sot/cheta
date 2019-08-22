@@ -9,9 +9,9 @@ import Ska.DBI
 import tables
 from Chandra.Time import DateTime
 
-from cheta import fetch
-from cheta import update_client_archive, update_server_sync
-from cheta.utils import STATS_DT, set_fetch_basedir
+from .. import fetch
+from .. import update_client_archive, update_server_sync
+from ..utils import STATS_DT, set_fetch_basedir
 
 # Covers safe mode and IRU swap activities around 2018:283.  This is a time
 # with rarely-seen telemetry.
@@ -89,7 +89,7 @@ def make_sync_repo(outdir, content):
     date_stop = (DateTime(STOP) + 2).date
 
     print(f'Updating server sync for {content}')
-    args = [f'--data-root={outdir}',
+    args = [f'--sync-root={outdir}',
             f'--date-start={date_start}',
             f'--date-stop={date_stop}',
             f'--log-level={LOG_LEVEL}',
@@ -99,7 +99,7 @@ def make_sync_repo(outdir, content):
 
 
 def make_stub_archfiles(date, basedir_ref, basedir_stub):
-    archfiles_def = open('cheta/archfiles_def.sql').read()
+    archfiles_def = (Path(fetch.__file__).parent / 'archfiles_def.sql').read_text()
 
     with set_fetch_basedir(basedir_ref):
         filename = fetch.msid_files['archfiles'].abs
@@ -110,7 +110,7 @@ def make_stub_archfiles(date, basedir_ref, basedir_stub):
         last_row = db.fetchone(f'select * from archfiles '
                                f'where filetime < {filetime} '
                                f'order by filetime desc'
-                              )
+                               )
 
     with set_fetch_basedir(basedir_stub):
         filename = fetch.msid_files['archfiles'].abs
@@ -315,12 +315,13 @@ def check_content(outdir, content, msids=None):
 
     date_stop = (DateTime(STOP) + 2).date
 
+    print(f'Updating client archive {content}')
     with set_fetch_basedir(basedir_test):
-        print(f'Updating client archive {content}')
         update_client_archive.main([f'--content={content}',
                                     f'--log-level={LOG_LEVEL}',
                                     f'--date-stop={date_stop}',
-                                    f'--data-root={basedir_test}'])
+                                    f'--data-root={basedir_test}',
+                                    f'--sync-root={basedir_test}'])
 
     print(f'Checking {content} {msids}')
     for stat in None, '5min', 'daily':

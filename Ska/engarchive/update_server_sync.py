@@ -55,7 +55,7 @@ sync_files.update(file_defs.sync_files)
 
 def get_options(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root",
+    parser.add_argument("--sync-root",
                         default=".",
                         help="Root directory for sync files (default='.')")
     parser.add_argument("--content",
@@ -103,7 +103,7 @@ def update_msid_contents_pkl(logger):
 def main(args=None):
     # Setup for updating the sync repository
     opt = get_options(args)
-    sync_files.basedir = opt.data_root
+    sync_files.basedir = opt.sync_root
 
     # Set up logging
     loglevel = int(opt.log_level)
@@ -265,7 +265,8 @@ def update_index_file(index_file, opt, logger):
             if len(archfiles) > 0:
                 rows.append(get_row_from_archfiles(archfiles))
                 filedates = DateTime(archfiles['filetime']).fits
-                logger.verbose(f'Got {len(archfiles)} rows {filedates}')
+                logger.verbose(f'Got {len(archfiles)} archfiles rows from '
+                               f'{filedates[0]} to {filedates[-1]}')
 
             filetime0 = filetime1
 

@@ -1534,25 +1534,28 @@ rates to those derived on the ground using raw gyro data.
 .. image:: fetchplots/obc_rates.png
 .. image:: fetchplots/gyro_sc_rates.png
 
-Remote Windows access
-=====================
+Remote data access
+==================
 
-The telemetry archive can be accessed remotely from a Windows PC, if ssh access to
-chimchim is available.  The user will be queried for ssh credentials and
-Ska.engarchive.fetch will connect with a controller running on chimchim to retrieve the
-data.  Besides the initial query for credentials (and slower speeds when fetching data, of
-course), the use of Ska.engarchive.fetch is essentially the same whether the archive is
-local or remote.  The key file
-`<http://donut/svn/fot/Deployment/MATLAB_Tools/Python/python_Windows_64bit/ska_remote_access.json>`_
-needs to be in the user’s Python installation folder (the folder that contains python.exe,
-libs, Doc, etc.) for this to work.
+The telemetry archive can be accessed remotely if ssh access to
+``chimchim`` is available.  The user will be queried for ssh credentials and
+``fetch`` will connect with a controller running on ``chimchim`` to retrieve the
+data.  Besides the initial query for credentials (and slower speeds when fetching data over
+the network), the use of ``fetch`` is essentially the same whether the archive is
+local or remote.
 
+In order to use this option, the user must have a special key file
+``ska_remote_access.json``placed at the root of the local Python installation folder.  This is
+placed in the directory shown with ``import sys; print(sys.prefix)``.  To get a copy of this file
+ contact Mark Baski or Tom Aldcroft.
 
-To do
-======
+Remote access is controlled as follows:
 
-* Add telemetry:
-
-  - ACA header-3
-
-* Add MSID method to determine exact time of mins or maxes
+- The environment variable ``SKA_ACCESS_REMOTELY`` can be set to "False" or "True"
+  to force either disabling or enabling remote access, respectively.
+- If ``SKA_ACCESS_REMOTELY`` is not defined on a linux or Mac system, remote access
+  is always *disabled*.
+- If ``SKA_ACCESS_REMOTELY`` is not defined on a Windows system, remote access
+  is *enabled* unless the system finds a local engineering data archive.  It looks
+  for data in either ``$SKA/data/eng_archive`` or ``$ENG_ARCHIVE``, where those
+  refer to user-defined environment variables.
