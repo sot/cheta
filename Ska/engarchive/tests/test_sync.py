@@ -110,7 +110,7 @@ def make_stub_archfiles(date, basedir_ref, basedir_stub):
         last_row = db.fetchone(f'select * from archfiles '
                                f'where filetime < {filetime} '
                                f'order by filetime desc'
-                              )
+                               )
 
     with set_fetch_basedir(basedir_stub):
         filename = fetch.msid_files['archfiles'].abs

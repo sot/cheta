@@ -34,9 +34,10 @@ def get_data_access_info(is_windows=sys.platform.startswith('win')):
     # moot (and SKA is not required to be defined), so just make sure this bit runs without
     # failing.
     ska = os.getenv('SKA')
+    ska_eng_path = None if (ska is None) else os.path.join(ska, 'data', 'eng_archive')
     eng_archive = os.getenv('ENG_ARCHIVE')
-    if eng_archive is None and ska is not None:
-        eng_archive = os.path.join(ska, 'data', 'eng_archive')
+    if eng_archive is None and ska_eng_path is not None:
+        eng_archive = ska_eng_path
 
     # Remote access is controlled as follows:
     # - The environment variable SKA_ACCESS_REMOTELY can be set to "False" or "True"
@@ -69,7 +70,13 @@ def get_data_access_info(is_windows=sys.platform.startswith('win')):
         # If accessing remotely, then hardwire eng_archive to the linux path where
         # the data are stored on the server.  This prevents a local SKA repository
         # from getting used on the remote server.
-        eng_archive = '/proj/sot/ska/data/eng_archive'
+        ska_eng_path = '/proj/sot/ska/data/eng_archive'
+        eng_archive = ska_eng_path
+
+    # Warn the user if eng data path is non-standard.  Note: if no SKA then
+    # any path is non-standard.
+    if eng_archive != ska_eng_path:
+        print(f'fetch: using ENG_ARCHIVE={eng_archive} for archive path')
 
     return eng_archive, ska_access_remotely
 
