@@ -365,9 +365,12 @@ def get_last_date_id(msid_files, msids, stat, logger):
 
         # Get the most recent stats data available.  Since these are always updated
         # in lock step we can use the most recent but then go back 5 days to be
-        # sure nothing gets missed.
+        # sure nothing gets missed.  Except for ephemeris files that are weird:
+        # when they appear in the archive they include weeks of data in the past
+        # and possibly future data.
         last_time = max(times)
-        last_date_id = get_date_id(DateTime(last_time - 5 * 86400).fits)
+        lookback = 30 if re.search(r'ephem[01]$', fetch.ft['content'].val) else 5
+        last_date_id = get_date_id(DateTime(last_time - lookback * 86400).fits)
 
     return last_date_id, last_date_id_file
 
