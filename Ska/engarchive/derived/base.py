@@ -6,10 +6,11 @@ from .. import fetch
 import Ska.Numpy
 import numpy as np
 from .. import cache
- 
+
 __all__ = ['MNF_TIME', 'times_indexes', 'DerivedParameter']
 
 MNF_TIME = 0.25625              # Minor Frame duration (seconds)
+
 
 def times_indexes(start, stop, dt):
     index0 = DateTime(start).secs // dt
@@ -18,10 +19,12 @@ def times_indexes(start, stop, dt):
     times = indexes * dt
     return times, indexes
 
+
 @cache.lru_cache(20)
 def interpolate_times(keyvals, len_data_times, data_times=None, times=None):
     return Ska.Numpy.interpolate(np.arange(len_data_times),
                                  data_times, times, method='nearest')
+
 
 class DerivedParameter(object):
     max_gap = 66.0              # Max allowed data gap (seconds)
@@ -41,9 +44,9 @@ class DerivedParameter(object):
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
         for data in dataset.values():
             if (data.vals.dtype.name == 'str96'
-                and set(data.vals).issubset(set(['ON ', 'OFF']))):
+                    and set(data.vals).issubset(set(['ON ', 'OFF']))):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
-                    
+
         times, indexes = times_indexes(start, stop, self.time_step)
         bads = np.zeros(len(times), dtype=np.bool)  # All data OK (false)
 
@@ -59,9 +62,9 @@ class DerivedParameter(object):
                       .format(msidname, DateTime(start).date, DateTime(stop).date))
             keyvals = (data.content, data.times[0], data.times[-1],
                        len(times), times[0], times[-1])
-            idxs = interpolate_times(keyvals, len(data.times), 
+            idxs = interpolate_times(keyvals, len(data.times),
                                      data_times=data.times, times=times)
-            
+
             # Loop over data attributes like "bads", "times", "vals" etc and
             # perform near-neighbor interpolation by indexing
             for attr in data.colnames:
@@ -92,9 +95,9 @@ class DerivedParameter(object):
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
         for data in dataset.values():
             if (data.vals.dtype.name == 'string24'
-                and set(data.vals) == set(('ON ', 'OFF'))):
+                    and set(data.vals) == set(('ON ', 'OFF'))):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
-                    
+
         dataset.interpolate(dt=self.time_step)
 
         # Return calculated values.  Np.asarray will copy the array only if

@@ -154,7 +154,7 @@ Interactive MSID plot keys:
 
         if (self.tstart < self.msid.tstart or
             self.tstop > self.msid.tstop or
-            stat != self.msid.stat):
+                stat != self.msid.stat):
             dt = self.tstop - self.tstart
             self.tstart -= dt / 4
             self.tstop += dt / 4

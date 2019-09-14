@@ -95,6 +95,7 @@ def get_options(args=None):
                         help="Logging level")
     return parser.parse_args(args)
 
+
 # Configure fetch.MSID to cache recent results for performance in
 # derived parameter updates.
 fetch.CACHE = True
@@ -169,6 +170,7 @@ def create_content_dir():
 
 _fix_state_code_cache = {}
 
+
 def fix_state_code(state_code):
     """
     Return a version of ``state_code`` that has only alphanumeric chars.  This
@@ -187,6 +189,7 @@ def fix_state_code(state_code):
         _fix_state_code_cache[state_code] = out
 
     return out
+
 
 def main_loop():
     """
@@ -367,7 +370,7 @@ def del_stats(colname, time0, interval):
     logger.info('Fixing stats file %s after time %s', stats_file, DateTime(time0).date)
 
     stats = tables.open_file(stats_file, mode='a',
-                            filters=tables.Filters(complevel=5, complib='zlib'))
+                             filters=tables.Filters(complevel=5, complib='zlib'))
     index0 = time0 // dt - 1
     indexes = stats.root.data.col('index')[:]
     row0 = np.searchsorted(indexes, [index0])[0] - 1
@@ -499,7 +502,7 @@ def update_stats(colname, interval, msid=None):
         os.makedirs(msid_files['statsdir'].abs)
 
     stats = tables.open_file(stats_file, mode='a',
-                            filters=tables.Filters(complevel=5, complib='zlib'))
+                             filters=tables.Filters(complevel=5, complib='zlib'))
 
     # INDEX0 is somewhat before any CXC archive data (which starts around 1999:205)
     INDEX0 = DateTime('1999:200:00:00:00').secs // dt
@@ -725,7 +728,7 @@ def append_h5_col(dats, colname, files_overlaps):
             if not opt.dry_run:
                 logger.verbose('Removing overlapping data in rows {0}:{1}'.format(
                     bad_rowstart, bad_rowstop))
-                if  bad_rowstop > bad_rowstart:
+                if bad_rowstop > bad_rowstart:
                     h5.root.quality[bad_rowstart:bad_rowstop] = True
                 else:
                     # What's happening here is that tstart for file1 was slightly before

@@ -20,7 +20,7 @@ class DerivedParameterThermal(base.DerivedParameter):
         stuck = stuck1 | stuck2
         data['4OHTRZ50'].vals[stuck] = 1
 
-#--------------------------------------------
+# --------------------------------------------
 
 
 class DP_EE_AXIAL(DerivedParameterThermal):
@@ -42,7 +42,7 @@ class DP_EE_AXIAL(DerivedParameterThermal):
         return EE_AXIAL
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_EE_BULK(DerivedParameterThermal):
     rootparams = ['OHRTHR10', 'OHRTHR58', 'OHRTHR52', 'OHRTHR53', 'OHRTHR56',
                   'OHRTHR57', 'OHRTHR54', 'OHRTHR55', 'OHRTHR12', 'OHRTHR35',
@@ -68,7 +68,7 @@ class DP_EE_BULK(DerivedParameterThermal):
         return EE_BULK
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_EE_DIAM(DerivedParameterThermal):
     """Kodak diametrical encircled energy"""
     rootparams = ['OHRMGRD6', 'OHRMGRD3']
@@ -82,7 +82,7 @@ class DP_EE_DIAM(DerivedParameterThermal):
         return EE_DIAM
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_EE_RADIAL(DerivedParameterThermal):
     rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR54', 'OHRTHR31', 'OHRTHR09',
                   'OHRTHR08', 'OHRTHR33']
@@ -99,7 +99,7 @@ class DP_EE_RADIAL(DerivedParameterThermal):
         return EE_RADIAL
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_EE_THERM(DerivedParameterThermal):
     rootparams = ['OHRTHR37', 'OHRTHR58', 'OHRMGRD6', 'OHRMGRD3', 'OHRTHR35',
                   'OHRTHR52', 'OHRTHR53', 'OHRTHR56', 'OHRTHR57', 'OHRTHR54',
@@ -150,7 +150,7 @@ class DP_EE_THERM(DerivedParameterThermal):
         return EE_THERM
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HAAG(DerivedParameterThermal):
     rootparams = ['OHRTHR58', 'OHRTHR12', 'OHRTHR56', 'OHRTHR57', 'OHRTHR55',
                   'OHRTHR13', 'OHRTHR36', 'OHRTHR37', 'OHRTHR34', 'OHRTHR35',
@@ -168,7 +168,7 @@ class DP_HAAG(DerivedParameterThermal):
         return HAAG
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HARG(DerivedParameterThermal):
     rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR54', 'OHRTHR31', 'OHRTHR09',
                   'OHRTHR08', 'OHRTHR33']
@@ -183,7 +183,7 @@ class DP_HARG(DerivedParameterThermal):
         return HARG
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HMAX35(DerivedParameterThermal):
     rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
                   'OHRTHR55', 'OHRTHR23', 'OHRTHR22', 'OHRTHR30', 'OHRTHR33',
@@ -202,7 +202,7 @@ class DP_HMAX35(DerivedParameterThermal):
         return HMAX35
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HMCSAVE(DerivedParameterThermal):
     rootparams = ['OHRTHR10', 'OHRTHR58', 'OHRTHR52', 'OHRTHR53', 'OHRTHR56',
                   'OHRTHR57', 'OHRTHR54', 'OHRTHR55', 'OHRTHR12', 'OHRTHR35',
@@ -225,7 +225,7 @@ class DP_HMCSAVE(DerivedParameterThermal):
         return HMCSAVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HMIN35(DerivedParameterThermal):
     rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
                   'OHRTHR55', 'OHRTHR23', 'OHRTHR08', 'OHRTHR30', 'OHRTHR33',
@@ -244,7 +244,7 @@ class DP_HMIN35(DerivedParameterThermal):
         return HMIN35
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HRMA_AVE(DerivedParameterThermal):
     rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
                   'OHRTHR55', 'OHRTHR09', 'OHRTHR08', 'OHRTHR30', 'OHRTHR33',
@@ -264,7 +264,7 @@ class DP_HRMA_AVE(DerivedParameterThermal):
         return HRMA_AVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HRMHCHK(DerivedParameterThermal):
     rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
                   'OHRTHR55', 'OHRTHR09', 'OHRTHR08', 'OHRTHR30', 'OHRTHR33',
@@ -287,7 +287,7 @@ class DP_HRMHCHK(DerivedParameterThermal):
         return HRMHCHK
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OBAAG(DerivedParameterThermal):
     rootparams = ['4RT704T', '4RT705T', '4RT708T', '4RT707T', '4RT709T', '4RT711T',
                   '4RT700T', '4RT702T', '4RT701T', '4RT703T', 'OOBTHR34',
@@ -311,7 +311,7 @@ class DP_OBAAG(DerivedParameterThermal):
         return OBAAG
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OBAAGW(DerivedParameterThermal):
     rootparams = ['4RT705T', '4RT707T', '4RT709T', '4RT711T', '4RT701T', '4RT703T',
                   'OOBTHR34', 'OOBTHR33', 'OOBTHR31']
@@ -327,7 +327,7 @@ class DP_OBAAGW(DerivedParameterThermal):
         return OBAAGW
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OBACAVE(DerivedParameterThermal):
     rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
                   'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR30',
@@ -353,7 +353,7 @@ class DP_OBACAVE(DerivedParameterThermal):
         return OBACAVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OBACAVEW(DerivedParameterThermal):
     rootparams = ['4RT705T', 'OOBTHR19', '4RT707T', 'OOBTHR15', 'OOBTHR14',
                   '4RT711T', 'OOBTHR11', 'OOBTHR10', 'OOBTHR13', '4RT701T',
@@ -387,7 +387,7 @@ class DP_OBACAVEW(DerivedParameterThermal):
         return OBACAVEW
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OBADIG(DerivedParameterThermal):
     rootparams = ['OOBTHR08', 'OOBTHR19', 'OOBTHR31', 'OOBTHR13', 'OOBTHR26',
                   'OOBTHR34', 'OOBTHR33', 'OOBTHR22', 'OOBTHR23', 'OOBTHR60',
@@ -406,7 +406,7 @@ class DP_OBADIG(DerivedParameterThermal):
         return OBADIG
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OBADIGW(DerivedParameterThermal):
     rootparams = ['OOBTHR08', '4RT705T', 'OOBTHR19', '4RT707T', 'OOBTHR22',
                   '4RT711T', 'OOBTHR13', '4RT701T', 'OOBTHR26', 'OOBTHR34',
@@ -432,7 +432,7 @@ class DP_OBADIGW(DerivedParameterThermal):
         return OBADIGW
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OBA_AVE(DerivedParameterThermal):
     rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
                   'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR37',
@@ -451,7 +451,7 @@ class DP_OBA_AVE(DerivedParameterThermal):
         return OBA_AVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OMAX34(DerivedParameterThermal):
     rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
                   'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR37',
@@ -469,7 +469,7 @@ class DP_OMAX34(DerivedParameterThermal):
         return OMAX34
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_OMIN34(DerivedParameterThermal):
     rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
                   'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR37',
@@ -487,7 +487,7 @@ class DP_OMIN34(DerivedParameterThermal):
         return OMIN34
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P01(DerivedParameterThermal):
     """Zone 1 heater power"""
     rootparams = ['ELBV', '4OHTRZ01']
@@ -499,7 +499,7 @@ class DP_P01(DerivedParameterThermal):
         return P01
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P02(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ02']
     time_step = 0.25625
@@ -510,7 +510,7 @@ class DP_P02(DerivedParameterThermal):
         return P02
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P03(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ03']
     time_step = 0.25625
@@ -521,7 +521,7 @@ class DP_P03(DerivedParameterThermal):
         return P03
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P04(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ04']
     time_step = 0.25625
@@ -532,7 +532,7 @@ class DP_P04(DerivedParameterThermal):
         return P04
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P05(DerivedParameterThermal):
     rootparams = ['4OHTRZ05', 'ELBV']
     time_step = 0.25625
@@ -543,7 +543,7 @@ class DP_P05(DerivedParameterThermal):
         return P05
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P06(DerivedParameterThermal):
     rootparams = ['4OHTRZ06', 'ELBV']
     time_step = 0.25625
@@ -554,7 +554,7 @@ class DP_P06(DerivedParameterThermal):
         return P06
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P07(DerivedParameterThermal):
     rootparams = ['4OHTRZ07', 'ELBV']
     time_step = 0.25625
@@ -565,7 +565,7 @@ class DP_P07(DerivedParameterThermal):
         return P07
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P08(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ08']
     time_step = 0.25625
@@ -576,7 +576,7 @@ class DP_P08(DerivedParameterThermal):
         return P08
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P09(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ09']
     time_step = 0.25625
@@ -587,7 +587,7 @@ class DP_P09(DerivedParameterThermal):
         return P09
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P10(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ10']
     time_step = 0.25625
@@ -598,7 +598,7 @@ class DP_P10(DerivedParameterThermal):
         return P10
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P11(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ11']
     time_step = 0.25625
@@ -609,7 +609,7 @@ class DP_P11(DerivedParameterThermal):
         return P11
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P12(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ12']
     time_step = 0.25625
@@ -620,7 +620,7 @@ class DP_P12(DerivedParameterThermal):
         return P12
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P13(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ13']
     time_step = 0.25625
@@ -631,7 +631,7 @@ class DP_P13(DerivedParameterThermal):
         return P13
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P14(DerivedParameterThermal):
     rootparams = ['4OHTRZ14', 'ELBV']
     time_step = 0.25625
@@ -642,7 +642,7 @@ class DP_P14(DerivedParameterThermal):
         return P14
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P15(DerivedParameterThermal):
     rootparams = ['4OHTRZ15', 'ELBV']
     time_step = 0.25625
@@ -653,7 +653,7 @@ class DP_P15(DerivedParameterThermal):
         return P15
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P16(DerivedParameterThermal):
     rootparams = ['4OHTRZ16', 'ELBV']
     time_step = 0.25625
@@ -664,7 +664,7 @@ class DP_P16(DerivedParameterThermal):
         return P16
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P17(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ17']
     time_step = 0.25625
@@ -675,7 +675,7 @@ class DP_P17(DerivedParameterThermal):
         return P17
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P18(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ18']
     time_step = 0.25625
@@ -686,7 +686,7 @@ class DP_P18(DerivedParameterThermal):
         return P18
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P19(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ19']
     time_step = 0.25625
@@ -697,7 +697,7 @@ class DP_P19(DerivedParameterThermal):
         return P19
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P20(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ20']
     time_step = 0.25625
@@ -708,7 +708,7 @@ class DP_P20(DerivedParameterThermal):
         return P20
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P23(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ23']
     time_step = 0.25625
@@ -719,7 +719,7 @@ class DP_P23(DerivedParameterThermal):
         return P23
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P24(DerivedParameterThermal):
     rootparams = ['4OHTRZ24', 'ELBV']
     time_step = 0.25625
@@ -730,7 +730,7 @@ class DP_P24(DerivedParameterThermal):
         return P24
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P25(DerivedParameterThermal):
     rootparams = ['4OHTRZ25', 'ELBV']
     time_step = 0.25625
@@ -741,7 +741,7 @@ class DP_P25(DerivedParameterThermal):
         return P25
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P26(DerivedParameterThermal):
     rootparams = ['4OHTRZ26', 'ELBV']
     time_step = 0.25625
@@ -752,7 +752,7 @@ class DP_P26(DerivedParameterThermal):
         return P26
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P27(DerivedParameterThermal):
     rootparams = ['4OHTRZ27', 'ELBV']
     time_step = 0.25625
@@ -763,7 +763,7 @@ class DP_P27(DerivedParameterThermal):
         return P27
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P28(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ28']
     time_step = 0.25625
@@ -774,7 +774,7 @@ class DP_P28(DerivedParameterThermal):
         return P28
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P29(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ29']
     time_step = 0.25625
@@ -785,7 +785,7 @@ class DP_P29(DerivedParameterThermal):
         return P29
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P30(DerivedParameterThermal):
     rootparams = ['4OHTRZ30', 'ELBV']
     time_step = 0.25625
@@ -796,7 +796,7 @@ class DP_P30(DerivedParameterThermal):
         return P30
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P31(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ31']
     time_step = 0.25625
@@ -807,7 +807,7 @@ class DP_P31(DerivedParameterThermal):
         return P31
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P32(DerivedParameterThermal):
     rootparams = ['4OHTRZ32', 'ELBV']
     time_step = 0.25625
@@ -818,7 +818,7 @@ class DP_P32(DerivedParameterThermal):
         return P32
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P33(DerivedParameterThermal):
     rootparams = ['4OHTRZ33', 'ELBV']
     time_step = 0.25625
@@ -829,7 +829,7 @@ class DP_P33(DerivedParameterThermal):
         return P33
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P34(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ34']
     time_step = 0.25625
@@ -840,7 +840,7 @@ class DP_P34(DerivedParameterThermal):
         return P34
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P35(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ35']
     time_step = 0.25625
@@ -851,7 +851,7 @@ class DP_P35(DerivedParameterThermal):
         return P35
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P36(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ36']
     time_step = 0.25625
@@ -862,7 +862,7 @@ class DP_P36(DerivedParameterThermal):
         return P36
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P37(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ37']
     time_step = 0.25625
@@ -873,7 +873,7 @@ class DP_P37(DerivedParameterThermal):
         return P37
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P38(DerivedParameterThermal):
     rootparams = ['4OHTRZ38', 'ELBV']
     time_step = 0.25625
@@ -884,7 +884,7 @@ class DP_P38(DerivedParameterThermal):
         return P38
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P39(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ39']
     time_step = 0.25625
@@ -895,7 +895,7 @@ class DP_P39(DerivedParameterThermal):
         return P39
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P40(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ40']
     time_step = 0.25625
@@ -906,7 +906,7 @@ class DP_P40(DerivedParameterThermal):
         return P40
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P41(DerivedParameterThermal):
     rootparams = ['4OHTRZ41', 'ELBV']
     time_step = 0.25625
@@ -917,7 +917,7 @@ class DP_P41(DerivedParameterThermal):
         return P41
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P42(DerivedParameterThermal):
     rootparams = ['4OHTRZ42', 'ELBV']
     time_step = 0.25625
@@ -928,7 +928,7 @@ class DP_P42(DerivedParameterThermal):
         return P42
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P43(DerivedParameterThermal):
     rootparams = ['4OHTRZ43', 'ELBV']
     time_step = 0.25625
@@ -939,7 +939,7 @@ class DP_P43(DerivedParameterThermal):
         return P43
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P44(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ44']
     time_step = 0.25625
@@ -950,7 +950,7 @@ class DP_P44(DerivedParameterThermal):
         return P44
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P45(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ45']
     time_step = 0.25625
@@ -961,7 +961,7 @@ class DP_P45(DerivedParameterThermal):
         return P45
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P46(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ46']
     time_step = 0.25625
@@ -972,7 +972,7 @@ class DP_P46(DerivedParameterThermal):
         return P46
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P47(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ47']
     time_step = 0.25625
@@ -983,7 +983,7 @@ class DP_P47(DerivedParameterThermal):
         return P47
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P48(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ48']
     time_step = 0.25625
@@ -994,7 +994,7 @@ class DP_P48(DerivedParameterThermal):
         return P48
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P49(DerivedParameterThermal):
     rootparams = ['4OHTRZ49', 'ELBV']
     time_step = 0.25625
@@ -1005,7 +1005,7 @@ class DP_P49(DerivedParameterThermal):
         return P49
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P50(DerivedParameterThermal):
     rootparams = ['4OHTRZ50', 'ELBV']
     time_step = 0.25625
@@ -1017,7 +1017,7 @@ class DP_P50(DerivedParameterThermal):
         return P50
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P51(DerivedParameterThermal):
     rootparams = ['4OHTRZ51', 'ELBV']
     time_step = 0.25625
@@ -1028,7 +1028,7 @@ class DP_P51(DerivedParameterThermal):
         return P51
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P52(DerivedParameterThermal):
     rootparams = ['4OHTRZ52', 'ELBV']
     time_step = 0.25625
@@ -1039,7 +1039,7 @@ class DP_P52(DerivedParameterThermal):
         return P52
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P53(DerivedParameterThermal):
     rootparams = ['4OHTRZ53', 'ELBV']
     time_step = 0.25625
@@ -1050,7 +1050,7 @@ class DP_P53(DerivedParameterThermal):
         return P53
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P54(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ54']
     time_step = 0.25625
@@ -1061,7 +1061,7 @@ class DP_P54(DerivedParameterThermal):
         return P54
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P55(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ55']
     time_step = 0.25625
@@ -1072,7 +1072,7 @@ class DP_P55(DerivedParameterThermal):
         return P55
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P57(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ57']
     time_step = 0.25625
@@ -1083,7 +1083,7 @@ class DP_P57(DerivedParameterThermal):
         return P57
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P58(DerivedParameterThermal):
     rootparams = ['4OHTRZ58', 'ELBV']
     time_step = 0.25625
@@ -1094,7 +1094,7 @@ class DP_P58(DerivedParameterThermal):
         return P58
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P59(DerivedParameterThermal):
     rootparams = ['4OHTRZ59', 'ELBV']
     time_step = 0.25625
@@ -1105,7 +1105,7 @@ class DP_P59(DerivedParameterThermal):
         return P59
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P60(DerivedParameterThermal):
     rootparams = ['4OHTRZ60', 'ELBV']
     time_step = 0.25625
@@ -1116,7 +1116,7 @@ class DP_P60(DerivedParameterThermal):
         return P60
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P61(DerivedParameterThermal):
     rootparams = ['4OHTRZ61', 'ELBV']
     time_step = 0.25625
@@ -1127,7 +1127,7 @@ class DP_P61(DerivedParameterThermal):
         return P61
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P62(DerivedParameterThermal):
     rootparams = ['4OHTRZ62', 'ELBV']
     time_step = 0.25625
@@ -1138,7 +1138,7 @@ class DP_P62(DerivedParameterThermal):
         return P62
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P63(DerivedParameterThermal):
     rootparams = ['4OHTRZ63', 'ELBV']
     time_step = 0.25625
@@ -1149,7 +1149,7 @@ class DP_P63(DerivedParameterThermal):
         return P63
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P64(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ64']
     time_step = 0.25625
@@ -1160,7 +1160,7 @@ class DP_P64(DerivedParameterThermal):
         return P64
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P65(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ65']
     time_step = 0.25625
@@ -1171,7 +1171,7 @@ class DP_P65(DerivedParameterThermal):
         return P65
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P66(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ66']
     time_step = 0.25625
@@ -1182,7 +1182,7 @@ class DP_P66(DerivedParameterThermal):
         return P66
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P67(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ67']
     time_step = 0.25625
@@ -1193,7 +1193,7 @@ class DP_P67(DerivedParameterThermal):
         return P67
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P68(DerivedParameterThermal):
     rootparams = ['4OHTRZ68', 'ELBV']
     time_step = 0.25625
@@ -1204,7 +1204,7 @@ class DP_P68(DerivedParameterThermal):
         return P68
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P69(DerivedParameterThermal):
     rootparams = ['4OHTRZ69', 'ELBV']
     time_step = 0.25625
@@ -1215,7 +1215,7 @@ class DP_P69(DerivedParameterThermal):
         return P69
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P75(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ75']
     time_step = 0.25625
@@ -1226,7 +1226,7 @@ class DP_P75(DerivedParameterThermal):
         return P75
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P76(DerivedParameterThermal):
     rootparams = ['4OHTRZ76', 'ELBV']
     time_step = 0.25625
@@ -1237,7 +1237,7 @@ class DP_P76(DerivedParameterThermal):
         return P76
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P77(DerivedParameterThermal):
     rootparams = ['4OHTRZ77', 'ELBV']
     time_step = 0.25625
@@ -1248,7 +1248,7 @@ class DP_P77(DerivedParameterThermal):
         return P77
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P78(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ78']
     time_step = 0.25625
@@ -1259,7 +1259,7 @@ class DP_P78(DerivedParameterThermal):
         return P78
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P79(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ79']
     time_step = 0.25625
@@ -1270,7 +1270,7 @@ class DP_P79(DerivedParameterThermal):
         return P79
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_P80(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ80']
     time_step = 0.25625
@@ -1281,7 +1281,7 @@ class DP_P80(DerivedParameterThermal):
         return P80
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PABH(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57']
     time_step = 0.25625
@@ -1296,7 +1296,7 @@ class DP_PABH(DerivedParameterThermal):
         return PABH
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PAFTCONE(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51', '4OHTRZ52']
     time_step = 0.25625
@@ -1313,7 +1313,7 @@ class DP_PAFTCONE(DerivedParameterThermal):
         return PAFTCONE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PAFTCYL(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ66', '4OHTRZ67', '4OHTRZ68']
     time_step = 0.25625
@@ -1327,7 +1327,7 @@ class DP_PAFTCYL(DerivedParameterThermal):
         return PAFTCYL
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PAHP(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ11', '4OHTRZ12', '4OHTRZ13']
     time_step = 0.25625
@@ -1341,7 +1341,7 @@ class DP_PAHP(DerivedParameterThermal):
         return PAHP
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PCONE(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ61', '4OHTRZ62', '4OHTRZ63']
     time_step = 0.25625
@@ -1355,7 +1355,7 @@ class DP_PCONE(DerivedParameterThermal):
         return PCONE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PFAP(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ01', '4OHTRZ02', '4OHTRZ03', '4OHTRZ04',
                   '4OHTRZ05', '4OHTRZ06', '4OHTRZ07']
@@ -1374,7 +1374,7 @@ class DP_PFAP(DerivedParameterThermal):
         return PFAP
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PFWDCONE(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ31', '4OHTRZ32', '4OHTRZ33', '4OHTRZ34',
                   '4OHTRZ35', '4OHTRZ36', '4OHTRZ37', '4OHTRZ38', '4OHTRZ39',
@@ -1398,7 +1398,7 @@ class DP_PFWDCONE(DerivedParameterThermal):
         return PFWDCONE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PFWDCYL(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ58', '4OHTRZ59', '4OHTRZ60']
     time_step = 0.25625
@@ -1412,7 +1412,7 @@ class DP_PFWDCYL(DerivedParameterThermal):
         return PFWDCYL
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PHRMA(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ01', '4OHTRZ02', '4OHTRZ03', '4OHTRZ04',
                   '4OHTRZ05', '4OHTRZ06', '4OHTRZ07', '4OHTRZ08', '4OHTRZ09',
@@ -1451,7 +1451,7 @@ class DP_PHRMA(DerivedParameterThermal):
         return PHRMA
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PHRMASTRUTS(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ25', '4OHTRZ26', '4OHTRZ27', '4OHTRZ28',
                   '4OHTRZ29', '4OHTRZ30']
@@ -1469,7 +1469,7 @@ class DP_PHRMASTRUTS(DerivedParameterThermal):
         return PHRMASTRUTS
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PIC(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ23', '4OHTRZ24']
     time_step = 0.25625
@@ -1482,7 +1482,7 @@ class DP_PIC(DerivedParameterThermal):
         return PIC
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PMIDCONE(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ41', '4OHTRZ42', '4OHTRZ43', '4OHTRZ44',
                   '4OHTRZ45', '4OHTRZ46', '4OHTRZ47']
@@ -1501,7 +1501,7 @@ class DP_PMIDCONE(DerivedParameterThermal):
         return PMIDCONE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PMNT(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ14', '4OHTRZ15', '4OHTRZ16']
     time_step = 0.25625
@@ -1515,7 +1515,7 @@ class DP_PMNT(DerivedParameterThermal):
         return PMNT
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_POBAT(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ25', '4OHTRZ26', '4OHTRZ27', '4OHTRZ28', '4OHTRZ29',
                   '4OHTRZ30', '4OHTRZ31', '4OHTRZ32', '4OHTRZ33', '4OHTRZ34',
@@ -1579,7 +1579,7 @@ class DP_POBAT(DerivedParameterThermal):
         return POBAT
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_POC(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ17', '4OHTRZ18', '4OHTRZ19']
     time_step = 0.25625
@@ -1593,7 +1593,7 @@ class DP_POC(DerivedParameterThermal):
         return POC
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PPL10(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ08', '4OHTRZ09', '4OHTRZ10']
     time_step = 0.25625
@@ -1607,7 +1607,7 @@ class DP_PPL10(DerivedParameterThermal):
         return PPL10
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PRADVNT(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ64', '4OHTRZ65', '4OHTRZ69']
     time_step = 0.25625
@@ -1621,7 +1621,7 @@ class DP_PRADVNT(DerivedParameterThermal):
         return PRADVNT
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PSCSTRUTS(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ75', '4OHTRZ76', '4OHTRZ77',
                   '4OHTRZ78', '4OHTRZ79', '4OHTRZ80']
@@ -1639,7 +1639,7 @@ class DP_PSCSTRUTS(DerivedParameterThermal):
         return PSCSTRUTS
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PTFTE(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ58', '4OHTRZ59', '4OHTRZ60', '4OHTRZ61',
                   '4OHTRZ62', '4OHTRZ63', '4OHTRZ64', '4OHTRZ65', '4OHTRZ66',
@@ -1666,7 +1666,7 @@ class DP_PTFTE(DerivedParameterThermal):
         return PTFTE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PTOTAL(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ01', '4OHTRZ02', '4OHTRZ03', '4OHTRZ04',
                   '4OHTRZ05', '4OHTRZ06', '4OHTRZ07', '4OHTRZ08', '4OHTRZ09',
@@ -1780,7 +1780,7 @@ class DP_PTOTAL(DerivedParameterThermal):
         return PTOTAL
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_SUNANGLE(DerivedParameterThermal):
     rootparams = ['AOSARES1']
     time_step = 0.25625
@@ -1790,7 +1790,7 @@ class DP_SUNANGLE(DerivedParameterThermal):
         return SUNANGLE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TABMAX(DerivedParameterThermal):
     rootparams = ['OOBTHR47', 'OOBTHR42', 'OOBTHR43']
     time_step = 32.8
@@ -1801,7 +1801,7 @@ class DP_TABMAX(DerivedParameterThermal):
         return TABMAX
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TABMIN(DerivedParameterThermal):
     rootparams = ['OOBTHR47', 'OOBTHR42', 'OOBTHR43']
     time_step = 32.8
@@ -1812,7 +1812,7 @@ class DP_TABMIN(DerivedParameterThermal):
         return TABMIN
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TELAB_AVE(DerivedParameterThermal):
     rootparams = ['OOBTHR47', 'OOBTHR42', 'OOBTHR43']
     time_step = 32.8
@@ -1823,7 +1823,7 @@ class DP_TELAB_AVE(DerivedParameterThermal):
         return TELAB_AVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TELHS_AVE(DerivedParameterThermal):
     rootparams = ['OOBTHR02', 'OOBTHR03', 'OOBTHR06', 'OOBTHR07', 'OOBTHR04',
                   'OOBTHR05']
@@ -1836,7 +1836,7 @@ class DP_TELHS_AVE(DerivedParameterThermal):
         return TELHS_AVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TELSS_AVE(DerivedParameterThermal):
     rootparams = ['OOBTHR51', 'OOBTHR50', 'OOBTHR53', 'OOBTHR52', 'OOBTHR54',
                   'OOBTHR49']
@@ -1849,7 +1849,7 @@ class DP_TELSS_AVE(DerivedParameterThermal):
         return TELSS_AVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_THSMAX(DerivedParameterThermal):
     rootparams = ['OOBTHR02', 'OOBTHR03', 'OOBTHR06', 'OOBTHR07', 'OOBTHR04',
                   'OOBTHR05']
@@ -1862,7 +1862,7 @@ class DP_THSMAX(DerivedParameterThermal):
         return THSMAX
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_THSMIN(DerivedParameterThermal):
     rootparams = ['OOBTHR02', 'OOBTHR03', 'OOBTHR06', 'OOBTHR07', 'OOBTHR04',
                   'OOBTHR05']
@@ -1875,7 +1875,7 @@ class DP_THSMIN(DerivedParameterThermal):
         return THSMIN
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TILT_AXIAL(DerivedParameterThermal):
     rootparams = ['OOBAGRD3']
     time_step = 32.8
@@ -1885,7 +1885,7 @@ class DP_TILT_AXIAL(DerivedParameterThermal):
         return TILT_AXIAL
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TILT_BULK(DerivedParameterThermal):
     rootparams = ['OHRTHR43', 'OHRTHR42']
     time_step = 32.8
@@ -1896,7 +1896,7 @@ class DP_TILT_BULK(DerivedParameterThermal):
         return TILT_BULK
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TILT_DIAM(DerivedParameterThermal):
     rootparams = ['OOBAGRD6']
     time_step = 32.8
@@ -1906,7 +1906,7 @@ class DP_TILT_DIAM(DerivedParameterThermal):
         return TILT_DIAM
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TILT_MAX(DerivedParameterThermal):
     rootparams = ['OOBAGRD6', 'OOBAGRD3', 'OHRTHR43', 'OHRTHR42']
     time_step = 32.8
@@ -1920,7 +1920,7 @@ class DP_TILT_MAX(DerivedParameterThermal):
         return TILT_MAX
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TILT_RSS(DerivedParameterThermal):
     rootparams = ['OOBAGRD6', 'OOBAGRD3', 'OHRTHR43', 'OHRTHR42']
     time_step = 32.8
@@ -1934,7 +1934,7 @@ class DP_TILT_RSS(DerivedParameterThermal):
         return TILT_RSS
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TSSMAX(DerivedParameterThermal):
     rootparams = ['OOBTHR51', 'OOBTHR50', 'OOBTHR53', 'OOBTHR52', 'OOBTHR54',
                   'OOBTHR49']
@@ -1947,7 +1947,7 @@ class DP_TSSMAX(DerivedParameterThermal):
         return TSSMAX
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_TSSMIN(DerivedParameterThermal):
     rootparams = ['OOBTHR51', 'OOBTHR50', 'OOBTHR53', 'OOBTHR52', 'OOBTHR54',
                   'OOBTHR49']
@@ -1960,7 +1960,7 @@ class DP_TSSMIN(DerivedParameterThermal):
         return TSSMIN
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_HADG(DerivedParameterThermal):
     rootparams = ['OHRMGRD3', 'OHRMGRD6']
     time_step = 32.8
@@ -1971,7 +1971,7 @@ class DP_HADG(DerivedParameterThermal):
         return HADG
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_ABH_DUTYCYCLE(DerivedParameterThermal):
     rootparams = ['4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57']
     time_step = 32.8

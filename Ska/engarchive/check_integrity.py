@@ -102,7 +102,7 @@ def check_filetype(filetype):
     if archfile['rowstop'] != length:
         logger.info('ERROR: inconsistent archfile {}: '
                     'last rowstop={} MSID length={}'.format(
-            ft['content'], archfile['rowstop'], length))
+                        ft['content'], archfile['rowstop'], length))
         if opt.find_glitch:
             find_glitch()
 
@@ -118,7 +118,7 @@ def find_glitch():
 
     for archfile in archfiles:
         logger.verbose('archfile {} {} {}'.format(
-                archfile['filename'], archfile['year'], archfile['doy']))
+            archfile['filename'], archfile['year'], archfile['doy']))
         tstart = archfile['tstart']
         rowstart = archfile['rowstart']
         if abs(tstart - times[rowstart]) > opt.max_tstart_mismatch:

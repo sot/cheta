@@ -21,7 +21,7 @@ class DerivedParameterPcad(base.DerivedParameter):
     content_root = 'pcad'
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_CSS1_NPM_SUN(DerivedParameterPcad):
     """Coarse Sun Sensor Counts 1 filtered for NPM and SA Illuminated
 
@@ -42,7 +42,7 @@ class DP_CSS1_NPM_SUN(DerivedParameterPcad):
         return css1_npm_sun
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_CSS2_NPM_SUN(DerivedParameterPcad):
     """Coarse Sun Sensor Counts 2 filtered for NPM and SA Illuminated
 
@@ -63,7 +63,7 @@ class DP_CSS2_NPM_SUN(DerivedParameterPcad):
         return css2_npm_sun
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_CSS3_NPM_SUN(DerivedParameterPcad):
     """Coarse Sun Sensor Counts 3 filtered for NPM and SA Illuminated
 
@@ -84,7 +84,7 @@ class DP_CSS3_NPM_SUN(DerivedParameterPcad):
         return css3_npm_sun
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_CSS4_NPM_SUN(DerivedParameterPcad):
     """Coarse Sun Sensor Counts 4 filtered for NPM and SA Illuminated
 
@@ -105,7 +105,7 @@ class DP_CSS4_NPM_SUN(DerivedParameterPcad):
         return css4_npm_sun
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
     """Angle between FSS and CSS Sun Vectors [Deg]
 
@@ -132,13 +132,13 @@ class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
         fss_aca = np.array([data['aosunac1'].vals,
                             data['aosunac2'].vals,
                             data['aosunac3'].vals])
-        #Rotate CSS sun vector from SA to ACA frame
+        # Rotate CSS sun vector from SA to ACA frame
         css_aca = np.array([sinang * data['aosunsa1'].vals -
                             cosang * data['aosunsa3'].vals,
                             data['aosunsa2'].vals * 1.0,
                             cosang * data['aosunsa1'].vals +
                             sinang * data['aosunsa3'].vals])
-        #Normalize the vectors (again)
+        # Normalize the vectors (again)
         magnitude = sqrt((fss_aca * fss_aca).sum(axis=0))
         data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
@@ -149,13 +149,13 @@ class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
         magnitude[data.bads] = 1.0
         css_aca = css_aca / magnitude
 
-        #Compute the angle between the vectors
+        # Compute the angle between the vectors
         dot_prod = (css_aca * fss_aca).sum(axis=0)
         fss_css_angle_diff = degrees(np.abs(arccos_clip(dot_prod)))
         return fss_css_angle_diff
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_MAN_ANG(DerivedParameterPcad):
     """Maneuver Angle (Total)  [deg]
 
@@ -180,11 +180,11 @@ class DP_MAN_ANG(DerivedParameterPcad):
         est_quat_inv = np.array([-1 * data['aoattqt1'].vals,
                                  -1 * data['aoattqt2'].vals,
                                  -1 * data['aoattqt3'].vals,
-                                      data['aoattqt4'].vals])
+                                 data['aoattqt4'].vals])
         tar_quat = np.array([data['aotarqt1'].vals,
                              data['aotarqt2'].vals,
                              data['aotarqt3'].vals,
-                                   aotarqt4])
+                             aotarqt4])
         delta_quat = qmult(est_quat_inv, tar_quat)
         # Normalize delta_quat due to roundoff errors.
         magnitude = sqrt((delta_quat * delta_quat).sum(axis=0))
@@ -198,7 +198,7 @@ class DP_MAN_ANG(DerivedParameterPcad):
         return man_ang
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_ONE_SHOT(DerivedParameterPcad):
     """One Shot [arcsec]
 
@@ -219,7 +219,7 @@ class DP_ONE_SHOT(DerivedParameterPcad):
         return one_shot
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PITCH(DerivedParameterPcad):
     """Sun Pitch Angle from Predictive Ephemeris in ACA Frame [deg]
 
@@ -246,7 +246,7 @@ class DP_PITCH(DerivedParameterPcad):
         return pitch
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PITCH_CSS(DerivedParameterPcad):
     """Sun Pitch Angle from CSS Data in ACA Frame [Deg]
 
@@ -266,13 +266,13 @@ class DP_PITCH_CSS(DerivedParameterPcad):
                       1.0 * data['aosares2'].vals) / 2
         sinang = sin(radians(sa_ang_avg))
         cosang = cos(radians(sa_ang_avg))
-        #Rotate CSS sun vector from SA to ACA frame
+        # Rotate CSS sun vector from SA to ACA frame
         css_aca = np.array([sinang * data['aosunsa1'].vals -
                             cosang * data['aosunsa3'].vals,
                             data['aosunsa2'].vals * 1.0,
                             cosang * data['aosunsa1'].vals +
                             sinang * data['aosunsa3'].vals])
-        #Normalize sun vec (again) and compute pitch
+        # Normalize sun vec (again) and compute pitch
         magnitude = sqrt((css_aca * css_aca).sum(axis=0))
         data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
@@ -281,7 +281,7 @@ class DP_PITCH_CSS(DerivedParameterPcad):
         return pitch_css
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PITCH_CSS_SA(DerivedParameterPcad):
     """Sun Pitch Angle from CSS Data in SA Frame [Deg]
 
@@ -301,7 +301,7 @@ class DP_PITCH_CSS_SA(DerivedParameterPcad):
         return pitch_css_sa
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PITCH_FSS(DerivedParameterPcad):
     """Sun Pitch Angle from FSS Data in ACA Frame [Deg]
 
@@ -326,14 +326,14 @@ class DP_PITCH_FSS(DerivedParameterPcad):
         data.bads = data.bads | ~in_fss_fov
         # rotation matrix from FSS to ACA frame
         A_AF = np.array([[9.999990450374580e-01,
-                           0.0,
+                          0.0,
                           -1.382000062241829e-03],
                          [-5.327615067743422e-07,
-                           9.999999256947376e-01,
+                          9.999999256947376e-01,
                           -3.854999811959735e-04],
                          [1.381999959551952e-03,
-                           3.855003493343671e-04,
-                           9.999989707322665e-01]])
+                          3.855003493343671e-04,
+                          9.999989707322665e-01]])
         # FSS's sun vector in FSS frame
         alpha = radians(data['aoalpang'].vals)
         beta = radians(data['aobetang'].vals)
@@ -347,7 +347,7 @@ class DP_PITCH_FSS(DerivedParameterPcad):
         return pitch_fss
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_ROLL(DerivedParameterPcad):
     """Off-Nominal Roll Angle in ACA Frame [Deg]
 
@@ -375,7 +375,7 @@ class DP_ROLL(DerivedParameterPcad):
         return roll
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_ROLL_CSS(DerivedParameterPcad):
     """Off-Nominal Roll Angle from CSS Data in ACA Frame [Deg]
 
@@ -395,13 +395,13 @@ class DP_ROLL_CSS(DerivedParameterPcad):
         sa_ang_avg = (data['aosares1'].vals + data['aosares2'].vals) / 2
         sinang = sin(radians(sa_ang_avg))
         cosang = cos(radians(sa_ang_avg))
-        #Rotate CSS sun vector from SA to ACA frame
+        # Rotate CSS sun vector from SA to ACA frame
         css_aca = np.array([sinang * data['aosunsa1'].vals -
                             cosang * data['aosunsa3'].vals,
                             data['aosunsa2'].vals,
                             cosang * data['aosunsa1'].vals +
                             sinang * data['aosunsa3'].vals])
-        #Normalize sun vec (again) and compute pitch
+        # Normalize sun vec (again) and compute pitch
         magnitude = sqrt((css_aca * css_aca).sum(axis=0))
         data.bads |= magnitude == 0.0
         magnitude[data.bads] = 1.0
@@ -410,7 +410,7 @@ class DP_ROLL_CSS(DerivedParameterPcad):
         return roll_css
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_ROLL_CSS_SA(DerivedParameterPcad):
     """Sun Roll Angle from CSS Data in SA Frame [Deg]
 
@@ -432,7 +432,7 @@ class DP_ROLL_CSS_SA(DerivedParameterPcad):
         return roll_css_sa
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_ROLL_FSS(DerivedParameterPcad):
     """Off-Nominal Roll Angle from FSS Data in ACA Frame [Deg]
 
@@ -458,14 +458,14 @@ class DP_ROLL_FSS(DerivedParameterPcad):
         data.bads = data.bads | ~in_fss_fov
         # rotation matrix from FSS to ACA frame
         A_AF = np.array([[9.999990450374580e-01,
-                           0.0,
+                          0.0,
                           -1.382000062241829e-03],
                          [-5.327615067743422e-07,
-                           9.999999256947376e-01,
+                          9.999999256947376e-01,
                           -3.854999811959735e-04],
                          [1.381999959551952e-03,
-                           3.855003493343671e-04,
-                           9.999989707322665e-01]])
+                          3.855003493343671e-04,
+                          9.999989707322665e-01]])
         # FSS's sun vector in FSS frame
         alpha = radians(data['aoalpang'].vals)
         beta = radians(data['aobetang'].vals)
@@ -479,7 +479,7 @@ class DP_ROLL_FSS(DerivedParameterPcad):
         return roll_fss
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_RW_MOM_TOT(DerivedParameterPcad):
     """Total Reaction Wheel Momentum [Ft-Lb-Sec]
 
@@ -492,12 +492,12 @@ class DP_RW_MOM_TOT(DerivedParameterPcad):
 
     def calc(self, data):
         rw_mom_tot = sqrt(data['aorwmom1'].vals ** 2 +
-                             data['aorwmom2'].vals ** 2 +
-                             data['aorwmom3'].vals ** 2)
+                          data['aorwmom2'].vals ** 2 +
+                          data['aorwmom3'].vals ** 2)
         return rw_mom_tot
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_RW1_DELTA_TEMP(DerivedParameterPcad):
     """Difference between Reaction Wheel 1 Compartment and Bearing Temperature
     [Deg F]
@@ -513,7 +513,7 @@ class DP_RW1_DELTA_TEMP(DerivedParameterPcad):
         return rw1_delta_temp
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_RW2_DELTA_TEMP(DerivedParameterPcad):
     """Difference between Reaction Wheel 2 Compartment and Bearing Temperature
     [Deg F]
@@ -529,7 +529,7 @@ class DP_RW2_DELTA_TEMP(DerivedParameterPcad):
         return rw2_delta_temp
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_RW3_DELTA_TEMP(DerivedParameterPcad):
     """Difference between Reaction Wheel 3 Compartment and Bearing Temperature
     [Deg F]
@@ -545,7 +545,7 @@ class DP_RW3_DELTA_TEMP(DerivedParameterPcad):
         return rw3_delta_temp
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_RW4_DELTA_TEMP(DerivedParameterPcad):
     """Difference between Reaction Wheel 4 Compartment and Bearing Temperature
     [Deg F]
@@ -561,7 +561,7 @@ class DP_RW4_DELTA_TEMP(DerivedParameterPcad):
         return rw4_delta_temp
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_RW5_DELTA_TEMP(DerivedParameterPcad):
     """Difference between Reaction Wheel 5 Compartment and Bearing Temperature
     [Deg F]
@@ -577,7 +577,7 @@ class DP_RW5_DELTA_TEMP(DerivedParameterPcad):
         return rw5_delta_temp
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_RW6_DELTA_TEMP(DerivedParameterPcad):
     """Difference between Reaction Wheel 6 Compartment and Bearing Temperature
     [Deg F]
@@ -593,7 +593,7 @@ class DP_RW6_DELTA_TEMP(DerivedParameterPcad):
         return rw6_delta_temp
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_SA_ANG_AVG(DerivedParameterPcad):
     """Average Solar Array Angle [Deg]
 
@@ -610,7 +610,7 @@ class DP_SA_ANG_AVG(DerivedParameterPcad):
         return sa_ang_avg
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
     """Angle between Sun and ACA X/Z plane [Deg]
 
@@ -639,7 +639,7 @@ class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
         return sun_xz_angle
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_SYS_MOM_TOT(DerivedParameterPcad):
     """Total System Momentum [Ft-Lb-Sec]
 
@@ -660,7 +660,7 @@ class DP_SYS_MOM_TOT(DerivedParameterPcad):
         return sys_mom_tot
 
 
-#--------------------------------------------
+# --------------------------------------------
 def qmult(q1, q2):
     """Multiply two quaternions or arrays of quaternions
 
@@ -682,7 +682,7 @@ def qmult(q1, q2):
     return mult
 
 
-#--------------------------------------------
+# --------------------------------------------
 def qrotate(q, r):
     """Rotate a vector by a quaternion
 

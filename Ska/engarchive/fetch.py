@@ -58,24 +58,24 @@ MAX_GLOB_MATCHES = 10
 
 # Special-case state codes that override those in the TDB
 STATE_CODES = {
-               # SIMDIAG
-               '3SDSWELF': [(0, 'F'), (1, 'T')],
-               '3SDSYRS': [(0, 'F'), (1, 'T')],
-               '3SDWMRS': [(0, 'F'), (1, 'T')],
+    # SIMDIAG
+    '3SDSWELF': [(0, 'F'), (1, 'T')],
+    '3SDSYRS': [(0, 'F'), (1, 'T')],
+    '3SDWMRS': [(0, 'F'), (1, 'T')],
 
-               # SIM_MRG
-               '3TSCMOVE': [(0, 'F'), (1, 'T')],
-               '3FAMOVE': [(0, 'F'), (1, 'T')],
-               '3SEAID': [(0, 'SEA-A'), (1, 'SEA-B')],
-               '3SEARSET': [(0, 'F'), (1, 'T')],
-               '3SEAROMF': [(0, 'F'), (1, 'T')],
-               '3SEAINCM': [(0, 'F'), (1, 'T')],
-               '3STAB2EN': [(0, 'DISABLE'), (1, 'ENABLE')],
-               '3SMOTPEN': [(0, 'ENABLE'), (1, 'DISABLE')],
-               '3SMOTSEL': [(0, 'TSC'), (1, 'FA')],
-               '3SHTREN': [(0, 'DISABLE'), (1, 'ENABLE')],
-               '3SEARAMF': [(0, 'F'), (1, 'T')],
-               }
+    # SIM_MRG
+    '3TSCMOVE': [(0, 'F'), (1, 'T')],
+    '3FAMOVE': [(0, 'F'), (1, 'T')],
+    '3SEAID': [(0, 'SEA-A'), (1, 'SEA-B')],
+    '3SEARSET': [(0, 'F'), (1, 'T')],
+    '3SEAROMF': [(0, 'F'), (1, 'T')],
+    '3SEAINCM': [(0, 'F'), (1, 'T')],
+    '3STAB2EN': [(0, 'DISABLE'), (1, 'ENABLE')],
+    '3SMOTPEN': [(0, 'ENABLE'), (1, 'DISABLE')],
+    '3SMOTSEL': [(0, 'TSC'), (1, 'FA')],
+    '3SHTREN': [(0, 'DISABLE'), (1, 'ENABLE')],
+    '3SEARAMF': [(0, 'F'), (1, 'T')],
+}
 
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
@@ -181,6 +181,7 @@ class _DataSource(object):
 
         return out
 
+
 # Public interface is a "data_source" module attribute
 data_source = _DataSource
 
@@ -260,6 +261,7 @@ def _get_start_stop_dates(times):
         return {'start': DateTime(times[0]).date,
                 'stop': DateTime(times[-1]).date}
 
+
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
@@ -298,6 +300,8 @@ def load_msid_names(all_msid_names_files):
         except IOError:
             pass
     return all_colnames
+
+
 # Load the MSID names
 all_colnames = load_msid_names(all_msid_names_files)
 
@@ -362,6 +366,7 @@ def read_bad_times(table):
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
+
 
 # Set up bad times dict
 msid_bad_times = dict()
@@ -1730,6 +1735,7 @@ class memoized(object):
     If called later with the same arguments, the cached value is returned, and
     not re-evaluated.
     """
+
     def __init__(self, func):
         self.func = func
         self.cache = {}

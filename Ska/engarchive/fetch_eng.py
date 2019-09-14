@@ -9,11 +9,15 @@ UNITS = Units('eng')
 
 def get_units():
     return UNITS['system']
+
+
 get_units.__doc__ = fetch.get_units.__doc__
 
 
 def set_units(unit_system):
     UNITS.set_units(unit_system)
+
+
 set_units.__doc__ = fetch.set_units.__doc__
 
 

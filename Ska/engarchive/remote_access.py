@@ -97,7 +97,7 @@ ask_again_if_connect_fails = True
 show_print_output = sys.platform.startswith('win')
 
 # Client key file for connecting to the remote server (ipcontroller)
-client_key_file = os.path.join(sys.prefix,"ska_remote_access.json")
+client_key_file = os.path.join(sys.prefix, "ska_remote_access.json")
 
 # IPython parallel client for accessing the remote python engine
 _remote_client = None
@@ -123,12 +123,12 @@ def establish_connection():
     while _remote_client is None:
         # Get the username and password if not already set
         hostname = hostname or input('Enter hostname (or IP) of Ska ' +
-                                         'server (enter to cancel):')
+                                     'server (enter to cancel):')
         if hostname == "":
             break
         default_username = getpass.getuser()
         username = username or input('Enter your login username [' +
-                                         default_username + ']:')
+                                     default_username + ']:')
         password = password or getpass.getpass('Enter your password:')
 
         # Open the connection to the server

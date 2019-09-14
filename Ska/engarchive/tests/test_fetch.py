@@ -130,10 +130,10 @@ def test_interpolate():
 
     assert np.allclose(dat['aoattqt1'].vals,
                        np.array([-0.33072645, -0.33072633, -0.33072634,
-                                  -0.33072632, -0.33072705,
-                                  -0.33073644, -0.33076456, -0.33081424,
-                                  -0.33090285, -0.33088904,
-                                  -0.33099454, -0.33128471]))
+                                 -0.33072632, -0.33072705,
+                                 -0.33073644, -0.33076456, -0.33081424,
+                                 -0.33090285, -0.33088904,
+                                 -0.33099454, -0.33128471]))
 
     assert np.all(dat['aopcadmd'].vals ==
                   np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN',
@@ -141,7 +141,7 @@ def test_interpolate():
 
     assert np.all(dat['aogyrct1'].vals ==
                   np.array([-23261, -22131, -21000, -19878, -18714, -17301,
-                             -15379, -12674, -8914, -3398, 3514, 11486],
+                            -15379, -12674, -8914, -3398, 3514, 11486],
                            dtype=np.int16))
 
 
@@ -152,17 +152,17 @@ def test_interpolate_msid():
     dat.interpolate(10.0, start, stop)
     assert np.allclose(dat.vals,
                        np.array([-0.33072645, -0.33072633, -0.33072634,
-                                  -0.33072632, -0.33072705,
-                                  -0.33073644, -0.33076456, -0.33081424,
-                                  -0.33090285, -0.33088904,
-                                  -0.33099454, -0.33128471]))
+                                 -0.33072632, -0.33072705,
+                                 -0.33073644, -0.33076456, -0.33081424,
+                                 -0.33090285, -0.33088904,
+                                 -0.33099454, -0.33128471]))
 
     dat = fetch.MSID('aogyrct1', start, stop)
     dat.interpolate(10.0, start, stop)
     assert np.all(dat.vals ==
                   np.array([-23349, -22219, -21087, -19960, -18810, -17425,
-                             -15551, -12919,
-                             -9252, -3887, 2943, 10858],
+                            -15551, -12919,
+                            -9252, -3887, 2943, 10858],
                            dtype=np.int16))
 
     dat = fetch.MSID('aopcadmd', start, stop)
@@ -201,7 +201,7 @@ def test_interpolate_times():
 
     assert np.all(dat['aogyrct1'].vals ==
                   [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
-                    -4052,  2752, 10648])
+                   -4052,  2752, 10648])
 
 
 def test_interpolate_msid_times():
@@ -213,8 +213,8 @@ def test_interpolate_msid_times():
     dat.interpolate(times=times)
     assert np.allclose(dat.vals,
                        [-0.33072634, -0.33072637, -0.33072674, -0.33072665, -0.33073477,
-                         -0.330761, -0.33080694, -0.33089434, -0.33089264, -0.33097442,
-                         -0.33123678])
+                        -0.330761, -0.33080694, -0.33089434, -0.33089264, -0.33097442,
+                        -0.33123678])
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
@@ -222,7 +222,7 @@ def test_interpolate_msid_times():
     dat.interpolate(times=times)
     assert np.all(dat.vals ==
                   [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
-                    -4052,  2752, 10648])
+                   -4052,  2752, 10648])
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
