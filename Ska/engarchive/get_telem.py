@@ -48,7 +48,7 @@ def sanitize_event_expression(expr):
     """
     # First tokenize
     seps = '()~|&'
-    expr = re.sub('\s+', '', expr)
+    expr = re.sub(r'\s+', '', expr)
     words = [''] + list(shlex.shlex(expr)) + ['']
 
     tokens = []
@@ -59,7 +59,7 @@ def sanitize_event_expression(expr):
             try:
                 ast.literal_eval(word)
                 tokens.append("LITERAL")
-            except:
+            except Exception:
                 tokens.append("SYMBOL")
         elif word == '=':
             tokens.append("EQUAL")
@@ -73,7 +73,7 @@ def sanitize_event_expression(expr):
             try:
                 ast.literal_eval(word)
                 tokens.append("LITERAL")
-            except:
+            except Exception:
                 raise ValueError('Cannot identify word {!r}'.format(word))
 
     # Now check syntax and do substitutions where needed
@@ -147,7 +147,8 @@ def get_queryset(expr):
     Get query set for ``expr`` python-ish expression, e.g. (manvrs[bad=200] & radzones).
     Using [] instead of () makes parsing easier.
     """
-    from kadi import events
+    # Needed to define ``events`` in the eval() below.
+    from kadi import events  # noqa
 
     queryset_expr = sanitize_event_expression(expr)
     return eval(queryset_expr)

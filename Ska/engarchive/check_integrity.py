@@ -11,7 +11,6 @@ import pyyaks.logger
 import pyyaks.context
 
 import Ska.engarchive.fetch as fetch
-import Ska.engarchive.file_defs as file_defs
 import Ska.DBI
 
 opt = None

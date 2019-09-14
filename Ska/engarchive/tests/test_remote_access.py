@@ -157,7 +157,7 @@ def test_remote_access_get_data_access_info4(remote_setup_dirs):
     assert ska_access_remotely is True
 
     # Not windows: raises RuntimeError because no local data around found
-    with pytest.raises(RuntimeError) as err:
+    with pytest.raises(RuntimeError):
         get_data_access_info(is_windows=False)
 
 

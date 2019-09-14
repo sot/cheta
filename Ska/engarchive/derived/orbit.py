@@ -83,7 +83,7 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
         try:
             # Check if arg is a non-scalar numpy array
             len(arg) and isinstance(arg, np.ndarray)
-        except:
+        except Exception:
             if reflect:
                 out = 2 * pi - out
         else:

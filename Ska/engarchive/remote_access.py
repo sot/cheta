@@ -117,8 +117,6 @@ def establish_connection():
     global username
     global password
 
-    try_to_connect = True
-
     # Loop until the user is able to connect or cancels
     while _remote_client is None:
         # Get the username and password if not already set

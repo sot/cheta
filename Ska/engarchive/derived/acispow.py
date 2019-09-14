@@ -3,7 +3,6 @@
 Derived parameter MSIDs related to ACIS power.
 """
 
-import numpy as np
 from . import base
 
 

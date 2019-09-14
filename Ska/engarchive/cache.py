@@ -15,6 +15,8 @@ class Counter(dict):
         return 0
 
 
+# TODO: replace with std_library version of this in Py3.6
+
 def lru_cache(maxsize=30):
     '''Least-recently-used cache decorator.
 
@@ -32,7 +34,7 @@ def lru_cache(maxsize=30):
         queue = collections.deque()  # order that keys have been used
         refcount = Counter()        # times each key is in the queue
         sentinel = object()         # marker for looping around the queue
-        kwd_mark = object()         # separate positional and keyword args
+        # kwd_mark = object()         # separate positional and keyword args
 
         # lookup optimizations (ugly but fast)
         queue_append, queue_popleft = queue.append, queue.popleft

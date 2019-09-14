@@ -12,7 +12,6 @@ from pathlib import Path
 from six.moves import cPickle as pickle
 from six.moves import zip
 import argparse
-import shutil
 import itertools
 from collections import OrderedDict
 

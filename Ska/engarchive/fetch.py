@@ -28,7 +28,7 @@ from .units import Units
 from . import cache
 from . import remote_access
 from .remote_access import ENG_ARCHIVE
-from .version import __version__, __git_version__
+from .version import __version__, __git_version__  # noqa
 
 from Chandra.Time import DateTime
 
@@ -219,7 +219,7 @@ def local_or_remote_function(remote_print_output):
                         raise ImportError("Unable to interactively get remote access "
                                           "info from user.")
                 # Print the output, if specified
-                if remote_access.show_print_output and not remote_print_output is None:
+                if remote_access.show_print_output and remote_print_output is not None:
                     print(remote_print_output)
                     sys.stdout.flush()
                 # Execute the function remotely and return the result
@@ -457,7 +457,7 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
         try:
             intervals = [(DateTime(row[0]).secs, DateTime(row[1]).secs)
                          for row in table]
-        except:
+        except Exception:
             pass
     else:
         for prefix in ('date', 't'):
@@ -466,7 +466,7 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
             try:
                 intervals = [(DateTime(row[start]).secs, DateTime(row[stop]).secs)
                              for row in table]
-            except:
+            except Exception:
                 pass
             else:
                 break
@@ -856,7 +856,7 @@ class MSID(object):
             import Ska.tdb
             try:
                 states = Ska.tdb.msids[self.MSID].Tsc
-            except:
+            except Exception:
                 self._state_codes = None
             else:
                 if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
@@ -1363,9 +1363,6 @@ class MSID(object):
         plot_cxctime(self.times, vals, *args, state_codes=self.state_codes,
                      **kwargs)
         plt.margins(0.02, 0.05)
-
-    def __len__(self):
-        return len(self.times)
 
 
 class MSIDset(collections.OrderedDict):
@@ -1929,7 +1926,7 @@ def _fix_ctu_dwell_mode_bads(msid, bads):
     if MSID in stepped_on_msids or re.match(r'DWELL\d\d', MSID):
         # Find transitions from good value to bad value.  Turn that
         # good value to bad to extend the badness by one sample.
-        ok = (bads[:-1] == False) & (bads[1:] == True)
+        ok = (bads[:-1] == False) & (bads[1:] == True)  # noqa
         bads[:-1][ok] = True
 
     return bads

@@ -1,8 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
 
 from Chandra.Time import DateTime
-from .. import fetch
+from .. import fetch, fetch_eng
 import Ska.Numpy
 import numpy as np
 from .. import cache
