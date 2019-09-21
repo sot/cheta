@@ -201,7 +201,7 @@ def test_interpolate_times():
 
     assert np.all(dat['aogyrct1'].vals ==
                   [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
-                   -4052,  2752, 10648])
+                   -4052, 2752, 10648])
 
 
 def test_interpolate_msid_times():
@@ -222,7 +222,7 @@ def test_interpolate_msid_times():
     dat.interpolate(times=times)
     assert np.all(dat.vals ==
                   [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
-                   -4052,  2752, 10648])
+                   -4052, 2752, 10648])
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
