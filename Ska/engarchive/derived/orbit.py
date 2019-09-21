@@ -70,6 +70,9 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
     def arccos_2pi(arg, reflect):
         """
         Return arccos(arg) where reflect is False, 2 * pi - arccos(arg) where reflect is True
+
+        :param arg: float, np.ndarray: input arg (radians)
+        :param reflect: bool, np.ndarray of bool: use reflected value
         """
         np_err_handling = np.geterr()
         np.seterr(all='raise')
@@ -81,9 +84,9 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
         np.seterr(**np_err_handling)
 
         try:
-            # Check if arg is a non-scalar numpy array
-            len(arg) and isinstance(arg, np.ndarray)
-        except Exception:
+            # Check if arg has a length
+            len(arg)
+        except TypeError:
             if reflect:
                 out = 2 * pi - out
         else:
