@@ -1,4 +1,4 @@
-## {{{ http://code.activestate.com/recipes/498245/ (r6)
+# {{{ http://code.activestate.com/recipes/498245/ (r6)
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import collections
 import functools
@@ -7,10 +7,15 @@ from six.moves import filterfalse
 from heapq import nsmallest
 from operator import itemgetter
 
+
 class Counter(dict):
     'Mapping where default values are zero'
+
     def __missing__(self, key):
         return 0
+
+
+# TODO: replace with std_library version of this in Py3.6 (issue #173)
 
 def lru_cache(maxsize=30):
     '''Least-recently-used cache decorator.
@@ -22,13 +27,13 @@ def lru_cache(maxsize=30):
 
     '''
     maxqueue = maxsize * 10
+
     def decorating_function(user_function,
-            len=len, iter=iter, tuple=tuple, sorted=sorted, KeyError=KeyError):
+                            len=len, iter=iter, tuple=tuple, sorted=sorted, KeyError=KeyError):
         cache = {}                  # mapping of args to results
-        queue = collections.deque() # order that keys have been used
+        queue = collections.deque()  # order that keys have been used
         refcount = Counter()        # times each key is in the queue
         sentinel = object()         # marker for looping around the queue
-        kwd_mark = object()         # separate positional and keyword args
 
         # lookup optimizations (ugly but fast)
         queue_append, queue_popleft = queue.append, queue.popleft
@@ -38,7 +43,7 @@ def lru_cache(maxsize=30):
         def wrapper(*args, **kwds):
             # cache key records both positional args only
             key = args
-            #if kwds:
+            # if kwds:
             #    key += (kwd_mark,) + tuple(sorted(kwds.items()))
 
             # record recent use of this key
@@ -69,10 +74,9 @@ def lru_cache(maxsize=30):
                 refcount.clear()
                 queue_appendleft(sentinel)
                 for key in filterfalse(refcount.__contains__,
-                                        iter(queue_pop, sentinel)):
+                                       iter(queue_pop, sentinel)):
                     queue_appendleft(key)
                     refcount[key] = 1
-
 
             return result
 
@@ -142,7 +146,7 @@ if __name__ == '__main__':
 
     @lru_cache(maxsize=20)
     def f(x, y):
-        return 3*x+y
+        return 3 * x + y
 
     domain = list(range(5))
     from random import choice
@@ -153,7 +157,7 @@ if __name__ == '__main__':
 
     @lfu_cache(maxsize=20)
     def f(x, y):
-        return 3*x+y
+        return 3 * x + y
 
     domain = list(range(5))
     from random import choice
@@ -161,4 +165,4 @@ if __name__ == '__main__':
         r = f(choice(domain), choice(domain))
 
     print((f.hits, f.misses))
-## end of http://code.activestate.com/recipes/498245/ }}}
+# end of http://code.activestate.com/recipes/498245/ }}}

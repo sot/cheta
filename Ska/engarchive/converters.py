@@ -161,6 +161,7 @@ def generic_converter2(msid_cxc_map, default_dtypes=None):
 
     return _convert
 
+
 orbitephem0 = generic_converter('orbitephem0', add_quality=True)
 lunarephem0 = generic_converter('lunarephem0', add_quality=True)
 solarephem0 = generic_converter('solarephem0', add_quality=True)
@@ -179,6 +180,7 @@ def parse_alias_str(alias_str, invert=False):
         else:
             aliases[cxcmsid] = msid
     return aliases
+
 
 ALIASES = {'simdiag': """
     RAMEXEC          3SDSWELF   SEA CSC Exectuting from RAM
@@ -526,7 +528,7 @@ def acisdeahk(dat):
         vals = tuple((0.0 if bad else query_vals[id_idxs[query_id]])
                      for bad, query_id in zip(bads, col_query_ids))
         val_tus = tuple((0 if bad else query_val_tus[id_idxs[query_id]])
-                     for bad, query_id in zip(bads, col_query_ids))
+                        for bad, query_id in zip(bads, col_query_ids))
 
         # Now have another pass at finding bad values.  Take these out now so the
         # 5min and daily stats are not frequently corrupted.
@@ -537,10 +539,11 @@ def acisdeahk(dat):
         outs.append((times[i0], quality) + vals)
 
     dtype = [('TIME', numpy.float64),
-              ('QUALITY', numpy.bool, (len(col_names) + 2,))]
+             ('QUALITY', numpy.bool, (len(col_names) + 2,))]
     dtype += [(col_name, numpy.float32) for col_name in col_names]
 
     return numpy.rec.fromrecords(outs, dtype=dtype)
+
 
 def _get_deahk_cols():
     out = [
@@ -746,8 +749,9 @@ def _get_deahk_cols():
             "unit": "V",
             "descr": "Ground"
         }
-        ]
+    ]
     return out
+
 
 def pyfits_to_recarray(dat):
     dtypes = []

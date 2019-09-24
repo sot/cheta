@@ -174,9 +174,9 @@ def ss_vector(start, stop=None, obj='Earth'):
     bad_q_atts = []  # List of inconsistent quaternion values in telemetry
     p_obj_body = np.ndarray((len(times0), 3), dtype=float)
     for i, obj_eci, distance, time, q1, q2, q3, q4 in zip(
-        count(), obj_ecis, distances, times0, q_atts['aoattqt1'].midvals,
-        q_atts['aoattqt2'].midvals, q_atts['aoattqt3'].midvals,
-        q_atts['aoattqt4'].midvals):
+            count(), obj_ecis, distances, times0, q_atts['aoattqt1'].midvals,
+            q_atts['aoattqt2'].midvals, q_atts['aoattqt3'].midvals,
+            q_atts['aoattqt4'].midvals):
         try:
             q_att = Quat([q1, q2, q3, q4])
         except ValueError:

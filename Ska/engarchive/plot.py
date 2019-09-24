@@ -8,7 +8,7 @@ from matplotlib.dates import num2epoch, epoch2num
 from Ska.Matplotlib import plot_cxctime
 from Chandra.Time import DateTime
 
-from .version import version as __version__
+from .version import version as __version__  # noqa
 
 MIN_TSTART_UNIX = DateTime('1999:100').unix
 MAX_TSTOP_UNIX = DateTime().unix + 1e7
@@ -154,7 +154,7 @@ Interactive MSID plot keys:
 
         if (self.tstart < self.msid.tstart or
             self.tstop > self.msid.tstop or
-            stat != self.msid.stat):
+                stat != self.msid.stat):
             dt = self.tstop - self.tstart
             self.tstart -= dt / 4
             self.tstop += dt / 4

@@ -9,11 +9,11 @@ telemetry MSIDs.  All derived parameter names begin with the characters "DP_"
 MSIDs.
 """
 
-from .base import *
+from .base import *  # noqa
 
-from .thermal import *
-from .test import *
-from .acispow import *
-from .pcad import *
-from .orbit import *
-from .eps import *
+from .thermal import *  # noqa
+from .test import *  # noqa
+from .acispow import *  # noqa
+from .pcad import *  # noqa
+from .orbit import *  # noqa
+from .eps import *  # noqa

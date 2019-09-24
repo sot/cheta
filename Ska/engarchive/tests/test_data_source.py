@@ -18,7 +18,7 @@ date4 = '2016:001:00:00:35.0'
 try:
     import maude
     maude.get_msids(msids='ccsdsid', start=date1, stop=date2)
-except Exception as err:
+except Exception:
     HAS_MAUDE = False
 else:
     HAS_MAUDE = True

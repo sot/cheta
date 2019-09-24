@@ -183,5 +183,6 @@ def test_fetch_regr():
         assert md5s_equal
     print()
 
+
 if __name__ == '__main__':
     main()

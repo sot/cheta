@@ -3,8 +3,8 @@
 Derived parameter MSIDs related to ACIS power.
 """
 
-import numpy as np
 from . import base
+
 
 class DP_DPA_POWER(base.DerivedParameter):
     """ACIS total DPA-A and DPA-B power"""
@@ -13,7 +13,7 @@ class DP_DPA_POWER(base.DerivedParameter):
     content_root = 'acispow'
 
     def calc(self, data):
-        power = (data['1dp28avo'].vals * data['1dpicacu'].vals + 
+        power = (data['1dp28avo'].vals * data['1dpicacu'].vals +
                  data['1dp28bvo'].vals * data['1dpicbcu'].vals)
         return power
 
@@ -36,8 +36,7 @@ class DP_PSMC_POWER(base.DerivedParameter):
     content_root = 'acispow'
 
     def calc(self, data):
-        power = (data['1dp28avo'].vals * data['1dpicacu'].vals + 
+        power = (data['1dp28avo'].vals * data['1dpicacu'].vals +
                  data['1dp28bvo'].vals * data['1dpicbcu'].vals +
                  data['1de28avo'].vals * data['1deicacu'].vals)
         return power
-    

@@ -28,7 +28,7 @@ from .units import Units
 from . import cache
 from . import remote_access
 from .remote_access import ENG_ARCHIVE
-from .version import __version__, __git_version__
+from .version import __version__, __git_version__  # noqa
 
 from Chandra.Time import DateTime
 
@@ -58,24 +58,24 @@ MAX_GLOB_MATCHES = 10
 
 # Special-case state codes that override those in the TDB
 STATE_CODES = {
-               # SIMDIAG
-               '3SDSWELF': [(0, 'F'), (1, 'T')],
-               '3SDSYRS': [(0, 'F'), (1, 'T')],
-               '3SDWMRS': [(0, 'F'), (1, 'T')],
+    # SIMDIAG
+    '3SDSWELF': [(0, 'F'), (1, 'T')],
+    '3SDSYRS': [(0, 'F'), (1, 'T')],
+    '3SDWMRS': [(0, 'F'), (1, 'T')],
 
-               # SIM_MRG
-               '3TSCMOVE': [(0, 'F'), (1, 'T')],
-               '3FAMOVE': [(0, 'F'), (1, 'T')],
-               '3SEAID': [(0, 'SEA-A'), (1, 'SEA-B')],
-               '3SEARSET': [(0, 'F'), (1, 'T')],
-               '3SEAROMF': [(0, 'F'), (1, 'T')],
-               '3SEAINCM': [(0, 'F'), (1, 'T')],
-               '3STAB2EN': [(0, 'DISABLE'), (1, 'ENABLE')],
-               '3SMOTPEN': [(0, 'ENABLE'), (1, 'DISABLE')],
-               '3SMOTSEL': [(0, 'TSC'), (1, 'FA')],
-               '3SHTREN': [(0, 'DISABLE'), (1, 'ENABLE')],
-               '3SEARAMF': [(0, 'F'), (1, 'T')],
-               }
+    # SIM_MRG
+    '3TSCMOVE': [(0, 'F'), (1, 'T')],
+    '3FAMOVE': [(0, 'F'), (1, 'T')],
+    '3SEAID': [(0, 'SEA-A'), (1, 'SEA-B')],
+    '3SEARSET': [(0, 'F'), (1, 'T')],
+    '3SEAROMF': [(0, 'F'), (1, 'T')],
+    '3SEAINCM': [(0, 'F'), (1, 'T')],
+    '3STAB2EN': [(0, 'DISABLE'), (1, 'ENABLE')],
+    '3SMOTPEN': [(0, 'ENABLE'), (1, 'DISABLE')],
+    '3SMOTSEL': [(0, 'TSC'), (1, 'FA')],
+    '3SHTREN': [(0, 'DISABLE'), (1, 'ENABLE')],
+    '3SEARAMF': [(0, 'F'), (1, 'T')],
+}
 
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
@@ -181,6 +181,7 @@ class _DataSource(object):
 
         return out
 
+
 # Public interface is a "data_source" module attribute
 data_source = _DataSource
 
@@ -218,7 +219,7 @@ def local_or_remote_function(remote_print_output):
                         raise ImportError("Unable to interactively get remote access "
                                           "info from user.")
                 # Print the output, if specified
-                if remote_access.show_print_output and not remote_print_output is None:
+                if remote_access.show_print_output and remote_print_output is not None:
                     print(remote_print_output)
                     sys.stdout.flush()
                 # Execute the function remotely and return the result
@@ -260,6 +261,7 @@ def _get_start_stop_dates(times):
         return {'start': DateTime(times[0]).date,
                 'stop': DateTime(times[-1]).date}
 
+
 # Context dictionary to provide context for msid_files
 ft = pyyaks.context.ContextDict('ft')
 
@@ -298,6 +300,8 @@ def load_msid_names(all_msid_names_files):
         except IOError:
             pass
     return all_colnames
+
+
 # Load the MSID names
 all_colnames = load_msid_names(all_msid_names_files)
 
@@ -362,6 +366,7 @@ def read_bad_times(table):
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
+
 
 # Set up bad times dict
 msid_bad_times = dict()
@@ -452,7 +457,7 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
         try:
             intervals = [(DateTime(row[0]).secs, DateTime(row[1]).secs)
                          for row in table]
-        except:
+        except Exception:
             pass
     else:
         for prefix in ('date', 't'):
@@ -461,7 +466,7 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
             try:
                 intervals = [(DateTime(row[start]).secs, DateTime(row[stop]).secs)
                              for row in table]
-            except:
+            except Exception:
                 pass
             else:
                 break
@@ -851,7 +856,7 @@ class MSID(object):
             import Ska.tdb
             try:
                 states = Ska.tdb.msids[self.MSID].Tsc
-            except:
+            except Exception:
                 self._state_codes = None
             else:
                 if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
@@ -1359,9 +1364,6 @@ class MSID(object):
                      **kwargs)
         plt.margins(0.02, 0.05)
 
-    def __len__(self):
-        return len(self.times)
-
 
 class MSIDset(collections.OrderedDict):
     """Fetch a set of MSIDs from the engineering telemetry archive.
@@ -1730,6 +1732,7 @@ class memoized(object):
     If called later with the same arguments, the cached value is returned, and
     not re-evaluated.
     """
+
     def __init__(self, func):
         self.func = func
         self.cache = {}
@@ -1923,7 +1926,7 @@ def _fix_ctu_dwell_mode_bads(msid, bads):
     if MSID in stepped_on_msids or re.match(r'DWELL\d\d', MSID):
         # Find transitions from good value to bad value.  Turn that
         # good value to bad to extend the badness by one sample.
-        ok = (bads[:-1] == False) & (bads[1:] == True)
+        ok = (bads[:-1] == False) & (bads[1:] == True)  # noqa
         bads[:-1][ok] = True
 
     return bads

@@ -16,7 +16,7 @@ class DerivedParameterEps(base.DerivedParameter):
     content_root = 'eps'
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_BATT1_TAVE(DerivedParameterEps):
     """Battery 1 Average Temperature. Derived from average of all three battery temperature sensors.
         Telemetry 16x / MF
@@ -30,7 +30,7 @@ class DP_BATT1_TAVE(DerivedParameterEps):
         return BATT1_TAVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_BATT2_TAVE(DerivedParameterEps):
     """Battery 2 Average Temperature. Derived from average of all three battery temperature sensors.
         Telemetry 16x / MF
@@ -44,7 +44,7 @@ class DP_BATT2_TAVE(DerivedParameterEps):
         return BATT2_TAVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_BATT3_TAVE(DerivedParameterEps):
     """Battery 3 Average Temperature. Derived from average of all three battery temperature sensors.
         Telemetry 16x / MF
@@ -58,7 +58,7 @@ class DP_BATT3_TAVE(DerivedParameterEps):
         return BATT3_TAVE
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_EPOWER1(DerivedParameterEps):
     """Bus Power = ELBI_LOW * ELBV
         Telemetry 8x / MF
@@ -71,7 +71,7 @@ class DP_EPOWER1(DerivedParameterEps):
         return EPOWER1
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_MYSAPOW(DerivedParameterEps):
     """-Y Solar Array Power = ESAMYI * ELBV
         Telemetry 8x / MF
@@ -84,7 +84,7 @@ class DP_MYSAPOW(DerivedParameterEps):
         return MYSAPOW
 
 
-#--------------------------------------------
+# --------------------------------------------
 class DP_PYSAPOW(DerivedParameterEps):
     """+Y Solar Array Power = ESAPYI * ELBV
         Telemetry 8x / MF

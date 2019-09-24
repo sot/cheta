@@ -51,6 +51,7 @@ class NullHandler(logging.Handler):
     def emit(self, record):
         pass
 
+
 logger = logging.getLogger('Ska.engarchive.units')
 logger.addHandler(NullHandler())
 logger.propagate = False
@@ -184,7 +185,7 @@ converters = {
     ('PWMSTEP', 'PWM'): divide(16),
     ('TORR', 'kPa'): divide(7.501),
     ('TSCSTEP', 'mm'): mult(0.00251431530156),
-    }
+}
 
 
 def load_units(unit_system):
