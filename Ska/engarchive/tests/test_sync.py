@@ -1,3 +1,4 @@
+import sys
 import os
 import pickle
 import shutil
@@ -12,6 +13,8 @@ from Chandra.Time import DateTime
 from .. import fetch
 from .. import update_client_archive, update_server_sync
 from ..utils import STATS_DT, set_fetch_basedir
+
+pytestmark = pytest.mark.skipif(sys.maxsize <= 2 ** 32, reason="tests for 64-bit only")
 
 # Covers safe mode and IRU swap activities around 2018:283.  This is a time
 # with rarely-seen telemetry.
