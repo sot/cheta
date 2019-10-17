@@ -110,7 +110,7 @@ def get_readable(sync_root, is_url, filename):
             os.unlink(filename)
 
 
-def sync_full_archive(opt, msid_files, logger, content):
+def sync_full_archive(opt, msid_files, logger, content, index_tbl):
     """
     Sync the archive for ``content``.
 
@@ -118,6 +118,7 @@ def sync_full_archive(opt, msid_files, logger, content):
     :param msid_files:
     :param logger:
     :param content:
+    :param index_tbl: index of sync file entries
     :return:
     """
     # Get the last row of data from the length of the TIME.col (or archfiles?)
@@ -134,15 +135,6 @@ def sync_full_archive(opt, msid_files, logger, content):
 
     logger.info('')
     logger.info(f'Processing full data for {content}')
-
-    # Read the index file to know what is available for new data
-    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
-        if index_input is None:
-            # If index_file is not found then get_readable returns None
-            logger.info(f'No new sync data for {content}: {uri} not found')
-            return
-        with timing_logger(logger, f'Reading index file {uri}'):
-            index_tbl = Table.read(index_input, format='ascii.ecsv')
 
     # Get the 0-based index of last available full data row
     with tables.open_file(str(time_file), 'r') as h5:
@@ -233,7 +225,7 @@ def get_full_data_sets(ft, index_tbl, logger, opt):
     return dats
 
 
-def sync_stat_archive(opt, msid_files, logger, content, stat):
+def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     """
     Sync the archive for ``content``.
 
@@ -242,6 +234,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
     :param logger:
     :param content:
     :param stat: stat interval '5min' or 'daily'
+    :param index_tbl: table of sync file entries
     :return:
     """
     # Get the last row of data from the length of the TIME.col (or archfiles?)
@@ -257,16 +250,6 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
     logger.info('')
     logger.info(f'Processing {stat} data for {content}')
 
-    # Read the index file to know what is available for new data
-    # TODO: factor this out
-    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
-        if index_input is None:
-            # If index_file is not found then get_readable returns None
-            logger.info(f'No new {stat} sync data for {content}: {uri} not found')
-            return
-        logger.info(f'Reading index file {uri}')
-        index_tbl = Table.read(index_input, format='ascii.ecsv')
-
     # Get the MSIDs that are in client archive
     msids = [str(fn.name)[:-3] for fn in stats_dir.glob('*.h5')]
     if not msids:
@@ -279,11 +262,13 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
         msid_files, msids, stat, logger)
     logger.verbose(f'Got {last_date_id} as last date_id that was applied to archive')
 
-    dats = get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)
+    # Get list of applicable dat objects (new data, before opt.date_stop).  Also
+    # return ``date_id`` which is the date_id of the final data set in the list.
+    # This will be written as the new ``last_date_id``.
+    dats, date_id = get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)
 
     if dats:
         dat, msids = concat_data_sets(dats, ['data'])
-        date_id = index_tbl['date_id'][-1]
         with timing_logger(logger, f'Applying updates to {len(msids)} h5 files'):
             for msid in msids:
                 fetch.ft['msid'] = msid
@@ -312,7 +297,7 @@ def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
             continue
 
         # File names like sync/acis4eng/2019-07-08T1150z/5min.npz
-        ft['date_id'] = date_id
+        last_date_id = ft['date_id'] = date_id
 
         # Read the file with all the MSID data as a hash with keys {msid}.data
         # {msid}.row0, {msid}.row1
@@ -325,7 +310,7 @@ def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
                         # with no update.
                         dats.append(dat)
 
-    return dats
+    return dats, last_date_id
 
 
 def concat_data_sets(dats, data_keys):
@@ -499,6 +484,18 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
             h5.root.quality.append(vals['quality'])
 
 
+def get_index_tbl(content, logger, opt):
+    # Read the index file to know what is available for new data
+    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
+        if index_input is None:
+            # If index_file is not found then get_readable returns None
+            logger.info(f'No new sync data for {content}: {uri} not found')
+            return None
+        logger.info(f'Reading index file {uri}')
+        index_tbl = Table.read(index_input, format='ascii.ecsv')
+    return index_tbl
+
+
 def main(args=None):
     global fetch  # fetch module, see below
 
@@ -526,9 +523,12 @@ def main(args=None):
         contents = set(fetch.content.values())
 
     for content in sorted(contents):
-        sync_full_archive(opt, fetch.msid_files, logger, content)
-        for stat in STATS_DT:
-            sync_stat_archive(opt, fetch.msid_files, logger, content, stat)
+        fetch.ft['content'] = content
+        index_tbl = get_index_tbl(content, logger, opt)
+        if index_tbl is not None:
+            sync_full_archive(opt, fetch.msid_files, logger, content, index_tbl)
+            for stat in STATS_DT:
+                sync_stat_archive(opt, fetch.msid_files, logger, content, stat, index_tbl)
 
 
 if __name__ == '__main__':
