@@ -233,43 +233,6 @@ def get_full_data_sets(ft, index_tbl, logger, opt):
     return dats
 
 
-def concat_full_data_sets(dats):
-    """
-    Concatenate the list of ``dat`` dicts into a single such dict
-
-    Each dat dict has keys {msid}.{key} for key in data, quality, row0, row1.
-    The ``.data`` and ``.quality`` elements are numpy arrays, while row0 and
-    row1 are integers.
-
-    :param dats: list of dict
-    :return:
-    """
-    msids = {key[:-5] for key in dats[0] if key.endswith('.data')}
-
-    # Check on consistency of dats
-    for dat0, dat1 in zip(dats[:-1], dats[1:]):
-        # Same MSIDs
-        msids1 = {key[:-5] for key in dat1 if key.endswith('.data')}
-        if msids != msids1:
-            raise ValueError('unexpected inconsistency in full data files')
-
-        # Continuity of rows
-        for msid in msids:
-            if dat0[f'{msid}.row1'] != dat1[f'{msid}.row0']:
-                raise ValueError('unexpected discontinuity in rows of full data files')
-
-    dat = {}
-    for msid in msids:
-        for key in ('data', 'quality'):
-            dat[f'{msid}.{key}'] = np.concatenate([dat[f'{msid}.{key}'] for dat in dats])
-        dat[f'{msid}.row0'] = dats[0][f'{msid}.row0']
-        dat[f'{msid}.row1'] = dats[-1][f'{msid}.row1']
-
-    dat['archfiles'] = list(itertools.chain.from_iterable(dat['archfiles'] for dat in dats))
-
-    return dat, msids
-
-
 def sync_stat_archive(opt, msid_files, logger, content, stat):
     """
     Sync the archive for ``content``.
