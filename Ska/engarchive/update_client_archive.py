@@ -14,6 +14,7 @@ change the output directory by setting the environment variable
 import argparse
 import contextlib
 import gzip
+import itertools
 import os
 import pickle
 import re
@@ -159,7 +160,61 @@ def sync_full_archive(opt, msid_files, logger, content):
 
     index_tbl = index_tbl[ok]
 
+    dats = get_full_data_sets(ft, index_tbl, logger, opt)
+    if dats:
+        dat, msids = concat_data_sets(dats, ['data', 'quality'])
+        update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt)
+        update_full_archfiles_db3(dat, logger, msid_files, opt)
+
+
+def update_full_archfiles_db3(dat, logger, msid_files, opt):
+    # Update the archfiles.db3 database to include the associated archive files
+    server_file = msid_files['archfiles'].abs
+    logger.debug(f'Updating {server_file}')
+
+    def as_python(val):
+        try:
+            return val.item()
+        except AttributeError:
+            return val
+
+    with timing_logger(logger, f'Updating {server_file}', 'info', 'info'):
+        with DBI(dbi='sqlite', server=server_file) as db:
+            for archfile in dat['archfiles']:
+                vals = {name: as_python(archfile[name]) for name in archfile.dtype.names}
+                logger.debug(f'Inserting {vals["filename"]}')
+                if not opt.dry_run:
+                    try:
+                        db.insert(vals, 'archfiles')
+                    except sqlite3.IntegrityError as err:
+                        # Expected exception for archfiles already in the table
+                        assert 'UNIQUE constraint failed: archfiles.filename' in str(err)
+
+            if not opt.dry_run:
+                db.commit()
+
+
+def update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt):
+    with timing_logger(logger, f'Applying updates to {len(msids)} h5 files',
+                       'info', 'info'):
+        for msid in msids:
+            vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
+
+            # If this row begins before then end of current data then chop the
+            # beginning of data for this row.
+            if vals['row0'] <= last_row_idx:
+                idx0 = last_row_idx + 1 - vals['row0']
+                logger.debug(f'Chopping {idx0 + 1} rows from data')
+                for key in ('data', 'quality'):
+                    vals[key] = vals[key][idx0:]
+                vals['row0'] += idx0
+
+            append_h5_col(opt, msid, vals, logger, msid_files)
+
+
+def get_full_data_sets(ft, index_tbl, logger, opt):
     # Iterate over sync files that contain new data
+    dats = []
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # Limit processed archfiles by date
         if filetime0 > DateTime(opt.date_stop).secs:
@@ -174,51 +229,45 @@ def sync_full_archive(opt, msid_files, logger, content):
         with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
             with timing_logger(logger, f'Reading update date file {uri}'):
                 with gzip.open(data_input, 'rb') as fh:
-                    dat = pickle.load(fh)
+                    dats.append(pickle.load(fh))
+    return dats
 
-        # Find the MSIDs in this file
-        msids = {key[:-5] for key in dat if key.endswith('.data')}
 
-        with timing_logger(logger, f'Applying updates to {len(msids)} h5 files',
-                           'info', 'info'):
-            for msid in msids:
-                vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
+def concat_full_data_sets(dats):
+    """
+    Concatenate the list of ``dat`` dicts into a single such dict
 
-                # If this row begins before then end of current data then chop the
-                # beginning of data for this row.
-                if vals['row0'] <= last_row_idx:
-                    idx0 = last_row_idx + 1 - vals['row0']
-                    logger.debug(f'Chopping {idx0 + 1} rows from data')
-                    for key in ('data', 'quality'):
-                        vals[key] = vals[key][idx0:]
-                    vals['row0'] += idx0
+    Each dat dict has keys {msid}.{key} for key in data, quality, row0, row1.
+    The ``.data`` and ``.quality`` elements are numpy arrays, while row0 and
+    row1 are integers.
 
-                append_h5_col(opt, msid, vals, logger, msid_files)
+    :param dats: list of dict
+    :return:
+    """
+    msids = {key[:-5] for key in dats[0] if key.endswith('.data')}
 
-        # Update the archfiles.db3 database to include the associated archive files
-        server_file = msid_files['archfiles'].abs
-        logger.debug(f'Updating {server_file}')
+    # Check on consistency of dats
+    for dat0, dat1 in zip(dats[:-1], dats[1:]):
+        # Same MSIDs
+        msids1 = {key[:-5] for key in dat1 if key.endswith('.data')}
+        if msids != msids1:
+            raise ValueError('unexpected inconsistency in full data files')
 
-        def as_python(val):
-            try:
-                return val.item()
-            except AttributeError:
-                return val
+        # Continuity of rows
+        for msid in msids:
+            if dat0[f'{msid}.row1'] != dat1[f'{msid}.row0']:
+                raise ValueError('unexpected discontinuity in rows of full data files')
 
-        with timing_logger(logger, f'Updating {server_file}', 'info', 'info'):
-            with DBI(dbi='sqlite', server=server_file) as db:
-                for archfile in dat['archfiles']:
-                    vals = {name: as_python(archfile[name]) for name in archfile.dtype.names}
-                    logger.debug(f'Inserting {vals["filename"]}')
-                    if not opt.dry_run:
-                        try:
-                            db.insert(vals, 'archfiles')
-                        except sqlite3.IntegrityError as err:
-                            # Expected exception for archfiles already in the table
-                            assert 'UNIQUE constraint failed: archfiles.filename' in str(err)
+    dat = {}
+    for msid in msids:
+        for key in ('data', 'quality'):
+            dat[f'{msid}.{key}'] = np.concatenate([dat[f'{msid}.{key}'] for dat in dats])
+        dat[f'{msid}.row0'] = dats[0][f'{msid}.row0']
+        dat[f'{msid}.row1'] = dats[-1][f'{msid}.row1']
 
-                if not opt.dry_run:
-                    db.commit()
+    dat['archfiles'] = list(itertools.chain.from_iterable(dat['archfiles'] for dat in dats))
+
+    return dat, msids
 
 
 def sync_stat_archive(opt, msid_files, logger, content, stat):
@@ -267,7 +316,26 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
         msid_files, msids, stat, logger)
     logger.verbose(f'Got {last_date_id} as last date_id that was applied to archive')
 
+    dats = get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)
+
+    if dats:
+        dat, msids = concat_data_sets(dats, ['data'])
+        date_id = index_tbl['date_id'][-1]
+        with timing_logger(logger, f'Applying updates to {len(msids)} h5 files'):
+            for msid in msids:
+                fetch.ft['msid'] = msid
+                stat_file = msid_files['stats'].abs
+                if os.path.exists(stat_file):
+                    append_stat_col(dat, stat_file, msid, date_id, opt, logger)
+
+            logger.debug(f'Updating {last_date_id_file} with {date_id}')
+            with open(last_date_id_file, 'w') as fh:
+                fh.write(f'{date_id}')
+
+
+def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
     # Iterate over sync files that contain new data
+    dats = []
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # Limit processed archfiles by date
         if filetime0 > DateTime(opt.date_stop).secs:
@@ -289,20 +357,52 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
             with timing_logger(logger, f'Reading update date file {uri}'):
                 with gzip.open(data_input, 'rb') as fh:
                     dat = pickle.load(fh)
+                    if dat:
+                        # Stat pickle dict can be empty, e.g. in the case of a daily file
+                        # with no update.
+                        dats.append(dat)
 
-        # Find the MSIDs in this file
-        msids = {key[:-5] for key in dat if key.endswith('.data')}
+    return dats
 
-        with timing_logger(logger, f'Applying updates to {len(msids)} h5 files'):
-            for msid in msids:
-                fetch.ft['msid'] = msid
-                stat_file = msid_files['stats'].abs
-                if os.path.exists(stat_file):
-                    append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
-            logger.debug(f'Updating {last_date_id_file} with {date_id}')
-            with open(last_date_id_file, 'w') as fh:
-                fh.write(f'{date_id}')
+def concat_data_sets(dats, data_keys):
+    """
+    Concatenate the list of ``dat`` dicts into a single such dict
+
+    Each dat dict has keys {msid}.{key} for key in data, row0, row1.
+    The ``.data`` elements are numpy structured arrays, while ``.row0`` and
+    ``.row1`` are integers.
+
+    :param dats: list of dict
+    :param data_keys: list of data keys (e.g. ['data', 'quality'])
+    :return: dict, concatenated version
+    """
+    msids = {key[:-5] for key in dats[0] if key.endswith('.data')}
+
+    # Check on consistency of dats
+    for dat0, dat1 in zip(dats[:-1], dats[1:]):
+        # Same MSIDs
+        msids1 = {key[:-5] for key in dat1 if key.endswith('.data')}
+        if msids != msids1:
+            raise ValueError('unexpected inconsistency in stat data files')
+
+        # Continuity of rows
+        for msid in msids:
+            if dat0[f'{msid}.row1'] != dat1[f'{msid}.row0']:
+                raise ValueError('unexpected discontinuity in rows of stat data files')
+
+    dat = {}
+    for msid in msids:
+        for key in data_keys:
+            dat[f'{msid}.{key}'] = np.concatenate([dat[f'{msid}.{key}'] for dat in dats])
+        dat[f'{msid}.row0'] = dats[0][f'{msid}.row0']
+        dat[f'{msid}.row1'] = dats[-1][f'{msid}.row1']
+
+    if 'archfiles' in dats[0]:
+        dat['archfiles'] = list(itertools.chain.from_iterable(
+            dat['archfiles'] for dat in dats))
+
+    return dat, msids
 
 
 def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
