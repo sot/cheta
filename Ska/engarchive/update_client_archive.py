@@ -21,6 +21,7 @@ import sqlite3
 import urllib
 from pathlib import Path
 import importlib
+import time
 
 import numpy as np
 import pyyaks.context
@@ -64,6 +65,15 @@ def get_options(args=None):
     opt.date_stop = DateTime(opt.date_stop)
 
     return opt
+
+
+@contextlib.contextmanager
+def timing_logger(logger, text, level_pre='info', level_post='info'):
+    start = time.time()
+    getattr(logger, level_pre)(text)
+    yield
+    elapsed_time = time.time() - start
+    getattr(logger, level_post)(f'  elapsed time: {elapsed_time:.3f} sec')
 
 
 @contextlib.contextmanager
@@ -130,8 +140,8 @@ def sync_full_archive(opt, msid_files, logger, content):
             # If index_file is not found then get_readable returns None
             logger.info(f'No new sync data for {content}: {uri} not found')
             return
-        logger.info(f'Reading index file {uri}')
-        index_tbl = Table.read(index_input, format='ascii.ecsv')
+        with timing_logger(logger, f'Reading index file {uri}'):
+            index_tbl = Table.read(index_input, format='ascii.ecsv')
 
     # Get the 0-based index of last available full data row
     with tables.open_file(str(time_file), 'r') as h5:
@@ -162,26 +172,28 @@ def sync_full_archive(opt, msid_files, logger, content):
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
         # archfiles rows.
         with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
-            logger.info(f'Reading update date file {uri}')
-            with gzip.open(data_input, 'rb') as fh:
-                dat = pickle.load(fh)
+            with timing_logger(logger, f'Reading update date file {uri}'):
+                with gzip.open(data_input, 'rb') as fh:
+                    dat = pickle.load(fh)
 
         # Find the MSIDs in this file
         msids = {key[:-5] for key in dat if key.endswith('.data')}
 
-        for msid in msids:
-            vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
+        with timing_logger(logger, f'Applying updates to {len(msids)} h5 files',
+                           'info', 'info'):
+            for msid in msids:
+                vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
 
-            # If this row begins before then end of current data then chop the
-            # beginning of data for this row.
-            if vals['row0'] <= last_row_idx:
-                idx0 = last_row_idx + 1 - vals['row0']
-                logger.debug(f'Chopping {idx0 + 1} rows from data')
-                for key in ('data', 'quality'):
-                    vals[key] = vals[key][idx0:]
-                vals['row0'] += idx0
+                # If this row begins before then end of current data then chop the
+                # beginning of data for this row.
+                if vals['row0'] <= last_row_idx:
+                    idx0 = last_row_idx + 1 - vals['row0']
+                    logger.debug(f'Chopping {idx0 + 1} rows from data')
+                    for key in ('data', 'quality'):
+                        vals[key] = vals[key][idx0:]
+                    vals['row0'] += idx0
 
-            append_h5_col(opt, msid, vals, logger, msid_files)
+                append_h5_col(opt, msid, vals, logger, msid_files)
 
         # Update the archfiles.db3 database to include the associated archive files
         server_file = msid_files['archfiles'].abs
@@ -193,19 +205,20 @@ def sync_full_archive(opt, msid_files, logger, content):
             except AttributeError:
                 return val
 
-        with DBI(dbi='sqlite', server=server_file) as db:
-            for archfile in dat['archfiles']:
-                vals = {name: as_python(archfile[name]) for name in archfile.dtype.names}
-                logger.debug(f'Inserting {vals["filename"]}')
-                if not opt.dry_run:
-                    try:
-                        db.insert(vals, 'archfiles')
-                    except sqlite3.IntegrityError as err:
-                        # Expected exception for archfiles already in the table
-                        assert 'UNIQUE constraint failed: archfiles.filename' in str(err)
+        with timing_logger(logger, f'Updating {server_file}', 'info', 'info'):
+            with DBI(dbi='sqlite', server=server_file) as db:
+                for archfile in dat['archfiles']:
+                    vals = {name: as_python(archfile[name]) for name in archfile.dtype.names}
+                    logger.debug(f'Inserting {vals["filename"]}')
+                    if not opt.dry_run:
+                        try:
+                            db.insert(vals, 'archfiles')
+                        except sqlite3.IntegrityError as err:
+                            # Expected exception for archfiles already in the table
+                            assert 'UNIQUE constraint failed: archfiles.filename' in str(err)
 
-            if not opt.dry_run:
-                db.commit()
+                if not opt.dry_run:
+                    db.commit()
 
 
 def sync_stat_archive(opt, msid_files, logger, content, stat):
@@ -273,22 +286,23 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
         # Read the file with all the MSID data as a hash with keys {msid}.data
         # {msid}.row0, {msid}.row1
         with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
-            logger.info(f'Reading update date file {uri}')
-            with gzip.open(data_input, 'rb') as fh:
-                dat = pickle.load(fh)
+            with timing_logger(logger, f'Reading update date file {uri}'):
+                with gzip.open(data_input, 'rb') as fh:
+                    dat = pickle.load(fh)
 
         # Find the MSIDs in this file
         msids = {key[:-5] for key in dat if key.endswith('.data')}
 
-        for msid in msids:
-            fetch.ft['msid'] = msid
-            stat_file = msid_files['stats'].abs
-            if os.path.exists(stat_file):
-                append_stat_col(dat, stat_file, msid, date_id, opt, logger)
+        with timing_logger(logger, f'Applying updates to {len(msids)} h5 files'):
+            for msid in msids:
+                fetch.ft['msid'] = msid
+                stat_file = msid_files['stats'].abs
+                if os.path.exists(stat_file):
+                    append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
-        logger.debug(f'Updating {last_date_id_file} with {date_id}')
-        with open(last_date_id_file, 'w') as fh:
-            fh.write(f'{date_id}')
+            logger.debug(f'Updating {last_date_id_file} with {date_id}')
+            with open(last_date_id_file, 'w') as fh:
+                fh.write(f'{date_id}')
 
 
 def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
