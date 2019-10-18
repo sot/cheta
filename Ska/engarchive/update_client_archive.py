@@ -12,6 +12,7 @@ change the output directory by setting the environment variable
 """
 
 import argparse
+import collections
 import contextlib
 import gzip
 import itertools
@@ -325,26 +326,32 @@ def concat_data_sets(dats, data_keys):
     :param data_keys: list of data keys (e.g. ['data', 'quality'])
     :return: dict, concatenated version
     """
-    msids = {key[:-5] for key in dats[0] if key.endswith('.data')}
+    dat_lists = collections.defaultdict(list)
+    for dat in dats:
+        for key, val in dat.items():
+            dat_lists[key].append(val)
 
-    # Check on consistency of dats
-    for dat0, dat1 in zip(dats[:-1], dats[1:]):
-        # Same MSIDs
-        msids1 = {key[:-5] for key in dat1 if key.endswith('.data')}
-        if msids != msids1:
-            raise ValueError('unexpected inconsistency in stat data files')
-
-        # Continuity of rows
-        for msid in msids:
-            if dat0[f'{msid}.row1'] != dat1[f'{msid}.row0']:
-                raise ValueError('unexpected discontinuity in rows of stat data files')
+    msids = {key[:-5] for key in dat_lists if key.endswith('.data')}
 
     dat = {}
     for msid in msids:
+        lens = set()
+        lens.add(len(dat_lists[f'{msid}.row0']))
+        lens.add(len(dat_lists[f'{msid}.row1']))
         for key in data_keys:
-            dat[f'{msid}.{key}'] = np.concatenate([dat[f'{msid}.{key}'] for dat in dats])
-        dat[f'{msid}.row0'] = dats[0][f'{msid}.row0']
-        dat[f'{msid}.row1'] = dats[-1][f'{msid}.row1']
+            lens.add(len(dat_lists[f'{msid}.{key}']))
+        if len(lens) != 1:
+            raise ValueError('inconsistency in lengths of data file inputs')
+
+        for row1, next_row0 in zip(dat_lists[f'{msid}.row1'][:-1],
+                                   dat_lists[f'{msid}.row0'][1:]):
+            if row1 != next_row0:
+                raise ValueError('unexpected inconsistency in rows in data files')
+
+        dat[f'{msid}.row0'] = dat_lists[f'{msid}.row0'][0]
+        dat[f'{msid}.row1'] = dat_lists[f'{msid}.row1'][-1]
+        for key in data_keys:
+            dat[f'{msid}.{key}'] = np.concatenate(dat_lists[f'{msid}.{key}'])
 
     if 'archfiles' in dats[0]:
         dat['archfiles'] = list(itertools.chain.from_iterable(
