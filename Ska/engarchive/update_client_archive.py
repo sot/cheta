@@ -17,6 +17,7 @@ import contextlib
 import gzip
 import itertools
 import os
+import sys
 import pickle
 import re
 import sqlite3
@@ -24,6 +25,7 @@ import urllib
 from pathlib import Path
 import importlib
 import time
+import signal
 
 import numpy as np
 import pyyaks.context
@@ -111,6 +113,30 @@ def get_readable(sync_root, is_url, filename):
             os.unlink(filename)
 
 
+class DelayedKeyboardInterrupt(object):
+    """Delay keyboard interrupt while critical operation finishes.
+
+    Taken from https://stackoverflow.com/questions/842557/
+    how-to-prevent-a-block-of-code-from-being-interrupted-by-keyboardinterrupt-in-py/21919644
+    """
+    def __init__(self, logger):
+        self.logger = logger
+
+    def __enter__(self):
+        self.signal_received = False
+        self.old_handler = signal.signal(signal.SIGINT, self.handler)
+
+    def handler(self, sig, frame):
+        self.signal_received = (sig, frame)
+        self.logger.info('SIGINT received. Delaying KeyboardInterrupt.')
+
+    def __exit__(self, type, value, traceback):
+        signal.signal(signal.SIGINT, self.old_handler)
+        if self.signal_received:
+            print('Shutting down due to keyboard interrupt', file=sys.stderr)
+            sys.exit(1)
+
+
 def sync_full_archive(opt, msid_files, logger, content, index_tbl):
     """
     Sync the archive for ``content``.
@@ -156,8 +182,9 @@ def sync_full_archive(opt, msid_files, logger, content, index_tbl):
     dats = get_full_data_sets(ft, index_tbl, logger, opt)
     if dats:
         dat, msids = concat_data_sets(dats, ['data', 'quality'])
-        update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt)
-        update_full_archfiles_db3(dat, logger, msid_files, opt)
+        with DelayedKeyboardInterrupt(logger):
+            update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt)
+            update_full_archfiles_db3(dat, logger, msid_files, opt)
 
 
 def update_full_archfiles_db3(dat, logger, msid_files, opt):
@@ -267,9 +294,11 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     # return ``date_id`` which is the date_id of the final data set in the list.
     # This will be written as the new ``last_date_id``.
     dats, date_id = get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)
+    if not dats:
+        return
 
-    if dats:
-        dat, msids = concat_data_sets(dats, ['data'])
+    dat, msids = concat_data_sets(dats, ['data'])
+    with DelayedKeyboardInterrupt(logger):
         with timing_logger(logger, f'Applying updates to {len(msids)} h5 files'):
             for msid in msids:
                 fetch.ft['msid'] = msid
