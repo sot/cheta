@@ -22,6 +22,7 @@ import pickle
 import re
 import sqlite3
 import urllib
+import urllib.error
 from pathlib import Path
 import importlib
 import time
@@ -41,6 +42,8 @@ from .utils import get_date_id, STATS_DT
 
 sync_files = pyyaks.context.ContextDict('update_client_archive.sync_files')
 sync_files.update(file_defs.sync_files)
+
+process_errors = []
 
 
 def get_options(args=None):
@@ -81,7 +84,7 @@ def timing_logger(logger, text, level_pre='info', level_post='info'):
 
 
 @contextlib.contextmanager
-def get_readable(sync_root, is_url, filename):
+def get_readable(sync_root, is_url, filename, timeout=60):
     """
     Get readable filename from either a local file or remote URL.
 
@@ -90,6 +93,7 @@ def get_readable(sync_root, is_url, filename):
     :param sync_root: str, root directory of sync data (URL or local dir name)
     :param is_url: bool, True if ``sync_root`` is a URL
     :param filename: ContextVal, relative filename
+    :param timeout: Download timeout (default=60 sec)
     :return: filename, URI
     """
     filename = str(filename)  # Not needed with pyyaks >= 4.4.
@@ -97,7 +101,7 @@ def get_readable(sync_root, is_url, filename):
     try:
         if is_url:
             uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
-            filename = download_file(uri, show_progress=False, cache=False, timeout=60)
+            filename = download_file(uri, show_progress=False, cache=False, timeout=timeout)
         else:
             uri = Path(sync_root, filename)
             filename = uri.absolute()
@@ -179,7 +183,17 @@ def sync_full_archive(opt, msid_files, logger, content, index_tbl):
 
     index_tbl = index_tbl[ok]
 
-    dats = get_full_data_sets(ft, index_tbl, logger, opt)
+    try:
+        dats = get_full_data_sets(ft, index_tbl, logger, opt)
+    except urllib.error.URLError as err:
+        if 'timed out' in str(err):
+            msg = f'  ERROR: timed out getting full data for {content}'
+            logger.error(msg)
+            process_errors.append(msg)
+            dats = []
+        else:
+            raise
+
     if dats:
         dat, msids = concat_data_sets(dats, ['data', 'quality'])
         with DelayedKeyboardInterrupt(logger):
@@ -293,7 +307,17 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     # Get list of applicable dat objects (new data, before opt.date_stop).  Also
     # return ``date_id`` which is the date_id of the final data set in the list.
     # This will be written as the new ``last_date_id``.
-    dats, date_id = get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)
+    try:
+        dats, date_id = get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)
+    except urllib.error.URLError as err:
+        if 'timed out' in str(err):
+            msg = f'  ERROR: timed out getting {stat} data for {content}'
+            logger.error(msg)
+            process_errors.append(msg)
+            dats = []
+        else:
+            raise
+
     if not dats:
         return
 
@@ -558,6 +582,9 @@ def main(args=None):
         # fetch.content is a dict of {MSID: content_type} values
         contents = set(fetch.content.values())
 
+    # Global list of timeout errors
+    process_errors.clear()
+
     for content in sorted(contents):
         fetch.ft['content'] = content
         index_tbl = get_index_tbl(content, logger, opt)
@@ -565,6 +592,13 @@ def main(args=None):
             sync_full_archive(opt, fetch.msid_files, logger, content, index_tbl)
             for stat in STATS_DT:
                 sync_stat_archive(opt, fetch.msid_files, logger, content, stat, index_tbl)
+
+    if process_errors:
+        logger.error('')
+        logger.error('TIMEOUT ERRORS:')
+
+    for process_error in process_errors:
+        logger.error(process_error)
 
 
 if __name__ == '__main__':
