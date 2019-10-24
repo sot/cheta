@@ -37,7 +37,7 @@ from Ska.DBI import DBI
 from astropy.table import Table
 from astropy.utils.data import download_file
 
-from . import file_defs
+from . import file_defs, __version__
 from .utils import get_date_id, STATS_DT
 
 sync_files = pyyaks.context.ContextDict('update_client_archive.sync_files')
@@ -574,6 +574,9 @@ def main(args=None):
         os.environ['ENG_ARCHIVE'] = opt.data_root
 
     fetch = importlib.import_module('.fetch', __package__)
+    logger.info(f'Running cheta_update_client_archive version {__version__}')
+    logger.info(f'  {__file__}')
+    logger.info('')
     logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
 
     if opt.content:
