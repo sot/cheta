@@ -12,15 +12,21 @@ change the output directory by setting the environment variable
 """
 
 import argparse
+import collections
 import contextlib
 import gzip
+import itertools
 import os
+import sys
 import pickle
 import re
 import sqlite3
 import urllib
+import urllib.error
 from pathlib import Path
 import importlib
+import time
+import signal
 
 import numpy as np
 import pyyaks.context
@@ -31,11 +37,13 @@ from Ska.DBI import DBI
 from astropy.table import Table
 from astropy.utils.data import download_file
 
-from . import file_defs
+from . import file_defs, __version__
 from .utils import get_date_id, STATS_DT
 
 sync_files = pyyaks.context.ContextDict('update_client_archive.sync_files')
 sync_files.update(file_defs.sync_files)
+
+process_errors = []
 
 
 def get_options(args=None):
@@ -67,7 +75,16 @@ def get_options(args=None):
 
 
 @contextlib.contextmanager
-def get_readable(sync_root, is_url, filename):
+def timing_logger(logger, text, level_pre='info', level_post='info'):
+    start = time.time()
+    getattr(logger, level_pre)(text)
+    yield
+    elapsed_time = time.time() - start
+    getattr(logger, level_post)(f'  elapsed time: {elapsed_time:.3f} sec')
+
+
+@contextlib.contextmanager
+def get_readable(sync_root, is_url, filename, timeout=60):
     """
     Get readable filename from either a local file or remote URL.
 
@@ -76,6 +93,7 @@ def get_readable(sync_root, is_url, filename):
     :param sync_root: str, root directory of sync data (URL or local dir name)
     :param is_url: bool, True if ``sync_root`` is a URL
     :param filename: ContextVal, relative filename
+    :param timeout: Download timeout (default=60 sec)
     :return: filename, URI
     """
     filename = str(filename)  # Not needed with pyyaks >= 4.4.
@@ -83,7 +101,7 @@ def get_readable(sync_root, is_url, filename):
     try:
         if is_url:
             uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
-            filename = download_file(uri, show_progress=False, cache=False, timeout=60)
+            filename = download_file(uri, show_progress=False, cache=False, timeout=timeout)
         else:
             uri = Path(sync_root, filename)
             filename = uri.absolute()
@@ -99,7 +117,31 @@ def get_readable(sync_root, is_url, filename):
             os.unlink(filename)
 
 
-def sync_full_archive(opt, msid_files, logger, content):
+class DelayedKeyboardInterrupt(object):
+    """Delay keyboard interrupt while critical operation finishes.
+
+    Taken from https://stackoverflow.com/questions/842557/
+    how-to-prevent-a-block-of-code-from-being-interrupted-by-keyboardinterrupt-in-py/21919644
+    """
+    def __init__(self, logger):
+        self.logger = logger
+
+    def __enter__(self):
+        self.signal_received = False
+        self.old_handler = signal.signal(signal.SIGINT, self.handler)
+
+    def handler(self, sig, frame):
+        self.signal_received = (sig, frame)
+        self.logger.info('SIGINT received. Delaying KeyboardInterrupt.')
+
+    def __exit__(self, type, value, traceback):
+        signal.signal(signal.SIGINT, self.old_handler)
+        if self.signal_received:
+            print('Shutting down due to keyboard interrupt', file=sys.stderr)
+            sys.exit(1)
+
+
+def sync_full_archive(opt, msid_files, logger, content, index_tbl):
     """
     Sync the archive for ``content``.
 
@@ -107,6 +149,7 @@ def sync_full_archive(opt, msid_files, logger, content):
     :param msid_files:
     :param logger:
     :param content:
+    :param index_tbl: index of sync file entries
     :return:
     """
     # Get the last row of data from the length of the TIME.col (or archfiles?)
@@ -124,15 +167,6 @@ def sync_full_archive(opt, msid_files, logger, content):
     logger.info('')
     logger.info(f'Processing full data for {content}')
 
-    # Read the index file to know what is available for new data
-    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
-        if index_input is None:
-            # If index_file is not found then get_readable returns None
-            logger.info(f'No new sync data for {content}: {uri} not found')
-            return
-        logger.info(f'Reading index file {uri}')
-        index_tbl = Table.read(index_input, format='ascii.ecsv')
-
     # Get the 0-based index of last available full data row
     with tables.open_file(str(time_file), 'r') as h5:
         last_row_idx = len(h5.root.data) - 1
@@ -149,50 +183,36 @@ def sync_full_archive(opt, msid_files, logger, content):
 
     index_tbl = index_tbl[ok]
 
-    # Iterate over sync files that contain new data
-    for date_id, filetime0, filetime1, row0, row1 in index_tbl:
-        # Limit processed archfiles by date
-        if filetime0 > DateTime(opt.date_stop).secs:
-            break
+    try:
+        dats = get_full_data_sets(ft, index_tbl, logger, opt)
+    except urllib.error.URLError as err:
+        if 'timed out' in str(err):
+            msg = f'  ERROR: timed out getting full data for {content}'
+            logger.error(msg)
+            process_errors.append(msg)
+            dats = []
+        else:
+            raise
 
-        # File names like sync/acis4eng/2019-07-08T1150z/full.npz
-        ft['date_id'] = date_id
+    if dats:
+        dat, msids = concat_data_sets(dats, ['data', 'quality'])
+        with DelayedKeyboardInterrupt(logger):
+            update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt)
+            update_full_archfiles_db3(dat, logger, msid_files, opt)
 
-        # Read the file with all the MSID data as a hash with keys like {msid}.data
-        # {msid}.quality etc, plus an `archive` key with the table of corresponding
-        # archfiles rows.
-        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
-            logger.info(f'Reading update date file {uri}')
-            with gzip.open(data_input, 'rb') as fh:
-                dat = pickle.load(fh)
 
-        # Find the MSIDs in this file
-        msids = {key[:-5] for key in dat if key.endswith('.data')}
+def update_full_archfiles_db3(dat, logger, msid_files, opt):
+    # Update the archfiles.db3 database to include the associated archive files
+    server_file = msid_files['archfiles'].abs
+    logger.debug(f'Updating {server_file}')
 
-        for msid in msids:
-            vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
+    def as_python(val):
+        try:
+            return val.item()
+        except AttributeError:
+            return val
 
-            # If this row begins before then end of current data then chop the
-            # beginning of data for this row.
-            if vals['row0'] <= last_row_idx:
-                idx0 = last_row_idx + 1 - vals['row0']
-                logger.debug(f'Chopping {idx0 + 1} rows from data')
-                for key in ('data', 'quality'):
-                    vals[key] = vals[key][idx0:]
-                vals['row0'] += idx0
-
-            append_h5_col(opt, msid, vals, logger, msid_files)
-
-        # Update the archfiles.db3 database to include the associated archive files
-        server_file = msid_files['archfiles'].abs
-        logger.debug(f'Updating {server_file}')
-
-        def as_python(val):
-            try:
-                return val.item()
-            except AttributeError:
-                return val
-
+    with timing_logger(logger, f'Updating {server_file}', 'info', 'info'):
         with DBI(dbi='sqlite', server=server_file) as db:
             for archfile in dat['archfiles']:
                 vals = {name: as_python(archfile[name]) for name in archfile.dtype.names}
@@ -208,7 +228,46 @@ def sync_full_archive(opt, msid_files, logger, content):
                 db.commit()
 
 
-def sync_stat_archive(opt, msid_files, logger, content, stat):
+def update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt):
+    with timing_logger(logger, f'Applying updates to {len(msids)} h5 files',
+                       'info', 'info'):
+        for msid in msids:
+            vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
+
+            # If this row begins before then end of current data then chop the
+            # beginning of data for this row.
+            if vals['row0'] <= last_row_idx:
+                idx0 = last_row_idx + 1 - vals['row0']
+                logger.debug(f'Chopping {idx0 + 1} rows from data')
+                for key in ('data', 'quality'):
+                    vals[key] = vals[key][idx0:]
+                vals['row0'] += idx0
+
+            append_h5_col(opt, msid, vals, logger, msid_files)
+
+
+def get_full_data_sets(ft, index_tbl, logger, opt):
+    # Iterate over sync files that contain new data
+    dats = []
+    for date_id, filetime0, filetime1, row0, row1 in index_tbl:
+        # Limit processed archfiles by date
+        if filetime0 > DateTime(opt.date_stop).secs:
+            break
+
+        # File names like sync/acis4eng/2019-07-08T1150z/full.npz
+        ft['date_id'] = date_id
+
+        # Read the file with all the MSID data as a hash with keys like {msid}.data
+        # {msid}.quality etc, plus an `archive` key with the table of corresponding
+        # archfiles rows.
+        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
+            with timing_logger(logger, f'Reading update date file {uri}'):
+                with gzip.open(data_input, 'rb') as fh:
+                    dats.append(pickle.load(fh))
+    return dats
+
+
+def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     """
     Sync the archive for ``content``.
 
@@ -217,6 +276,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
     :param logger:
     :param content:
     :param stat: stat interval '5min' or 'daily'
+    :param index_tbl: table of sync file entries
     :return:
     """
     # Get the last row of data from the length of the TIME.col (or archfiles?)
@@ -232,16 +292,6 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
     logger.info('')
     logger.info(f'Processing {stat} data for {content}')
 
-    # Read the index file to know what is available for new data
-    # TODO: factor this out
-    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
-        if index_input is None:
-            # If index_file is not found then get_readable returns None
-            logger.info(f'No new {stat} sync data for {content}: {uri} not found')
-            return
-        logger.info(f'Reading index file {uri}')
-        index_tbl = Table.read(index_input, format='ascii.ecsv')
-
     # Get the MSIDs that are in client archive
     msids = [str(fn.name)[:-3] for fn in stats_dir.glob('*.h5')]
     if not msids:
@@ -254,7 +304,40 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
         msid_files, msids, stat, logger)
     logger.verbose(f'Got {last_date_id} as last date_id that was applied to archive')
 
+    # Get list of applicable dat objects (new data, before opt.date_stop).  Also
+    # return ``date_id`` which is the date_id of the final data set in the list.
+    # This will be written as the new ``last_date_id``.
+    try:
+        dats, date_id = get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)
+    except urllib.error.URLError as err:
+        if 'timed out' in str(err):
+            msg = f'  ERROR: timed out getting {stat} data for {content}'
+            logger.error(msg)
+            process_errors.append(msg)
+            dats = []
+        else:
+            raise
+
+    if not dats:
+        return
+
+    dat, msids = concat_data_sets(dats, ['data'])
+    with DelayedKeyboardInterrupt(logger):
+        with timing_logger(logger, f'Applying updates to {len(msids)} h5 files'):
+            for msid in msids:
+                fetch.ft['msid'] = msid
+                stat_file = msid_files['stats'].abs
+                if os.path.exists(stat_file):
+                    append_stat_col(dat, stat_file, msid, date_id, opt, logger)
+
+            logger.debug(f'Updating {last_date_id_file} with {date_id}')
+            with open(last_date_id_file, 'w') as fh:
+                fh.write(f'{date_id}')
+
+
+def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
     # Iterate over sync files that contain new data
+    dats = []
     for date_id, filetime0, filetime1, row0, row1 in index_tbl:
         # Limit processed archfiles by date
         if filetime0 > DateTime(opt.date_stop).secs:
@@ -268,27 +351,66 @@ def sync_stat_archive(opt, msid_files, logger, content, stat):
             continue
 
         # File names like sync/acis4eng/2019-07-08T1150z/5min.npz
-        ft['date_id'] = date_id
+        last_date_id = ft['date_id'] = date_id
 
         # Read the file with all the MSID data as a hash with keys {msid}.data
         # {msid}.row0, {msid}.row1
         with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
-            logger.info(f'Reading update date file {uri}')
-            with gzip.open(data_input, 'rb') as fh:
-                dat = pickle.load(fh)
+            with timing_logger(logger, f'Reading update date file {uri}'):
+                with gzip.open(data_input, 'rb') as fh:
+                    dat = pickle.load(fh)
+                    if dat:
+                        # Stat pickle dict can be empty, e.g. in the case of a daily file
+                        # with no update.
+                        dats.append(dat)
 
-        # Find the MSIDs in this file
-        msids = {key[:-5] for key in dat if key.endswith('.data')}
+    return dats, last_date_id
 
-        for msid in msids:
-            fetch.ft['msid'] = msid
-            stat_file = msid_files['stats'].abs
-            if os.path.exists(stat_file):
-                append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
-        logger.debug(f'Updating {last_date_id_file} with {date_id}')
-        with open(last_date_id_file, 'w') as fh:
-            fh.write(f'{date_id}')
+def concat_data_sets(dats, data_keys):
+    """
+    Concatenate the list of ``dat`` dicts into a single such dict
+
+    Each dat dict has keys {msid}.{key} for key in data, row0, row1.
+    The ``.data`` elements are numpy structured arrays, while ``.row0`` and
+    ``.row1`` are integers.
+
+    :param dats: list of dict
+    :param data_keys: list of data keys (e.g. ['data', 'quality'])
+    :return: dict, concatenated version
+    """
+    dat_lists = collections.defaultdict(list)
+    for dat in dats:
+        for key, val in dat.items():
+            dat_lists[key].append(val)
+
+    msids = {key[:-5] for key in dat_lists if key.endswith('.data')}
+
+    dat = {}
+    for msid in msids:
+        lens = set()
+        lens.add(len(dat_lists[f'{msid}.row0']))
+        lens.add(len(dat_lists[f'{msid}.row1']))
+        for key in data_keys:
+            lens.add(len(dat_lists[f'{msid}.{key}']))
+        if len(lens) != 1:
+            raise ValueError('inconsistency in lengths of data file inputs')
+
+        for row1, next_row0 in zip(dat_lists[f'{msid}.row1'][:-1],
+                                   dat_lists[f'{msid}.row0'][1:]):
+            if row1 != next_row0:
+                raise ValueError('unexpected inconsistency in rows in data files')
+
+        dat[f'{msid}.row0'] = dat_lists[f'{msid}.row0'][0]
+        dat[f'{msid}.row1'] = dat_lists[f'{msid}.row1'][-1]
+        for key in data_keys:
+            dat[f'{msid}.{key}'] = np.concatenate(dat_lists[f'{msid}.{key}'])
+
+    if 'archfiles' in dats[0]:
+        dat['archfiles'] = list(itertools.chain.from_iterable(
+            dat['archfiles'] for dat in dats))
+
+    return dat, msids
 
 
 def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
@@ -326,8 +448,9 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             vals['row0'] += idx0
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity '
-                             f'row0 {vals["row0"]} != len {len(h5.root.data)}')
+            raise ValueError(f'ERROR: unexpected discontinuity\n'
+                             f'  First row0 in new data {vals["row0"]} != '
+                             f'length of existing data {len(h5.root.data)}')
 
         logger.debug(f'Appending {len(vals["data"])} rows to {stat_file}')
         if not opt.dry_run:
@@ -397,8 +520,9 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity '
-                             f'row0 {vals["row0"]} != len {len(h5.root.data)}')
+            raise ValueError(f'ERROR: unexpected discontinuity\n'
+                             f'  First row0 in new data {vals["row0"]} != '
+                             f'length of existing data {len(h5.root.data)}')
 
         # For the TIME column include special processing to effectively remove
         # existing rows that are superceded by new rows in time.  This is done by
@@ -422,6 +546,18 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
             h5.root.quality.append(vals['quality'])
 
 
+def get_index_tbl(content, logger, opt):
+    # Read the index file to know what is available for new data
+    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
+        if index_input is None:
+            # If index_file is not found then get_readable returns None
+            logger.info(f'No new sync data for {content}: {uri} not found')
+            return None
+        logger.info(f'Reading index file {uri}')
+        index_tbl = Table.read(index_input, format='ascii.ecsv')
+    return index_tbl
+
+
 def main(args=None):
     global fetch  # fetch module, see below
 
@@ -440,6 +576,9 @@ def main(args=None):
         os.environ['ENG_ARCHIVE'] = opt.data_root
 
     fetch = importlib.import_module('.fetch', __package__)
+    logger.info(f'Running cheta_update_client_archive version {__version__}')
+    logger.info(f'  {__file__}')
+    logger.info('')
     logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
 
     if opt.content:
@@ -448,10 +587,23 @@ def main(args=None):
         # fetch.content is a dict of {MSID: content_type} values
         contents = set(fetch.content.values())
 
+    # Global list of timeout errors
+    process_errors.clear()
+
     for content in sorted(contents):
-        sync_full_archive(opt, fetch.msid_files, logger, content)
-        for stat in STATS_DT:
-            sync_stat_archive(opt, fetch.msid_files, logger, content, stat)
+        fetch.ft['content'] = content
+        index_tbl = get_index_tbl(content, logger, opt)
+        if index_tbl is not None:
+            sync_full_archive(opt, fetch.msid_files, logger, content, index_tbl)
+            for stat in STATS_DT:
+                sync_stat_archive(opt, fetch.msid_files, logger, content, stat, index_tbl)
+
+    if process_errors:
+        logger.error('')
+        logger.error('TIMEOUT ERRORS:')
+
+    for process_error in process_errors:
+        logger.error(process_error)
 
 
 if __name__ == '__main__':
