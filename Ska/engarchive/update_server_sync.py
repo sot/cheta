@@ -33,6 +33,7 @@ sync repository to capture newly-available data since the last bundle.
 import argparse
 import gzip
 import pickle
+import re
 import shutil
 from itertools import count
 from pathlib import Path
@@ -134,6 +135,12 @@ def remove_outdated_sync_files(opt, logger, index_tbl):
     :return: mask of rows that were removed
     """
     min_time = (DateTime(opt.date_stop) - opt.max_lookback).secs
+
+    # Ephemeris files are time stamped around a month before current date,
+    # so leave them around for couple months longer.
+    if re.search(r'ephem\d$', str(fetch.ft['content'])):
+        min_time -= 60 * 86400
+
     remove_mask = np.zeros(len(index_tbl), dtype=bool)
 
     for idx, row in enumerate(index_tbl):
