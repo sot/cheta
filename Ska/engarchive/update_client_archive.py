@@ -448,8 +448,9 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             vals['row0'] += idx0
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity '
-                             f'row0 {vals["row0"]} != len {len(h5.root.data)}')
+            raise ValueError(f'ERROR: unexpected discontinuity\n'
+                             f'  First row0 in new data {vals["row0"]} != '
+                             f'length of existing data {len(h5.root.data)}')
 
         logger.debug(f'Appending {len(vals["data"])} rows to {stat_file}')
         if not opt.dry_run:
@@ -519,8 +520,9 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity '
-                             f'row0 {vals["row0"]} != len {len(h5.root.data)}')
+            raise ValueError(f'ERROR: unexpected discontinuity\n'
+                             f'  First row0 in new data {vals["row0"]} != '
+                             f'length of existing data {len(h5.root.data)}')
 
         # For the TIME column include special processing to effectively remove
         # existing rows that are superceded by new rows in time.  This is done by
