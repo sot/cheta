@@ -283,16 +283,6 @@ def update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt):
                        'info', 'info'):
         for msid in msids:
             vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
-
-            # If this row begins before then end of current data then chop the
-            # beginning of data for this row.
-            if vals['row0'] <= last_row_idx:
-                idx0 = last_row_idx + 1 - vals['row0']
-                logger.debug(f'Chopping {idx0 + 1} rows from data')
-                for key in ('data', 'quality'):
-                    vals[key] = vals[key][idx0:]
-                vals['row0'] += idx0
-
             append_h5_col(opt, msid, vals, logger, msid_files)
 
 
@@ -498,7 +488,10 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             vals['row0'] += idx0
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity\n'
+            raise ValueError(f'ERROR: unexpected discontinuity for stat msid={msid} '
+                             f'content={fetch.ft["content"]}\n'
+                             f'Looks like your archive is in a bad state, CONTACT '
+                             f'your local Ska expert with this info:\n'
                              f'  First row0 in new data {vals["row0"]} != '
                              f'length of existing data {len(h5.root.data)}')
 
@@ -536,12 +529,11 @@ def get_last_date_id(msid_files, msids, stat, logger):
                 index = h5.root.data.cols.index[-1]
                 times.append((index + 0.5) * STATS_DT[stat])
 
-        # Get the most recent stats data available.  Since these are always updated
-        # in lock step we can use the most recent but then go back 5 days to be
+        # Get the least recent stats data available and then go back 5 days to be
         # sure nothing gets missed.  Except for ephemeris files that are weird:
         # when they appear in the archive they include weeks of data in the past
         # and possibly future data.
-        last_time = max(times)
+        last_time = min(times)
         lookback = 30 if re.search(r'ephem[01]$', fetch.ft['content'].val) else 5
         last_date_id = get_date_id(DateTime(last_time - lookback * 86400).fits)
 
@@ -557,7 +549,6 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
     :param logger:
     :param msid_files:
     """
-    n_vals = len(vals['data'])
     fetch.ft['msid'] = msid
 
     msid_file = Path(msid_files['msid'].abs)
@@ -567,10 +558,31 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
 
     mode = 'r' if opt.dry_run else 'a'
     with tables.open_file(str(msid_file), mode=mode) as h5:
+        # If the vals[] data begins before then end of current data then chop the
+        # beginning of data for this row.
+        last_row_idx = len(h5.root.data) - 1
+        if vals['row0'] <= last_row_idx:
+            idx0 = last_row_idx + 1 - vals['row0']
+            logger.debug(f'Chopping {idx0 + 1} rows from data')
+            for key in ('data', 'quality'):
+                vals[key] = vals[key][idx0:]
+            vals['row0'] += idx0
+
+        n_vals = len(vals['data'])
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
+        # Normally at this point there is always data to append since we got here
+        # by virtue of the TIME.h5 file being incomplete relative to available sync
+        # data.  However, user might have manually rsynced a file as part of adding
+        # a new MSID, in which case it might be up to date and there is no req'd action.
+        if n_vals == 0:
+            return
+
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity\n'
+            raise ValueError(f'ERROR: unexpected discontinuity for full msid={msid} '
+                             f'content={fetch.ft["content"]}\n'
+                             f'Looks like your archive is in a bad state, CONTACT '
+                             f'your local Ska expert with this info:\n'
                              f'  First row0 in new data {vals["row0"]} != '
                              f'length of existing data {len(h5.root.data)}')
 
