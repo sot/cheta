@@ -17,6 +17,7 @@ import contextlib
 import gzip
 import itertools
 import os
+import subprocess
 import sys
 import pickle
 import re
@@ -144,9 +145,26 @@ class DelayedKeyboardInterrupt(object):
             sys.exit(1)
 
 
+def find_rsync():
+    from subprocess import PIPE
+    for rsync in ('rsync', Path('C:/FOT_Tools', 'local', 'tools', 'rsync.exe')):
+        try:
+            out = subprocess.run([str(rsync), '--help'], stdout=PIPE, stderr=PIPE)
+            assert out.returncode == 0
+            assert len(out.stderr) == 0
+            assert len(out.stdout) > 100
+        except (FileNotFoundError, AssertionError):
+            pass
+        else:
+            return rsync
+
+    raise FileNotFoundError('cannot find rsync executable')
+
+
 def add_from_file(opt, logger):
     msids = get_msids_for_add_from_file(opt, logger)
-    return msids
+    rsync = find_rsync()
+    return msids, rsync
 
 
 def get_msids_for_add_from_file(opt, logger):
