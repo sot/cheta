@@ -162,9 +162,29 @@ def find_rsync():
 
 
 def add_from_file(opt, logger):
-    msids = get_msids_for_add_from_file(opt, logger)
-    rsync = find_rsync()
-    return msids, rsync
+    msids, msids_content = get_msids_for_add_from_file(opt, logger)
+    rsync_path = find_rsync()
+    msid_files = fetch.msid_files
+    basedir = msid_files.basedir
+    ft = fetch.ft
+
+    rsync_files = set()
+    for msid in msids:
+        ft['content'] = msids_content[msid]
+        ft['msid'] = msid
+        for filetype in ('msid', 'archfiles', 'colnames'):
+            pth = Path(msid_files[filetype].abs)
+            if not pth.exists():
+                rsync_files.add(str(pth.relative_to(basedir)))
+
+        for stat in ('5min', 'daily'):
+            ft['interval'] = stat
+            pth = Path(msid_files['stats'].abs)
+            if not pth.exists():
+                rsync_files.add(str(pth.relative_to(basedir)))
+
+    return rsync_path, rsync_files
+
 
 
 def get_msids_for_add_from_file(opt, logger):
@@ -180,17 +200,17 @@ def get_msids_for_add_from_file(opt, logger):
             logger.info(f'No cheta MSIDs list file found at{uri}')
             return None
         logger.info(f'Reading cheta MSIDs list file {uri}')
-        msids_all = pickle.load(gzip.open(tmpfile, 'rb'))
+        msids_content = pickle.load(gzip.open(tmpfile, 'rb'))
 
     content_msids = collections.defaultdict(list)
-    for msid, content in msids_all.items():
+    for msid, content in msids_content.items():
         content_msids[content].append(msid)
 
     msids_out = []
     for msid_spec in msid_specs:
         if msid_spec.endswith('!!'):
             msid_spec = msid_spec[:-2]
-            content = msids_all[msid_spec]
+            content = msids_content[msid_spec]
             subsys = re.match(r'([^\d]+)\d', content).group(1)
             logger.info(f'Subsystem = {subsys}')
             for content, msids in content_msids.items():
@@ -199,14 +219,14 @@ def get_msids_for_add_from_file(opt, logger):
 
         elif msid_spec.endswith('!'):
             msid_spec = msid_spec[:-1]
-            content = msids_all[msid_spec]
+            content = msids_content[msid_spec]
             logger.info(f'Content = {content}')
             msids_out.extend(content_msids[content])
 
         else:
-            msids_out.extend([msid for msid in msids_all if fnmatch(msid, msid_spec)])
+            msids_out.extend([msid for msid in msids_content if fnmatch(msid, msid_spec)])
 
-    return msids_out
+    return msids_out, msids_content
 
 
 def sync_full_archive(opt, msid_files, logger, content, index_tbl):
