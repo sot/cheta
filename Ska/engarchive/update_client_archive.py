@@ -23,6 +23,7 @@ import re
 import sqlite3
 import urllib
 import urllib.error
+from fnmatch import fnmatch
 from pathlib import Path
 import importlib
 import time
@@ -63,6 +64,8 @@ def get_options(args=None):
                         help="Logging level (default=20 (info))")
     parser.add_argument("--date-stop",
                         help="Stop process date (default=NOW)")
+    parser.add_argument("--add-from-file",
+                        help="Add MSIDs in file to local eng archive data files")
     parser.add_argument("--dry-run",
                         action="store_true",
                         help="Dry run (no actual file or database updates)")
@@ -139,6 +142,53 @@ class DelayedKeyboardInterrupt(object):
         if self.signal_received:
             print('Shutting down due to keyboard interrupt', file=sys.stderr)
             sys.exit(1)
+
+
+def add_from_file(opt, logger):
+    msids = get_msids_for_add_from_file(opt, logger)
+    return msids
+
+
+def get_msids_for_add_from_file(opt, logger):
+    logger.info(f'Reading MSID specs from {opt.add_from_file}')
+    with open(opt.add_from_file) as fh:
+        lines = [line.strip() for line in fh.readlines()]
+    msid_specs = [line.upper() for line in lines if (line and not line.startswith('#'))]
+
+    # Get global list of MSIDs
+    with get_readable(opt.sync_root, opt.is_url, sync_files['msid_contents']) as (tmpfile, uri):
+        if tmpfile is None:
+            # If index_file is not found then get_readable returns None
+            logger.info(f'No cheta MSIDs list file found at{uri}')
+            return None
+        logger.info(f'Reading cheta MSIDs list file {uri}')
+        msids_all = pickle.load(gzip.open(tmpfile, 'rb'))
+
+    content_msids = collections.defaultdict(list)
+    for msid, content in msids_all.items():
+        content_msids[content].append(msid)
+
+    msids_out = []
+    for msid_spec in msid_specs:
+        if msid_spec.endswith('!!'):
+            msid_spec = msid_spec[:-2]
+            content = msids_all[msid_spec]
+            subsys = re.match(r'([^\d]+)\d', content).group(1)
+            logger.info(f'Subsystem = {subsys}')
+            for content, msids in content_msids.items():
+                if content.startswith(subsys):
+                    msids_out.extend(msids)
+
+        elif msid_spec.endswith('!'):
+            msid_spec = msid_spec[:-1]
+            content = msids_all[msid_spec]
+            logger.info(f'Content = {content}')
+            msids_out.extend(content_msids[content])
+
+        else:
+            msids_out.extend([msid for msid in msids_all if fnmatch(msid, msid_spec)])
+
+    return msids_out
 
 
 def sync_full_archive(opt, msid_files, logger, content, index_tbl):
@@ -580,6 +630,11 @@ def main(args=None):
     logger.info(f'  {__file__}')
     logger.info('')
     logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
+
+    if opt.add_from_file:
+        msids_add = add_from_file(opt, logger)
+        logger.info(msids_add)
+        return
 
     if opt.content:
         contents = opt.content
