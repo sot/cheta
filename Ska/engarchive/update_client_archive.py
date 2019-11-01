@@ -151,6 +151,13 @@ class DelayedKeyboardInterrupt(object):
 
 
 def add_msids_from_file(opt, logger):
+    """
+    Main function for adding MSIDs to the local archive from a remote server or disk.
+
+    :param opt: options
+    :param logger: logger
+    :return: None
+    """
     msids, msids_content = get_msids_for_add_msids_from_file(opt, logger)
     copy_files = get_copy_files(logger, msids, msids_content)
     if not copy_files:
@@ -164,15 +171,28 @@ def add_msids_from_file(opt, logger):
 
 
 def copy_server_files(opt, logger, copy_files, server_path, copy_func):
+    """
+    Copy list of files from server to local, making directories as needed.
+
+    This takes a function copy(src, dest) that could be a local copy or could be
+    a network copy.
+
+    :param opt: options
+    :param logger:  logger
+    :param copy_files: list of file paths, relative to the cheta archive root
+    :param server_path: path representing the cheta archive root on the server
+    :param copy_func: function to copy(src, dest)
+    :return: None
+    """
     from astropy.utils.console import ProgressBar
 
     logger.info(f'Copying {len(copy_files)} files from {opt.server_data_root} to {opt.data_root}')
     if opt.dry_run:
         logger.info('DRY RUN')
 
-    with ProgressBar(len(copy_files)) as bar:
+    with ProgressBar(len(copy_files)) as progress_bar:
         for copy_file in copy_files:
-            bar.update()
+            progress_bar.update()
             local_file = Path(opt.data_root, copy_file)
             server_file = Path(server_path, copy_file)
             local_file.parent.mkdir(parents=True, exist_ok=True)
@@ -182,6 +202,18 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func):
 
 
 def copy_server_files_ssh(opt, logger, copy_files):
+    """
+    Copy list of files from a remote server to the local archive.
+
+    This uses options in ``opt`` to deterimine the user name, remote server name,
+    and remote server path.  It then connects to the server, makes an sftp calls
+    ``copy_server_files`` to do the copy.
+
+    :param opt: options
+    :param logger: logger
+    :param copy_files: list of file paths, relative to the cheta archive root
+    :return: None
+    """
     import paramiko
 
     match = re.match(r'(\w+)@([\w.]+)(:.+)?', opt.server_data_root)
@@ -205,6 +237,18 @@ def copy_server_files_ssh(opt, logger, copy_files):
 
 
 def get_copy_files(logger, msids, msids_content):
+    """
+    For given ``msids`` return list of files needed to copy.
+
+    This knows about the cheta archive structure and requires that the full, 5min,
+    daily h5 files are copied along with (if not already there) the archfiles.db3,
+    colnames.pkl, and TIME.h5.
+
+    :param logger: logger
+    :param msids: list of MSIDs
+    :param msids_content: dict mapping MSID to content type
+    :return: sorted list of files to copy relative to basedir
+    """
     msid_files = fetch.msid_files
     basedir = msid_files.basedir
     ft = fetch.ft
@@ -230,7 +274,28 @@ def get_copy_files(logger, msids, msids_content):
 
 
 def get_msids_for_add_msids_from_file(opt, logger):
-    # Get global list of MSIDs
+    """
+    Parse MSIDs spec file (opt.add_msids_from_file) and return corresponding list of MSIDs.
+
+    This implements support for a MSID spec file like::
+
+        # MSIDs that match the name or pattern are included:
+        #
+        aopcadm?
+        aacccd*
+
+        # MSIDs with the same subsystem and sampling rate as given MSIDs are included.
+        # Example: */1wrat gives all acis4eng engineering telemetry.
+        */1wrat
+
+        # MSIDs with the same subsystem regardless of sampling rate.
+        # Example: **/3tscpos gives all engineering SIM telemetry
+        **/3tscpos
+
+    :param opt: options
+    :param logger: logger
+    :return: msids_out, msids_content (mapping of MSID to content type)
+    """
     logger.info(f'Reading available cheta archive MSIDs from {opt.sync_root}')
     with get_readable(opt.sync_root, opt.is_url, sync_files['msid_contents']) as (tmpfile, uri):
         if tmpfile is None:
