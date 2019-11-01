@@ -153,6 +153,10 @@ class DelayedKeyboardInterrupt(object):
 def add_msids_from_file(opt, logger):
     msids, msids_content = get_msids_for_add_msids_from_file(opt, logger)
     copy_files = get_copy_files(logger, msids, msids_content)
+    if not copy_files:
+        logger.info(f'Local cheta archive is complete for MSIDs in {opt.add_msids_from_file}')
+        return
+
     if '@' in opt.server_data_root:
         copy_server_files_ssh(opt, logger, copy_files)
     else:
@@ -163,14 +167,18 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func):
     from astropy.utils.console import ProgressBar
 
     logger.info(f'Copying {len(copy_files)} files from {opt.server_data_root} to {opt.data_root}')
+    if opt.dry_run:
+        logger.info('DRY RUN')
+
     with ProgressBar(len(copy_files)) as bar:
         for copy_file in copy_files:
             bar.update()
             local_file = Path(opt.data_root, copy_file)
             server_file = Path(server_path, copy_file)
             local_file.parent.mkdir(parents=True, exist_ok=True)
-            with DelayedKeyboardInterrupt(logger):
-                copy_func(str(server_file), str(local_file))
+            if not opt.dry_run:
+                with DelayedKeyboardInterrupt(logger):
+                    copy_func(str(server_file), str(local_file))
 
 
 def copy_server_files_ssh(opt, logger, copy_files):
@@ -197,7 +205,6 @@ def copy_server_files_ssh(opt, logger, copy_files):
 
 
 def get_copy_files(logger, msids, msids_content):
-    logger.info('Searching for missing archive files')
     msid_files = fetch.msid_files
     basedir = msid_files.basedir
     ft = fetch.ft
@@ -216,6 +223,8 @@ def get_copy_files(logger, msids, msids_content):
             pth = Path(msid_files[filetype].abs)
             if not pth.exists():
                 copy_files.add(str(pth.relative_to(basedir)))
+
+    logger.info(f'Found {len(copy_files)} local archive files that missing and need to be copied')
 
     return sorted(copy_files)
 
@@ -246,22 +255,29 @@ def get_msids_for_add_msids_from_file(opt, logger):
         if msid_spec.startswith('**/'):
             msid_spec = msid_spec[3:]
             content = msids_content[msid_spec]
-            subsys = re.match(r'([^\d]+)\d', content).group(1)
+            subsys = re.match(r'([^\d]+)', content).group(1)
             for content, msids in content_msids.items():
                 if content.startswith(subsys):
-                    logger.info(f'Found {len(msids)} MSIDs from content = {content}')
+                    logger.info(f'  Found {len(msids)} MSIDs for **/{msid_spec} with '
+                                f'content = {content}')
                     msids_out.extend(msids)
 
         elif msid_spec.startswith('*/'):
             msid_spec = msid_spec[2:]
             content = msids_content[msid_spec]
             msids = content_msids[content]
-            logger.info(f'Found {len(msids)} MSIDs from content = {content}')
+            logger.info(f'  Found {len(msids)} MSIDs for */{msid_spec} with '
+                        f'content = {content}')
             msids_out.extend(msids)
 
         else:
-            msids_out.extend([msid for msid in msids_content if fnmatch(msid, msid_spec)])
-    logger.info(f'Found {len(msids_out)} matching MSIDs total')
+            msids = [msid for msid in msids_content if fnmatch(msid, msid_spec)]
+            if not msids:
+                raise ValueError(f'no MSID matching {msid} (remember derived params like PITCH '
+                                 'must be written as"dp_<MSID>"')
+            logger.info(f'  Found {len(msids)} MSIDs for {msid_spec}')
+            msids_out.extend(msids)
+    logger.info(f'  Found {len(msids_out)} matching MSIDs total')
 
     return msids_out, msids_content
 
