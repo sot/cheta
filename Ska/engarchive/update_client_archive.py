@@ -5,19 +5,16 @@ Synchronize local client copy of cheta archive to the server version.
 This uses the bundles of sync data that are available on the ICXC server
 to update the local HDF5 files that comprise the cheta telemetry archive.
 It also updates the archfiles.db3 that serve as a date index for queries.
-
-Note that this updates cheta files in $SKA/data/eng_archive.  One can
-change the output directory by setting the environment variable
-``ENG_ARCHIVE``.
 """
 
 import argparse
 import collections
 import contextlib
+import getpass
 import gzip
 import itertools
 import os
-import subprocess
+import shutil
 import sys
 import pickle
 import re
@@ -65,11 +62,16 @@ def get_options(args=None):
                         help="Logging level (default=20 (info))")
     parser.add_argument("--date-stop",
                         help="Stop process date (default=NOW)")
-    parser.add_argument("--add-from-file",
-                        help="Add MSIDs in file to local eng archive data files")
     parser.add_argument("--dry-run",
                         action="store_true",
                         help="Dry run (no actual file or database updates)")
+    parser.add_argument('--add-msids-from-file',
+                        help='Add MSIDs specified in <file> to eng archive data files"')
+    parser.add_argument('--server-data-root',
+                        help=('Add MSID data from root (/path/to/data, user@remote, '
+                              'or user@remote:/path/to/data'))
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
 
     opt = parser.parse_args(args)
     opt.is_url = re.match(r'http[s]?://', opt.sync_root)
@@ -88,7 +90,7 @@ def timing_logger(logger, text, level_pre='info', level_post='info'):
 
 
 @contextlib.contextmanager
-def get_readable(sync_root, is_url, filename, timeout=60):
+def get_readable(sync_root, is_url, filename, timeout=30):
     """
     Get readable filename from either a local file or remote URL.
 
@@ -102,16 +104,18 @@ def get_readable(sync_root, is_url, filename, timeout=60):
     """
     filename = str(filename)  # Not needed with pyyaks >= 4.4.
 
-    try:
-        if is_url:
-            uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
+    if is_url:
+        uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
+        try:
             filename = download_file(uri, show_progress=False, cache=False, timeout=timeout)
-        else:
-            uri = Path(sync_root, filename)
-            filename = uri.absolute()
-            assert uri.exists()
-    except (AssertionError, urllib.error.HTTPError):
-        filename = None
+        except urllib.error.URLError as err:
+            raise urllib.error.URLError('Are you on a network with icxc access?') from err
+
+    else:
+        uri = Path(sync_root, filename)
+        filename = uri.absolute()
+        if not uri.exists():
+            raise FileNotFoundError(str(uri))
 
     try:
         yield filename, uri
@@ -129,71 +133,96 @@ class DelayedKeyboardInterrupt(object):
     """
     def __init__(self, logger):
         self.logger = logger
+        self.signal_received = False
 
     def __enter__(self):
-        self.signal_received = False
         self.old_handler = signal.signal(signal.SIGINT, self.handler)
 
     def handler(self, sig, frame):
         self.signal_received = (sig, frame)
-        self.logger.info('SIGINT received. Delaying KeyboardInterrupt.')
+        self.logger.info('KEYBOARD INTERRUPT RECEIVED. Please hold tight for moment while we '
+                         'finish up cleanly, otherwise the archive may get corrupted.')
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, typ, value, traceback):
         signal.signal(signal.SIGINT, self.old_handler)
         if self.signal_received:
             print('Shutting down due to keyboard interrupt', file=sys.stderr)
             sys.exit(1)
 
 
-def find_rsync():
-    from subprocess import PIPE
-    for rsync in ('rsync', Path('C:/FOT_Tools', 'local', 'tools', 'rsync.exe')):
-        try:
-            out = subprocess.run([str(rsync), '--help'], stdout=PIPE, stderr=PIPE)
-            assert out.returncode == 0
-            assert len(out.stderr) == 0
-            assert len(out.stdout) > 100
-        except (FileNotFoundError, AssertionError):
-            pass
-        else:
-            return rsync
-
-    raise FileNotFoundError('cannot find rsync executable')
+def add_msids_from_file(opt, logger):
+    msids, msids_content = get_msids_for_add_msids_from_file(opt, logger)
+    copy_files = get_copy_files(logger, msids, msids_content)
+    if '@' in opt.server_data_root:
+        copy_server_files_ssh(opt, logger, copy_files)
+    else:
+        copy_server_files(opt, logger, copy_files, opt.server_data_root, copy_func=shutil.copyfile)
 
 
-def add_from_file(opt, logger):
-    msids, msids_content = get_msids_for_add_from_file(opt, logger)
-    rsync_path = find_rsync()
+def copy_server_files(opt, logger, copy_files, server_path, copy_func):
+    from astropy.utils.console import ProgressBar
+
+    logger.info(f'Copying {len(copy_files)} files from {opt.server_data_root} to {opt.data_root}')
+    with ProgressBar(len(copy_files)) as bar:
+        for copy_file in copy_files:
+            bar.update()
+            local_file = Path(opt.data_root, copy_file)
+            server_file = Path(server_path, copy_file)
+            local_file.parent.mkdir(parents=True, exist_ok=True)
+            with DelayedKeyboardInterrupt(logger):
+                copy_func(str(server_file), str(local_file))
+
+
+def copy_server_files_ssh(opt, logger, copy_files):
+    import paramiko
+
+    match = re.match(r'(\w+)@([\w.]+)(:.+)?', opt.server_data_root)
+    if not match:
+        raise ValueError(f'could not parse {opt.server_data_root} into username@host:path')
+    username, hostname, server_path = match.groups()
+    server_path = server_path or '/proj/sot/ska/data/eng_archive'
+
+    password = getpass.getpass(f'Password for {username}@{hostname}: ')
+
+    logger.info(f'Connecting to {hostname}')
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(hostname=hostname,
+                       username=username,
+                       password=password)
+    ftp_client = ssh_client.open_sftp()
+    copy_server_files(opt, logger, copy_files, server_path, copy_func=ftp_client.get)
+    ftp_client.close()
+    ssh_client.close()
+
+
+def get_copy_files(logger, msids, msids_content):
+    logger.info('Searching for missing archive files')
     msid_files = fetch.msid_files
     basedir = msid_files.basedir
     ft = fetch.ft
-
-    rsync_files = set()
+    copy_files = set()
     for msid in msids:
         ft['content'] = msids_content[msid]
-        ft['msid'] = msid
-        for filetype in ('msid', 'archfiles', 'colnames'):
+        copy_specs = [(msid, None, 'msid'),
+                      (msid, None, 'archfiles'),
+                      (msid, None, 'colnames'),
+                      (msid, '5min', 'stats'),
+                      (msid, 'daily', 'stats'),
+                      ('TIME', None, 'msid')]
+        for ft_msid, interval, filetype in copy_specs:
+            ft['msid'] = ft_msid
+            ft['interval'] = interval
             pth = Path(msid_files[filetype].abs)
             if not pth.exists():
-                rsync_files.add(str(pth.relative_to(basedir)))
+                copy_files.add(str(pth.relative_to(basedir)))
 
-        for stat in ('5min', 'daily'):
-            ft['interval'] = stat
-            pth = Path(msid_files['stats'].abs)
-            if not pth.exists():
-                rsync_files.add(str(pth.relative_to(basedir)))
-
-    return rsync_path, rsync_files
+    return sorted(copy_files)
 
 
-
-def get_msids_for_add_from_file(opt, logger):
-    logger.info(f'Reading MSID specs from {opt.add_from_file}')
-    with open(opt.add_from_file) as fh:
-        lines = [line.strip() for line in fh.readlines()]
-    msid_specs = [line.upper() for line in lines if (line and not line.startswith('#'))]
-
+def get_msids_for_add_msids_from_file(opt, logger):
     # Get global list of MSIDs
+    logger.info(f'Reading available cheta archive MSIDs from {opt.sync_root}')
     with get_readable(opt.sync_root, opt.is_url, sync_files['msid_contents']) as (tmpfile, uri):
         if tmpfile is None:
             # If index_file is not found then get_readable returns None
@@ -206,25 +235,33 @@ def get_msids_for_add_from_file(opt, logger):
     for msid, content in msids_content.items():
         content_msids[content].append(msid)
 
+    logger.info(f'Reading MSID specs from {opt.add_msids_from_file}')
+    with open(opt.add_msids_from_file) as fh:
+        lines = [line.strip() for line in fh.readlines()]
+    msid_specs = [line.upper() for line in lines if (line and not line.startswith('#'))]
+
+    logger.info('Assembling list of MSIDs that match MSID specs')
     msids_out = []
     for msid_spec in msid_specs:
-        if msid_spec.endswith('!!'):
-            msid_spec = msid_spec[:-2]
+        if msid_spec.startswith('**/'):
+            msid_spec = msid_spec[3:]
             content = msids_content[msid_spec]
             subsys = re.match(r'([^\d]+)\d', content).group(1)
-            logger.info(f'Subsystem = {subsys}')
             for content, msids in content_msids.items():
                 if content.startswith(subsys):
+                    logger.info(f'Found {len(msids)} MSIDs from content = {content}')
                     msids_out.extend(msids)
 
-        elif msid_spec.endswith('!'):
-            msid_spec = msid_spec[:-1]
+        elif msid_spec.startswith('*/'):
+            msid_spec = msid_spec[2:]
             content = msids_content[msid_spec]
-            logger.info(f'Content = {content}')
-            msids_out.extend(content_msids[content])
+            msids = content_msids[content]
+            logger.info(f'Found {len(msids)} MSIDs from content = {content}')
+            msids_out.extend(msids)
 
         else:
             msids_out.extend([msid for msid in msids_content if fnmatch(msid, msid_spec)])
+    logger.info(f'Found {len(msids_out)} matching MSIDs total')
 
     return msids_out, msids_content
 
@@ -285,7 +322,7 @@ def sync_full_archive(opt, msid_files, logger, content, index_tbl):
     if dats:
         dat, msids = concat_data_sets(dats, ['data', 'quality'])
         with DelayedKeyboardInterrupt(logger):
-            update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt)
+            update_full_h5_files(dat, logger, msid_files, msids, opt)
             update_full_archfiles_db3(dat, logger, msid_files, opt)
 
 
@@ -316,7 +353,7 @@ def update_full_archfiles_db3(dat, logger, msid_files, opt):
                 db.commit()
 
 
-def update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt):
+def update_full_h5_files(dat, logger, msid_files, msids, opt):
     with timing_logger(logger, f'Applying updates to {len(msids)} h5 files',
                        'info', 'info'):
         for msid in msids:
@@ -392,7 +429,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
             msg = f'  ERROR: timed out getting {stat} data for {content}'
             logger.error(msg)
             process_errors.append(msg)
-            dats = []
+            return
         else:
             raise
 
@@ -673,17 +710,24 @@ def main(args=None):
     # prior to importing fetch.  This ensures that ``content`` is consistent with
     # the destination archive.
     if opt.data_root is not None:
+        if not Path(opt.data_root).exists():
+            raise FileNotFoundError(
+                f'local cheta archive directory {Path(opt.data_root).absolute()} not found')
         os.environ['ENG_ARCHIVE'] = opt.data_root
 
     fetch = importlib.import_module('.fetch', __package__)
+
+    # Turn things around and define data_root based on fetch, relying on it to
+    # find the archive if --data-root is not specified.
+    opt.data_root = fetch.msid_files.basedir
+
     logger.info(f'Running cheta_update_client_archive version {__version__}')
     logger.info(f'  {__file__}')
     logger.info('')
     logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
 
-    if opt.add_from_file:
-        msids_add = add_from_file(opt, logger)
-        logger.info(msids_add)
+    if opt.add_msids_from_file:
+        add_msids_from_file(opt, logger)
         return
 
     if opt.content:
