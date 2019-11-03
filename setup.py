@@ -17,7 +17,7 @@ except ImportError:
 package_version.write_git_version_file()
 
 console_scripts = ['ska_fetch = cheta.get_telem:main',
-                   'cheta_update_client_archive = cheta.update_client_archive:main',
+                   'cheta_sync = cheta.update_client_archive:main',
                    'cheta_update_server_sync = cheta.update_server_sync:main',
                    'cheta_update_server_archive = cheta.update_archive:main',
                    'cheta_check_integrity = cheta.check_integrity:main',
