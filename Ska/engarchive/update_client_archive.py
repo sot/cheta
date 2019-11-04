@@ -170,7 +170,7 @@ def add_msids_from_file(opt, logger):
         copy_server_files(opt, logger, copy_files, opt.server_data_root, copy_func=shutil.copyfile)
 
 
-def copy_server_files(opt, logger, copy_files, server_path, copy_func):
+def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=False):
     """
     Copy list of files from server to local, making directories as needed.
 
@@ -195,9 +195,13 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func):
             progress_bar.update()
             local_file = Path(opt.data_root, copy_file)
             server_file = Path(server_path, copy_file)
+            if as_posix:
+                server_file = server_file.as_posix()
             local_file.parent.mkdir(parents=True, exist_ok=True)
             if not opt.dry_run:
                 with DelayedKeyboardInterrupt(logger):
+                    logger.verbose('\ncopy server:{} local:{}'
+                                   .format(str(server_file), str(local_file)))
                     copy_func(str(server_file), str(local_file))
 
 
@@ -231,7 +235,8 @@ def copy_server_files_ssh(opt, logger, copy_files):
                        username=username,
                        password=password)
     ftp_client = ssh_client.open_sftp()
-    copy_server_files(opt, logger, copy_files, server_path, copy_func=ftp_client.get)
+    copy_server_files(opt, logger, copy_files, server_path, copy_func=ftp_client.get,
+                      as_posix=True)
     ftp_client.close()
     ssh_client.close()
 
