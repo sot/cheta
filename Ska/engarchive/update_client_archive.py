@@ -109,7 +109,8 @@ def get_readable(sync_root, is_url, filename, timeout=30):
         try:
             filename = download_file(uri, show_progress=False, cache=False, timeout=timeout)
         except urllib.error.URLError as err:
-            raise urllib.error.URLError('Are you on a network with icxc access?') from err
+            raise urllib.error.URLError(
+                f'unable to load {uri}. Are you on a network with icxc access?') from err
 
     else:
         uri = Path(sync_root, filename)
