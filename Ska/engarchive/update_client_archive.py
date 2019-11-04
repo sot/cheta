@@ -192,16 +192,17 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=
 
     with ProgressBar(len(copy_files)) as progress_bar:
         for copy_file in copy_files:
-            progress_bar.update()
             local_file = Path(opt.data_root, copy_file)
             server_file = Path(server_path, copy_file)
             if as_posix:
                 server_file = server_file.as_posix()
             local_file.parent.mkdir(parents=True, exist_ok=True)
             if not opt.dry_run:
+                progress_bar.update()
+            else:
+                logger.info(f'copy {copy_file}')
+            if not opt.dry_run:
                 with DelayedKeyboardInterrupt(logger):
-                    logger.verbose('\ncopy server:{} local:{}'
-                                   .format(str(server_file), str(local_file)))
                     copy_func(str(server_file), str(local_file))
 
 
