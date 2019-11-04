@@ -65,7 +65,7 @@ def get_options(args=None):
     parser.add_argument("--dry-run",
                         action="store_true",
                         help="Dry run (no actual file or database updates)")
-    parser.add_argument('--add-msids-from-file',
+    parser.add_argument('--add-msids',
                         help='Add MSIDs specified in <file> to eng archive data files"')
     parser.add_argument('--server-data-root',
                         help=('Add MSID data from root (/path/to/data, user@remote, '
@@ -150,7 +150,7 @@ class DelayedKeyboardInterrupt(object):
             sys.exit(1)
 
 
-def add_msids_from_file(opt, logger):
+def add_msids(opt, logger):
     """
     Main function for adding MSIDs to the local archive from a remote server or disk.
 
@@ -158,10 +158,10 @@ def add_msids_from_file(opt, logger):
     :param logger: logger
     :return: None
     """
-    msids, msids_content = get_msids_for_add_msids_from_file(opt, logger)
+    msids, msids_content = get_msids_for_add_msids(opt, logger)
     copy_files = get_copy_files(logger, msids, msids_content)
     if not copy_files:
-        logger.info(f'Local cheta archive is complete for MSIDs in {opt.add_msids_from_file}')
+        logger.info(f'Local cheta archive is complete for MSIDs in {opt.add_msids}')
         return
 
     if '@' in opt.server_data_root:
@@ -279,9 +279,9 @@ def get_copy_files(logger, msids, msids_content):
     return sorted(copy_files)
 
 
-def get_msids_for_add_msids_from_file(opt, logger):
+def get_msids_for_add_msids(opt, logger):
     """
-    Parse MSIDs spec file (opt.add_msids_from_file) and return corresponding list of MSIDs.
+    Parse MSIDs spec file (opt.add_msids) and return corresponding list of MSIDs.
 
     This implements support for a MSID spec file like::
 
@@ -315,8 +315,8 @@ def get_msids_for_add_msids_from_file(opt, logger):
     for msid, content in msids_content.items():
         content_msids[content].append(msid)
 
-    logger.info(f'Reading MSID specs from {opt.add_msids_from_file}')
-    with open(opt.add_msids_from_file) as fh:
+    logger.info(f'Reading MSID specs from {opt.add_msids}')
+    with open(opt.add_msids) as fh:
         lines = [line.strip() for line in fh.readlines()]
     msid_specs = [line.upper() for line in lines if (line and not line.startswith('#'))]
 
@@ -813,8 +813,8 @@ def main(args=None):
     logger.info('')
     logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
 
-    if opt.add_msids_from_file:
-        add_msids_from_file(opt, logger)
+    if opt.add_msids:
+        add_msids(opt, logger)
         return
 
     if opt.content:
