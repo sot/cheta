@@ -246,10 +246,10 @@ def copy_server_files_ssh(opt, logger, copy_files):
         else:
             break
 
-    ftp_client = ssh_client.open_sftp()
-    copy_server_files(opt, logger, copy_files, server_path, copy_func=ftp_client.get,
+    sftp_client = ssh_client.open_sftp()
+    copy_server_files(opt, logger, copy_files, server_path, copy_func=sftp_client.get,
                       as_posix=True)
-    ftp_client.close()
+    sftp_client.close()
     ssh_client.close()
 
 
