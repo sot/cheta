@@ -292,7 +292,8 @@ def get_copy_files(logger, msids, msids_content):
             if not pth.exists():
                 copy_files.add(str(pth.relative_to(basedir)))
 
-    logger.info(f'Found {len(copy_files)} local archive files that missing and need to be copied')
+    logger.info(f'Found {len(copy_files)} local archive files that are '
+                f'missing and need to be copied')
 
     return sorted(copy_files)
 
@@ -303,7 +304,8 @@ def get_msids_for_add_msids(opt, logger):
 
     This implements support for a MSID spec file like::
 
-        # MSIDs that match the name or pattern are included:
+        # MSIDs that match the name or pattern are included, where * matches
+        # anything (0 or more characters) while ? matches exactly one character:
         #
         aopcadm?
         aacccd*
@@ -738,7 +740,7 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
 
     mode = 'r' if opt.dry_run else 'a'
     with tables.open_file(str(msid_file), mode=mode) as h5:
-        # If the vals[] data begins before then end of current data then chop the
+        # If the vals[] data begins before the end of current data then chop the
         # beginning of data for this row.
         last_row_idx = len(h5.root.data) - 1
         if vals['row0'] <= last_row_idx:
