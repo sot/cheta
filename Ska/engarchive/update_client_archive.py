@@ -5,24 +5,23 @@ Synchronize local client copy of cheta archive to the server version.
 This uses the bundles of sync data that are available on the ICXC server
 to update the local HDF5 files that comprise the cheta telemetry archive.
 It also updates the archfiles.db3 that serve as a date index for queries.
-
-Note that this updates cheta files in $SKA/data/eng_archive.  One can
-change the output directory by setting the environment variable
-``ENG_ARCHIVE``.
 """
 
 import argparse
 import collections
 import contextlib
+import getpass
 import gzip
 import itertools
 import os
+import shutil
 import sys
 import pickle
 import re
 import sqlite3
 import urllib
 import urllib.error
+from fnmatch import fnmatch
 from pathlib import Path
 import importlib
 import time
@@ -66,6 +65,13 @@ def get_options(args=None):
     parser.add_argument("--dry-run",
                         action="store_true",
                         help="Dry run (no actual file or database updates)")
+    parser.add_argument('--add-msids',
+                        help='Add MSIDs specified in <file> to eng archive data files"')
+    parser.add_argument('--server-data-root',
+                        help=('Add MSID data from root (/path/to/data, user@remote, '
+                              'or user@remote:/path/to/data'))
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
 
     opt = parser.parse_args(args)
     opt.is_url = re.match(r'http[s]?://', opt.sync_root)
@@ -84,7 +90,7 @@ def timing_logger(logger, text, level_pre='info', level_post='info'):
 
 
 @contextlib.contextmanager
-def get_readable(sync_root, is_url, filename, timeout=60):
+def get_readable(sync_root, is_url, filename, timeout=30):
     """
     Get readable filename from either a local file or remote URL.
 
@@ -98,16 +104,19 @@ def get_readable(sync_root, is_url, filename, timeout=60):
     """
     filename = str(filename)  # Not needed with pyyaks >= 4.4.
 
-    try:
-        if is_url:
-            uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
+    if is_url:
+        uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
+        try:
             filename = download_file(uri, show_progress=False, cache=False, timeout=timeout)
-        else:
-            uri = Path(sync_root, filename)
-            filename = uri.absolute()
-            assert uri.exists()
-    except (AssertionError, urllib.error.HTTPError):
-        filename = None
+        except urllib.error.URLError as err:
+            raise urllib.error.URLError(
+                f'unable to load {uri}. Are you on a network with icxc access?') from err
+
+    else:
+        uri = Path(sync_root, filename)
+        filename = uri.absolute()
+        if not uri.exists():
+            raise FileNotFoundError(str(uri))
 
     try:
         yield filename, uri
@@ -125,20 +134,243 @@ class DelayedKeyboardInterrupt(object):
     """
     def __init__(self, logger):
         self.logger = logger
+        self.signal_received = False
 
     def __enter__(self):
-        self.signal_received = False
         self.old_handler = signal.signal(signal.SIGINT, self.handler)
 
     def handler(self, sig, frame):
         self.signal_received = (sig, frame)
-        self.logger.info('SIGINT received. Delaying KeyboardInterrupt.')
+        self.logger.info('KEYBOARD INTERRUPT RECEIVED. Please hold tight for moment while we '
+                         'finish up cleanly, otherwise the archive may get corrupted.')
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, typ, value, traceback):
         signal.signal(signal.SIGINT, self.old_handler)
         if self.signal_received:
             print('Shutting down due to keyboard interrupt', file=sys.stderr)
             sys.exit(1)
+
+
+def add_msids(opt, logger):
+    """
+    Main function for adding MSIDs to the local archive from a remote server or disk.
+
+    :param opt: options
+    :param logger: logger
+    :return: None
+    """
+    msids, msids_content = get_msids_for_add_msids(opt, logger)
+    copy_files = get_copy_files(logger, msids, msids_content)
+    if not copy_files:
+        logger.info(f'Local cheta archive is complete for MSIDs in {opt.add_msids}')
+        return
+
+    if '@' in opt.server_data_root:
+        copy_server_files_ssh(opt, logger, copy_files)
+    else:
+        copy_server_files(opt, logger, copy_files, opt.server_data_root, copy_func=shutil.copyfile)
+
+
+def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=False):
+    """
+    Copy list of files from server to local, making directories as needed.
+
+    This takes a function copy(src, dest) that could be a local copy or could be
+    a network copy.
+
+    :param opt: options
+    :param logger:  logger
+    :param copy_files: list of file paths, relative to the cheta archive root
+    :param server_path: path representing the cheta archive root on the server
+    :param copy_func: function to copy(src, dest)
+    :return: None
+    """
+    from astropy.utils.console import ProgressBar
+
+    logger.info(f'Copying {len(copy_files)} files from {opt.server_data_root} to {opt.data_root}')
+    if opt.dry_run:
+        logger.info('DRY RUN')
+
+    with ProgressBar(len(copy_files)) as progress_bar:
+        total_size = 0
+        tstart = time.time()
+        for copy_file in copy_files:
+            local_file = Path(opt.data_root, copy_file)
+            server_file = Path(server_path, copy_file)
+            if as_posix:
+                server_file = server_file.as_posix()
+            local_file.parent.mkdir(parents=True, exist_ok=True)
+            if not opt.dry_run:
+                progress_bar.update()
+            else:
+                logger.info(f'copy {copy_file}')
+            if not opt.dry_run:
+                with DelayedKeyboardInterrupt(logger):
+                    copy_func(str(server_file), str(local_file))
+                total_size += local_file.stat().st_size / 1e6
+    total_time = time.time() - tstart
+    xfer_rate = total_size / total_time
+    logger.info(f'Data transfer rate = {xfer_rate:.2f} Mb/s : '
+                f'{total_size:.2f} Mb in {total_time:.2f} s')
+
+
+def copy_server_files_ssh(opt, logger, copy_files):
+    """
+    Copy list of files from a remote server to the local archive.
+
+    This uses options in ``opt`` to deterimine the user name, remote server name,
+    and remote server path.  It then connects to the server, makes an sftp calls
+    ``copy_server_files`` to do the copy.
+
+    :param opt: options
+    :param logger: logger
+    :param copy_files: list of file paths, relative to the cheta archive root
+    :return: None
+    """
+    import paramiko
+
+    match = re.match(r'(\w+)@([\w.]+)(:.+)?', opt.server_data_root)
+    if not match:
+        raise ValueError(f'could not parse {opt.server_data_root} into username@host:path')
+    username, hostname, server_path = match.groups()
+    server_path = server_path or '/proj/sot/ska/data/eng_archive'
+
+    logger.info(f'Connecting to {hostname}')
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    for attempt in range(3):
+        try:
+            password = getpass.getpass(f'Password for {username}@{hostname}: ')
+            ssh_client.connect(hostname=hostname,
+                               username=username,
+                               password=password)
+        except paramiko.ssh_exception.AuthenticationException:
+            if attempt == 2:
+                print('Authentication failed', file=sys.stderr)
+                sys.exit(1)
+            else:
+                print('Incorrect password, please try again.')
+        else:
+            break
+
+    sftp_client = ssh_client.open_sftp()
+    copy_server_files(opt, logger, copy_files, server_path, copy_func=sftp_client.get,
+                      as_posix=True)
+    sftp_client.close()
+    ssh_client.close()
+
+
+def get_copy_files(logger, msids, msids_content):
+    """
+    For given ``msids`` return list of files needed to copy.
+
+    This knows about the cheta archive structure and requires that the full, 5min,
+    daily h5 files are copied along with (if not already there) the archfiles.db3,
+    colnames.pkl, and TIME.h5.
+
+    :param logger: logger
+    :param msids: list of MSIDs
+    :param msids_content: dict mapping MSID to content type
+    :return: sorted list of files to copy relative to basedir
+    """
+    msid_files = fetch.msid_files
+    basedir = msid_files.basedir
+    ft = fetch.ft
+    copy_files = set()
+    for msid in msids:
+        ft['content'] = msids_content[msid]
+        copy_specs = [(msid, None, 'msid'),
+                      (msid, None, 'archfiles'),
+                      (msid, None, 'colnames'),
+                      (msid, '5min', 'stats'),
+                      (msid, 'daily', 'stats'),
+                      ('TIME', None, 'msid')]
+        for ft_msid, interval, filetype in copy_specs:
+            ft['msid'] = ft_msid
+            ft['interval'] = interval
+            pth = Path(msid_files[filetype].abs)
+            if not pth.exists():
+                copy_files.add(str(pth.relative_to(basedir)))
+
+    logger.info(f'Found {len(copy_files)} local archive files that are '
+                f'missing and need to be copied')
+
+    return sorted(copy_files)
+
+
+def get_msids_for_add_msids(opt, logger):
+    """
+    Parse MSIDs spec file (opt.add_msids) and return corresponding list of MSIDs.
+
+    This implements support for a MSID spec file like::
+
+        # MSIDs that match the name or pattern are included, where * matches
+        # anything (0 or more characters) while ? matches exactly one character:
+        #
+        aopcadm?
+        aacccd*
+
+        # MSIDs with the same subsystem and sampling rate as given MSIDs are included.
+        # Example: */1wrat gives all acis4eng engineering telemetry.
+        */1wrat
+
+        # MSIDs with the same subsystem regardless of sampling rate.
+        # Example: **/3tscpos gives all engineering SIM telemetry
+        **/3tscpos
+
+    :param opt: options
+    :param logger: logger
+    :return: msids_out, msids_content (mapping of MSID to content type)
+    """
+    logger.info(f'Reading available cheta archive MSIDs from {opt.sync_root}')
+    with get_readable(opt.sync_root, opt.is_url, sync_files['msid_contents']) as (tmpfile, uri):
+        if tmpfile is None:
+            # If index_file is not found then get_readable returns None
+            logger.info(f'No cheta MSIDs list file found at{uri}')
+            return None
+        logger.info(f'Reading cheta MSIDs list file {uri}')
+        msids_content = pickle.load(gzip.open(tmpfile, 'rb'))
+
+    content_msids = collections.defaultdict(list)
+    for msid, content in msids_content.items():
+        content_msids[content].append(msid)
+
+    logger.info(f'Reading MSID specs from {opt.add_msids}')
+    with open(opt.add_msids) as fh:
+        lines = [line.strip() for line in fh.readlines()]
+    msid_specs = [line.upper() for line in lines if (line and not line.startswith('#'))]
+
+    logger.info('Assembling list of MSIDs that match MSID specs')
+    msids_out = []
+    for msid_spec in msid_specs:
+        if msid_spec.startswith('**/'):
+            msid_spec = msid_spec[3:]
+            content = msids_content[msid_spec]
+            subsys = re.match(r'([^\d]+)', content).group(1)
+            for content, msids in content_msids.items():
+                if content.startswith(subsys):
+                    logger.info(f'  Found {len(msids)} MSIDs for **/{msid_spec} with '
+                                f'content = {content}')
+                    msids_out.extend(msids)
+
+        elif msid_spec.startswith('*/'):
+            msid_spec = msid_spec[2:]
+            content = msids_content[msid_spec]
+            msids = content_msids[content]
+            logger.info(f'  Found {len(msids)} MSIDs for */{msid_spec} with '
+                        f'content = {content}')
+            msids_out.extend(msids)
+
+        else:
+            msids = [msid for msid in msids_content if fnmatch(msid, msid_spec)]
+            if not msids:
+                raise ValueError(f'no MSID matching {msid} (remember derived params like PITCH '
+                                 'must be written as"dp_<MSID>"')
+            logger.info(f'  Found {len(msids)} MSIDs for {msid_spec}')
+            msids_out.extend(msids)
+    logger.info(f'  Found {len(msids_out)} matching MSIDs total')
+
+    return msids_out, msids_content
 
 
 def sync_full_archive(opt, msid_files, logger, content, index_tbl):
@@ -197,7 +429,7 @@ def sync_full_archive(opt, msid_files, logger, content, index_tbl):
     if dats:
         dat, msids = concat_data_sets(dats, ['data', 'quality'])
         with DelayedKeyboardInterrupt(logger):
-            update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt)
+            update_full_h5_files(dat, logger, msid_files, msids, opt)
             update_full_archfiles_db3(dat, logger, msid_files, opt)
 
 
@@ -228,21 +460,11 @@ def update_full_archfiles_db3(dat, logger, msid_files, opt):
                 db.commit()
 
 
-def update_full_h5_files(dat, last_row_idx, logger, msid_files, msids, opt):
+def update_full_h5_files(dat, logger, msid_files, msids, opt):
     with timing_logger(logger, f'Applying updates to {len(msids)} h5 files',
                        'info', 'info'):
         for msid in msids:
             vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
-
-            # If this row begins before then end of current data then chop the
-            # beginning of data for this row.
-            if vals['row0'] <= last_row_idx:
-                idx0 = last_row_idx + 1 - vals['row0']
-                logger.debug(f'Chopping {idx0 + 1} rows from data')
-                for key in ('data', 'quality'):
-                    vals[key] = vals[key][idx0:]
-                vals['row0'] += idx0
-
             append_h5_col(opt, msid, vals, logger, msid_files)
 
 
@@ -314,7 +536,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
             msg = f'  ERROR: timed out getting {stat} data for {content}'
             logger.error(msg)
             process_errors.append(msg)
-            dats = []
+            return
         else:
             raise
 
@@ -331,8 +553,9 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
                     append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
             logger.debug(f'Updating {last_date_id_file} with {date_id}')
-            with open(last_date_id_file, 'w') as fh:
-                fh.write(f'{date_id}')
+            if not opt.dry_run:
+                with open(last_date_id_file, 'w') as fh:
+                    fh.write(f'{date_id}')
 
 
 def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
@@ -448,7 +671,10 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             vals['row0'] += idx0
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity\n'
+            raise ValueError(f'ERROR: unexpected discontinuity for stat msid={msid} '
+                             f'content={fetch.ft["content"]}\n'
+                             f'Looks like your archive is in a bad state, CONTACT '
+                             f'your local Ska expert with this info:\n'
                              f'  First row0 in new data {vals["row0"]} != '
                              f'length of existing data {len(h5.root.data)}')
 
@@ -486,12 +712,11 @@ def get_last_date_id(msid_files, msids, stat, logger):
                 index = h5.root.data.cols.index[-1]
                 times.append((index + 0.5) * STATS_DT[stat])
 
-        # Get the most recent stats data available.  Since these are always updated
-        # in lock step we can use the most recent but then go back 5 days to be
+        # Get the least recent stats data available and then go back 5 days to be
         # sure nothing gets missed.  Except for ephemeris files that are weird:
         # when they appear in the archive they include weeks of data in the past
         # and possibly future data.
-        last_time = max(times)
+        last_time = min(times)
         lookback = 30 if re.search(r'ephem[01]$', fetch.ft['content'].val) else 5
         last_date_id = get_date_id(DateTime(last_time - lookback * 86400).fits)
 
@@ -507,7 +732,6 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
     :param logger:
     :param msid_files:
     """
-    n_vals = len(vals['data'])
     fetch.ft['msid'] = msid
 
     msid_file = Path(msid_files['msid'].abs)
@@ -517,10 +741,31 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
 
     mode = 'r' if opt.dry_run else 'a'
     with tables.open_file(str(msid_file), mode=mode) as h5:
+        # If the vals[] data begins before the end of current data then chop the
+        # beginning of data for this row.
+        last_row_idx = len(h5.root.data) - 1
+        if vals['row0'] <= last_row_idx:
+            idx0 = last_row_idx + 1 - vals['row0']
+            logger.debug(f'Chopping {idx0 + 1} rows from data')
+            for key in ('data', 'quality'):
+                vals[key] = vals[key][idx0:]
+            vals['row0'] += idx0
+
+        n_vals = len(vals['data'])
         logger.verbose(f'Appending {n_vals} rows to {msid_file}')
 
+        # Normally at this point there is always data to append since we got here
+        # by virtue of the TIME.h5 file being incomplete relative to available sync
+        # data.  However, user might have manually rsynced a file as part of adding
+        # a new MSID, in which case it might be up to date and there is no req'd action.
+        if n_vals == 0:
+            return
+
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity\n'
+            raise ValueError(f'ERROR: unexpected discontinuity for full msid={msid} '
+                             f'content={fetch.ft["content"]}\n'
+                             f'Looks like your archive is in a bad state, CONTACT '
+                             f'your local Ska expert with this info:\n'
                              f'  First row0 in new data {vals["row0"]} != '
                              f'length of existing data {len(h5.root.data)}')
 
@@ -573,13 +818,25 @@ def main(args=None):
     # prior to importing fetch.  This ensures that ``content`` is consistent with
     # the destination archive.
     if opt.data_root is not None:
+        if not Path(opt.data_root).exists():
+            raise FileNotFoundError(
+                f'local cheta archive directory {Path(opt.data_root).absolute()} not found')
         os.environ['ENG_ARCHIVE'] = opt.data_root
 
     fetch = importlib.import_module('.fetch', __package__)
+
+    # Turn things around and define data_root based on fetch, relying on it to
+    # find the archive if --data-root is not specified.
+    opt.data_root = fetch.msid_files.basedir
+
     logger.info(f'Running cheta_update_client_archive version {__version__}')
     logger.info(f'  {__file__}')
     logger.info('')
     logger.info(f'Updating client archive at {fetch.msid_files.basedir}')
+
+    if opt.add_msids:
+        add_msids(opt, logger)
+        return
 
     if opt.content:
         contents = opt.content
