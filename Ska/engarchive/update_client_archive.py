@@ -228,14 +228,24 @@ def copy_server_files_ssh(opt, logger, copy_files):
     username, hostname, server_path = match.groups()
     server_path = server_path or '/proj/sot/ska/data/eng_archive'
 
-    password = getpass.getpass(f'Password for {username}@{hostname}: ')
-
     logger.info(f'Connecting to {hostname}')
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh_client.connect(hostname=hostname,
-                       username=username,
-                       password=password)
+    for attempt in range(3):
+        try:
+            password = getpass.getpass(f'Password for {username}@{hostname}: ')
+            ssh_client.connect(hostname=hostname,
+                               username=username,
+                               password=password)
+        except paramiko.ssh_exception.AuthenticationException:
+            if attempt == 2:
+                print('Authentication failed', file=sys.stderr)
+                sys.exit(1)
+            else:
+                print('Incorrect password, please try again.')
+        else:
+            break
+
     ftp_client = ssh_client.open_sftp()
     copy_server_files(opt, logger, copy_files, server_path, copy_func=ftp_client.get,
                       as_posix=True)
