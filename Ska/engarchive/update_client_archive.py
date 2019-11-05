@@ -192,6 +192,8 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=
         logger.info('DRY RUN')
 
     with ProgressBar(len(copy_files)) as progress_bar:
+        total_size = 0
+        tstart = time.time()
         for copy_file in copy_files:
             local_file = Path(opt.data_root, copy_file)
             server_file = Path(server_path, copy_file)
@@ -205,6 +207,11 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=
             if not opt.dry_run:
                 with DelayedKeyboardInterrupt(logger):
                     copy_func(str(server_file), str(local_file))
+                total_size += local_file.stat().st_size / 1e6
+    total_time = time.time() - tstart
+    xfer_rate = total_size / total_time
+    logger.info(f'Data transfer rate = {xfer_rate:.2f} Mb/s : '
+                f'{total_size:.2f} Mb in {total_time:.2f} s')
 
 
 def copy_server_files_ssh(opt, logger, copy_files):
