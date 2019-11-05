@@ -553,8 +553,9 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
                     append_stat_col(dat, stat_file, msid, date_id, opt, logger)
 
             logger.debug(f'Updating {last_date_id_file} with {date_id}')
-            with open(last_date_id_file, 'w') as fh:
-                fh.write(f'{date_id}')
+            if not opt.dry_run:
+                with open(last_date_id_file, 'w') as fh:
+                    fh.write(f'{date_id}')
 
 
 def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
