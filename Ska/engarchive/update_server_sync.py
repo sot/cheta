@@ -143,7 +143,11 @@ def remove_outdated_sync_files(opt, logger, index_tbl):
 
     remove_mask = np.zeros(len(index_tbl), dtype=bool)
 
-    for idx, row in enumerate(index_tbl):
+    # Iterate over all but the last row of the table, removing any
+    # directories for updates from before `min_time`.  Leaving the last
+    # row gives a direct record of when the last update occurred, but is
+    # benign from the perspective of updating the client archive.
+    for idx, row in zip(range(len(index_tbl) - 1), index_tbl):
         if row['filetime0'] < min_time:
             fetch.ft['date_id'] = row['date_id']
             remove_mask[idx] = True
@@ -237,12 +241,18 @@ def update_index_file(index_file, opt, logger):
     :return: index table (astropy Table)
     """
     if index_file.exists():
-        index_tbl = Table.read(index_file)
-        # Start time of last archfile contained in the sync repo, but do not look
+        # Start time of last update contained in the sync repo (if it exists), but do not look
         # back more than max_lookback days.  This is relevant for rarely sampled
         # content like cpe1eng.
-        filetime0 = max(index_tbl['filetime1'][-1],
-                        (DateTime(opt.date_stop) - opt.max_lookback).secs)
+        filetime0 = (DateTime(opt.date_stop) - opt.max_lookback).secs
+
+        index_tbl = Table.read(index_file)
+        if len(index_tbl) == 0:
+            # Need to start with a fresh index_tbl since the string column will end up
+            # with a length=1 string (date_id) and add_row later will give the wrong result.
+            index_tbl = None
+        else:
+            filetime0 = max(filetime0, index_tbl['filetime1'][-1])
     else:
         # For initial index file creation use the --date-start option
         index_tbl = None
