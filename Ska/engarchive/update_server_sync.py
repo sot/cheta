@@ -68,8 +68,8 @@ def get_options(args=None):
                         help="Max number of days of files per sync directory (default=1.5)")
     parser.add_argument("--max-lookback",
                         type=float,
-                        default=45,
-                        help="Maximum number of days to look back from --date-stop (default=45)")
+                        default=60,
+                        help="Maximum number of days to look back from --date-stop (default=60)")
     parser.add_argument("--log-level",
                         default=20,
                         help="Logging level")
