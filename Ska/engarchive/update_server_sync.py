@@ -143,7 +143,11 @@ def remove_outdated_sync_files(opt, logger, index_tbl):
 
     remove_mask = np.zeros(len(index_tbl), dtype=bool)
 
-    for idx, row in enumerate(index_tbl):
+    # Iterate over all but the last row of the table, removing any
+    # directories for updates from before `min_time`.  Leaving the last
+    # row gives a direct record of when the last update occurred, but is
+    # benign from the perspective of updating the client archive.
+    for idx, row in zip(range(len(index_tbl) - 1), index_tbl):
         if row['filetime0'] < min_time:
             fetch.ft['date_id'] = row['date_id']
             remove_mask[idx] = True
