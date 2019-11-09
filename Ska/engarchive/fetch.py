@@ -15,6 +15,7 @@ import fnmatch
 import collections
 import warnings
 import re
+from pathlib import Path
 
 import numpy as np
 from astropy.io import ascii
@@ -233,25 +234,14 @@ def local_or_remote_function(remote_print_output):
 def _split_path(path):
     """
     Return a tuple of the components for ``path``. Strip off the drive if
-    it exists. This works correctly for the local OS (linux / windows).
+    it exists AND access is remote. This works correctly for the local OS
+    (linux / windows).
     """
-    drive, path = os.path.splitdrive(path)
-    folders = []
-    while True:
-        path, folder = os.path.split(path)
-
-        if folder != "":
-
-            folders.append(folder)
-        else:
-            if path == "\\":
-                folders.append("/")
-            elif path != "":
-                folders.append(path)
-            break
-
-    folders.reverse()
-    return folders
+    path = Path(path)
+    parts = path.parts
+    if remote_access.access_remotely and path.drive:
+        parts = ('/',) + parts[1:]
+    return parts
 
 
 def _get_start_stop_dates(times):
