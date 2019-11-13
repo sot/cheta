@@ -4,6 +4,7 @@ test/*.tar.gz
 test/regr_vals.*
 build
 /data*
+/sync
 dist
 doc/_build
 www
