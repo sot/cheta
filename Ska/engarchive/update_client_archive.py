@@ -80,6 +80,11 @@ def get_options(args=None):
     return opt
 
 
+class RowMismatchError(ValueError):
+    """Exception for row mismatch between existing archive and available sync update"""
+    pass
+
+
 @contextlib.contextmanager
 def timing_logger(logger, text, level_pre='info', level_post='info'):
     start = time.time()
@@ -493,6 +498,9 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     """
     Sync the archive for ``content``.
 
+    This calls _sync_stat_archive with a wrapper to catch an exception related
+    to the last_date_id file being out of sync.
+
     :param opt:
     :param msid_files:
     :param logger:
@@ -500,6 +508,24 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     :param stat: stat interval '5min' or 'daily'
     :param index_tbl: table of sync file entries
     :return:
+    """
+    try:
+        _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl)
+    except RowMismatchError as err:
+        pth = Path(fetch.msid_files['last_date_id'].abs)
+        if pth.exists():
+            msg = f'File {pth} was out of sync with stats archive, generating exception: {err}'
+            logger.warn(msg)
+            logger.warn(f'Attempting to fix by removing that file and trying to sync again.')
+            pth.unlink()
+            _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl)
+            process_errors.append(
+                f'WARNING: file {pth} was out of sync with stats archive, fixed by deleting it')
+
+
+def _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
+    """
+    Actual worker for syncing the stat archive for ``content``.
     """
     # Get the last row of data from the length of the TIME.col (or archfiles?)
     ft = fetch.ft
@@ -622,7 +648,7 @@ def concat_data_sets(dats, data_keys):
         for row1, next_row0 in zip(dat_lists[f'{msid}.row1'][:-1],
                                    dat_lists[f'{msid}.row0'][1:]):
             if row1 != next_row0:
-                raise ValueError('unexpected inconsistency in rows in data files')
+                raise ValueError('unexpected discontinuity in rows in data files')
 
         dat[f'{msid}.row0'] = dat_lists[f'{msid}.row0'][0]
         dat[f'{msid}.row1'] = dat_lists[f'{msid}.row1'][-1]
@@ -671,12 +697,13 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             vals['row0'] += idx0
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity for stat msid={msid} '
-                             f'content={fetch.ft["content"]}\n'
-                             f'Looks like your archive is in a bad state, CONTACT '
-                             f'your local Ska expert with this info:\n'
-                             f'  First row0 in new data {vals["row0"]} != '
-                             f'length of existing data {len(h5.root.data)}')
+            raise RowMismatchError(
+                f'ERROR: unexpected discontinuity for stat msid={msid} '
+                f'content={fetch.ft["content"]}\n'
+                f'Looks like your archive is in a bad state, CONTACT '
+                f'your local Ska expert with this info:\n'
+                f'  First row0 in new data {vals["row0"]} != '
+                f'length of existing data {len(h5.root.data)}')
 
         logger.debug(f'Appending {len(vals["data"])} rows to {stat_file}')
         if not opt.dry_run:
@@ -762,12 +789,13 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
             return
 
         if vals['row0'] != len(h5.root.data):
-            raise ValueError(f'ERROR: unexpected discontinuity for full msid={msid} '
-                             f'content={fetch.ft["content"]}\n'
-                             f'Looks like your archive is in a bad state, CONTACT '
-                             f'your local Ska expert with this info:\n'
-                             f'  First row0 in new data {vals["row0"]} != '
-                             f'length of existing data {len(h5.root.data)}')
+            raise RowMismatchError(
+                f'ERROR: unexpected discontinuity for full msid={msid} '
+                f'content={fetch.ft["content"]}\n'
+                f'Looks like your archive is in a bad state, CONTACT '
+                f'your local Ska expert with this info:\n'
+                f'  First row0 in new data {vals["row0"]} != '
+                f'length of existing data {len(h5.root.data)}')
 
         # For the TIME column include special processing to effectively remove
         # existing rows that are superceded by new rows in time.  This is done by
@@ -857,7 +885,7 @@ def main(args=None):
 
     if process_errors:
         logger.error('')
-        logger.error('TIMEOUT ERRORS:')
+        logger.error('PROCESS ERRORS or WARNINGS:')
 
     for process_error in process_errors:
         logger.error(process_error)
