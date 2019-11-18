@@ -372,13 +372,17 @@ def del_stats(colname, time0, interval):
                              filters=tables.Filters(complevel=5, complib='zlib'))
     index0 = time0 // dt - 1
     indexes = stats.root.data.col('index')[:]
-    row0 = np.searchsorted(indexes, [index0])[0] - 1
-    if opt.dry_run:
-        n_del = len(stats.root.data) - row0
+    row0 = np.searchsorted(indexes, [index0])[0]
+    len_data = len(stats.root.data)
+    if row0 < len_data:
+        if opt.dry_run:
+            n_del = len_data - row0
+        else:
+            n_del = stats.root.data.remove_rows(row0, len_data)
+        logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0,
+                    DateTime(indexes[row0] * dt).date)
     else:
-        n_del = stats.root.data.remove_rows(row0, len(stats.root.data))
-    logger.info('Deleted %d rows from row %s (%s) to end', n_del, row0,
-                DateTime(indexes[row0] * dt).date)
+        logger.info('No rows of stats data to delete - skipping')
     stats.close()
 
 
