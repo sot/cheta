@@ -424,12 +424,14 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
             times = (table[-delta_rows:]['index'] + 0.5) * dt
 
             # In the worst case of starting to sync a client archive for a rarely-sampled
-            # content like cpe1eng, we need to back up by an extra ``dt`` to ensure that
-            # the first row is caught.  If there are a few full-res samples at the tail
-            # end of the 5min or daily bin, that will generate a time stamp *before* the
-            # time stamp of the first full-res data.  Having extra rows is OK because they
-            # just get clipped.
-            sub_row0, sub_row1 = np.searchsorted(times, [tstart - dt, tstop])
+            # content like cpe1eng or pcad7eng (AOSPASA2CV,) we need to include an extra ``dt``
+            # on both ends to ensure that the first / last rows are caught. If the last
+            # full-res sample is either before or after the stat mid-point timestamp then
+            # stat sample may get dropped. This happened in real life for AOSPASA2CV.
+            # Having extra rows on front is OK because they just get clipped, and an extra
+            # row on back is OK because of clipping on the next update (and in normal
+            # processing we always want the sync archive to have all recent data).
+            sub_row0, sub_row1 = np.searchsorted(times, [tstart - dt, tstop + dt])
             sub_row_offset = len(table) - delta_rows
 
             row0 = sub_row0 + sub_row_offset
@@ -507,9 +509,6 @@ def update_sync_data_stat(content, logger, row, stat):
             out[f'{msid}.row0'] = row0
             out[f'{msid}.row1'] = row1
             last_rows[msid] = row1
-
-    if len(n_rows_set) > 1:
-        logger.warning(f'Unexpected difference in number of rows: {n_rows_set}')
 
     n_rows = n_rows_set.pop() if len(n_rows_set) == 1 else n_rows_set
 
