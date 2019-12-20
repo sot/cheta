@@ -5,16 +5,11 @@ import os
 
 from setuptools import setup
 
-from Ska.engarchive.version import package_version
 
 try:
     from testr.setup_helper import cmdclass
 except ImportError:
     cmdclass = {}
-
-# Write GIT revisions and SHA tag into <this_package/git_version.py>
-# (same directory as version.py)
-package_version.write_git_version_file()
 
 console_scripts = ['ska_fetch = cheta.get_telem:main',
                    'cheta_sync = cheta.update_client_archive:main',
@@ -48,7 +43,9 @@ setup(name='Ska.engarchive',
       description='Modules supporting Ska engineering telemetry archive',
       author_email='taldcroft@cfa.harvard.edu',
       entry_points={'console_scripts': console_scripts},
-      version=package_version.version,
+      use_scm_version=True,
+      setup_requires=['setuptools_scm'],
+      setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
       zip_safe=False,
       package_dir={'Ska': 'Ska', 'cheta': 'Ska/engarchive'},
       packages=packages,

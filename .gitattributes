@@ -3,3 +3,6 @@
 
 # Denote files that are truly binary and should not be modified.
 *.pkl binary
+
+# for setuptools_scm_git_archive
+.git_archival.txt  export-subst
