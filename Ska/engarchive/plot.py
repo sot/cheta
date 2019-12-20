@@ -8,7 +8,7 @@ from matplotlib.dates import num2epoch, epoch2num
 from Ska.Matplotlib import plot_cxctime
 from Chandra.Time import DateTime
 
-from .version import version as __version__  # noqa
+from . import __version__  # noqa
 
 MIN_TSTART_UNIX = DateTime('1999:100').unix
 MAX_TSTOP_UNIX = DateTime().unix + 1e7
