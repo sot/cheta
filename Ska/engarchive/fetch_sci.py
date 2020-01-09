@@ -3,7 +3,7 @@ import sys
 
 from .fetch import *  # noqa
 from . import fetch
-from .version import version as __version__  # noqa
+from . import __version__  # noqa
 
 # Module-level units, defaults to CXC units (e.g. Kelvins etc)
 UNITS = fetch.Units('sci')

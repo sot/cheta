@@ -29,7 +29,7 @@ from .units import Units
 from . import cache
 from . import remote_access
 from .remote_access import ENG_ARCHIVE
-from .version import __version__, __git_version__  # noqa
+from . import __version__  # noqa
 
 from Chandra.Time import DateTime
 
