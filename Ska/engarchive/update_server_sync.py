@@ -33,7 +33,6 @@ sync repository to capture newly-available data since the last bundle.
 import argparse
 import gzip
 import pickle
-import re
 import shutil
 from itertools import count
 from pathlib import Path
@@ -70,6 +69,11 @@ def get_options(args=None):
                         type=float,
                         default=60,
                         help="Maximum number of days to look back from --date-stop (default=60)")
+    parser.add_argument("--max-sync-dirs",
+                        type=int,
+                        default=60,
+                        help=("Number of sync directories to keep before "
+                              "removing oldest (default=60)"))
     parser.add_argument("--log-level",
                         default=20,
                         help="Logging level")
@@ -123,40 +127,37 @@ def main(args=None):
     update_msid_contents_pkl(logger)
 
 
-def remove_outdated_sync_files(opt, logger, index_tbl):
+def remove_outdated_sync_files(opt, logger, index_tbl, index_file):
     """
-    Remove the sync data dirs and index file rows which correspond to data
-    that is more than opt.max_lookback days older than opt.date_stop (typically
-    NOW).
+    Remove the sync data dirs and index file rows which correspond to data so
+    that no more than ``opt.max_sync_dirs`` sync directories are retained.
 
     :param opt: options
     :param logger: logger
     :param index_tbl: table containing sync repo entries
+    :param index_file: index file Path
     :return: mask of rows that were removed
     """
-    min_time = (DateTime(opt.date_stop) - opt.max_lookback).secs
+    # If index table is not too long then no action required.
+    if len(index_tbl) <= opt.max_sync_dirs:
+        return
 
-    # Ephemeris files are time stamped around a month before current date,
-    # so leave them around for couple months longer.
-    if re.search(r'ephem\d$', str(fetch.ft['content'])):
-        min_time -= 60 * 86400
+    # Index before which rows will be deleted.  Note that index_tbl is guaranteed to be
+    # sorted by in ascending order by row (and thus by time) because of
+    # check_index_tbl_consistency()
+    idx0 = len(index_tbl) - opt.max_sync_dirs
 
-    remove_mask = np.zeros(len(index_tbl), dtype=bool)
+    # Iterate over rows to be deleted and delete corresponding file directories.
+    for row in index_tbl[:idx0]:
+        fetch.ft['date_id'] = row['date_id']
+        data_dir = sync_files['data_dir'].abs
+        if Path(data_dir).exists():
+            logger.info(f'Removing sync directory {data_dir}')
+            shutil.rmtree(data_dir)
 
-    # Iterate over all but the last row of the table, removing any
-    # directories for updates from before `min_time`.  Leaving the last
-    # row gives a direct record of when the last update occurred, but is
-    # benign from the perspective of updating the client archive.
-    for idx, row in zip(range(len(index_tbl) - 1), index_tbl):
-        if row['filetime0'] < min_time:
-            fetch.ft['date_id'] = row['date_id']
-            remove_mask[idx] = True
-            data_dir = sync_files['data_dir'].abs
-            if Path(data_dir).exists():
-                logger.info(f'Removing sync directory {data_dir}')
-                shutil.rmtree(data_dir)
-
-    return remove_mask
+    index_tbl = index_tbl[idx0:]
+    logger.info(f'Writing {len(index_tbl)} row(s) to index file {index_file}')
+    index_tbl.write(index_file, format='ascii.ecsv', overwrite=True)
 
 
 def update_sync_repo(opt, logger, content):
@@ -187,11 +188,7 @@ def update_sync_repo(opt, logger, content):
         update_sync_data_stat(content, logger, row, '5min')
         update_sync_data_stat(content, logger, row, 'daily')
 
-    remove_mask = remove_outdated_sync_files(opt, logger, index_tbl)
-    if np.any(remove_mask):
-        index_tbl = index_tbl[~remove_mask]
-        logger.info(f'Writing {len(index_tbl)} row(s) to index file {index_file}')
-        index_tbl.write(index_file, format='ascii.ecsv')
+    remove_outdated_sync_files(opt, logger, index_tbl, index_file)
 
 
 def get_row_from_archfiles(archfiles):
