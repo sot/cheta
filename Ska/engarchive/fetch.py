@@ -29,6 +29,7 @@ from .units import Units
 from . import cache
 from . import remote_access
 from .remote_access import ENG_ARCHIVE
+from .derived.comps import ComputedMsid
 from . import __version__  # noqa
 
 from Chandra.Time import DateTime
@@ -150,6 +151,8 @@ class _DataSource(object):
         elif source == 'maude':
             import maude
             out = list(maude.MSIDS.keys())
+        elif source == 'comp':
+            out = list(key for key in content if key.startswith('COMP_'))
         else:
             raise ValueError('source must be "cxc" or "msid"')
 
@@ -295,6 +298,9 @@ def load_msid_names(all_msid_names_files):
 # Load the MSID names
 all_colnames = load_msid_names(all_msid_names_files)
 
+# Add computed MSIDs
+all_colnames['computed'] = list(ComputedMsid.msid_classes)
+
 # Save the names
 for k, colnames in six.iteritems(all_colnames):
     content.update((x, k) for x in sorted(colnames)
@@ -401,6 +407,8 @@ def _msid_glob(msid, source):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
+    if msid.lower().startswith('comp_'):
+        source = 'comp'
 
     source_msids = data_source.get_msids(source)
 
@@ -578,6 +586,12 @@ class MSID(object):
         logger.info('Getting data for %s between %s to %s',
                     self.msid, self.datestart, self.datestop)
 
+        if self.content == 'computed':
+            if self.stat:
+                raise ValueError('stats are not supported for computed MSIDs')
+            self._get_comp_data()
+            return
+
         # Avoid stomping on caller's filetype 'ft' values with _cache_ft()
         with _cache_ft():
             ft['content'] = self.content
@@ -619,6 +633,29 @@ class MSID(object):
                         # Update self.vals, times, bads in place.  This might concatenate MAUDE
                         # telemetry to existing CXC values.
                         self._get_msid_data_from_maude(*args)
+
+    def _get_comp_data(self):
+        logger.info(f'Getting comp data for {self.msid}')
+
+        # Get the ComputedMsid subclass corresponding to MSID and do the
+        # computation.  This returns a dict of MSID attribute values.
+        comp_cls = ComputedMsid.msid_classes[self.MSID]
+        dat = comp_cls()(self.tstart, self.tstop)
+
+        # Allow upstream class to be a bit sloppy on times and include samples
+        # outside the time range.  This can happen with classes that inherit
+        # from DerivedParameter.
+        ok = (dat['times'] >= self.tstart) & (dat['times'] <= self.tstop)
+        all_ok = np.all(ok)
+
+        # Apply attributes to self
+        self.colnames = list(dat)
+        for attr, val in dat.items():
+            if (not all_ok
+                    and isinstance(val, np.ndarray)
+                    and len(val) == len(dat['times'])):
+                val = val[ok]
+            setattr(self, attr, val)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
