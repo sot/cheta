@@ -14,17 +14,10 @@ class ComputedMsid:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        # Validate class name, msid_attrs, msid_match
-        if not cls.__name__.startswith('Comp_'):
-            raise ValueError(f'comp class name {cls.__name__} must start with Comp_')
-
         cls.msid_attrs = ComputedMsid.msid_attrs + cls.extra_msid_attrs
 
         if not hasattr(cls, 'msid_match'):
             raise ValueError(f'comp {cls.__name__} must define msid_match')
-
-        # Force match to include entire line
-        cls.msid_match = cls.msid_match + '$'
 
         cls.msid_classes.append(cls)
 
