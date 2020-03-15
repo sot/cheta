@@ -91,13 +91,18 @@ pp_temps = np.array([369.5305, 263.32577, 239.03652, 222.30608, 203.6944, 183.26
 count_to_degf = interp1d(pp_counts, pp_temps)
 degf_to_counts = interp1d(pp_temps, pp_counts)
 
+
 # Define MUPS valve thermistor voltage point pair calibration table.
-count_to_volts = lambda counts: counts / 256 * 5.12
-volts_to_counts = lambda volts: volts / 5.12 * 256
+def count_to_volts(counts):
+    return counts / 256 * 5.12
+
+
+def volts_to_counts(volts):
+    return volts / 5.12 * 256
+
 
 # Voltage and Temperature, with and without resistor (see flight note 447 for
 # the source of these numbers).
-
 volt_with_resistor = [4.153325779, 3.676396578, 3.175100371, 2.587948965, 2.435, 2.025223702,
                       1.538506813, 1.148359251, 0.63128179, 0.354868907, 0.208375569]
 volt_without_resistor = [28.223, 15, 9.1231, 5.5228, 4.87, 3.467, 2.249,
