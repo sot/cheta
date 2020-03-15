@@ -5,6 +5,7 @@
 import numpy as np
 import pytest
 
+from .. import fetch_eng, fetch
 from ..derived.base import DerivedParameter
 from ..derived.comps import ComputedMsid
 
@@ -19,19 +20,20 @@ else:
     HAS_MAUDE = True
 
 
-class Comp_Plus_Five:
+class Comp_Val_Plus_Five(ComputedMsid):
     """Silly base comp to add 5 to the value"""
-    def get_MSID(self, start, stop):
-        dat = self.fetch_eng.MSID(self.msid, start, stop)
-        dat.vals = dat.vals + 5
-        return dat
+    msid_match = r'comp_(\w+)_plus_five'
+
+    def get_msid_attrs(self, start, stop, msid, msid_args):
+        dat = self.fetch_eng.MSID(msid_args[0], start, stop)
+
+        out = {'vals': dat.vals + 5,
+               'bads': dat.bads,
+               'times': dat.times}
+        return out
 
 
-class Comp_TEPHIN_Plus_Five(Comp_Plus_Five, ComputedMsid):
-    msid = 'tephin'
-
-
-class Comp_CSS1_NPM_SUN(DerivedParameter, ComputedMsid):
+class Comp_CSS1_NPM_SUN(ComputedMsid, DerivedParameter):
     """Coarse Sun Sensor Counts 1 filtered for NPM and SA Illuminated
 
     Defined as CSS-1 current converted back into counts
@@ -42,8 +44,9 @@ class Comp_CSS1_NPM_SUN(DerivedParameter, ComputedMsid):
     rootparams = ['aocssi1', 'aopcadmd', 'aosaillm']
     time_step = 1.025
     max_gap = 10.0
+    msid_match = 'comp_css1_npm_sun'
 
-    def __call__(self, start, stop):
+    def get_msid_attrs(self, start, stop, msid, msid_args):
         # Get an interpolated MSIDset for rootparams
         msids = self.fetch(start, stop)
 
@@ -57,10 +60,6 @@ class Comp_CSS1_NPM_SUN(DerivedParameter, ComputedMsid):
                'times': msids.times,
                'bads': msids.bads}
         return out
-
-
-# Need to add classes before importing fetch
-from .. import fetch_eng, fetch
 
 
 def test_comp_from_derived_parameter():

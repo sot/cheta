@@ -151,8 +151,6 @@ class _DataSource(object):
         elif source == 'maude':
             import maude
             out = list(maude.MSIDS.keys())
-        elif source == 'comp':
-            out = list(key for key in content if key.startswith('COMP_'))
         else:
             raise ValueError('source must be "cxc" or "msid"')
 
@@ -298,9 +296,6 @@ def load_msid_names(all_msid_names_files):
 # Load the MSID names
 all_colnames = load_msid_names(all_msid_names_files)
 
-# Add computed MSIDs
-all_colnames['computed'] = list(ComputedMsid.msid_classes)
-
 # Save the names
 for k, colnames in six.iteritems(all_colnames):
     content.update((x, k) for x in sorted(colnames)
@@ -383,6 +378,11 @@ def msid_glob(msid):
     msids = collections.OrderedDict()
     MSIDS = collections.OrderedDict()
 
+    # First check if `msid` matches a computed class.  This does not allow
+    # for globs, and here the output MSIDs is the single computed class.
+    if ComputedMsid.get_matching_comp_cls(msid) is not None:
+        return [msid], [msid.upper()]
+
     sources = data_source.sources(include_test=False)
     for source in sources:
         ms, MS = _msid_glob(msid, source)
@@ -407,9 +407,6 @@ def _msid_glob(msid, source):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
-    if msid.lower().startswith('comp_'):
-        source = 'comp'
-
     source_msids = data_source.get_msids(source)
 
     MSID = msid.upper()
@@ -586,10 +583,11 @@ class MSID(object):
         logger.info('Getting data for %s between %s to %s',
                     self.msid, self.datestart, self.datestop)
 
-        if self.content == 'computed':
+        comp_cls = ComputedMsid.get_matching_comp_cls(self.msid)
+        if comp_cls:
             if self.stat:
                 raise ValueError('stats are not supported for computed MSIDs')
-            self._get_comp_data()
+            self._get_comp_data(comp_cls)
             return
 
         # Avoid stomping on caller's filetype 'ft' values with _cache_ft()
@@ -634,13 +632,11 @@ class MSID(object):
                         # telemetry to existing CXC values.
                         self._get_msid_data_from_maude(*args)
 
-    def _get_comp_data(self):
+    def _get_comp_data(self, comp_cls):
         logger.info(f'Getting comp data for {self.msid}')
 
-        # Get the ComputedMsid subclass corresponding to MSID and do the
-        # computation.  This returns a dict of MSID attribute values.
-        comp_cls = ComputedMsid.msid_classes[self.MSID]
-        dat = comp_cls()(self.tstart, self.tstop)
+        # Do computation.  This returns a dict of MSID attribute values.
+        dat = comp_cls()(self.tstart, self.tstop, self.msid)
 
         # Allow upstream class to be a bit sloppy on times and include samples
         # outside the time range.  This can happen with classes that inherit
