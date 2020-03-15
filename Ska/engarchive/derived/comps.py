@@ -73,7 +73,7 @@ class ComputedMsid:
 
 
 class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
-    msid_match = r'comp_(pm2thv1t|pm1thv2t)'
+    msid_match = r'(pm2thv1t|pm1thv2t)_clean'
     extra_msid_attrs = ('vals_raw', 'vals_nan', 'vals_corr', 'vals_model', 'source')
 
     def get_msid_attrs(self, start, stop, msid, msid_args):

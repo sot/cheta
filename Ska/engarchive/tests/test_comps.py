@@ -102,27 +102,27 @@ def test_mups_valve():
     colnames = ['times', 'vals', 'bads', 'vals_raw',
                 'vals_nan', 'vals_corr', 'vals_model', 'source']
 
-    dat = fetch.MSID('comp_PM2THV1T', '2020:001', '2020:010')
+    dat = fetch.MSID('PM2THV1T_clean', '2020:001', '2020:010')
     assert len(dat.vals) == 36661
     assert np.count_nonzero(dat.source != 0) == 34499
     assert dat.colnames == colnames
     for attr in colnames:
         assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch.Msid('comp_PM2THV1T', '2020:001', '2020:010')
+    dat = fetch.Msid('PM2THV1T_clean', '2020:001', '2020:010')
     assert len(dat.vals) == 34499  # Some bad values
     assert dat.colnames == colnames
     for attr in colnames:
         if attr != 'bads':
             assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch.MSID('comp_PM1THV2T', '2020:001', '2020:010')
+    dat = fetch.MSID('PM1THV2T_clean', '2020:001', '2020:010')
     assert len(dat.vals) == 36661  # Same as PM2THV1T
     assert dat.colnames == colnames
     for attr in colnames:
         assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch.Msid('comp_PM1THV2T', '2020:001', '2020:010')
+    dat = fetch.Msid('pm1thv2t_clean', '2020:001', '2020:010')
     assert len(dat.vals) == 36240  # Some bad values
     assert len(dat.source) == 36240  # Filtering applies to sources
     assert dat.colnames == colnames
