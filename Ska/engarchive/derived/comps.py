@@ -129,7 +129,7 @@ class Comp_KadiCommandState(ComputedMsid):
     """
     msid_match = r'cmd_state_(\w+)_(\d+)'
 
-    def get_msid_attrs(self, start, stop, msid, msid_args):
+    def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         """Get attributes for computed MSID: ``vals``, ``bads``, ``times``
 
         :param tstart: start time (CXC secs)
@@ -144,7 +144,7 @@ class Comp_KadiCommandState(ComputedMsid):
 
         state_key = msid_args[0]
         dt = 1.025 * int(msid_args[1])
-        states = get_states(start, stop, state_keys=[state_key])
+        states = get_states(tstart, tstop, state_keys=[state_key])
 
         tstart = date2secs(states['datestart'][0])
         tstops = date2secs(states['datestop'])

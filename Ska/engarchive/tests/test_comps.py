@@ -24,8 +24,8 @@ class Comp_Val_Plus_Five(ComputedMsid):
     """Silly base comp to add 5 to the value"""
     msid_match = r'comp_(\w+)_plus_five'
 
-    def get_msid_attrs(self, start, stop, msid, msid_args):
-        dat = self.fetch_eng.MSID(msid_args[0], start, stop)
+    def get_msid_attrs(self, tstart, tstop, msid, msid_args):
+        dat = self.fetch_eng.MSID(msid_args[0], tstart, tstop)
 
         out = {'vals': dat.vals + 5,
                'bads': dat.bads,
@@ -46,9 +46,9 @@ class Comp_CSS1_NPM_SUN(ComputedMsid, DerivedParameter):
     max_gap = 10.0
     msid_match = 'comp_css1_npm_sun'
 
-    def get_msid_attrs(self, start, stop, msid, msid_args):
+    def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         # Get an interpolated MSIDset for rootparams
-        msids = self.fetch(start, stop)
+        msids = self.fetch(tstart, tstop)
 
         # Do the computation and set bad values
         npm_sun = ((msids['aopcadmd'].vals == 'NPNT') &
