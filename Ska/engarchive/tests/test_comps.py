@@ -129,3 +129,20 @@ def test_mups_valve():
     for attr in colnames:
         if attr != 'bads':
             assert len(dat.vals) == len(getattr(dat, attr))
+
+
+def test_cmd_states():
+    start, stop = '2020:002:08:00:00', '2020:002:10:00:00'
+    dat = fetch.Msid('cmd_state_pitch_1000', start, stop)
+    exp_vals = np.array([55.99128956, 55.8747053, 55.8747053, 90.66266599,
+                         159.06945155, 173.11528258, 173.11528258, 173.11528258])
+    assert np.allclose(dat.vals, exp_vals)
+    assert type(dat.vals) is np.ndarray
+    assert np.allclose(np.diff(dat.times), 1025.0)
+    assert not np.any(dat.bads)
+
+    dat = fetch.Msid('cmd_state_pcad_mode_1000', start, stop)
+    exp_vals = np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN', 'NMAN', 'NPNT', 'NPNT', 'NPNT'])
+    assert np.all(dat.vals == exp_vals)
+    assert type(dat.vals) is np.ndarray
+    assert np.allclose(np.diff(dat.times), 1025.0)
