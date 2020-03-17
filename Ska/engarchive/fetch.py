@@ -585,8 +585,6 @@ class MSID(object):
 
         comp_cls = ComputedMsid.get_matching_comp_cls(self.msid)
         if comp_cls:
-            if self.stat:
-                raise ValueError('stats are not supported for computed MSIDs')
             self._get_comp_data(comp_cls)
             return
 
@@ -636,7 +634,7 @@ class MSID(object):
         logger.info(f'Getting comp data for {self.msid}')
 
         # Do computation.  This returns a dict of MSID attribute values.
-        dat = comp_cls()(self.tstart, self.tstop, self.msid)
+        dat = comp_cls()(self.tstart, self.tstop, self.msid, self.stat)
 
         # Allow upstream class to be a bit sloppy on times and include samples
         # outside the time range.  This can happen with classes that inherit

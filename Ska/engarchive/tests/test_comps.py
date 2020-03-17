@@ -20,6 +20,19 @@ else:
     HAS_MAUDE = True
 
 
+class Comp_Passthru(ComputedMsid):
+    """Pass MSID through unchanged (for checking that stats work)"""
+    msid_match = r'passthru_(\w+)'
+
+    def get_msid_attrs(self, tstart, tstop, msid, msid_args):
+        dat = self.fetch_eng.MSID(msid_args[0], tstart, tstop)
+
+        out = {'vals': dat.vals,
+               'bads': dat.bads,
+               'times': dat.times}
+        return out
+
+
 class Comp_Val_Plus_Five(ComputedMsid):
     """Silly base comp to add 5 to the value"""
     msid_match = r'comp_(\w+)_plus_five'
@@ -146,3 +159,24 @@ def test_cmd_states():
     assert np.all(dat.vals == exp_vals)
     assert type(dat.vals) is np.ndarray
     assert np.allclose(np.diff(dat.times), 1025.0)
+
+
+@pytest.mark.parametrize('stat', ['5min', 'daily'])
+def test_stats(stat):
+    start, stop = '2020:001', '2020:010'
+
+    dat = fetch.Msid('pitch', start, stop, stat=stat)
+    datc = fetch.Msid('passthru_pitch', start, stop, stat=stat)
+
+    for attr in datc.colnames:
+        val = getattr(dat, attr)
+        valc = getattr(datc, attr)
+        if attr == 'bads':
+            assert val == valc
+            continue
+        assert val.dtype == valc.dtype
+        if val.dtype.kind == 'f':
+            assert np.allclose(val, valc)
+        else:
+            assert np.all(val == valc)
+

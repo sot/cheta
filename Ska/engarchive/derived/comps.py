@@ -11,6 +11,107 @@ import re
 
 import numpy as np
 
+from Chandra.Time import DateTime
+
+
+def calc_stats_vals(msid, rows, indexes, interval):
+    """
+    Compute statistics values for ``msid`` over specified intervals.
+    This is a very slightly modified version of the same function from
+    update_archive.py.  However, cannot directly import that because
+    it has side effects that break everything, probably related to
+    enabling caching.
+
+    The mods here are basically to take out handling of state codes
+    and turn a warning about negative dts into an exception.
+
+    :param msid: Msid object (filter_bad=True)
+    :param rows: Msid row indices corresponding to stat boundaries
+    :param indexes: Universal index values for stat (row times // dt)
+    :param interval: interval name (5min or daily)
+    """
+    import scipy.stats
+
+    quantiles = (1, 5, 16, 50, 84, 95, 99)
+    n_out = len(rows) - 1
+
+    # Check if data type is "numeric".  Boolean values count as numeric,
+    # partly for historical reasons, in that they support funcs like
+    # mean (with implicit conversion to float).
+    msid_dtype = msid.vals.dtype
+    msid_is_numeric = issubclass(msid_dtype.type, (np.number, np.bool_))
+
+    # If MSID data is unicode, then for stats purposes cast back to bytes
+    # by creating the output array as a like-sized S-type array.
+    if msid_dtype.kind == 'U':
+        msid_dtype = re.sub(r'U', 'S', msid.vals.dtype.str)
+
+    # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
+    out = {}
+    out['index'] = np.ndarray((n_out,), dtype=np.int32)
+    out['n'] = np.ndarray((n_out,), dtype=np.int32)
+    out['val'] = np.ndarray((n_out,), dtype=msid_dtype)
+
+    if msid_is_numeric:
+        out['min'] = np.ndarray((n_out,), dtype=msid_dtype)
+        out['max'] = np.ndarray((n_out,), dtype=msid_dtype)
+        out['mean'] = np.ndarray((n_out,), dtype=np.float32)
+
+        if interval == 'daily':
+            out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
+            for quantile in quantiles:
+                out['p{:02d}'.format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
+
+    i = 0
+    for row0, row1, index in zip(rows[:-1], rows[1:], indexes[:-1]):
+        vals = msid.vals[row0:row1]
+        times = msid.times[row0:row1]
+
+        n_vals = len(vals)
+        if n_vals > 0:
+            out['index'][i] = index
+            out['n'][i] = n_vals
+            out['val'][i] = vals[n_vals // 2]
+            if msid_is_numeric:
+                if n_vals <= 2:
+                    dts = np.ones(n_vals, dtype=np.float64)
+                else:
+                    dts = np.empty(n_vals, dtype=np.float64)
+                    dts[0] = times[1] - times[0]
+                    dts[-1] = times[-1] - times[-2]
+                    dts[1:-1] = ((times[1:-1] - times[:-2]) +
+                                 (times[2:] - times[1:-1])) / 2.0
+                    negs = dts < 0.0
+                    if np.any(negs):
+                        times_dts = [(DateTime(t).date, dt)
+                                     for t, dt in zip(times[negs], dts[negs])]
+                        raise ValueError('WARNING - negative dts in {} at {}'
+                                         .format(msid.MSID, times_dts))
+
+                    # Clip to range 0.001 to 300.0.  The low bound is just there
+                    # for data with identical time stamps.  This shouldn't happen
+                    # but in practice might.  The 300.0 represents 5 minutes and
+                    # is the largest normal time interval.  Data near large gaps
+                    # will get a weight of 5 mins.
+                    dts.clip(0.001, 300.0, out=dts)
+                sum_dts = np.sum(dts)
+
+                out['min'][i] = np.min(vals)
+                out['max'][i] = np.max(vals)
+                out['mean'][i] = np.sum(dts * vals) / sum_dts
+                if interval == 'daily':
+                    # biased weighted estimator of variance (N should be big enough)
+                    # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
+                    sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
+                    out['std'][i] = np.sqrt(sigma_sq)
+                    quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
+                    for quant_val, quantile in zip(quant_vals, quantiles):
+                        out['p%02d' % quantile][i] = quant_val
+
+            i += 1
+
+    return np.rec.fromarrays([x[:i] for x in out.values()], names=list(out.keys()))
+
 
 class ComputedMsid:
     # Global dict of registered computed MSIDs
@@ -56,24 +157,66 @@ class ComputedMsid:
         from .. import fetch_cxc
         return fetch_cxc
 
-    def __call__(self, start, stop, msid):
+    def __call__(self, tstart, tstop, msid, interval=None):
         match = re.match(self.msid_match, msid, re.IGNORECASE)
         if not match:
             raise RuntimeError(f'unexpected mismatch of {msid} with {self.msid_match}')
         match_args = [arg.lower() for arg in match.groups()]
-        msid_attrs = self.get_msid_attrs(start, stop, msid.lower(), match_args)
 
-        if set(msid_attrs) != set(self.msid_attrs):
-            raise ValueError(f'computed class did not return expected attributes')
+        if interval is None:
+            msid_attrs = self.get_msid_attrs(tstart, tstop, msid.lower(), match_args)
+        else:
+            msid_attrs = self.get_stats_attrs(tstart, tstop, msid.lower(), match_args, interval)
 
         return msid_attrs
 
-    def get_msid_attrs(self, start, stop, msid, msid_args):
+    def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         """Get the attributes required for this MSID.
 
         TODO: detailed docs here since this is the main user-defined method
         """
         raise NotImplementedError()
+
+    def get_stats_attrs(self, tstart, tstop, msid, match_args, interval):
+        from ..fetch import _plural
+
+        class MsidStub:
+            def __init__(self, kwargs):
+                self.state_codes = None
+                for key, val in kwargs.items():
+                    setattr(self, key, val)
+
+        # Replicate a stripped-down version of processing in update_archive.
+        # This produces a recarray with columns that correspond to the raw
+        # stats HDF5 files.
+        dt = {'5min': 328,
+              'daily': 86400}[interval]
+        index0 = int(np.floor(tstart / dt))
+        index1 = int(np.ceil(tstop / dt))
+        tstart = (index0 - 1) * dt
+        tstop = (index1 + 1) * dt
+        msid_obj = self.fetch_eng.Msid(msid, tstart, tstop)
+        indexes = np.arange(index0, index1 + 1)
+        times = indexes * dt  # This is the *start* time of each bin
+
+        if len(times) > 0:
+            rows = np.searchsorted(msid_obj.times, times)
+            vals_stats = calc_stats_vals(msid_obj, rows, indexes, interval)
+        else:
+            raise ValueError()
+
+        # Replicate the name munging that fetch does going from the HDF5 columns
+        # to what is seen in a stats fetch query.
+        out = {}
+        for key in vals_stats.dtype.names:
+            out_key = _plural(key) if key != 'n' else 'samples'
+            out[out_key] = vals_stats[key]
+        out['times'] = (vals_stats['index'] + 0.5) * dt
+        out['bads'] = np.zeros(len(vals_stats), dtype=bool)
+        out['midvals'] = out['vals']
+        out['vals'] = out['means']
+
+        return out
 
 
 class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
