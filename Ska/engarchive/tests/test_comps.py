@@ -104,13 +104,6 @@ def test_simple_comp_with_maude():
         assert np.all(dat1.bads == dat2.bads)
 
 
-def test_comp_with_stat():
-    with pytest.raises(ValueError,
-                       match='stats are not supported for computed MSIDs'):
-        fetch_eng.Msid('comp_tephin_plus_five',
-                       '2020:001', '2020:010', stat='5min')
-
-
 def test_mups_valve():
     colnames = ['times', 'vals', 'bads', 'vals_raw',
                 'vals_nan', 'vals_corr', 'vals_model', 'source']

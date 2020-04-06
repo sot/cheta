@@ -82,6 +82,11 @@ def c2f(degc):
     return degf
 
 
+def f2c(degf):
+    degc = (degf - 32) / 1.8
+    return degc
+
+
 # Define MUPS valve thermistor point pair calibration table (from TDB).
 pp_counts = np.array([0, 27, 36, 44, 55, 70, 90, 118, 175, 195, 210, 219, 226, 231, 235, 255])
 pp_temps = np.array([369.5305, 263.32577, 239.03652, 222.30608, 203.6944, 183.2642, 161.0796,
@@ -187,7 +192,8 @@ def select_using_model(data1, data2, model, dt_thresh, out, source):
             source[ii] = 0
 
 
-def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None):
+def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7,
+                     model_spec=None, unit='degf'):
     """Fetch a cleaned version of telemetry for ``msid``.
 
     If not supplied the model spec will be downloaded from github using this URL:
@@ -212,6 +218,7 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
     :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
     :param median: length of median filter (default=7, use 0 to disable)
     :param model_spec: file name or URL containing relevant xija model spec
+    :param unit: temperature unit: 'degf' (default) or 'degc'
 
     :returns: fetch.Msid object
     """
@@ -220,6 +227,8 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
                f'mups_valve/{msid}_spec.json')
         model_spec = download_file(url, cache=True)
 
+    # NOTE: all temperatures are in degF unless otherwise noted
+
     dat = fetch_eng.Msid(msid, start, stop)
 
     t_obs = dat.vals
@@ -227,29 +236,36 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
         t_obs = median_filter(t_obs, size=median)
     t_corr = get_corr_mups_temp(t_obs)
 
+    # Model is computed in degC
     mdl = XijaModel(model_spec=model_spec,
                     start=dat.times[0] - 400000,
                     stop=dat.times[-1])
-    mdl.comp['mups0'].set_data(75)
+    mdl.comp['mups0'].set_data(75)  # degC
     mdl.make()
     mdl.calc()
 
+    # Interpolate model temperatures (converted to degF with c2f) onto telemetry times
     t_model = np.interp(xp=mdl.times, fp=c2f(mdl.comp[msid].mvals), x=dat.times)
 
     out = np.zeros_like(dat.vals)
     source = np.zeros(len(dat.vals), dtype=int)
     select_using_model(t_obs, t_corr, t_model, dt_thresh=dt_thresh, out=out, source=source)
 
-    dat.vals_raw = dat.vals
+    if unit not in ('degf', 'degc'):
+        raise ValueError('unit must be either degf or degc')
 
-    dat.vals = out
-    dat.vals_nan = out.copy()
+    convert = (lambda x: x) if unit == 'degf' else f2c
+
+    dat.vals_raw = convert(dat.vals)
+
+    dat.vals = convert(out)
+    dat.vals_nan = convert(out).copy()
 
     dat.bads = (source == 0)
     dat.vals_nan[dat.bads] = np.nan
 
     dat.source = source
-    dat.vals_corr = t_corr
-    dat.vals_model = t_model
+    dat.vals_corr = convert(t_corr)
+    dat.vals_model = convert(t_model)
 
     return dat

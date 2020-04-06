@@ -248,7 +248,7 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
 
         # Get cleaned MUPS valve temperature data as an MSID object
         dat = fetch_clean_msid(msid_args[0], tstart, tstop,
-                               dt_thresh=5.0, median=7, model_spec=None)
+                               dt_thresh=5.0, median=7, model_spec=None, unit='degc')
 
         # Convert to dict as required by the get_msids_attrs API
         msid_attrs = {attr: getattr(dat, attr) for attr in self.msid_attrs}
