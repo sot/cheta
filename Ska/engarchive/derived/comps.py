@@ -180,12 +180,6 @@ class ComputedMsid:
     def get_stats_attrs(self, tstart, tstop, msid, match_args, interval):
         from ..fetch import _plural
 
-        class MsidStub:
-            def __init__(self, kwargs):
-                self.state_codes = None
-                for key, val in kwargs.items():
-                    setattr(self, key, val)
-
         # Replicate a stripped-down version of processing in update_archive.
         # This produces a recarray with columns that correspond to the raw
         # stats HDF5 files.
