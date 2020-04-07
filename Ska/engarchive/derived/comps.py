@@ -133,7 +133,7 @@ class ComputedMsid:
             MSID format is "comp_<MSID>_plus_<offset>".
             '''
             # Regex to match including arguments <MSID> and <offset>
-            msid_match = r'comp_(\w+)_plus_(\d+)'
+            msid_match = r'comp_(\w+)_plus_(\d+)'  # noqa
 
             def get_msid_attrs(self, tstart, tstop, msid, msid_args):
                 offset = int(msid_args[1])
