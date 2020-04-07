@@ -105,7 +105,7 @@ def test_simple_comp_with_maude():
 
 
 def test_mups_valve():
-    colnames = ['times', 'vals', 'bads', 'vals_raw',
+    colnames = ['vals', 'times', 'bads', 'vals_raw',
                 'vals_nan', 'vals_corr', 'vals_model', 'source']
 
     dat = fetch.MSID('PM2THV1T_clean', '2020:001', '2020:010')
@@ -172,4 +172,3 @@ def test_stats(stat):
             assert np.allclose(val, valc)
         else:
             assert np.all(val == valc)
-

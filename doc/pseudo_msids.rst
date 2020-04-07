@@ -8,7 +8,8 @@ stream are also available in the archive.  These are:
 * ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
 * Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
 * SIM telemetry: SIM position and moving status
-* Derived parameters: values computed from other MSIDs in the archive
+* Derived parameters: values computed from other MSIDs in the archive and stored in archive files
+* Computed parameters: values computed on the fly from other MSIDs
 
 ACIS DEA housekeeping
 --------------------------------------------------
@@ -653,6 +654,39 @@ PCAD
 Thermal
 ^^^^^^^^^
 .. automodule:: Ska.engarchive.derived.thermal
+   :members:
+   :undoc-members:
+
+Computed MSIDs
+--------------
+
+Cheta provides support for on-the-fly computed MSIDs with the following features:
+
+* Designed for simplicity and ease of use by non-expert Ska3 users.
+* Following a simple recipe in user code, new MSIDs are automatically registered to fetch.
+* Computed MSIDs can included embedded parameters to allow further customization or application of a function to any other MSID.
+* Support for 5-minute and daily stats also included.
+
+What's the advantage?
+^^^^^^^^^^^^^^^^^^^^^
+
+If you have a function of MSID values, what is the advantage of going through
+this formalism to create a computed MSID instead of just using the function
+output directly?
+
+* It gives you the entire :func:`~Ska.engarchive.fetch.MSID` API!  You get for free all the
+  `fetch bling <https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/eng_archive/fetch_tutorial.html`_
+  like plotting, selecting intervals, kadi event integration, interpolation.
+* If your computed MSID is useful enough it will be trivial to add to the released ``cheta``
+  for other users.
+* It allows creation of arbitrary MSIDs that can be used in xija models.  Examples:
+  - ``pm2tv1t_clean`` as a ``Node`` component
+  - ``cmd_state_acisfp_temp_32`` as a telemetry input (``TelemData`` component).
+
+  Built-in computed MSIDs and API
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  .. automodule:: Ska.engarchive.derived.thermal
    :members:
    :undoc-members:
 

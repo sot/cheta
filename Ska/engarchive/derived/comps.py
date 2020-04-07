@@ -13,6 +13,8 @@ import numpy as np
 
 from Chandra.Time import DateTime
 
+__all__ = ['ComputedMsid', 'Comp_MUPS_Valve_Temp_Clean', 'Comp_KadiCommandState']
+
 
 def calc_stats_vals(msid, rows, indexes, interval):
     """
@@ -114,10 +116,45 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
 
 class ComputedMsid:
+    """Base class for cheta computed MSID.
+
+    Sub-classes must define at least the following:
+
+    * ``msid_match`` class attribute as a regex to match for the MSID.
+    * ``get_msid_attrs()`` method to perform the computation and return
+      a dict with the result.
+
+    Example::
+
+        class Comp_Val_Plus_Offset(ComputedMsid):
+            '''
+            Computed MSID to add an integer offset to MSID value.
+
+            MSID format is "comp_<MSID>_plus_<offset>".
+            '''
+            # Regex to match including arguments <MSID> and <offset>
+            msid_match = r'comp_(\w+)_plus_(\d+)'
+
+            def get_msid_attrs(self, tstart, tstop, msid, msid_args):
+                offset = int(msid_args[1])
+                dat = self.fetch_eng.MSID(msid_args[0], tstart, tstop)
+
+                # Must return a dict with at least `vals`, `times` and `bads`.
+                # Additional attributes are allowed and will be set on the
+                # final MSID object.
+                out = {'vals': dat.vals + int(msid_args[1]),
+                        'bads': dat.bads,
+                        'times': dat.times,
+                        'vals_raw': dat.vals,
+                        'offset': offset}
+                return out
+    """
     # Global dict of registered computed MSIDs
     msid_classes = []
 
     def __init_subclass__(cls, **kwargs):
+        """Validate and register ComputedMSID subclass.
+        """
         super().__init_subclass__(**kwargs)
 
         if not hasattr(cls, 'msid_match'):
@@ -134,6 +171,8 @@ class ComputedMsid:
 
         return None
 
+    # These three properties are provided as a convenience because the module
+    # itself cannot import fetch because this is circular.
     @property
     def fetch_eng(self):
         from .. import fetch_eng
