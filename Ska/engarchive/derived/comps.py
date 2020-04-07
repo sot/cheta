@@ -117,16 +117,8 @@ class ComputedMsid:
     # Global dict of registered computed MSIDs
     msid_classes = []
 
-    # Standard base MSID attributes that must be provided
-    msid_attrs = ('times', 'vals', 'bads')
-
-    # Extra MSID attributes that are provided beyond times, vals, bads
-    extra_msid_attrs = ()
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-
-        cls.msid_attrs = ComputedMsid.msid_attrs + cls.extra_msid_attrs
 
         if not hasattr(cls, 'msid_match'):
             raise ValueError(f'comp {cls.__name__} must define msid_match')
@@ -165,6 +157,10 @@ class ComputedMsid:
 
         if interval is None:
             msid_attrs = self.get_msid_attrs(tstart, tstop, msid.lower(), match_args)
+            for attr in ('vals', 'bads', 'times'):
+                if attr not in msid_attrs:
+                    raise ValueError(f'computed MSID {self.__class__.__name__} failed '
+                                     f'to set required attribute {attr}')
         else:
             msid_attrs = self.get_stats_attrs(tstart, tstop, msid.lower(), match_args, interval)
 
@@ -226,7 +222,6 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
     not important).
     """
     msid_match = r'(pm2thv1t|pm1thv2t)_clean'
-    extra_msid_attrs = ('vals_raw', 'vals_nan', 'vals_corr', 'vals_model', 'source')
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         """Get attributes for computed MSID: ``vals``, ``bads``, ``times``
@@ -244,8 +239,11 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
         dat = fetch_clean_msid(msid_args[0], tstart, tstop,
                                dt_thresh=5.0, median=7, model_spec=None, unit='degc')
 
-        # Convert to dict as required by the get_msids_attrs API
-        msid_attrs = {attr: getattr(dat, attr) for attr in self.msid_attrs}
+        # Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`
+        # returns an MSID object with the following attrs.
+        attrs = ('vals', 'times', 'bads', 'vals_raw', 'vals_nan',
+                 'vals_corr', 'vals_model', 'source')
+        msid_attrs = {attr: getattr(dat, attr) for attr in attrs}
 
         return msid_attrs
 
