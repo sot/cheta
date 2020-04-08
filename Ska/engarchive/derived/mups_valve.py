@@ -112,14 +112,8 @@ volt_with_resistor = [4.153325779, 3.676396578, 3.175100371, 2.587948965, 2.435,
                       1.538506813, 1.148359251, 0.63128179, 0.354868907, 0.208375569]
 volt_without_resistor = [28.223, 15, 9.1231, 5.5228, 4.87, 3.467, 2.249,
                          1.5027, 0.7253, 0.38276, 0.21769]
-temp_without_resistor = [50, 77, 100, 125, 130, 150, 175, 200, 250, 300, 350]
-
-volt_without_resistor_to_temp_without_resistor = interp1d(volt_without_resistor,
-                                                          temp_without_resistor)
-temp_without_resistor_to_volt_without_resistor = interp1d(temp_without_resistor,
-                                                          volt_without_resistor)
-volt_with_resistor_to_volt_without_resistor = interp1d(volt_with_resistor, volt_without_resistor)
-volt_without_resistor_to_volt_with_resistor = interp1d(volt_without_resistor, volt_with_resistor)
+volt_without_resistor_to_volt_with_resistor = interp1d(volt_without_resistor,
+                                                       volt_with_resistor)
 
 
 def get_corr_mups_temp(temp):
