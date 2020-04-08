@@ -1,4 +1,4 @@
-The Ska engineering telemetry archive is a suite of tools and data products
+The cheta engineering telemetry archive is a suite of tools and data products
 that make available the majority of all Chandra engineering telemetry since the
 start of year 2000.  This includes about 6300 MSIDs.  The telemetry are stored
 in a way that allows for very fast and efficient retrieval into memory.
