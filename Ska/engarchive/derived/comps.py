@@ -5,6 +5,8 @@ Support computed MSIDs in the cheta archive.
 - Base class ComputedMsid for user-generated comps.
 - Cleaned MUPS valve temperatures MSIDs: '(pm2thv1t|pm1thv2t)_clean'.
 - Commanded states 'cmd_state_<key>_<dt>' for any kadi commanded state value.
+
+See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
 """
 
 import re
@@ -208,9 +210,16 @@ class ComputedMsid:
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         """Get the attributes required for this MSID.
 
-        TODO: detailed docs here since this is the main user-defined method
+        Get attributes for computed MSID, which must include at least
+        ``vals``, ``bads``, ``times``, and may include additional attributes.
+
+        :param tstart: start time (CXC secs)
+        :param tstop: stop time (CXC secs)
+        :param msid: full MSID name e.g. tephin_plus_5
+        :param msid_args: tuple of regex match groups (msid_name,)
+        :returns: dict of MSID attributes
         """
-        raise NotImplementedError()
+        raise NotImplementedError('sub-class must implement get_msid_attrs()')
 
     def get_stats_attrs(self, tstart, tstop, msid, match_args, interval):
         from ..fetch import _plural
@@ -256,6 +265,7 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
     telemetry values that are consistent with a thermal model.
 
     https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/ipynb/misc/mups-valve-xija-filtering.ipynb
+    https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
 
     Allowed MSIDs are 'pm2thv1t_clean' and 'pm1thv2t_clean' (as always case is
     not important).
