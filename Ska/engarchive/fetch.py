@@ -1389,6 +1389,9 @@ class MSID(object):
         plot_cxctime(self.times, vals, *args, state_codes=self.state_codes,
                      **kwargs)
         plt.margins(0.02, 0.05)
+        plt.title(self.MSID)
+        if self.unit:
+            plt.ylabel(self.unit)
 
 
 class MSIDset(collections.OrderedDict):
