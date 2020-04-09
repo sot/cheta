@@ -82,11 +82,6 @@ def c2f(degc):
     return degf
 
 
-def f2c(degf):
-    degc = (degf - 32) / 1.8
-    return degc
-
-
 # Define MUPS valve thermistor point pair calibration table (from TDB).
 pp_counts = np.array([0, 27, 36, 44, 55, 70, 90, 118, 175, 195, 210, 219, 226, 231, 235, 255])
 pp_temps = np.array([369.5305, 263.32577, 239.03652, 222.30608, 203.6944, 183.2642, 161.0796,
@@ -186,8 +181,7 @@ def select_using_model(data1, data2, model, dt_thresh, out, source):
             source[ii] = 0
 
 
-def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7,
-                     model_spec=None, unit='degf'):
+def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None):
     """Fetch a cleaned version of telemetry for ``msid``.
 
     If not supplied the model spec will be downloaded from github using this URL:
@@ -212,7 +206,6 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7,
     :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
     :param median: length of median filter (default=7, use 0 to disable)
     :param model_spec: file name or URL containing relevant xija model spec
-    :param unit: temperature unit: 'degf' (default) or 'degc'
 
     :returns: fetch.Msid object
     """
@@ -245,21 +238,16 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7,
     source = np.zeros(len(dat.vals), dtype=int)
     select_using_model(t_obs, t_corr, t_model, dt_thresh=dt_thresh, out=out, source=source)
 
-    if unit not in ('degf', 'degc'):
-        raise ValueError('unit must be either degf or degc')
+    dat.vals_raw = dat.vals
 
-    convert = (lambda x: x) if unit == 'degf' else f2c
-
-    dat.vals_raw = convert(dat.vals)
-
-    dat.vals = convert(out)
-    dat.vals_nan = convert(out).copy()
+    dat.vals = out
+    dat.vals_nan = out.copy()
 
     dat.bads = (source == 0)
     dat.vals_nan[dat.bads] = np.nan
 
     dat.source = source
-    dat.vals_corr = convert(t_corr)
-    dat.vals_model = convert(t_model)
+    dat.vals_corr = t_corr
+    dat.vals_model = t_model
 
     return dat

@@ -93,6 +93,13 @@ def F_to_C(vals, delta_val=False):
         return (vals - 32.0) / 1.8
 
 
+def C_to_F(vals, delta_val=False):
+    if delta_val:
+        return vals * 1.8
+    else:
+        return vals * 1.8 + 32
+
+
 def C_to_K(vals, delta_val=False):
     if delta_val:
         return vals
@@ -171,6 +178,7 @@ converters = {
     ('mm', 'TSCSTEP'): mult(1.0 / 0.00251431530156, decimals=3),
     ('mm', 'FASTEP'): mm_to_FASTEP,
     ('PWM', 'PWMSTEP'): mult(16),
+    ('DEGC', 'DEGF'): C_to_F,
 
     # Eng units to CXC or Sci
     ('DEGC', 'K'): C_to_K,

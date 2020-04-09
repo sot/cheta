@@ -631,23 +631,28 @@ class MSID(object):
                         self._get_msid_data_from_maude(*args)
 
     def _get_comp_data(self, comp_cls):
-        logger.info(f'Getting comp data for {self.msid}')
+        logger.info(f'Getting computed values for {self.msid}')
 
         # Do computation.  This returns a dict of MSID attribute values.
-        dat = comp_cls()(self.tstart, self.tstop, self.msid, self.stat)
+        attrs = comp_cls(self.units['system'])(self.tstart, self.tstop, self.msid, self.stat)
 
         # Allow upstream class to be a bit sloppy on times and include samples
         # outside the time range.  This can happen with classes that inherit
         # from DerivedParameter.
-        ok = (dat['times'] >= self.tstart) & (dat['times'] <= self.tstop)
+        ok = (attrs['times'] >= self.tstart) & (attrs['times'] <= self.tstop)
         all_ok = np.all(ok)
 
+        # List of "colnames", which is the ndarray attributes.  There can be
+        # non-ndarray attributes that get returned, including typically 'unit'.
+        self.colnames = [attr for attr, val in attrs.items()
+                         if (isinstance(val, np.ndarray)
+                             and len(val) == len(attrs['times']))]
+
         # Apply attributes to self
-        self.colnames = list(dat)
-        for attr, val in dat.items():
+        for attr, val in attrs.items():
             if (not all_ok
                     and isinstance(val, np.ndarray)
-                    and len(val) == len(dat['times'])):
+                    and len(val) == len(attrs['times'])):
                 val = val[ok]
             setattr(self, attr, val)
 

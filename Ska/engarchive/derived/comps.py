@@ -12,8 +12,9 @@ See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAW
 import re
 
 import numpy as np
-
 from Chandra.Time import DateTime
+
+from ..units import converters as unit_converter_funcs
 
 __all__ = ['ComputedMsid', 'Comp_MUPS_Valve_Temp_Clean', 'Comp_KadiCommandState']
 
@@ -33,6 +34,8 @@ def calc_stats_vals(msid, rows, indexes, interval):
     :param rows: Msid row indices corresponding to stat boundaries
     :param indexes: Universal index values for stat (row times // dt)
     :param interval: interval name (5min or daily)
+
+    :returns: np.recarray of stats values
     """
     import scipy.stats
 
@@ -126,37 +129,23 @@ class ComputedMsid:
     * ``get_msid_attrs()`` method to perform the computation and return
       a dict with the result.
 
-    Example::
+    Optionally:
 
-        class Comp_Val_Plus_Offset(ComputedMsid):
-            '''
-            Computed MSID to add an integer offset to MSID value.
+    * ``units`` attribute to specify unit handling.
 
-            MSID format is "comp_<MSID>_plus_<offset>".
-            '''
-            # Regex to match including arguments <MSID> and <offset>
-            msid_match = r'comp_(\w+)_plus_(\d+)'  # noqa
-
-            def get_msid_attrs(self, tstart, tstop, msid, msid_args):
-                offset = int(msid_args[1])
-                dat = self.fetch_eng.MSID(msid_args[0], tstart, tstop)
-
-                # Must return a dict with at least `vals`, `times` and `bads`.
-                # Additional attributes are allowed and will be set on the
-                # final MSID object.
-                out = {'vals': dat.vals + int(msid_args[1]),
-                        'bads': dat.bads,
-                        'times': dat.times,
-                        'vals_raw': dat.vals,
-                        'offset': offset}
-                return out
+    See the fetch tutorial Computed MSIDs section for details.
     """
     # Global dict of registered computed MSIDs
     msid_classes = []
 
+    # Base units specification (None implies no unit handling)
+    units = None
+
+    def __init__(self, unit_system='eng'):
+        self.unit_system = unit_system
+
     def __init_subclass__(cls, **kwargs):
-        """Validate and register ComputedMSID subclass.
-        """
+        """Validate and register ComputedMSID subclass."""
         super().__init_subclass__(**kwargs)
 
         if not hasattr(cls, 'msid_match'):
@@ -166,6 +155,11 @@ class ComputedMsid:
 
     @classmethod
     def get_matching_comp_cls(cls, msid):
+        """Get computed classes that match ``msid``
+
+        :param msid: str, input msid
+        :returns: first ComputedMsid subclass that matches ``msid`` or None
+        """
         for comp_cls in ComputedMsid.msid_classes:
             match = re.match(comp_cls.msid_match + '$', msid, re.IGNORECASE)
             if match:
@@ -173,45 +167,101 @@ class ComputedMsid:
 
         return None
 
-    # These three properties are provided as a convenience because the module
+    # These four properties are provided as a convenience because the module
     # itself cannot import fetch because this is circular.
     @property
     def fetch_eng(self):
+        """Fetch in TDB engineering units like DEGF"""
         from .. import fetch_eng
         return fetch_eng
 
     @property
     def fetch_sci(self):
+        """Fetch in scientific units like DEGC"""
         from .. import fetch_sci
         return fetch_sci
 
     @property
     def fetch_cxc(self):
-        from .. import fetch_cxc
-        return fetch_cxc
+        """Fetch in CXC (FITS standard) units like K"""
+        from .. import fetch
+        return fetch
+
+    @property
+    def fetch_sys(self):
+        """Fetch in the unit system specified for the class"""
+        fetch = getattr(self, f'fetch_{self.unit_system}')
+        return fetch
 
     def __call__(self, tstart, tstop, msid, interval=None):
+        """Emulate the fetch.MSID() API, but return a dict of MSID attributes.
+
+        The returned dict turned into a proper MSID object by the upstream caller
+        `fetch.MSID._get_comp_data()`.
+
+        :param tstart: float, start time (CXC seconds)
+        :param tstop: float, stop time (CXC seconds)
+        :param msid: str, MSID name
+        :param interval: str or None, stats interval (None, '5min', 'daily')
+
+        :returns: dict of MSID attributes including 'times', 'vals', 'bads'
+        """
+        # Parse any arguments from the input `msid`
         match = re.match(self.msid_match, msid, re.IGNORECASE)
         if not match:
             raise RuntimeError(f'unexpected mismatch of {msid} with {self.msid_match}')
         match_args = [arg.lower() for arg in match.groups()]
 
         if interval is None:
+            # Call the actual user-supplied work method to compute the MSID values
             msid_attrs = self.get_msid_attrs(tstart, tstop, msid.lower(), match_args)
-            for attr in ('vals', 'bads', 'times'):
+
+            for attr in ('vals', 'bads', 'times', 'unit'):
                 if attr not in msid_attrs:
                     raise ValueError(f'computed MSID {self.__class__.__name__} failed '
                                      f'to set required attribute {attr}')
+
+            # Presence of a non-None `units` class attribute means that the MSID has
+            # units that should be converted to `self.unit_system` if required, where
+            # unit_system is 'cxc', 'sci', or 'eng'.
+            if self.units is not None:
+                msid_attrs = self.convert_units(msid_attrs)
         else:
-            msid_attrs = self.get_stats_attrs(tstart, tstop, msid.lower(), match_args, interval)
+            msid_attrs = self.get_stats_attrs(tstart, tstop, msid.lower(), match_args,
+                                              interval)
 
         return msid_attrs
+
+    def convert_units(self, msid_attrs):
+        """
+        Convert required elements of ``msid_attrs`` to ``self.unit_system``.
+
+        Unit_system can be one of 'cxc', 'sci', 'eng'.
+
+        :param msid_attrs: dict, input MSID attributes
+        :param unit_system: str, unit system
+
+        :returns: dict, converted MSID attributes
+        """
+        unit_current = self.units[self.units['internal_system']]
+        unit_new = self.units[self.unit_system]
+
+        out = msid_attrs.copy()
+        out['unit'] = unit_new
+
+        if unit_current != unit_new:
+            for attr in self.units['convert_attrs']:
+                out[attr] = unit_converter_funcs[unit_current, unit_new](msid_attrs[attr])
+
+        return out
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         """Get the attributes required for this MSID.
 
         Get attributes for computed MSID, which must include at least
         ``vals``, ``bads``, ``times``, and may include additional attributes.
+
+        This MUST be supplied by sub-classes.
 
         :param tstart: start time (CXC secs)
         :param tstop: stop time (CXC secs)
@@ -222,6 +272,16 @@ class ComputedMsid:
         raise NotImplementedError('sub-class must implement get_msid_attrs()')
 
     def get_stats_attrs(self, tstart, tstop, msid, match_args, interval):
+        """Get 5-min or daily stats attributes.
+
+        This is normally not overridden by sub-classes.
+
+        :param tstart: start time (CXC secs)
+        :param tstop: stop time (CXC secs)
+        :param msid: full MSID name e.g. tephin_plus_5
+        :param msid_args: tuple of regex match groups (msid_name,)
+        :returns: dict of MSID attributes
+        """
         from ..fetch import _plural
 
         # Replicate a stripped-down version of processing in update_archive.
@@ -233,7 +293,9 @@ class ComputedMsid:
         index1 = int(np.ceil(tstop / dt))
         tstart = (index0 - 1) * dt
         tstop = (index1 + 1) * dt
-        msid_obj = self.fetch_eng.Msid(msid, tstart, tstop)
+
+        msid_obj = self.fetch_sys.Msid(msid, tstart, tstop)
+
         indexes = np.arange(index0, index1 + 1)
         times = indexes * dt  # This is the *start* time of each bin
 
@@ -253,8 +315,13 @@ class ComputedMsid:
         out['bads'] = np.zeros(len(vals_stats), dtype=bool)
         out['midvals'] = out['vals']
         out['vals'] = out['means']
+        out['unit'] = msid_obj.unit
 
         return out
+
+############################################################################
+#  Built-in computed MSIDs
+############################################################################
 
 
 class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
@@ -272,8 +339,17 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
     """
     msid_match = r'(pm2thv1t|pm1thv2t)_clean'
 
+    units = {
+        'internal_system': 'eng',  # Unit system for attrs from get_msid_attrs()
+        'eng': 'DEGF',  # Units for eng, sci, cxc systems
+        'sci': 'DEGC',
+        'cxc': 'K',
+        # Attributes that need conversion
+        'convert_attrs': ['vals', 'vals_raw', 'vals_nan', 'vals_corr', 'vals_model']
+    }
+
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
-        """Get attributes for computed MSID: ``vals``, ``bads``, ``times``
+        """Get attributes for computed MSID: ``vals``, ``bads``, ``times``, ``unit``
 
         :param tstart: start time (CXC secs)
         :param tstop: stop time (CXC secs)
@@ -286,13 +362,14 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
 
         # Get cleaned MUPS valve temperature data as an MSID object
         dat = fetch_clean_msid(msid_args[0], tstart, tstop,
-                               dt_thresh=5.0, median=7, model_spec=None, unit='degc')
+                               dt_thresh=5.0, median=7, model_spec=None)
 
         # Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`
         # returns an MSID object with the following attrs.
         attrs = ('vals', 'times', 'bads', 'vals_raw', 'vals_nan',
                  'vals_corr', 'vals_model', 'source')
         msid_attrs = {attr: getattr(dat, attr) for attr in attrs}
+        msid_attrs['unit'] = 'DEGF'
 
         return msid_attrs
 
@@ -301,9 +378,10 @@ class Comp_KadiCommandState(ComputedMsid):
     """Computed MSID for kadi dynamic commanded states.
 
     The MSID here takes the form ``cmd_state_<state_key>_<dt>`` where:
-    - ``state_key`` is a valid commanded state key such as ``pitch`` or
+    
+    * ``state_key`` is a valid commanded state key such as ``pitch`` or
       ``pcad_mode`` or ``acisfp_temp``.
-    - ``dt`` is the sampling time expressed as a multiple of 1.025 sec
+    * ``dt`` is the sampling time expressed as a multiple of 1.025 sec
       frames.
 
     Example MSID names::
@@ -340,6 +418,7 @@ class Comp_KadiCommandState(ComputedMsid):
 
         out = {'vals': vals[indexes],
                'times': times,
-               'bads': np.zeros(len(times), dtype=bool)}
+               'bads': np.zeros(len(times), dtype=bool),
+               'unit': None}
 
         return out

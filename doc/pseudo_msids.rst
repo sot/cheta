@@ -720,8 +720,8 @@ requirements for defining a computed MSID::
         def get_msid_attrs(self, tstart, tstop, msid, msid_args):
             """
             Get attributes for computed MSID: ``vals``, ``bads``, ``times``,
-            ``raw_vals``, and ``offset``.  The first three must always be
-            provided.
+            ``unit``, ``raw_vals``, and ``offset``.  The first four must always
+            be provided.
 
             :param tstart: start time (CXC secs)
             :param tstop: stop time (CXC secs)
@@ -733,22 +733,55 @@ requirements for defining a computed MSID::
             msid  msid_args[0]
             offset = int(msid_args[1])
 
-            # Get the raw telemetry value in engineering units
-            dat = self.fetch_eng.MSID(msid, tstart, tstop)
+            # Get the raw telemetry value in user-requested unit system
+            dat = self.fetch_sys.MSID(msid, tstart, tstop)
 
             # Do the computation
             vals = dat.vals + offset
 
-            # Return a dict with at least `vals`, `times` and `bads`.
+            # Return a dict with at least `vals`, `times`, `bads`, and `unit`.
             # Additional attributes are allowed and will be set on the
             # final MSID object.
             out = {'vals': vals,
                     'bads': dat.bads,
                     'times': dat.times,
+                    'unit': dat.unit,
                     'vals_raw': dat.vals,  # Provide original values without offset
                     'offset': offset  # Provide the offset for reference
                     }
             return out
+
+Units
+^^^^^
+
+Computed MSIDs should support units where applicable.  In the example above
+this was done by using ``self.fetch_sys`` in order to get the original data
+in the user-requested system.  In other words, if the user did a call
+``dat = fetch_sci.Msid('msid_plus_8', '2010:001', '2010:002')``, then
+``self.fetch_sys`` would translate to ``self.fetch_sci``.
+
+In some cases the unit handling may require additional specification. This
+can happen if the computation needs to be done in a particular unit, as is
+the case for the built-in
+:class:`~Ska.engarchive.derived.comps.Comp_MUPS_Valve_Temp_Clean` class.
+Here the class must define an additional ``units`` attribute with the
+following structure::
+
+    units = {
+        # Unit system for attrs from get_msid_attrs(), one of 'eng', 'sci', 'cxc'
+        'internal_system': 'eng',
+
+        # Units for eng, sci, cxc systems
+        'eng': 'DEGF',
+        'sci': 'DEGC',
+        'cxc': 'K',
+
+        # Attributes that need conversion.  At least `vals` but maybe others.
+        'convert_attrs': ['vals']
+    }
+
+The specified units must all be convertable using functions defined in the
+``converters`` dict in the ``Ska.engarchive.units`` module.
 
 Built-in computed MSIDs and API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
