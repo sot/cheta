@@ -7,7 +7,7 @@ Support computed MSIDs in the cheta archive.
 - Commanded states 'cmd_state_<key>_<dt>' for any kadi commanded state value.
 
 See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
-"""
+""" # noqa
 
 import re
 
@@ -378,7 +378,7 @@ class Comp_KadiCommandState(ComputedMsid):
     """Computed MSID for kadi dynamic commanded states.
 
     The MSID here takes the form ``cmd_state_<state_key>_<dt>`` where:
-    
+
     * ``state_key`` is a valid commanded state key such as ``pitch`` or
       ``pcad_mode`` or ``acisfp_temp``.
     * ``dt`` is the sampling time expressed as a multiple of 1.025 sec
