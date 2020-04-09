@@ -8,7 +8,8 @@ stream are also available in the archive.  These are:
 * ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
 * Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
 * SIM telemetry: SIM position and moving status
-* Derived parameters: values computed from other MSIDs in the archive
+* Derived parameters: values computed from other MSIDs in the archive and stored in archive files
+* Computed parameters: values computed on the fly from other MSIDs
 
 ACIS DEA housekeeping
 --------------------------------------------------
@@ -653,6 +654,139 @@ PCAD
 Thermal
 ^^^^^^^^^
 .. automodule:: Ska.engarchive.derived.thermal
+   :members:
+   :undoc-members:
+
+Computed MSIDs
+--------------
+
+Cheta provides support for on-the-fly computed MSIDs with the following features:
+
+* Designed for simplicity and ease of use by non-expert Ska3 users.
+* Following a simple recipe in user code, new MSIDs are automatically registered
+  to fetch.
+* Computed MSIDs can included embedded parameters to allow further customization
+  or application of a function to any other MSID.
+* Support for 5-minute and daily stats also included.
+
+See the `DAWG computed MSIDs notebook
+<https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-cheta-computed-msids.ipynb>`_
+for a longer introduction to the topic with a number of examples.
+
+What's the advantage?
+^^^^^^^^^^^^^^^^^^^^^
+
+If you have a function of MSID values, what is the advantage of going through
+this formalism to create a computed MSID instead of just using the function
+output directly?
+
+* It gives you the entire fetch API!  You get for free all the
+  `fetch bling <https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/eng_archive/fetch_tutorial.html>`_
+  like plotting, selecting intervals, kadi event integration, interpolation.
+* If your computed MSID is useful to the community it is simple to add to the
+  released ``cheta`` package for other users.
+* It allows creation of arbitrary MSIDs that can be used in xija models.  Examples:
+  * ``pm2tv1t_clean`` as a ``Node`` component
+  * ``cmd_state_acisfp_temp_32`` as a telemetry input (``TelemData`` component).
+
+Example
+^^^^^^^
+
+This example is not terribly useful but illustrates the key concepts and
+requirements for defining a computed MSID::
+
+    from cheta.derived.comps import ComputedMsid  # Inherit from this class
+
+    # Class name is arbitrary, but by convention start with `Comp_`
+    class Comp_Val_Plus_Offset(ComputedMsid):
+        """
+        Computed MSID to add an integer offset to MSID value.
+
+        MSID format is "<MSID>_plus_<offset>", where <MSID> is an existing MSID
+        in the archive and <offset> is an integer offset.
+
+        """
+        msid_match = r'(\w+)_plus_(\d+)'
+
+        # `msid_match` is a class attribute that defines a regular expresion to
+        # match for this computed MSID.  This must be defined and it must be
+        # unambiguous (not matching an existing MSID or other computed MSID).
+        #
+        # The two groups in parentheses specify the arguments <MSID> and <offset>.
+        # These are passed to `get_msid_attrs` as msid_args[0] and msid_args[1].
+        # The \w symbol means to match a-z, A-Z, 0-9 and underscore (_).
+        # The \d symbol means to match digits 0-9.
+
+        def get_msid_attrs(self, tstart, tstop, msid, msid_args):
+            """
+            Get attributes for computed MSID: ``vals``, ``bads``, ``times``,
+            ``unit``, ``raw_vals``, and ``offset``.  The first four must always
+            be provided.
+
+            :param tstart: start time (CXC secs)
+            :param tstop: stop time (CXC secs)
+            :param msid: full MSID name e.g. tephin_plus_5
+            :param msid_args: tuple of regex match groups (msid_name,)
+            :returns: dict of MSID attributes
+            """
+            # Process the arguments parsed from the MSID
+            msid  msid_args[0]
+            offset = int(msid_args[1])
+
+            # Get the raw telemetry value in user-requested unit system
+            dat = self.fetch_sys.MSID(msid, tstart, tstop)
+
+            # Do the computation
+            vals = dat.vals + offset
+
+            # Return a dict with at least `vals`, `times`, `bads`, and `unit`.
+            # Additional attributes are allowed and will be set on the
+            # final MSID object.
+            out = {'vals': vals,
+                    'bads': dat.bads,
+                    'times': dat.times,
+                    'unit': dat.unit,
+                    'vals_raw': dat.vals,  # Provide original values without offset
+                    'offset': offset  # Provide the offset for reference
+                    }
+            return out
+
+Units
+^^^^^
+
+Computed MSIDs should support units where applicable.  In the example above
+this was done by using ``self.fetch_sys`` in order to get the original data
+in the user-requested system.  In other words, if the user did a call
+``dat = fetch_sci.Msid('msid_plus_8', '2010:001', '2010:002')``, then
+``self.fetch_sys`` would translate to ``self.fetch_sci``.
+
+In some cases the unit handling may require additional specification. This
+can happen if the computation needs to be done in a particular unit, as is
+the case for the built-in
+:class:`~Ska.engarchive.derived.comps.Comp_MUPS_Valve_Temp_Clean` class.
+Here the class must define an additional ``units`` attribute with the
+following structure::
+
+    units = {
+        # Unit system for attrs from get_msid_attrs(), one of 'eng', 'sci', 'cxc'
+        'internal_system': 'eng',
+
+        # Units for eng, sci, cxc systems
+        'eng': 'DEGF',
+        'sci': 'DEGC',
+        'cxc': 'K',
+
+        # Attributes that need conversion.  At least `vals` but maybe others.
+        'convert_attrs': ['vals']
+    }
+
+The specified units must all be convertable using functions defined in the
+``converters`` dict in the ``Ska.engarchive.units`` module.
+
+Built-in computed MSIDs and API
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  .. automodule:: Ska.engarchive.derived.comps
    :members:
    :undoc-members:
 

@@ -1547,7 +1547,7 @@ local or remote.
 In order to use this option, the user must have a special key file
 ``ska_remote_access.json``placed at the root of the local Python installation folder.  This is
 placed in the directory shown with ``import sys; print(sys.prefix)``.  To get a copy of this file
- contact Mark Baski or Tom Aldcroft.
+contact Mark Baski or Tom Aldcroft.
 
 Remote access is controlled as follows:
 
@@ -1559,3 +1559,11 @@ Remote access is controlled as follows:
   is *enabled* unless the system finds a local engineering data archive.  It looks
   for data in either ``$SKA/data/eng_archive`` or ``$ENG_ARCHIVE``, where those
   refer to user-defined environment variables.
+
+Local cheta archive
+===================
+
+Instructions for creating, using, and maintaining a local cheta archive (on your
+laptop for instance) are found at the `Tutorial for installing and maintaining a
+cheta telemetry archive
+<https://github.com/sot/eng_archive/wiki/Tutorial:-install-and-maintain-cheta-telemetry-archive>`_.

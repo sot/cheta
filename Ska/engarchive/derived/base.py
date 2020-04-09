@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 from Chandra.Time import DateTime
-from .. import fetch, fetch_eng
 import Ska.Numpy
 import numpy as np
 from .. import cache
@@ -35,6 +34,8 @@ class DerivedParameter(object):
         raise NotImplementedError
 
     def fetch(self, start, stop):
+        from .. import fetch
+
         unit_system = fetch.get_units()  # cache current units and restore after fetch
         fetch.set_units(self.unit_system)
         dataset = fetch.MSIDset(self.rootparams, start, stop)
@@ -89,6 +90,7 @@ class DerivedParameter(object):
         return dataset
 
     def __call__(self, start, stop):
+        from .. import fetch_eng
         dataset = fetch_eng.MSIDset(self.rootparams, start, stop, filter_bad=True)
 
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.

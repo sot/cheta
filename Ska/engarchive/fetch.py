@@ -29,6 +29,7 @@ from .units import Units
 from . import cache
 from . import remote_access
 from .remote_access import ENG_ARCHIVE
+from .derived.comps import ComputedMsid
 from . import __version__  # noqa
 
 from Chandra.Time import DateTime
@@ -377,6 +378,11 @@ def msid_glob(msid):
     msids = collections.OrderedDict()
     MSIDS = collections.OrderedDict()
 
+    # First check if `msid` matches a computed class.  This does not allow
+    # for globs, and here the output MSIDs is the single computed class.
+    if ComputedMsid.get_matching_comp_cls(msid) is not None:
+        return [msid], [msid.upper()]
+
     sources = data_source.sources(include_test=False)
     for source in sources:
         ms, MS = _msid_glob(msid, source)
@@ -401,7 +407,6 @@ def _msid_glob(msid, source):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
-
     source_msids = data_source.get_msids(source)
 
     MSID = msid.upper()
@@ -578,6 +583,11 @@ class MSID(object):
         logger.info('Getting data for %s between %s to %s',
                     self.msid, self.datestart, self.datestop)
 
+        comp_cls = ComputedMsid.get_matching_comp_cls(self.msid)
+        if comp_cls:
+            self._get_comp_data(comp_cls)
+            return
+
         # Avoid stomping on caller's filetype 'ft' values with _cache_ft()
         with _cache_ft():
             ft['content'] = self.content
@@ -619,6 +629,32 @@ class MSID(object):
                         # Update self.vals, times, bads in place.  This might concatenate MAUDE
                         # telemetry to existing CXC values.
                         self._get_msid_data_from_maude(*args)
+
+    def _get_comp_data(self, comp_cls):
+        logger.info(f'Getting computed values for {self.msid}')
+
+        # Do computation.  This returns a dict of MSID attribute values.
+        attrs = comp_cls(self.units['system'])(self.tstart, self.tstop, self.msid, self.stat)
+
+        # Allow upstream class to be a bit sloppy on times and include samples
+        # outside the time range.  This can happen with classes that inherit
+        # from DerivedParameter.
+        ok = (attrs['times'] >= self.tstart) & (attrs['times'] <= self.tstop)
+        all_ok = np.all(ok)
+
+        # List of "colnames", which is the ndarray attributes.  There can be
+        # non-ndarray attributes that get returned, including typically 'unit'.
+        self.colnames = [attr for attr, val in attrs.items()
+                         if (isinstance(val, np.ndarray)
+                             and len(val) == len(attrs['times']))]
+
+        # Apply attributes to self
+        for attr, val in attrs.items():
+            if (not all_ok
+                    and isinstance(val, np.ndarray)
+                    and len(val) == len(attrs['times'])):
+                val = val[ok]
+            setattr(self, attr, val)
 
     def _get_stat_data(self):
         """Do the actual work of getting stats values for an MSID from HDF5
