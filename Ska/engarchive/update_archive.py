@@ -811,7 +811,7 @@ def truncate_archive(filetype, date):
             os.unlink(filename)
             logger.info(f'Removed {filename}')
 
-    cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy, year)
+    cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy)
     if not opt.dry_run:
         db.execute(cmd)
         db.commit()
