@@ -1003,12 +1003,12 @@ def update_msid_files(filetype, archfiles):
             logger.warning('WARNING: found gap of %.2f secs between archfiles %s and %s',
                            time_gap, last_archfile['filename'], archfiles_row['filename'])
             if opt.create:
-                logger.warning('       Allowing gap because of opt.create=True')
+                logger.warning('WARNING: Allowing gap because of opt.create=True')
             elif DateTime() - DateTime(archfiles_row['tstart']) > opt.allow_gap_after_days:
                 # After 4 days (by default) just let it go through because this is
                 # likely a real gap and will not be fixed by subsequent processing.
                 # This can happen after normal sun mode to SIM products.
-                logger.warning('       Allowing gap because arch file '
+                logger.warning('WARNING: Allowing gap because arch file '
                                'start is more than {} days old'
                                .format(opt.allow_gap_after_days))
             else:
