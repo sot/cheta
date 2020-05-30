@@ -741,7 +741,7 @@ def append_h5_col(dats, colname, files_overlaps):
                     # record.  Thus file0['tstop'] is generally very close to file1['tstart'],
                     # but in this case there can a tiny overlap (<< 1 ms) that triggers an
                     # overlap entry.
-                    logger.verbose('WARNING: Unexpected null file overlap file0=%s file1=%s'
+                    logger.verbose('INFO: Unexpected null file overlap file0=%s file1=%s'
                                    % (file0, file1))
 
     data_len = len(h5.root.data)
