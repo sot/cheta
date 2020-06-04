@@ -741,7 +741,7 @@ def append_h5_col(dats, colname, files_overlaps):
                     # record.  Thus file0['tstop'] is generally very close to file1['tstart'],
                     # but in this case there can a tiny overlap (<< 1 ms) that triggers an
                     # overlap entry.
-                    logger.verbose('WARNING: Unexpected null file overlap file0=%s file1=%s'
+                    logger.verbose('INFO: Unexpected null file overlap file0=%s file1=%s'
                                    % (file0, file1))
 
     data_len = len(h5.root.data)
@@ -811,7 +811,7 @@ def truncate_archive(filetype, date):
             os.unlink(filename)
             logger.info(f'Removed {filename}')
 
-    cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy, year)
+    cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(year, doy)
     if not opt.dry_run:
         db.execute(cmd)
         db.commit()
@@ -1003,12 +1003,12 @@ def update_msid_files(filetype, archfiles):
             logger.warning('WARNING: found gap of %.2f secs between archfiles %s and %s',
                            time_gap, last_archfile['filename'], archfiles_row['filename'])
             if opt.create:
-                logger.warning('       Allowing gap because of opt.create=True')
+                logger.warning('WARNING: Allowing gap because of opt.create=True')
             elif DateTime() - DateTime(archfiles_row['tstart']) > opt.allow_gap_after_days:
                 # After 4 days (by default) just let it go through because this is
                 # likely a real gap and will not be fixed by subsequent processing.
                 # This can happen after normal sun mode to SIM products.
-                logger.warning('       Allowing gap because arch file '
+                logger.warning('WARNING: Allowing gap because arch file '
                                'start is more than {} days old'
                                .format(opt.allow_gap_after_days))
             else:
