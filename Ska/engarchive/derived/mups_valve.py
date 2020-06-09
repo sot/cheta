@@ -134,7 +134,7 @@ def get_corr_mups_temp(temp):
     return new_temp
 
 
-@numba.jit()
+@numba.jit(nopython=True)
 def select_using_model(data1, data2, model, dt_thresh, out, source):
     """Select from either ``data1`` or ``data2`` using ``model`` to get clean data.
 
