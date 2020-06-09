@@ -262,7 +262,7 @@ def update_index_file(index_file, opt, logger):
     # to --max-days based on file time stamp (which is an integer in CXC secs).
     rows = []
     filename = fetch.msid_files['archfiles'].abs
-    logger.debug(f'Opening archfiles {filename}')
+    logger.verbose(f'Opening archfiles {filename}')
     with DBI(dbi='sqlite', server=filename) as dbi:
         while True:
             filetime1 = min(filetime0 + max_secs, time_stop)
@@ -336,7 +336,7 @@ def update_sync_data_full(content, logger, row):
 
     outfile = Path(sync_files['data'].abs)
     if outfile.exists():
-        logger.debug(f'Skipping {outfile}, already exists')
+        logger.verbose(f'Skipping {outfile}, already exists')
         return
 
     out = {}
@@ -399,8 +399,8 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
     """
     dt = STATS_DT[stat]
 
-    logger.debug(f'_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, '
-                 f'{DateTime(tstop).fits}, {last_row1})')
+    logger.verbose(f'_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, '
+                   f'{DateTime(tstop).fits}, {last_row1})')
 
     with tables.open_file(filename, 'r') as h5:
         # Check if tstart is beyond the end of the table.  If so, return an empty table
@@ -408,8 +408,8 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
         last_index = table[-1]['index']
         last_time = (last_index + 0.5) * dt
         if tstart > last_time:
-            logger.debug(f'No available stats data {DateTime(tstart).fits} > '
-                         f'{DateTime(last_time).fits} (returning empty table)')
+            logger.verbose(f'No available stats data {DateTime(tstart).fits} > '
+                           f'{DateTime(last_time).fits} (returning empty table)')
             row0 = row1 = len(table)
             table_rows = table[row0:row1]
         else:
@@ -418,6 +418,12 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
             # missing data.  But if we back up by delta_rows, we are guaranteed to get to at
             # least the row corresponding to tstart.
             delta_rows = int((last_time - tstart) / dt) + 10
+
+            # For rarely sampled data like CPE1ENG, delta_rows can end up being larger than the
+            # table due to the gaps.  Therefore clip to the length of the table.
+            if delta_rows > len(table):
+                delta_rows = len(table)
+
             times = (table[-delta_rows:]['index'] + 0.5) * dt
 
             # In the worst case of starting to sync a client archive for a rarely-sampled
@@ -459,7 +465,7 @@ def update_sync_data_stat(content, logger, row, stat):
 
     outfile = Path(sync_files['data'].abs)
     if outfile.exists():
-        logger.debug(f'Skipping {outfile}, already exists')
+        logger.verbose(f'Skipping {outfile}, already exists')
         return
 
     # First get the times corresponding to row0 and row1 in the full resolution archive
