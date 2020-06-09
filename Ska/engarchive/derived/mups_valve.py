@@ -134,7 +134,7 @@ def get_corr_mups_temp(temp):
     return new_temp
 
 
-@numba.autojit()
+@numba.jit(nopython=True)
 def select_using_model(data1, data2, model, dt_thresh, out, source):
     """Select from either ``data1`` or ``data2`` using ``model`` to get clean data.
 
@@ -151,12 +151,6 @@ def select_using_model(data1, data2, model, dt_thresh, out, source):
     :param out: ndarray where output cleaned data is stored (must be same length as data)
     :param source: ndarray where output source labeling is stored (same length as data)
     """
-    # Select all data where either data1 or data2 are within dt_thresh of model
-    for data, source_id in [(data1, 1), (data2, 2)]:
-        ok = np.abs(data - model) < dt_thresh
-        out[ok] = data[ok]
-        source[ok] = source_id
-
     # Fill in gaps where possible by propagating model from last good data value
     for ii in range(len(data1)):
         if source[ii] != 0:
@@ -181,7 +175,8 @@ def select_using_model(data1, data2, model, dt_thresh, out, source):
             source[ii] = 0
 
 
-def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None):
+def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
+                     branch='master'):
     """Fetch a cleaned version of telemetry for ``msid``.
 
     If not supplied the model spec will be downloaded from github using this URL:
@@ -210,7 +205,7 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
     :returns: fetch.Msid object
     """
     if model_spec is None or not os.path.exists(model_spec):
-        url = (f'https://raw.githubusercontent.com/sot/chandra_models/master/chandra_models/xija/'
+        url = (f'https://raw.githubusercontent.com/sot/chandra_models/{branch}/chandra_models/xija/'
                f'mups_valve/{msid}_spec.json')
         model_spec = download_file(url, cache=True)
 
@@ -236,6 +231,13 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
 
     out = np.zeros_like(dat.vals)
     source = np.zeros(len(dat.vals), dtype=int)
+
+    # Select all data where either data1 or data2 are within dt_thresh of model
+    for data, source_id in [(t_obs, 1), (t_corr, 2)]:
+        ok = np.abs(data - t_model) < dt_thresh
+        out[ok] = data[ok]
+        source[ok] = source_id
+
     select_using_model(t_obs, t_corr, t_model, dt_thresh=dt_thresh, out=out, source=source)
 
     dat.vals_raw = dat.vals
