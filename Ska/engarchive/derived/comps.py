@@ -210,7 +210,7 @@ class ComputedMsid:
         match = re.match(self.msid_match, msid, re.IGNORECASE)
         if not match:
             raise RuntimeError(f'unexpected mismatch of {msid} with {self.msid_match}')
-        match_args = [arg.lower() for arg in match.groups()]
+        match_args = [arg.lower() if isinstance(arg, str) else arg for arg in match.groups()]
 
         if interval is None:
             # Call the actual user-supplied work method to compute the MSID values
@@ -335,9 +335,12 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
     https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
 
     Allowed MSIDs are 'pm2thv1t_clean' and 'pm1thv2t_clean' (as always case is
-    not important).
+    not important). Optionally one can include the ``chandra_models`` branch name,
+    tag or commit hash to used for reading the MUPS 1B and MUPS 2A thermal model
+    specifications. For example you can use 'pm1thv2t_clean_3.28' to get the model
+    from release 3.28 of chandra_models.
     """
-    msid_match = r'(pm2thv1t|pm1thv2t)_clean'
+    msid_match = r'(pm2thv1t|pm1thv2t)_clean(_[\w\.]+)?'
 
     units = {
         'internal_system': 'eng',  # Unit system for attrs from get_msid_attrs()
@@ -360,9 +363,13 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
         """
         from .mups_valve import fetch_clean_msid
 
+        # Git branch of chandra_models to use for MUPS model spec from 2nd match group.
+        # If not supplied it will be None so use master.
+        branch = 'master' if msid_args[1] is None else msid_args[1][1:]
+
         # Get cleaned MUPS valve temperature data as an MSID object
         dat = fetch_clean_msid(msid_args[0], tstart, tstop,
-                               dt_thresh=5.0, median=7, model_spec=None)
+                               dt_thresh=5.0, median=7, model_spec=None, branch=branch)
 
         # Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`
         # returns an MSID object with the following attrs.

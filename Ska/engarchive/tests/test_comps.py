@@ -121,29 +121,30 @@ def test_mups_valve():
     colnames = ['vals', 'times', 'bads', 'vals_raw',
                 'vals_nan', 'vals_corr', 'vals_model', 'source']
 
-    dat = fetch_eng.MSID('PM2THV1T_clean', '2020:001', '2020:010')
+    # Use the 3.30 release always for testing.
+    dat = fetch_eng.MSID('PM2THV1T_clean_3.30', '2020:001', '2020:010')
     assert dat.unit == 'DEGF'
     assert len(dat.vals) == 36661
     ok = dat.source != 0
     # Temps are reasonable for degF
     assert np.all((dat.vals[ok] > 55) & (dat.vals[ok] < 220))
-    assert np.count_nonzero(ok) == 34499
+    assert np.count_nonzero(ok) == 31524
     assert dat.colnames == colnames
     for attr in colnames:
         assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch_sci.Msid('PM2THV1T_clean', '2020:001', '2020:010')
+    dat = fetch_sci.Msid('PM2THV1T_clean_3.30', '2020:001', '2020:010')
     assert dat.unit == 'DEGC'
     ok = dat.source != 0
     # Temps are reasonable for degC
     assert np.all((dat.vals[ok] > 10) & (dat.vals[ok] < 110))
-    assert len(dat.vals) == 34499  # Some bad values
+    assert len(dat.vals) == 31524  # Some bad values
     assert dat.colnames == colnames
     for attr in colnames:
         if attr != 'bads':
             assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch_cxc.MSID('PM1THV2T_clean', '2020:001', '2020:010')
+    dat = fetch_cxc.MSID('PM1THV2T_clean_3.30', '2020:001', '2020:010')
     ok = dat.source != 0
     # Temps are reasonable for K
     assert np.all((dat.vals[ok] > 280) & (dat.vals[ok] < 380))
@@ -152,6 +153,7 @@ def test_mups_valve():
     for attr in colnames:
         assert len(dat.vals) == len(getattr(dat, attr))
 
+    # Check using default master branch
     dat = fetch_eng.Msid('pm1thv2t_clean', '2020:001', '2020:010')
     assert len(dat.vals) == 36240  # Some bad values
     assert len(dat.source) == 36240  # Filtering applies to sources
