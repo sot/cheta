@@ -40,7 +40,7 @@ def test_filter_bad_times_overlap():
     OK to supply overlapping bad times
     """
     msid_bad_times_cache = deepcopy(fetch.msid_bad_times)
-    dat = fetch.MSID('aogbias1', '2008:290', '2008:300', stat='daily')
+    dat = fetch.MSID('aogbias1', '2008:290:12:00:00', '2008:300:12:00:00', stat='daily')
     fetch.read_bad_times(['aogbias1 2008:292:00:00:00 2008:297:00:00:00'])
     fetch.read_bad_times(['aogbias1 2008:292:00:00:00 2008:297:00:00:00'])
     dat.filter_bad_times()
@@ -54,7 +54,7 @@ def test_filter_bad_times_overlap():
 
 
 def test_filter_bad_times_list():
-    dat = fetch.MSID('aogyrct1', '2008:291', '2008:298')
+    dat = fetch.MSID('aogyrct1', '2008:291:12:00:00', '2008:298:12:00:00')
     # 2nd test of repr here where we have an MSID object handy
     assert repr(dat) == ('<MSID start=2008:291:12:00:00.000 '
                          'stop=2008:298:12:00:00.000 len=2360195 dtype=int16>')
@@ -63,19 +63,19 @@ def test_filter_bad_times_list():
     dates = DateTime(dat.times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
 
-    dat = fetch.Msid('aogyrct1', '2008:291', '2008:298')
+    dat = fetch.Msid('aogyrct1', '2008:291:12:00:00', '2008:298:12:00:00')
     dat.filter_bad_times(table=BAD_TIMES)
     dates = DateTime(dat.times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
 
 
 def test_msidset_filter_bad_times_list():
-    dat = fetch.MSIDset(['aogyrct1'], '2008:291', '2008:298')
+    dat = fetch.MSIDset(['aogyrct1'], '2008:291:12:00:00', '2008:298:12:00:00')
     dat.filter_bad_times(table=BAD_TIMES)
     dates = DateTime(dat['aogyrct1'].times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
 
-    dat = fetch.Msidset(['aogyrct1'], '2008:291', '2008:298')
+    dat = fetch.Msidset(['aogyrct1'], '2008:291:12:00:00', '2008:298:12:00:00')
     dat.filter_bad_times(table=BAD_TIMES)
     dates = DateTime(dat['aogyrct1'].times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
@@ -83,20 +83,20 @@ def test_msidset_filter_bad_times_list():
 
 def test_filter_bad_times_default():
     """Test bad times that come from msid_bad_times.dat"""
-    dat = fetch.MSID('aogbias1', '2008:291', '2008:298')
+    dat = fetch.MSID('aogbias1', '2008:291:12:00:00', '2008:298:12:00:00')
     dat.filter_bad_times()
     dates = DateTime(dat.times[42140:42150]).date
     assert np.all(dates == DATES_EXPECT2)
 
 
 def test_filter_bad_times_list_copy():
-    dat = fetch.MSID('aogyrct1', '2008:291', '2008:298')
+    dat = fetch.MSID('aogyrct1', '2008:291:12:00:00', '2008:298:12:00:00')
     dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
     dates = DateTime(dat2.times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
     assert len(dat.vals) != len(dat2.vals)
 
-    dat = fetch.Msid('aogyrct1', '2008:291', '2008:298')
+    dat = fetch.Msid('aogyrct1', '2008:291:12:00:00', '2008:298:12:00:00')
     dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
     dates = DateTime(dat2.times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
@@ -104,12 +104,12 @@ def test_filter_bad_times_list_copy():
 
 
 def test_msidset_filter_bad_times_list_copy():
-    dat = fetch.MSIDset(['aogyrct1'], '2008:291', '2008:298')
+    dat = fetch.MSIDset(['aogyrct1'], '2008:291:12:00:00', '2008:298:12:00:00')
     dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
     dates = DateTime(dat2['aogyrct1'].times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
 
-    dat = fetch.Msidset(['aogyrct1'], '2008:291', '2008:298')
+    dat = fetch.Msidset(['aogyrct1'], '2008:291:12:00:00', '2008:298:12:00:00')
     dat2 = dat.filter_bad_times(table=BAD_TIMES, copy=True)
     dates = DateTime(dat2['aogyrct1'].times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
@@ -117,7 +117,7 @@ def test_msidset_filter_bad_times_list_copy():
 
 def test_filter_bad_times_default_copy():
     """Test bad times that come from msid_bad_times.dat"""
-    dat = fetch.MSID('aogbias1', '2008:291', '2008:298')
+    dat = fetch.MSID('aogbias1', '2008:291:12:00:00', '2008:298:12:00:00')
     dat2 = dat.filter_bad_times(copy=True)
     dates = DateTime(dat2.times[42140:42150]).date
     assert np.all(dates == DATES_EXPECT2)
@@ -239,7 +239,7 @@ def test_interpolate_time_precision():
     """
     Check that floating point error is < 0.01 msec over 100 days
     """
-    dat = fetch.Msid('tephin', '2010:001', '2010:100')
+    dat = fetch.Msid('tephin', '2010:001:12:00:00', '2010:100:12:00:00')
     dt = 60.06
     times = dat.tstart + np.arange((dat.tstop - dat.tstart) // dt + 3) * dt
 
@@ -248,7 +248,7 @@ def test_interpolate_time_precision():
     dt_frac = dt * 100 - round(dt * 100)
     assert abs(dt_frac) > 0.001
 
-    dat = fetch.Msid('tephin', '2010:001', '2010:100')
+    dat = fetch.Msid('tephin', '2010:001:12:00:00', '2010:100:12:00:00')
     dat.interpolate(times=times)
     dt = dat.times[-1] - dat.times[0]
     dt_frac = dt * 100 - round(dt * 100)
@@ -265,7 +265,7 @@ def _assert_msid_equal(msid1, msid2):
 
 def test_msid_copy():
     for MsidClass in (fetch.Msid, fetch.MSID):
-        msid1 = MsidClass('aogbias1', '2008:291', '2008:298')
+        msid1 = MsidClass('aogbias1', '2008:291:12:00:00', '2008:298:12:00:00')
         msid2 = msid1.copy()
         _assert_msid_equal(msid1, msid2)
 
@@ -276,7 +276,7 @@ def test_msid_copy():
 
 def test_msidset_copy():
     for MsidsetClass in (fetch.MSIDset, fetch.Msidset):
-        msidset1 = MsidsetClass(['aogbias1', 'aogbias2'], '2008:291', '2008:298')
+        msidset1 = MsidsetClass(['aogbias1', 'aogbias2'], '2008:291:12:00:00', '2008:298:12:00:00')
         msidset2 = msidset1.copy()
 
         for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
@@ -359,18 +359,21 @@ def test_intervals_fetch_unit():
     """
     Test that fetches with multiple intervals get the units right
     """
-    dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')])
+    dat = fetch_eng.Msid('tephin', [('1999:350:12:00:00', '1999:355:12:00:00'),
+                                    ('2000:010:12:00:00', '2000:015:12:00:00')])
     assert np.allclose(np.mean(dat.vals), 41.713467)
 
-    dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')],
+    dat = fetch_eng.Msid('tephin', [('1999:350:12:00:00', '1999:355:12:00:00'),
+                                    ('2000:010:12:00:00', '2000:015:12:00:00')],
                          stat='5min')
     assert np.allclose(np.mean(dat.vals), 40.290966)
 
-    dat = fetch_eng.Msid('tephin', [('1999:350', '1999:355'), ('2000:010', '2000:015')],
+    dat = fetch_eng.Msid('tephin', [('1999:350:12:00:00', '1999:355:12:00:00'),
+                                    ('2000:010:12:00:00', '2000:015:12:00:00')],
                          stat='daily')
     assert np.allclose(np.mean(dat.vals), 40.303955)
 
-    dat = fetch_eng.Msid('tephin', '1999:350', '2000:010')
+    dat = fetch_eng.Msid('tephin', '1999:350:12:00:00', '2000:010:12:00:00')
     assert np.allclose(np.mean(dat.vals), 41.646729)
 
 
@@ -379,23 +382,23 @@ def test_ctu_dwell_telem():
     Ensure that bad values are filtered appropriately for dwell mode telem.
     This
     """
-    dat = fetch_eng.Msid('dwell01', '2015:294', '2015:295')
+    dat = fetch_eng.Msid('dwell01', '2015:294:12:00:00', '2015:295:12:00:00')
     assert np.all(dat.vals < 190)
     assert np.all(dat.vals > 150)
 
-    dat = fetch_eng.Msid('airu1bt', '2015:294', '2015:295')
+    dat = fetch_eng.Msid('airu1bt', '2015:294:12:00:00', '2015:295:12:00:00')
     assert np.all(dat.vals < -4.95)
     assert np.all(dat.vals > -5.05)
 
 
 def test_nonexistent_msids():
     with pytest.raises(ValueError) as err:
-        fetch.Msid('asdfasdfasdfasdf', '2015:001', '2015:002')
+        fetch.Msid('asdfasdfasdfasdf', '2015:001:12:00:00', '2015:002:12:00:00')
     assert "MSID 'asdfasdfasdfasdf' is not" in str(err.value)
 
 
 def test_daily_state_bins():
-    dat = fetch.Msid('aoacaseq', '2016:232', '2016:235', stat='daily')
+    dat = fetch.Msid('aoacaseq', '2016:232:12:00:00', '2016:235:12:00:00', stat='daily')
     for attr, val in (('n_BRITs', [0, 136, 0]),
                       ('n_KALMs', [83994, 83812, 83996]),
                       ('n_AQXNs', [159, 240, 113]),
