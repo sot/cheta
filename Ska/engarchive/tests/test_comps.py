@@ -121,8 +121,11 @@ def test_mups_valve():
     colnames = ['vals', 'times', 'bads', 'vals_raw',
                 'vals_nan', 'vals_corr', 'vals_model', 'source']
 
-    # Use the 3.30 release always for testing.
-    dat = fetch_eng.MSID('PM2THV1T_clean_3.30', '2020:001', '2020:010')
+    # Use the chandra_models e1a900cc commit for testing. This is a commit of
+    # chandra_models that has the epoch dates changes to fully-qualified values
+    # like 2017:123:12:00:00 (instead of 2017:123). This allows these regression
+    # tests to pass with Chandra.Time 3.x or 4.0+.
+    dat = fetch_eng.MSID('PM2THV1T_clean_e1a900cc', '2020:001:12:00:00', '2020:010:12:00:00')
     assert dat.unit == 'DEGF'
     assert len(dat.vals) == 36661
     ok = dat.source != 0
@@ -133,7 +136,7 @@ def test_mups_valve():
     for attr in colnames:
         assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch_sci.Msid('PM2THV1T_clean_3.30', '2020:001', '2020:010')
+    dat = fetch_sci.Msid('PM2THV1T_clean_e1a900cc', '2020:001:12:00:00', '2020:010:12:00:00')
     assert dat.unit == 'DEGC'
     ok = dat.source != 0
     # Temps are reasonable for degC
@@ -144,7 +147,7 @@ def test_mups_valve():
         if attr != 'bads':
             assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch_cxc.MSID('PM1THV2T_clean_3.30', '2020:001', '2020:010')
+    dat = fetch_cxc.MSID('PM1THV2T_clean_e1a900cc', '2020:001:12:00:00', '2020:010:12:00:00')
     ok = dat.source != 0
     # Temps are reasonable for K
     assert np.all((dat.vals[ok] > 280) & (dat.vals[ok] < 380))
@@ -154,7 +157,7 @@ def test_mups_valve():
         assert len(dat.vals) == len(getattr(dat, attr))
 
     # Check using default master branch
-    dat = fetch_eng.Msid('pm1thv2t_clean', '2020:001', '2020:010')
+    dat = fetch_eng.Msid('pm1thv2t_clean', '2020:001:12:00:00', '2020:010:12:00:00')
     assert len(dat.vals) == 36240  # Some bad values
     assert len(dat.source) == 36240  # Filtering applies to sources
     assert dat.colnames == colnames
@@ -183,7 +186,7 @@ def test_cmd_states():
 
 @pytest.mark.parametrize('stat', ['5min', 'daily'])
 def test_stats(stat):
-    start, stop = '2020:001', '2020:010'
+    start, stop = '2020:001:12:00:00', '2020:010:12:00:00'
 
     dat = fetch_eng.Msid('pitch', start, stop, stat=stat)
     datc = fetch_eng.Msid('passthru_pitch', start, stop, stat=stat)

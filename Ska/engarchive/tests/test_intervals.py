@@ -120,7 +120,7 @@ def test_remove_subclassed_eventquery_interval():
 
 @pytest.mark.skipif("not HAS_EVENTS")
 def test_remove_intervals_stat():
-    start, stop = '2012:002', '2012:003'
+    start, stop = '2012:002:12:00:00', '2012:003:12:00:00'
     for stat in (None, '5min'):
         intervals = kadi.events.dwells.intervals(start, stop)
         for filt in (kadi.events.dwells, intervals):
@@ -175,7 +175,8 @@ def test_util_logical_intervals():
     """
     Test utils.logical_intervals()
     """
-    dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'], '2012:190', '2012:205')
+    dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'],
+                        '2012:190:12:00:00', '2012:205:12:00:00')
     dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)
     scs107 = ((dat['3tscmove'].vals == 'T')
               & (dat['aorwbias'].vals == 'DISA')
