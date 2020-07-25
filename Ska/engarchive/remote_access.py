@@ -45,10 +45,11 @@ def get_data_access_info(is_windows=sys.platform.startswith('win')):
     #   variable is set and data on $SKA\data\eng_archive are found.
     # - Remote access defaults to False on non-Windows systems.
 
-    # First check if there is a local data archive
+    # First check if there is a local data archive. This may be a list of paths
+    # separated by os.pathsep (: on linux, ; on windows).
     if eng_archive is not None:
         eng_archive = str(Path(eng_archive).absolute())
-        has_ska_data = Path(eng_archive).exists()
+        has_ska_data = any(Path(pth).exists() for pth in eng_archive.split(os.pathsep))
     else:
         has_ska_data = False
 
