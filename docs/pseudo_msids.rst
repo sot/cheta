@@ -789,4 +789,3 @@ Built-in computed MSIDs and API
   .. automodule:: Ska.engarchive.derived.comps
    :members:
    :undoc-members:
-

@@ -56,4 +56,3 @@ for axis, label in ((0, 'roll'),
 
 subplots_adjust(bottom=0.12, top=0.90)
 # savefig('gyro_sc_rates_' + dur + '.png')
-

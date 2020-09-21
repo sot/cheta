@@ -1,12 +1,12 @@
 **Pylab**
 
 For interactive data analysis IPython has a special ``--pylab`` command line
-option which automatically imports elements of the Numpy and the Matplotlib 
+option which automatically imports elements of the Numpy and the Matplotlib
 environments.  This provides a Matlab-like environment allowing very simple
 and direct commands like::
 
   % ipython --pylab
-  
+
   x = arange(0, 10, 0.2)
   y = sin(x)
   print x
@@ -14,10 +14,10 @@ and direct commands like::
 
 **Keyboard navigation and history**
 
-One of the most useful features of IPython is the ability to edit and navigate 
+One of the most useful features of IPython is the ability to edit and navigate
 you command line history.  This lets you quickly re-do commands, perhaps with a
 slight variation based on seeing the last result.  Try cut-n-pasting the above
-lines in an IPython session.  This should bring up a plot of a sine wave.  
+lines in an IPython session.  This should bring up a plot of a sine wave.
 
 Now hit up-arrow once and get back the ``plot(x, y)`` line.  Hit the left-arrow
 key (not backspace) once and type ``**2`` so that the line reads ``plot(x,
@@ -28,7 +28,7 @@ can hit Return with the cursor anywhere in the line.
 Now say you want to change the ``x`` values slightly.  One option is to just hit the
 up-arrow 5 times, but a much faster way is to remember that the line started
 with ``x``, so type ``x`` and then start hitting up-arrow.  Only lines that
-start with ``x`` will be displayed and you are immediately at the 
+start with ``x`` will be displayed and you are immediately at the
 ``x = arange(0, 10, 0.2)`` line.  Now use the right-arrow and backspace to change ``10`` to
 ``15`` and hit Return.  Of course ``y`` needs to be recalculated, so hit ``y``
 then up-arrow, then Return.  Finally ``pl`` up-arrow and Return.  Nice and fast!
@@ -74,8 +74,8 @@ and methods.  For instance try to create a list of 3 numbers::
 This will show the available methods for ``a``::
 
   In [17]: a.<TAB>
-  a.append   a.extend   a.insert   a.remove   a.sort     
-  a.count    a.index    a.pop      a.reverse  
+  a.append   a.extend   a.insert   a.remove   a.sort
+  a.count    a.index    a.pop      a.reverse
 
 Here you see useful looking functions like ``append`` or ``sort`` which you can
 get help for and use::
@@ -89,7 +89,7 @@ but forgot exactly how to do the query and what are the available columns.  Use
 help and TAB completion to remind yourself::
 
   import Ska.engarchive.fetch as fetch
-  help fetch  
+  help fetch
   tephin = fetch.MSID('tephin', '2009:001', '2009:002', stat='daily')
   tephin.<TAB>
    tephin.bads               tephin.midvals            tephin.samples
@@ -104,7 +104,7 @@ help and TAB completion to remind yourself::
    tephin.iplot              tephin.p95s               tephin.unit
    tephin.logical_intervals  tephin.p99s               tephin.vals
    tephin.maxes              tephin.plot               tephin.write_zip
-   tephin.means              tephin.raw_vals           
+   tephin.means              tephin.raw_vals
 
 OK, now you remember you wanted ``times`` and ``maxes``.  But look, there are
 other tidbits there for free that look interesting.  So go ahead and print a few::

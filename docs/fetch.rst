@@ -11,19 +11,19 @@ Classes
 .. autoclass:: MSID
    :show-inheritance:
    :members:
-   
+
 .. autoclass:: MSIDset
    :show-inheritance:
    :members:
-   
+
 .. autoclass:: Msid
    :show-inheritance:
    :members:
-   
+
 .. autoclass:: Msidset
    :show-inheritance:
    :members:
-   
+
 Functions
 -----------
 .. autofunction:: get_telem
@@ -41,4 +41,3 @@ Functions
 Time and Date formats
 ----------------------
 .. include:: date_time_formats.rst
-
