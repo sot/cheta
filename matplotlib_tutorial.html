@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>&lt;no title&gt; &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="numpy_tutorial.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="ipython_tutorial.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="numpy_tutorial.html" title="&lt;no title&gt;">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="ipython_tutorial.html" title="&lt;no title&gt;">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      
+      <li>&lt;no title&gt;</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>The <code class="docutils literal notranslate"><span class="pre">pylab</span></code> mode of <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> is a collection of command style functions
+that make <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>  work like matlab.  Each <code class="docutils literal notranslate"><span class="pre">pylab</span></code> function makes
+some change to a figure: eg, create a figure, create a plotting area
+in a figure, plot some lines in a plotting area, decorate the plot
+with labels, etc….  <code class="docutils literal notranslate"><span class="pre">Pylab</span></code> is stateful, in that it
+keeps track of the current figure and plotting area, and the plotting
+functions are directed to the current axes.  On the
+<a class="reference external" href="http://matplotlib.sourceforge.net/faq/index.html">matplotlib FAQ</a> page there is a
+very good discussion on
+<a class="reference external" href="http://matplotlib.sourceforge.net/faq/usage_faq.html#matplotlib-pylab-and-pyplot-how-are-they-related">Matplotlib, pylab, and pyplot: how are they related?</a>.</p>
+<p>This tutorial has been copied and adapted from the matplotlib
+<a class="reference external" href="http://matplotlib.sourceforge.net/users/pyplot_tutorial.html">pyplot tutorial</a>.</p>
+<p>To see <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> in action and make a simple plot do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;some numbers&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/pyplot_simple.png" src="_images/pyplot_simple.png" />
+<p>You may be wondering why the x-axis ranges from 0-2 and the y-axis
+from 1-3.  If you provide a single list or array to the
+<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> command, matplotlib assumes it is a
+sequence of y values, and automatically generates the x values for
+you.  Since python ranges start with 0, the default x vector has the
+same length as y but starts with 0.  Hence the x data are
+<code class="docutils literal notranslate"><span class="pre">[0,1,2]</span></code>.</p>
+<p><a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> is a versatile command, and will take
+an arbitrary number of arguments.  For example, to plot x versus y,
+you can issue the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">16</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>For every x, y pair of arguments, there is a optional third argument
+which is the format string that indicates the color and line type of
+the plot.  The letters and symbols of the format string are from
+matlab, and you concatenate a color string with a line style string.
+The default format string is ‘b-‘, which is a solid blue line.  For
+example, to plot the above with red circles, you would issue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">16</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">)</span>
+<span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="_images/pyplot_formatstr.png" src="_images/pyplot_formatstr.png" />
+<p>See the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> documentation for a complete
+list of line styles and format strings.  The
+<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.axis">axis()</a> command in the example above takes a
+list of <code class="docutils literal notranslate"><span class="pre">[xmin,</span> <span class="pre">xmax,</span> <span class="pre">ymin,</span> <span class="pre">ymax]</span></code> and specifies the viewport of the
+axes.</p>
+<p>If matplotlib were limited to working with lists, it would be fairly
+useless for numeric processing.  Generally, you will use <a class="reference external" href="http://numpy.scipy.org/">numpy</a>
+arrays.  In fact, all sequences are
+converted to numpy arrays internally.  The example below illustrates a
+plotting several lines with different format styles in one command
+using arrays.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># evenly sampled time at 200ms intervals</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+
+<span class="c1"># red dashes, blue squares and green triangles</span>
+<span class="n">clf</span><span class="p">()</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;bs&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;g^&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/pyplot_three.png" src="_images/pyplot_three.png" />
+<p><strong>Working with multiple figures and axes</strong></p>
+<p>Both Matlab and Pylab have the concept of the current
+figure and the current axes.  All plotting commands apply to the
+current axes.  The function <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.gca">gca()</a> returns the
+current axes and
+<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.gcf">gcf()</a> returns the current figure. Normally, you don’t have
+to worry about this, because it is all taken care of behind the
+scenes.  Below is a script to create two subplots.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+
+<span class="n">t1</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">)</span>
+
+<span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">clf</span><span class="p">()</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># (nrows, ncols, fignum)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">t2</span><span class="p">),</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">t2</span><span class="p">),</span> <span class="s1">&#39;r--&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/pyplot_two_subplots.png" src="_images/pyplot_two_subplots.png" />
+<p>The <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.figure">figure()</a> command here is optional because
+<code class="docutils literal notranslate"><span class="pre">figure(1)</span></code> will be created by default, just as a <code class="docutils literal notranslate"><span class="pre">subplot(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></code>
+will be created by default if you don’t manually specify an axes.  The
+<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.subplot">subplot()</a> command specifies <code class="docutils literal notranslate"><span class="pre">numrows,</span>
+<span class="pre">numcols,</span> <span class="pre">fignum</span></code> where <code class="docutils literal notranslate"><span class="pre">fignum</span></code> ranges from 1 to
+<code class="docutils literal notranslate"><span class="pre">numrows*numcols</span></code>.  The commas in the <code class="docutils literal notranslate"><span class="pre">subplot</span></code> command are
+optional if <code class="docutils literal notranslate"><span class="pre">numrows*numcols&lt;10</span></code>.  You can create an arbitrary number of subplots
+and axes.  If you want to place an axes manually, ie, not on a
+rectangular grid, use the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.axes">axes()</a> command,
+which allows you to specify the location as <code class="docutils literal notranslate"><span class="pre">axes([left,</span> <span class="pre">bottom,</span>
+<span class="pre">width,</span> <span class="pre">height])</span></code> where all values are in fractional (0 to 1)
+coordinates.</p>
+<p>You can create multiple figures by using multiple
+<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.figure">figure()</a> calls with an increasing figure
+number.  Of course, each figure can contain as many axes and subplots
+as your heart desires:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="c1"># the first figure</span>
+<span class="n">clf</span><span class="p">()</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>         <span class="c1"># the first subplot in the first figure</span>
+<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>         <span class="c1"># the second subplot in the first figure</span>
+<span class="n">plot</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+
+
+<span class="n">figure</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>                <span class="c1"># a second figure</span>
+<span class="n">clf</span><span class="p">()</span>
+<span class="n">plot</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>            <span class="c1"># creates a subplot(111) by default</span>
+
+<span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="c1"># figure 1 current; subplot(2, 1, 2) still current</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>         <span class="c1"># make subplot(2, 1, 1) in figure1 current</span>
+<span class="n">title</span><span class="p">(</span><span class="s1">&#39;Easy as 1,2,3&#39;</span><span class="p">)</span>   <span class="c1"># subplot 2, 1, 1 title</span>
+</pre></div>
+</div>
+<p>You can clear the current figure with <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.clf">clf()</a>
+and the current axes with <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.cla">cla()</a>.  If you find
+this statefulness, annoying, don’t despair, this is just a thin
+stateful wrapper around an object oriented API, which you can use
+instead  (see <a class="reference external" href="http://matplotlib.sourceforge.net/users/artists.html#artist-tutorial">artist-tutorial</a>)</p>
+<p><strong>Working with text</strong></p>
+<p>The <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> command can be used to add text in
+an arbitrary location, and the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.xlabel">xlabel()</a>,
+<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.ylabel">ylabel()</a> and <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.title">title()</a>
+are used to add text in the indicated locations (see <a class="reference external" href="http://matplotlib.sourceforge.net/users/text_intro.html#text-intro">text-intro</a>
+for a more detailed example):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">15</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+<span class="c1"># the histogram of the data</span>
+<span class="n">clf</span><span class="p">()</span>
+<span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">hist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+
+<span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Smarts&#39;</span><span class="p">)</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Probability&#39;</span><span class="p">)</span>
+<span class="n">title</span><span class="p">(</span><span class="s1">&#39;Histogram of IQ&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="o">.</span><span class="mi">025</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mu=100,\ \sigma=15$&#39;</span><span class="p">)</span>
+<span class="n">axis</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+<span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/pyplot_text.png" src="_images/pyplot_text.png" />
+<p>All of the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> commands return an
+<code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code> instance.  Just as with with lines
+above, you can customize the properties by passing keyword arguments
+into the text functions or using <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.setp">setp()</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;my data&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These properties are covered in more detail in <cite>text-properties &lt;http://matplotlib.sourceforge.net/users/text_props.html#text-properties&gt;</cite>.</p>
+<p><strong>Using mathematical expressions in text</strong></p>
+<p>matplotlib accepts TeX equation expressions in any text expression.
+For example to write the expression <code class="docutils literal notranslate"><span class="pre">\sigma_i=15</span></code> in the title,
+you can write a TeX expression surrounded by dollar signs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\sigma_i=15$&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">r</span></code> preceeding the title string is important – it signifies
+that the string is a <em>raw</em> string and not to treate backslashes and
+python escapes.  matplotlib has a built-in TeX expression parser and
+layout engine, and ships its own math fonts – for details see
+<a class="reference external" href="http://matplotlib.sourceforge.net/users/mathtext.html#mathtext-tutorial">mathtext-tutorial</a>.
+Thus you can use mathematical text across platforms
+without requiring a TeX installation.  For those who have LaTeX and
+dvipng installed, you can also use LaTeX to format your text and
+incorporate the output directly into your display figures or saved
+postscript – see <a class="reference external" href="http://matplotlib.sourceforge.net/users/usetex.html#usetex-tutorial">usetex-tutorial</a>.</p>
+<p><strong>Annotating text</strong></p>
+<p>The uses of the basic <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> command above
+place text at an arbitrary position on the Axes.  A common use case of
+text is to annotate some feature of the plot, and the
+<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.annotate">annotate()</a> method provides helper
+functionality to make annotations easy.  In an annotation, there are
+two points to consider: the location being annotated represented by
+the argument <code class="docutils literal notranslate"><span class="pre">xy</span></code> and the location of the text <code class="docutils literal notranslate"><span class="pre">xytext</span></code>.  Both of
+these arguments are <code class="docutils literal notranslate"><span class="pre">(x,y)</span></code> tuples.</p>
+<img alt="_images/pyplot_annotate.png" src="_images/pyplot_annotate.png" />
+<p>In this basic example, both the <code class="docutils literal notranslate"><span class="pre">xy</span></code> (arrow tip) and <code class="docutils literal notranslate"><span class="pre">xytext</span></code>
+locations (text location) are in data coordinates.</p>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+<ul class="simple">
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ipython_tutorial.html"
+                        title="previous chapter">&lt;no title&gt;</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="numpy_tutorial.html"
+                        title="next chapter">&lt;no title&gt;</a></p>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

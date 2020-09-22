@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>&lt;no title&gt; &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fetch Tutorial" href="fetch_tutorial_standalone.html" />
+    <link rel="prev" title="Utilities API documentation" href="utils.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="fetch_tutorial_standalone.html" title="Fetch Tutorial">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="utils.html" title="Utilities API documentation">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      
+      <li>&lt;no title&gt;</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>The Ska engineering telemetry archive tools support a wide
+range of formats for representing date-time stamps.  Note that within this and
+other documents for this tool suite, the words ‘time’ and ‘date’ are used
+interchangably to mean a date-time stamp.</p>
+<p>The available formats are listed in the table below:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 71%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Format</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>System</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>secs</p></td>
+<td><p>Elapsed seconds since 1998-01-01T00:00:00</p></td>
+<td><p>tt</p></td>
+</tr>
+<tr class="row-odd"><td><p>numday</p></td>
+<td><p>DDDD:hh:mm:ss.ss… Elapsed days and time</p></td>
+<td><p>utc</p></td>
+</tr>
+<tr class="row-even"><td><p>jd*</p></td>
+<td><p>Julian Day</p></td>
+<td><p>utc</p></td>
+</tr>
+<tr class="row-odd"><td><p>mjd*</p></td>
+<td><p>Modified Julian Day = JD - 2400000.5</p></td>
+<td><p>utc</p></td>
+</tr>
+<tr class="row-even"><td><p>date</p></td>
+<td><p>YYYY:DDD:hh:mm:ss.ss..</p></td>
+<td><p>utc</p></td>
+</tr>
+<tr class="row-odd"><td><p>caldate</p></td>
+<td><p>YYYYMonDD at hh:mm:ss.ss..</p></td>
+<td><p>utc</p></td>
+</tr>
+<tr class="row-even"><td><p>fits</p></td>
+<td><p>FITS date/time format YYYY-MM-DDThh:mm:ss.ss..</p></td>
+<td><p>tt</p></td>
+</tr>
+<tr class="row-odd"><td><p>unix*</p></td>
+<td><p>Unix time (since 1970.0)</p></td>
+<td><p>utc</p></td>
+</tr>
+<tr class="row-even"><td><p>greta</p></td>
+<td><p>YYYYDDD.hhmmss[sss]</p></td>
+<td><p>utc</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">*</span></code> Ambiguous for input parsing and only available as output formats.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">date</span></code> format one can supply only YYYY:DDD in which case 12:00:00.000
+is implied.</p>
+<p>The default time “System” for the different formats is either <code class="docutils literal notranslate"><span class="pre">tt</span></code>
+(Terrestrial Time) or <code class="docutils literal notranslate"><span class="pre">utc</span></code> (UTC).  Since TT differs from UTC by around 64
+seconds it is important to be consistent in specifying the time format.</p>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+<ul class="simple">
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="utils.html"
+                        title="previous chapter">Utilities API documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="fetch_tutorial_standalone.html"
+                        title="next chapter">Fetch Tutorial</a></p>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

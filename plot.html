@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plotting API documentation &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utilities API documentation" href="utils.html" />
+    <link rel="prev" title="Fetch API documentation" href="fetch.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="utils.html" title="Utilities API documentation">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="fetch.html" title="Fetch API documentation">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      
+      <li>Plotting API documentation</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-Ska.engarchive.plot">
+<span id="plotting-api-documentation"></span><h1>Plotting API documentation<a class="headerlink" href="#module-Ska.engarchive.plot" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="Ska.engarchive.plot.MsidPlot">
+<em class="property">class </em><code class="sig-prename descclassname">Ska.engarchive.plot.</code><code class="sig-name descname">MsidPlot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msid</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'-b'</span></em>, <em class="sig-param"><span class="n">fmt_minmax</span><span class="o">=</span><span class="default_value">'-c'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">plot_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/plot.html#MsidPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.plot.MsidPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Make an interactive plot for exploring the MSID data.</p>
+<p>This method opens a new plot figure (or clears the current figure)
+and plots the MSID <code class="docutils literal notranslate"><span class="pre">vals</span></code> versus <code class="docutils literal notranslate"><span class="pre">times</span></code>.  This plot can be
+panned or zoomed arbitrarily and the data values will be fetched
+from the archive as needed.  Depending on the time scale, <code class="docutils literal notranslate"><span class="pre">iplot</span></code>
+will display either full resolution, 5-minute, or daily values.
+For 5-minute and daily values the min and max values are also
+plotted.</p>
+<p>Once the plot is displayed and the window is selected by clicking in
+it, the plot limits can be controlled by the usual methods (window
+selection, pan / zoom).  In addition following key commands are
+recognized:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>a: autoscale for full data range in x and y
+m: toggle plotting of min/max values
+p: pan at cursor x
+y: toggle autoscaling of y-axis
+z: zoom at cursor x
+?: print help
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dat</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;aoattqt1&#39;</span><span class="p">,</span> <span class="s1">&#39;2011:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2012:001&#39;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;5min&#39;</span><span class="p">)</span>
+<span class="n">iplot</span> <span class="o">=</span> <span class="n">Ska</span><span class="o">.</span><span class="n">engarchive</span><span class="o">.</span><span class="n">MsidPlot</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Caveat: the <code class="docutils literal notranslate"><span class="pre">MsidPlot()</span></code> class is not meant for use within scripts, and
+may give unexpected results if used in combination with other plotting
+commands directed at the same plot figure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msid</strong> – MSID object</p></li>
+<li><p><strong>fmt</strong> – plot format for values (default=”-b”)</p></li>
+<li><p><strong>fmt_minmax</strong> – plot format for mins and maxes (default=”-c”)</p></li>
+<li><p><strong>plot_kwargs</strong> – additional plotting keyword args</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Plotting API documentation</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="fetch.html"
+                        title="previous chapter">Fetch API documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utils.html"
+                        title="next chapter">Utilities API documentation</a></p>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

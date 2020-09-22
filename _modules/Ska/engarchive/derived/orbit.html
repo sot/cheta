@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ska.engarchive.derived.orbit &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../index.html">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Ska.engarchive.derived.orbit</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Orbital elements based on the position and velocity of Chandra at each 5 minute predictive</span>
+<span class="sd">ephemeris state vector.  In addition to the classical orbital elements, the orbit</span>
+<span class="sd">perigee and apogee are available:</span>
+
+<span class="sd">  ================ ====</span>
+<span class="sd">  MSID             Unit</span>
+<span class="sd">  ================ ====</span>
+<span class="sd">  semi_major_axis    m</span>
+<span class="sd">  eccentricity      --</span>
+<span class="sd">  inclination       deg</span>
+<span class="sd">  ascending_node    deg</span>
+<span class="sd">  argument_perigee  deg</span>
+<span class="sd">  mean_anomaly      deg</span>
+<span class="sd">  orbit_period      sec</span>
+<span class="sd">  perigee_radius     m</span>
+<span class="sd">  apogee_radius      m</span>
+<span class="sd">  ================ ====</span>
+
+<span class="sd">Example::</span>
+
+<span class="sd">  &gt;&gt;&gt; from Ska.engarchive import fetch_eng as fetch</span>
+
+<span class="sd">  &gt;&gt;&gt; dat = fetch.Msidset([&#39;inclination&#39;, &#39;perigee_radius&#39;], &#39;1999:200&#39;, stat=&#39;daily&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; subplot(2, 1, 1)</span>
+<span class="sd">  &gt;&gt;&gt; dat[&#39;inclination&#39;].plot()</span>
+<span class="sd">  &gt;&gt;&gt; subplot(2, 1, 2)</span>
+<span class="sd">  &gt;&gt;&gt; dat[&#39;perigee_radius&#39;].plot()</span>
+
+<span class="sd">The relevant equations were taken from http://www.castor2.ca/05_OD/01_Gauss/14_Kepler/index.html.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">base</span>
+
+<span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
+
+<span class="n">ELEMENTS_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">R_E</span> <span class="o">=</span> <span class="mf">6378.137e3</span>  <span class="c1"># Earth Equatorial Radius (m)</span>
+<span class="n">M_G</span> <span class="o">=</span> <span class="mf">398600.44e9</span>  <span class="c1"># Gravitational parameter (m**3 / s**2)</span>
+
+
+<div class="viewcode-block" id="calc_orbital_elements"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.calc_orbital_elements">[docs]</a><span class="k">def</span> <span class="nf">calc_orbital_elements</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate orbital elements given input position (x, y, z) in m and</span>
+<span class="sd">    velocity (vx, vy, vz) in m/s.  Orbit perigee and apogee are computed</span>
+<span class="sd">    as well.</span>
+
+<span class="sd">    Returns a dict with the following key values:</span>
+
+<span class="sd">      ================ ====</span>
+<span class="sd">      Key name         Unit</span>
+<span class="sd">      ================ ====</span>
+<span class="sd">      semi_major_axis    m</span>
+<span class="sd">      eccentricity       --</span>
+<span class="sd">      inclination       deg</span>
+<span class="sd">      ascending_node    deg</span>
+<span class="sd">      argument_perigee  deg</span>
+<span class="sd">      mean_anomaly      deg</span>
+<span class="sd">      orbit_period      sec</span>
+<span class="sd">      apogee_radius       m</span>
+<span class="sd">      perigee_radius      m</span>
+<span class="sd">      ================ ====</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">arccos</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">pi</span>
+
+    <span class="k">def</span> <span class="nf">arccos_2pi</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">reflect</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return arccos(arg) where reflect is False, 2 * pi - arccos(arg) where reflect is True</span>
+
+<span class="sd">        :param arg: float, np.ndarray: input arg (radians)</span>
+<span class="sd">        :param reflect: bool, np.ndarray of bool: use reflected value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">np_err_handling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geterr</span><span class="p">()</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s1">&#39;raise&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">arccos</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FloatingPointError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Bad argccos arg=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+            <span class="k">raise</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="o">**</span><span class="n">np_err_handling</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Check if arg has a length</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reflect</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">-</span> <span class="n">out</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">reflect</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">-</span> <span class="n">out</span><span class="p">[</span><span class="n">reflect</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># Semi major axis</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="n">vx</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">vy</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">vz</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">r</span> <span class="o">-</span> <span class="n">v2</span> <span class="o">/</span> <span class="n">M_G</span><span class="p">)</span>
+    <span class="c1"># a_alt = a - R_E</span>
+
+    <span class="c1"># Period</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">a</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">/</span> <span class="n">M_G</span><span class="p">)</span>
+    <span class="c1"># n = 1 / T</span>
+
+    <span class="c1"># Eccentricity</span>
+    <span class="n">f1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">r</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">vx</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">vy</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">vz</span><span class="p">)</span> <span class="o">/</span> <span class="n">M_G</span>
+    <span class="n">ei</span> <span class="o">=</span> <span class="n">f1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">f2</span> <span class="o">*</span> <span class="n">vx</span>
+    <span class="n">ej</span> <span class="o">=</span> <span class="n">f1</span> <span class="o">*</span> <span class="n">y</span> <span class="o">-</span> <span class="n">f2</span> <span class="o">*</span> <span class="n">vy</span>
+    <span class="n">ek</span> <span class="o">=</span> <span class="n">f1</span> <span class="o">*</span> <span class="n">z</span> <span class="o">-</span> <span class="n">f2</span> <span class="o">*</span> <span class="n">vz</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">ei</span> <span class="o">*</span> <span class="n">ei</span> <span class="o">+</span> <span class="n">ej</span> <span class="o">*</span> <span class="n">ej</span> <span class="o">+</span> <span class="n">ek</span> <span class="o">*</span> <span class="n">ek</span><span class="p">)</span>
+
+    <span class="c1"># Orbit inclination</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">vz</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span> <span class="n">vy</span>
+    <span class="n">hj</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">vx</span> <span class="o">-</span> <span class="n">x</span> <span class="o">*</span> <span class="n">vz</span>
+    <span class="n">hk</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">vy</span> <span class="o">-</span> <span class="n">y</span> <span class="o">*</span> <span class="n">vx</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">hi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">hj</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">hk</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">arccos</span><span class="p">(</span><span class="n">hk</span> <span class="o">/</span> <span class="n">h</span><span class="p">)</span>  <span class="c1"># radians</span>
+
+    <span class="c1"># Ascending node</span>
+    <span class="n">Wi</span> <span class="o">=</span> <span class="o">-</span><span class="n">hj</span>
+    <span class="n">Wj</span> <span class="o">=</span> <span class="n">hi</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">Wi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">Wj</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">aw</span> <span class="o">=</span> <span class="n">arccos_2pi</span><span class="p">(</span><span class="n">Wi</span> <span class="o">/</span> <span class="n">W</span><span class="p">,</span> <span class="n">Wj</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Argument of perigee</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">arccos_2pi</span><span class="p">((</span><span class="n">Wi</span> <span class="o">*</span> <span class="n">ei</span> <span class="o">+</span> <span class="n">Wj</span> <span class="o">*</span> <span class="n">ej</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="n">e</span><span class="p">),</span> <span class="n">ek</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Mean Anomaly</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">arccos_2pi</span><span class="p">((</span><span class="n">x</span> <span class="o">*</span> <span class="n">ei</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">ej</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">ek</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">r</span><span class="p">),</span> <span class="n">f2</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Eccentric Anomaly</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">arccos_2pi</span><span class="p">((</span><span class="n">e</span> <span class="o">+</span> <span class="n">cos</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">e</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="n">pi</span><span class="p">)</span>
+
+    <span class="c1"># Mean Anomaly</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">E</span> <span class="o">-</span> <span class="n">e</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="n">degrees</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">aw</span> <span class="o">=</span> <span class="n">degrees</span><span class="p">(</span><span class="n">aw</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">degrees</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">degrees</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+
+    <span class="n">perigee</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">e</span><span class="p">)</span>
+    <span class="n">apogee</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;semi_major_axis&#39;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span>
+            <span class="s1">&#39;orbit_period&#39;</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+            <span class="s1">&#39;eccentricity&#39;</span><span class="p">:</span> <span class="n">e</span><span class="p">,</span>
+            <span class="s1">&#39;inclination&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+            <span class="s1">&#39;ascending_node&#39;</span><span class="p">:</span> <span class="n">aw</span><span class="p">,</span>
+            <span class="s1">&#39;argument_perigee&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
+            <span class="s1">&#39;mean_anomaly&#39;</span><span class="p">:</span> <span class="n">M</span><span class="p">,</span>
+            <span class="s1">&#39;perigee_radius&#39;</span><span class="p">:</span> <span class="n">perigee</span><span class="p">,</span>
+            <span class="s1">&#39;apogee_radius&#39;</span><span class="p">:</span> <span class="n">apogee</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="DerivedParameterOrbit"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DerivedParameterOrbit">[docs]</a><span class="k">class</span> <span class="nc">DerivedParameterOrbit</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
+    <span class="n">content_root</span> <span class="o">=</span> <span class="s1">&#39;orbit&#39;</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;orbitephem0_x&#39;</span><span class="p">,</span> <span class="s1">&#39;orbitephem0_y&#39;</span><span class="p">,</span> <span class="s1">&#39;orbitephem0_z&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;orbitephem0_vx&#39;</span><span class="p">,</span> <span class="s1">&#39;orbitephem0_vy&#39;</span><span class="p">,</span> <span class="s1">&#39;orbitephem0_vz&#39;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">328.0</span>
+    <span class="n">max_gap</span> <span class="o">=</span> <span class="mf">1000.0</span>
+
+<div class="viewcode-block" id="DerivedParameterOrbit.get_orbital_element"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DerivedParameterOrbit.get_orbital_element">[docs]</a>    <span class="k">def</span> <span class="nf">get_orbital_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Lower case and chop off the initial &quot;DP_&quot;</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">3</span><span class="p">:]</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">date</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">date</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ELEMENTS_CACHE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ELEMENTS_CACHE</span><span class="p">[</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">][</span><span class="n">param</span><span class="p">]</span>
+
+        <span class="c1"># Get values in km and km/sec</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;orbitephem0_x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;orbitephem0_y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;orbitephem0_z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="n">vx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;orbitephem0_vx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="n">vy</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;orbitephem0_vy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="n">vz</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;orbitephem0_vz&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">calc_orbital_elements</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">)</span>
+        <span class="n">ELEMENTS_CACHE</span><span class="p">[</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="n">elements</span>
+        <span class="k">return</span> <span class="n">elements</span><span class="p">[</span><span class="n">param</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DerivedParameterOrbit.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DerivedParameterOrbit.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_orbital_element</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DP_SEMI_MAJOR_AXIS"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_SEMI_MAJOR_AXIS">[docs]</a><span class="k">class</span> <span class="nc">DP_SEMI_MAJOR_AXIS</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbital element: semi-major axis (m)</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_ORBIT_PERIOD"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_ORBIT_PERIOD">[docs]</a><span class="k">class</span> <span class="nc">DP_ORBIT_PERIOD</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbital element: period (sec)</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_ECCENTRICITY"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_ECCENTRICITY">[docs]</a><span class="k">class</span> <span class="nc">DP_ECCENTRICITY</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbital element: eccentricity</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_INCLINATION"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_INCLINATION">[docs]</a><span class="k">class</span> <span class="nc">DP_INCLINATION</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbital element: inclination (degrees)</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_ASCENDING_NODE"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_ASCENDING_NODE">[docs]</a><span class="k">class</span> <span class="nc">DP_ASCENDING_NODE</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbital element: right ascension of ascending node (degrees)</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_ARGUMENT_PERIGEE"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_ARGUMENT_PERIGEE">[docs]</a><span class="k">class</span> <span class="nc">DP_ARGUMENT_PERIGEE</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbital element: argument of perigee (degrees)</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_MEAN_ANOMALY"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_MEAN_ANOMALY">[docs]</a><span class="k">class</span> <span class="nc">DP_MEAN_ANOMALY</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbital element: mean anomaly (degrees)</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_PERIGEE_RADIUS"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_PERIGEE_RADIUS">[docs]</a><span class="k">class</span> <span class="nc">DP_PERIGEE_RADIUS</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbit perigee based on orbital elements (m)</span>
+
+<span class="sd">    Defined as ``semi_major_axis * (1 - eccentricity)``</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DP_APOGEE_RADIUS"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.orbit.DP_APOGEE_RADIUS">[docs]</a><span class="k">class</span> <span class="nc">DP_APOGEE_RADIUS</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orbit apogee based on orbital elements (m)</span>
+
+<span class="sd">    Defined as ``semi_major_axis * (1 + eccentricity)``</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+
+
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

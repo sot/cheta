@@ -1,0 +1,528 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ska.engarchive.derived.comps &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../index.html">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Ska.engarchive.derived.comps</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Support computed MSIDs in the cheta archive.</span>
+
+<span class="sd">- Base class ComputedMsid for user-generated comps.</span>
+<span class="sd">- Cleaned MUPS valve temperatures MSIDs: &#39;(pm2thv1t|pm1thv2t)_clean&#39;.</span>
+<span class="sd">- Commanded states &#39;cmd_state_&lt;key&gt;_&lt;dt&gt;&#39; for any kadi commanded state value.</span>
+
+<span class="sd">See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb</span>
+<span class="sd">&quot;&quot;&quot;</span> <span class="c1"># noqa</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
+
+<span class="kn">from</span> <span class="nn">..units</span> <span class="kn">import</span> <span class="n">converters</span> <span class="k">as</span> <span class="n">unit_converter_funcs</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ComputedMsid&#39;</span><span class="p">,</span> <span class="s1">&#39;Comp_MUPS_Valve_Temp_Clean&#39;</span><span class="p">,</span> <span class="s1">&#39;Comp_KadiCommandState&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">calc_stats_vals</span><span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">indexes</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute statistics values for ``msid`` over specified intervals.</span>
+<span class="sd">    This is a very slightly modified version of the same function from</span>
+<span class="sd">    update_archive.py.  However, cannot directly import that because</span>
+<span class="sd">    it has side effects that break everything, probably related to</span>
+<span class="sd">    enabling caching.</span>
+
+<span class="sd">    The mods here are basically to take out handling of state codes</span>
+<span class="sd">    and turn a warning about negative dts into an exception.</span>
+
+<span class="sd">    :param msid: Msid object (filter_bad=True)</span>
+<span class="sd">    :param rows: Msid row indices corresponding to stat boundaries</span>
+<span class="sd">    :param indexes: Universal index values for stat (row times // dt)</span>
+<span class="sd">    :param interval: interval name (5min or daily)</span>
+
+<span class="sd">    :returns: np.recarray of stats values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">scipy.stats</span>
+
+    <span class="n">quantiles</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+    <span class="n">n_out</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="c1"># Check if data type is &quot;numeric&quot;.  Boolean values count as numeric,</span>
+    <span class="c1"># partly for historical reasons, in that they support funcs like</span>
+    <span class="c1"># mean (with implicit conversion to float).</span>
+    <span class="n">msid_dtype</span> <span class="o">=</span> <span class="n">msid</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="n">msid_is_numeric</span> <span class="o">=</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">msid_dtype</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">))</span>
+
+    <span class="c1"># If MSID data is unicode, then for stats purposes cast back to bytes</span>
+    <span class="c1"># by creating the output array as a like-sized S-type array.</span>
+    <span class="k">if</span> <span class="n">msid_dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span>
+        <span class="n">msid_dtype</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;U&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="n">msid</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">str</span><span class="p">)</span>
+
+    <span class="c1"># Predeclare numpy arrays of correct type and sufficient size for accumulating results.</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">msid_dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">msid_is_numeric</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">msid_dtype</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">msid_dtype</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">interval</span> <span class="o">==</span> <span class="s1">&#39;daily&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s1">&#39;std&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">msid_dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="s1">&#39;p</span><span class="si">{:02d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quantile</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">n_out</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">msid_dtype</span><span class="p">)</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">row0</span><span class="p">,</span> <span class="n">row1</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rows</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">indexes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">msid</span><span class="o">.</span><span class="n">vals</span><span class="p">[</span><span class="n">row0</span><span class="p">:</span><span class="n">row1</span><span class="p">]</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">msid</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">row0</span><span class="p">:</span><span class="n">row1</span><span class="p">]</span>
+
+        <span class="n">n_vals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_vals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+            <span class="n">out</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_vals</span>
+            <span class="n">out</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">n_vals</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">msid_is_numeric</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">n_vals</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">dts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_vals</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_vals</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                    <span class="n">dts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">dts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">dts</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span>
+                                 <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="o">/</span> <span class="mf">2.0</span>
+                    <span class="n">negs</span> <span class="o">=</span> <span class="n">dts</span> <span class="o">&lt;</span> <span class="mf">0.0</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">negs</span><span class="p">):</span>
+                        <span class="n">times_dts</span> <span class="o">=</span> <span class="p">[(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">negs</span><span class="p">],</span> <span class="n">dts</span><span class="p">[</span><span class="n">negs</span><span class="p">])]</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;WARNING - negative dts in </span><span class="si">{}</span><span class="s1"> at </span><span class="si">{}</span><span class="s1">&#39;</span>
+                                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msid</span><span class="o">.</span><span class="n">MSID</span><span class="p">,</span> <span class="n">times_dts</span><span class="p">))</span>
+
+                    <span class="c1"># Clip to range 0.001 to 300.0.  The low bound is just there</span>
+                    <span class="c1"># for data with identical time stamps.  This shouldn&#39;t happen</span>
+                    <span class="c1"># but in practice might.  The 300.0 represents 5 minutes and</span>
+                    <span class="c1"># is the largest normal time interval.  Data near large gaps</span>
+                    <span class="c1"># will get a weight of 5 mins.</span>
+                    <span class="n">dts</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">dts</span><span class="p">)</span>
+                <span class="n">sum_dts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dts</span><span class="p">)</span>
+
+                <span class="n">out</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+                <span class="n">out</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+                <span class="n">out</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dts</span> <span class="o">*</span> <span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="n">sum_dts</span>
+                <span class="k">if</span> <span class="n">interval</span> <span class="o">==</span> <span class="s1">&#39;daily&#39;</span><span class="p">:</span>
+                    <span class="c1"># biased weighted estimator of variance (N should be big enough)</span>
+                    <span class="c1"># http://en.wikipedia.org/wiki/Mean_square_weighted_deviation</span>
+                    <span class="n">sigma_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dts</span> <span class="o">*</span> <span class="p">(</span><span class="n">vals</span> <span class="o">-</span> <span class="n">out</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">sum_dts</span>
+                    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;std&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_sq</span><span class="p">)</span>
+                    <span class="n">quant_vals</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">mquantiles</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">quantiles</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">quant_val</span><span class="p">,</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">quant_vals</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">):</span>
+                        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;p</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">quantile</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">quant_val</span>
+
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rec</span><span class="o">.</span><span class="n">fromarrays</span><span class="p">([</span><span class="n">x</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span> <span class="n">names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+
+<div class="viewcode-block" id="ComputedMsid"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.ComputedMsid">[docs]</a><span class="k">class</span> <span class="nc">ComputedMsid</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for cheta computed MSID.</span>
+
+<span class="sd">    Sub-classes must define at least the following:</span>
+
+<span class="sd">    * ``msid_match`` class attribute as a regex to match for the MSID.</span>
+<span class="sd">    * ``get_msid_attrs()`` method to perform the computation and return</span>
+<span class="sd">      a dict with the result.</span>
+
+<span class="sd">    Optionally:</span>
+
+<span class="sd">    * ``units`` attribute to specify unit handling.</span>
+
+<span class="sd">    See the fetch tutorial Computed MSIDs section for details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Global dict of registered computed MSIDs</span>
+    <span class="n">msid_classes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Base units specification (None implies no unit handling)</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit_system</span><span class="o">=</span><span class="s1">&#39;eng&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span> <span class="o">=</span> <span class="n">unit_system</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate and register ComputedMSID subclass.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;msid_match&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;comp </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> must define msid_match&#39;</span><span class="p">)</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">msid_classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ComputedMsid.get_matching_comp_cls"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.ComputedMsid.get_matching_comp_cls">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_matching_comp_cls</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get computed classes that match ``msid``</span>
+
+<span class="sd">        :param msid: str, input msid</span>
+<span class="sd">        :returns: first ComputedMsid subclass that matches ``msid`` or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">comp_cls</span> <span class="ow">in</span> <span class="n">ComputedMsid</span><span class="o">.</span><span class="n">msid_classes</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">comp_cls</span><span class="o">.</span><span class="n">msid_match</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">comp_cls</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="c1"># These four properties are provided as a convenience because the module</span>
+    <span class="c1"># itself cannot import fetch because this is circular.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fetch_eng</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetch in TDB engineering units like DEGF&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">fetch_eng</span>
+        <span class="k">return</span> <span class="n">fetch_eng</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fetch_sci</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetch in scientific units like DEGC&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">fetch_sci</span>
+        <span class="k">return</span> <span class="n">fetch_sci</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fetch_cxc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetch in CXC (FITS standard) units like K&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">fetch</span>
+        <span class="k">return</span> <span class="n">fetch</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fetch_sys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetch in the unit system specified for the class&quot;&quot;&quot;</span>
+        <span class="n">fetch</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;fetch_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fetch</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Emulate the fetch.MSID() API, but return a dict of MSID attributes.</span>
+
+<span class="sd">        The returned dict turned into a proper MSID object by the upstream caller</span>
+<span class="sd">        `fetch.MSID._get_comp_data()`.</span>
+
+<span class="sd">        :param tstart: float, start time (CXC seconds)</span>
+<span class="sd">        :param tstop: float, stop time (CXC seconds)</span>
+<span class="sd">        :param msid: str, MSID name</span>
+<span class="sd">        :param interval: str or None, stats interval (None, &#39;5min&#39;, &#39;daily&#39;)</span>
+
+<span class="sd">        :returns: dict of MSID attributes including &#39;times&#39;, &#39;vals&#39;, &#39;bads&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Parse any arguments from the input `msid`</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msid_match</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unexpected mismatch of </span><span class="si">{</span><span class="n">msid</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">msid_match</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">match_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">arg</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">arg</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()]</span>
+
+        <span class="k">if</span> <span class="n">interval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Call the actual user-supplied work method to compute the MSID values</span>
+            <span class="n">msid_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_msid_attrs</span><span class="p">(</span><span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">match_args</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;vals&#39;</span><span class="p">,</span> <span class="s1">&#39;bads&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">msid_attrs</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;computed MSID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> failed &#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;to set required attribute </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Presence of a non-None `units` class attribute means that the MSID has</span>
+            <span class="c1"># units that should be converted to `self.unit_system` if required, where</span>
+            <span class="c1"># unit_system is &#39;cxc&#39;, &#39;sci&#39;, or &#39;eng&#39;.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">msid_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">msid_attrs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msid_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stats_attrs</span><span class="p">(</span><span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">match_args</span><span class="p">,</span>
+                                              <span class="n">interval</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">msid_attrs</span>
+
+<div class="viewcode-block" id="ComputedMsid.convert_units"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.ComputedMsid.convert_units">[docs]</a>    <span class="k">def</span> <span class="nf">convert_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msid_attrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert required elements of ``msid_attrs`` to ``self.unit_system``.</span>
+
+<span class="sd">        Unit_system can be one of &#39;cxc&#39;, &#39;sci&#39;, &#39;eng&#39;.</span>
+
+<span class="sd">        :param msid_attrs: dict, input MSID attributes</span>
+<span class="sd">        :param unit_system: str, unit system</span>
+
+<span class="sd">        :returns: dict, converted MSID attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unit_current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;internal_system&#39;</span><span class="p">]]</span>
+        <span class="n">unit_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="p">]</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">msid_attrs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_new</span>
+
+        <span class="k">if</span> <span class="n">unit_current</span> <span class="o">!=</span> <span class="n">unit_new</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;convert_attrs&#39;</span><span class="p">]:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_converter_funcs</span><span class="p">[</span><span class="n">unit_current</span><span class="p">,</span> <span class="n">unit_new</span><span class="p">](</span><span class="n">msid_attrs</span><span class="p">[</span><span class="n">attr</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="ComputedMsid.get_msid_attrs"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.ComputedMsid.get_msid_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">get_msid_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">msid_args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the attributes required for this MSID.</span>
+
+<span class="sd">        Get attributes for computed MSID, which must include at least</span>
+<span class="sd">        ``vals``, ``bads``, ``times``, and may include additional attributes.</span>
+
+<span class="sd">        This MUST be supplied by sub-classes.</span>
+
+<span class="sd">        :param tstart: start time (CXC secs)</span>
+<span class="sd">        :param tstop: stop time (CXC secs)</span>
+<span class="sd">        :param msid: full MSID name e.g. tephin_plus_5</span>
+<span class="sd">        :param msid_args: tuple of regex match groups (msid_name,)</span>
+<span class="sd">        :returns: dict of MSID attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;sub-class must implement get_msid_attrs()&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ComputedMsid.get_stats_attrs"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.ComputedMsid.get_stats_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">get_stats_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">match_args</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get 5-min or daily stats attributes.</span>
+
+<span class="sd">        This is normally not overridden by sub-classes.</span>
+
+<span class="sd">        :param tstart: start time (CXC secs)</span>
+<span class="sd">        :param tstop: stop time (CXC secs)</span>
+<span class="sd">        :param msid: full MSID name e.g. tephin_plus_5</span>
+<span class="sd">        :param msid_args: tuple of regex match groups (msid_name,)</span>
+<span class="sd">        :returns: dict of MSID attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..fetch</span> <span class="kn">import</span> <span class="n">_plural</span>
+
+        <span class="c1"># Replicate a stripped-down version of processing in update_archive.</span>
+        <span class="c1"># This produces a recarray with columns that correspond to the raw</span>
+        <span class="c1"># stats HDF5 files.</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;5min&#39;</span><span class="p">:</span> <span class="mi">328</span><span class="p">,</span>
+              <span class="s1">&#39;daily&#39;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">}[</span><span class="n">interval</span><span class="p">]</span>
+        <span class="n">index0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">tstart</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+        <span class="n">index1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">tstop</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+        <span class="n">tstart</span> <span class="o">=</span> <span class="p">(</span><span class="n">index0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">tstop</span> <span class="o">=</span> <span class="p">(</span><span class="n">index1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span>
+
+        <span class="n">msid_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_sys</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">)</span>
+
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">index0</span><span class="p">,</span> <span class="n">index1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">indexes</span> <span class="o">*</span> <span class="n">dt</span>  <span class="c1"># This is the *start* time of each bin</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">msid_obj</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+            <span class="n">vals_stats</span> <span class="o">=</span> <span class="n">calc_stats_vals</span><span class="p">(</span><span class="n">msid_obj</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">indexes</span><span class="p">,</span> <span class="n">interval</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+
+        <span class="c1"># Replicate the name munging that fetch does going from the HDF5 columns</span>
+        <span class="c1"># to what is seen in a stats fetch query.</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">vals_stats</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="n">out_key</span> <span class="o">=</span> <span class="n">_plural</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;n&#39;</span> <span class="k">else</span> <span class="s1">&#39;samples&#39;</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">out_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals_stats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">vals_stats</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;bads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vals_stats</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;midvals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s1">&#39;vals&#39;</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;vals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s1">&#39;means&#39;</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">msid_obj</span><span class="o">.</span><span class="n">unit</span>
+
+        <span class="k">return</span> <span class="n">out</span></div></div>
+
+<span class="c1">############################################################################</span>
+<span class="c1">#  Built-in computed MSIDs</span>
+<span class="c1">############################################################################</span>
+
+
+<div class="viewcode-block" id="Comp_MUPS_Valve_Temp_Clean"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.Comp_MUPS_Valve_Temp_Clean">[docs]</a><span class="k">class</span> <span class="nc">Comp_MUPS_Valve_Temp_Clean</span><span class="p">(</span><span class="n">ComputedMsid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computed MSID for cleaned MUPS valve temps PM2THV1T, PM1THV2T</span>
+
+<span class="sd">    This uses the cleaning method demonstrated in the following notebook</span>
+<span class="sd">    to return a version of the MUPS valve temperature comprised of</span>
+<span class="sd">    telemetry values that are consistent with a thermal model.</span>
+
+<span class="sd">    https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/ipynb/misc/mups-valve-xija-filtering.ipynb</span>
+<span class="sd">    https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb</span>
+
+<span class="sd">    Allowed MSIDs are &#39;pm2thv1t_clean&#39; and &#39;pm1thv2t_clean&#39; (as always case is</span>
+<span class="sd">    not important). Optionally one can include the ``chandra_models`` branch name,</span>
+<span class="sd">    tag or commit hash to used for reading the MUPS 1B and MUPS 2A thermal model</span>
+<span class="sd">    specifications. For example you can use &#39;pm1thv2t_clean_3.28&#39; to get the model</span>
+<span class="sd">    from release 3.28 of chandra_models.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">msid_match</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(pm2thv1t|pm1thv2t)_clean(_[\w\.]+)?&#39;</span>
+
+    <span class="n">units</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;internal_system&#39;</span><span class="p">:</span> <span class="s1">&#39;eng&#39;</span><span class="p">,</span>  <span class="c1"># Unit system for attrs from get_msid_attrs()</span>
+        <span class="s1">&#39;eng&#39;</span><span class="p">:</span> <span class="s1">&#39;DEGF&#39;</span><span class="p">,</span>  <span class="c1"># Units for eng, sci, cxc systems</span>
+        <span class="s1">&#39;sci&#39;</span><span class="p">:</span> <span class="s1">&#39;DEGC&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cxc&#39;</span><span class="p">:</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span>
+        <span class="c1"># Attributes that need conversion</span>
+        <span class="s1">&#39;convert_attrs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;vals&#39;</span><span class="p">,</span> <span class="s1">&#39;vals_raw&#39;</span><span class="p">,</span> <span class="s1">&#39;vals_nan&#39;</span><span class="p">,</span> <span class="s1">&#39;vals_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;vals_model&#39;</span><span class="p">]</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="Comp_MUPS_Valve_Temp_Clean.get_msid_attrs"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.Comp_MUPS_Valve_Temp_Clean.get_msid_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">get_msid_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">msid_args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get attributes for computed MSID: ``vals``, ``bads``, ``times``, ``unit``</span>
+
+<span class="sd">        :param tstart: start time (CXC secs)</span>
+<span class="sd">        :param tstop: stop time (CXC secs)</span>
+<span class="sd">        :param msid: full MSID name e.g. pm2thv1t_clean</span>
+<span class="sd">        :param msid_args: tuple of regex match groups (msid_name,)</span>
+
+<span class="sd">        :returns: dict of MSID attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">.mups_valve</span> <span class="kn">import</span> <span class="n">fetch_clean_msid</span>
+
+        <span class="c1"># Git branch of chandra_models to use for MUPS model spec from 2nd match group.</span>
+        <span class="c1"># If not supplied it will be None so use master.</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span> <span class="k">if</span> <span class="n">msid_args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">msid_args</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="c1"># Get cleaned MUPS valve temperature data as an MSID object</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">fetch_clean_msid</span><span class="p">(</span><span class="n">msid_args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span>
+                               <span class="n">dt_thresh</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">median</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">model_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
+
+        <span class="c1"># Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`</span>
+        <span class="c1"># returns an MSID object with the following attrs.</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;vals&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;bads&#39;</span><span class="p">,</span> <span class="s1">&#39;vals_raw&#39;</span><span class="p">,</span> <span class="s1">&#39;vals_nan&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;vals_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;vals_model&#39;</span><span class="p">,</span> <span class="s1">&#39;source&#39;</span><span class="p">)</span>
+        <span class="n">msid_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">attr</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">}</span>
+        <span class="n">msid_attrs</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;DEGF&#39;</span>
+
+        <span class="k">return</span> <span class="n">msid_attrs</span></div></div>
+
+
+<div class="viewcode-block" id="Comp_KadiCommandState"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.Comp_KadiCommandState">[docs]</a><span class="k">class</span> <span class="nc">Comp_KadiCommandState</span><span class="p">(</span><span class="n">ComputedMsid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computed MSID for kadi dynamic commanded states.</span>
+
+<span class="sd">    The MSID here takes the form ``cmd_state_&lt;state_key&gt;_&lt;dt&gt;`` where:</span>
+
+<span class="sd">    * ``state_key`` is a valid commanded state key such as ``pitch`` or</span>
+<span class="sd">      ``pcad_mode`` or ``acisfp_temp``.</span>
+<span class="sd">    * ``dt`` is the sampling time expressed as a multiple of 1.025 sec</span>
+<span class="sd">      frames.</span>
+
+<span class="sd">    Example MSID names::</span>
+
+<span class="sd">      &#39;cmd_state_pcad_mode_1&#39;: sample ``pcad_mode`` every 1.025 secs</span>
+<span class="sd">      &#39;cmd_state_acisfp_temp_32&#39;: sample ``acisfp_temp`` every 32.8 secs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">msid_match</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;cmd_state_(\w+)_(\d+)&#39;</span>
+
+<div class="viewcode-block" id="Comp_KadiCommandState.get_msid_attrs"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.comps.Comp_KadiCommandState.get_msid_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">get_msid_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">msid_args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get attributes for computed MSID: ``vals``, ``bads``, ``times``</span>
+
+<span class="sd">        :param tstart: start time (CXC secs)</span>
+<span class="sd">        :param tstop: stop time (CXC secs)</span>
+<span class="sd">        :param msid: full MSID name e.g. cmd_state_pitch_clean</span>
+<span class="sd">        :param msid_args: tuple of regex match groups: (state_key, dt)</span>
+
+<span class="sd">        :returns: dict of MSID attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">kadi.commands.states</span> <span class="kn">import</span> <span class="n">get_states</span>
+        <span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">date2secs</span>
+
+        <span class="n">state_key</span> <span class="o">=</span> <span class="n">msid_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="mf">1.025</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">msid_args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">get_states</span><span class="p">(</span><span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">state_keys</span><span class="o">=</span><span class="p">[</span><span class="n">state_key</span><span class="p">])</span>
+
+        <span class="n">tstart</span> <span class="o">=</span> <span class="n">date2secs</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="s1">&#39;datestart&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">tstops</span> <span class="o">=</span> <span class="n">date2secs</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="s1">&#39;datestop&#39;</span><span class="p">])</span>
+
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tstart</span><span class="p">,</span> <span class="n">tstops</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">state_key</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">tstops</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;vals&#39;</span><span class="p">:</span> <span class="n">vals</span><span class="p">[</span><span class="n">indexes</span><span class="p">],</span>
+               <span class="s1">&#39;times&#39;</span><span class="p">:</span> <span class="n">times</span><span class="p">,</span>
+               <span class="s1">&#39;bads&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
+               <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">out</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+
+
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

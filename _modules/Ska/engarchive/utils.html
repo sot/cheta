@@ -1,0 +1,462 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ska.engarchive.utils &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Ska.engarchive.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for the engineering archive.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">zip</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
+
+
+<span class="c1"># Cache the results of fetching 3 days of telemetry keyed by MSID</span>
+<span class="n">FETCH_SIZES</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># Standard intervals for 5min and daily telemetry</span>
+<span class="n">STATS_DT</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;5min&#39;</span><span class="p">:</span> <span class="mi">328</span><span class="p">,</span>
+            <span class="s1">&#39;daily&#39;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_fetch_size"><a class="viewcode-back" href="../../../utils.html#Ska.engarchive.utils.get_fetch_size">[docs]</a><span class="k">def</span> <span class="nf">get_fetch_size</span><span class="p">(</span><span class="n">msids</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolate_dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the memory size required to fetch the ``msids`` between ``start`` and</span>
+<span class="sd">    ``stop``.  This is generally intended for limiting queries to be less than ~100 Mb and</span>
+<span class="sd">    allows for making some assumptions for improved performance (see below).</span>
+
+<span class="sd">    Returns a tuple of the estimated megabytes of memory for the raw fetch and megabytes</span>
+<span class="sd">    for the final output (which is different only in the case of interpolating).  This is</span>
+<span class="sd">    done by fetching 3 days of telemetry (2010:001 to 2010:004) and scaling appropriately.</span>
+
+<span class="sd">    If ``fast`` is True (default) then if either of the conditions below apply a result of</span>
+<span class="sd">    (-1, -1) is returned, indicating that the fetch will probably be less than ~100 Mb and</span>
+<span class="sd">    should be OK.  (This does not account for the number of MSIDs passed in ``msids``).</span>
+
+<span class="sd">      - Fetch duration (stop - start) is less than 30 days</span>
+<span class="sd">      - Fetch ``stat`` is &#39;5min&#39; or &#39;daily&#39;</span>
+
+<span class="sd">    :param msids: list of MSIDs or a single MSID</span>
+<span class="sd">    :param start: start time</span>
+<span class="sd">    :param stop: stop time</span>
+<span class="sd">    :param stat: fetch stat (None|&#39;5min&#39;|&#39;daily&#39;, default=None)</span>
+<span class="sd">    :param interpolate_dt: interpolate the output to uniform time steps (default=None)</span>
+<span class="sd">    :param fast: return (-1, -1) if conditions on duration / stat (default=True)</span>
+
+<span class="sd">    :returns: fetch_Mb, interpolated_Mb</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span>
+
+    <span class="c1"># Short circuit in the case of a short fetch or not full-resolution telemetry</span>
+    <span class="k">if</span> <span class="n">fast</span> <span class="ow">and</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">30</span> <span class="ow">or</span> <span class="n">stat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fetch</span>
+
+    <span class="c1"># Allow for a single MSID input and make all values lower-case</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msids</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="n">msids</span> <span class="o">=</span> <span class="p">[</span><span class="n">msids</span><span class="p">]</span>
+    <span class="n">msids</span> <span class="o">=</span> <span class="p">[</span><span class="n">msid</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">msids</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">msids</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="n">stat</span><span class="p">)</span> <span class="ow">in</span> <span class="n">FETCH_SIZES</span><span class="p">:</span>
+            <span class="n">fetch_bytes</span><span class="p">,</span> <span class="n">fetch_rows</span> <span class="o">=</span> <span class="n">FETCH_SIZES</span><span class="p">[</span><span class="n">msid</span><span class="p">,</span> <span class="n">stat</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dat</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="s1">&#39;2010:001:00:00:01&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:004:00:00:01&#39;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="n">stat</span><span class="p">)</span>
+            <span class="n">fetch_bytes</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">dat</span><span class="o">.</span><span class="n">colnames</span><span class="p">)</span>
+            <span class="n">fetch_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dat</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
+            <span class="n">FETCH_SIZES</span><span class="p">[</span><span class="n">msid</span><span class="p">,</span> <span class="n">stat</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">fetch_bytes</span><span class="p">,</span> <span class="n">fetch_rows</span><span class="p">)</span>
+
+    <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+    <span class="n">fetch_bytes</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">FETCH_SIZES</span><span class="p">[</span><span class="n">msid</span><span class="p">,</span> <span class="n">stat</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale</span> <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">msids</span><span class="p">)</span>
+
+    <span class="c1"># Number of output rows = total fetch time (days) / interpolate interval in days</span>
+    <span class="k">if</span> <span class="n">interpolate_dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_bytes</span> <span class="o">=</span> <span class="n">fetch_bytes</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_rows_out</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">interpolate_dt</span> <span class="o">/</span> <span class="mi">86400</span><span class="p">)</span>
+        <span class="n">out_bytes</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">FETCH_SIZES</span><span class="p">[</span><span class="n">msid</span><span class="p">,</span> <span class="n">stat</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_rows_out</span> <span class="o">/</span> <span class="n">FETCH_SIZES</span><span class="p">[</span><span class="n">msid</span><span class="p">,</span> <span class="n">stat</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">msids</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">fetch_bytes</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">out_bytes</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ss_vector"><a class="viewcode-back" href="../../../utils.html#Ska.engarchive.utils.ss_vector">[docs]</a><span class="k">def</span> <span class="nf">ss_vector</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="s1">&#39;Earth&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate vector to Earth, Sun, or Moon in Chandra body coordinates</span>
+<span class="sd">    between ``start`` and ``stop`` dates at 5 minute (328 sec) intervals.</span>
+
+<span class="sd">    The return value in a NumPy structured array table (see below) which</span>
+<span class="sd">    contains the distance in km from Chandra to the the solar system object</span>
+<span class="sd">    along with the corresponding direction vectors in Chandra body coordinates</span>
+<span class="sd">    and in the ECI frame.  For convenience the attitude quaternion components</span>
+<span class="sd">    are also provided.</span>
+
+<span class="sd">    Output table columns:</span>
+
+<span class="sd">    * times: time in CXC seconds</span>
+<span class="sd">    * distance: Distance to object (km)</span>
+<span class="sd">    * body_x: X component of object in Chandra body coordinates</span>
+<span class="sd">    * body_y: Y component of object in Chandra body coordinates</span>
+<span class="sd">    * body_z: Z component of object in Chandra body coordinates</span>
+<span class="sd">    * eci_x: X component of object relative to Chandra in ECI coordinates</span>
+<span class="sd">    * eci_y: Y component of object relative to Chandra in ECI coordinates</span>
+<span class="sd">    * eci_z: Z component of object relative to Chandra in ECI coordinates</span>
+<span class="sd">    * q1: component 1 of the attitude quaternion</span>
+<span class="sd">    * q2: component 2 of the attitude quaternion</span>
+<span class="sd">    * q3: component 3 of the attitude quaternion</span>
+<span class="sd">    * q4: component 4 of the attitude quaternion</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">      from Ska.engarchive.utils import ss_vector</span>
+<span class="sd">      from Ska.Matplotlib import plot_cxctime</span>
+<span class="sd">      vec = ss_vector(&#39;2010:001&#39;, &#39;2010:030&#39;, obj=&#39;Sun&#39;)</span>
+<span class="sd">      figure(1)</span>
+<span class="sd">      clf()</span>
+<span class="sd">      subplot(2, 1, 1)</span>
+<span class="sd">      plot_cxctime(vec[&#39;times&#39;], vec[&#39;body_x&#39;], &#39;-b&#39;)</span>
+<span class="sd">      plot_cxctime(vec[&#39;times&#39;], vec[&#39;body_y&#39;], &#39;-r&#39;)</span>
+<span class="sd">      plot_cxctime(vec[&#39;times&#39;], vec[&#39;body_z&#39;], &#39;-g&#39;)</span>
+<span class="sd">      subplot(2, 1, 2)</span>
+<span class="sd">      plot_cxctime(vec[&#39;times&#39;], vec[&#39;distance&#39;])</span>
+
+<span class="sd">    :param start: start time (DateTime format)</span>
+<span class="sd">    :param stop: stop time (DateTime format)</span>
+<span class="sd">    :param obj: solar system object (&#39;Earth&#39;, &#39;Moon&#39;, &#39;Sun&#39;)</span>
+
+<span class="sd">    :returns: table of vector values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span>
+    <span class="kn">from</span> <span class="nn">Quaternion</span> <span class="kn">import</span> <span class="n">Quat</span>
+    <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fetch</span>
+
+    <span class="n">sign</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">earth</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">sun</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">moon</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">obj</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sign</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;obj parameter must be one of </span><span class="si">{0}</span><span class="s1">&#39;</span>
+                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sign</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+    <span class="n">tstart</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">secs</span>
+    <span class="n">tstop</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span><span class="o">.</span><span class="n">secs</span>
+    <span class="n">q_att_msids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;aoattqt1&#39;</span><span class="p">,</span> <span class="s1">&#39;aoattqt2&#39;</span><span class="p">,</span> <span class="s1">&#39;aoattqt3&#39;</span><span class="p">,</span> <span class="s1">&#39;aoattqt4&#39;</span><span class="p">]</span>
+    <span class="n">q_atts</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSIDset</span><span class="p">(</span><span class="n">q_att_msids</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;5min&#39;</span><span class="p">)</span>
+
+    <span class="n">q_atts_times</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">q_atts</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">times</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">q_att_msids</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q_atts_times</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Inconsistency in sampling for aoattqt&lt;N&gt;&#39;</span><span class="p">)</span>
+
+    <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]</span>
+    <span class="n">prefixes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;earth&#39;</span><span class="p">:</span> <span class="s1">&#39;orbitephem1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;sun&#39;</span><span class="p">:</span> <span class="s1">&#39;solarephem1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;moon&#39;</span><span class="p">:</span> <span class="s1">&#39;lunarephem1&#39;</span><span class="p">}</span>
+    <span class="n">objs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;earth&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="p">])</span>
+    <span class="n">msids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">_</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prefixes</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">axes</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">]</span>
+
+    <span class="c1"># Pad the fetch so interp always works</span>
+    <span class="n">ephem</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSIDset</span><span class="p">(</span><span class="n">msids</span><span class="p">,</span> <span class="n">tstart</span> <span class="o">-</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">tstop</span> <span class="o">+</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">times</span>
+    <span class="n">times0</span> <span class="o">=</span> <span class="n">times</span> <span class="o">-</span> <span class="n">tstart</span>
+    <span class="n">obj_ecis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times0</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">:</span>
+            <span class="n">msid</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">_</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prefixes</span><span class="p">[</span><span class="n">obj</span><span class="p">],</span> <span class="n">axis</span><span class="p">)</span>
+            <span class="n">ephem_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">ephem</span><span class="p">[</span><span class="n">msid</span><span class="p">]</span><span class="o">.</span><span class="n">times</span> <span class="o">-</span> <span class="n">tstart</span><span class="p">,</span>
+                                    <span class="n">ephem</span><span class="p">[</span><span class="n">msid</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+            <span class="n">obj_ecis</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sign</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span> <span class="o">*</span> <span class="n">ephem_interp</span><span class="p">(</span><span class="n">times0</span><span class="p">)</span>
+
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">obj_ecis</span> <span class="o">*</span> <span class="n">obj_ecis</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">bad_q_atts</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of inconsistent quaternion values in telemetry</span>
+    <span class="n">p_obj_body</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">times0</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj_eci</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">q3</span><span class="p">,</span> <span class="n">q4</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">count</span><span class="p">(),</span> <span class="n">obj_ecis</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">times0</span><span class="p">,</span> <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">,</span>
+            <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">,</span> <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt3&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">,</span>
+            <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt4&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">q_att</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">([</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">q3</span><span class="p">,</span> <span class="n">q4</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">bad_q_atts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">p_obj_eci</span> <span class="o">=</span> <span class="n">obj_eci</span> <span class="o">/</span> <span class="n">distance</span>
+        <span class="n">p_obj_body</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">q_att</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">p_obj_eci</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rec</span><span class="o">.</span><span class="n">fromarrays</span><span class="p">([</span><span class="n">times</span><span class="p">,</span>
+                             <span class="n">distances</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span>
+                             <span class="n">p_obj_body</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+                             <span class="n">p_obj_body</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                             <span class="n">p_obj_body</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+                             <span class="n">obj_ecis</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">distances</span><span class="p">,</span>
+                             <span class="n">obj_ecis</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">distances</span><span class="p">,</span>
+                             <span class="n">obj_ecis</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">distances</span><span class="p">,</span>
+                             <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">,</span>
+                             <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">,</span>
+                             <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt3&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">,</span>
+                             <span class="n">q_atts</span><span class="p">[</span><span class="s1">&#39;aoattqt4&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">midvals</span><span class="p">],</span>
+                            <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;distance&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;body_x&#39;</span><span class="p">,</span> <span class="s1">&#39;body_y&#39;</span><span class="p">,</span> <span class="s1">&#39;body_z&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;eci_x&#39;</span><span class="p">,</span> <span class="s1">&#39;eci_y&#39;</span><span class="p">,</span> <span class="s1">&#39;eci_z&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;q2&#39;</span><span class="p">,</span> <span class="s1">&#39;q3&#39;</span><span class="p">,</span> <span class="s1">&#39;q4&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">bad_q_atts</span><span class="p">:</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">ok</span><span class="p">[</span><span class="n">bad_q_atts</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<span class="k">def</span> <span class="nf">_pad_long_gaps</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">max_gap</span><span class="p">):</span>
+    <span class="n">dts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+    <span class="n">i_long_gaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">dts</span> <span class="o">&gt;</span> <span class="n">max_gap</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_long_gaps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">i_long_gaps</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">times</span><span class="p">[:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">max_gap</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">times</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">max_gap</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">],</span>
+                                    <span class="n">times</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]])</span>
+            <span class="n">bools</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">bools</span><span class="p">[:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+                                    <span class="n">bools</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]])</span>
+    <span class="k">return</span> <span class="n">times</span><span class="p">,</span> <span class="n">bools</span>
+
+
+<div class="viewcode-block" id="logical_intervals"><a class="viewcode-back" href="../../../utils.html#Ska.engarchive.utils.logical_intervals">[docs]</a><span class="k">def</span> <span class="nf">logical_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">complete_intervals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which `bools` is True.</span>
+
+<span class="sd">    If ``complete_intervals`` is True (default) then the intervals are guaranteed to</span>
+<span class="sd">    be complete so that the all reported intervals had a transition before and after</span>
+<span class="sd">    within the telemetry interval.</span>
+
+<span class="sd">    If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are</span>
+<span class="sd">    filled with a fictitious False value to create an artificial interval</span>
+<span class="sd">    boundary at ``max_gap / 2`` seconds from the nearest data value.</span>
+
+<span class="sd">    Returns an astropy Table with a row for each interval.  Columns are:</span>
+
+<span class="sd">    * datestart: date of interval start</span>
+<span class="sd">    * datestop: date of interval stop</span>
+<span class="sd">    * duration: duration of interval (sec)</span>
+<span class="sd">    * tstart: time of interval start (CXC sec)</span>
+<span class="sd">    * tstop: time of interval stop (CXC sec)</span>
+
+<span class="sd">    Example (find SCS107 runs via telemetry)::</span>
+
+<span class="sd">      &gt;&gt;&gt; from Ska.engarchive import utils, fetch</span>
+<span class="sd">      &gt;&gt;&gt; dat = fetch.Msidset([&#39;3tscmove&#39;, &#39;aorwbias&#39;, &#39;coradmen&#39;], &#39;2012:190&#39;, &#39;2012:205&#39;)</span>
+<span class="sd">      &gt;&gt;&gt; dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)</span>
+<span class="sd">      &gt;&gt;&gt; scs107 = ((dat[&#39;3tscmove&#39;].vals == &#39;T&#39;)</span>
+<span class="sd">                    &amp; (dat[&#39;aorwbias&#39;].vals == &#39;DISA&#39;)</span>
+<span class="sd">                    &amp; (dat[&#39;coradmen&#39;].vals == &#39;DISA&#39;))</span>
+<span class="sd">      &gt;&gt;&gt; scs107s = utils.logical_intervals(dat.times, scs107)</span>
+<span class="sd">      &gt;&gt;&gt; print scs107s[&#39;datestart&#39;, &#39;datestop&#39;, &#39;duration&#39;]</span>
+<span class="sd">            datestart              datestop          duration</span>
+<span class="sd">      --------------------- --------------------- -------------</span>
+<span class="sd">      2012:194:20:00:31.652 2012:194:20:04:21.252 229.600000083</span>
+<span class="sd">      2012:196:21:07:36.452 2012:196:21:11:26.052 229.600000083</span>
+<span class="sd">      2012:201:11:45:46.852 2012:201:11:49:36.452 229.600000083</span>
+
+<span class="sd">    :param times: array of time stamps in CXC seconds</span>
+<span class="sd">    :param bools: array of logical True/False values</span>
+<span class="sd">    :param complete_intervals: return only complete intervals (default=True)</span>
+<span class="sd">    :param max_gap: max allowed gap between time stamps (sec, default=None)</span>
+<span class="sd">    :returns: Table of intervals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">max_gap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">times</span><span class="p">,</span> <span class="n">bools</span> <span class="o">=</span> <span class="n">_pad_long_gaps</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">max_gap</span><span class="p">)</span>
+
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">complete_intervals</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">intervals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">intervals</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">intervals</span> <span class="o">=</span> <span class="n">intervals</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">intervals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">intervals</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">intervals</span> <span class="o">=</span> <span class="n">intervals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">intervals</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>  <span class="c1"># Intervals where bools is True</span>
+    <span class="k">del</span> <span class="n">intervals</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">intervals</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="state_intervals"><a class="viewcode-back" href="../../../utils.html#Ska.engarchive.utils.state_intervals">[docs]</a><span class="k">def</span> <span class="nf">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine contiguous intervals during which the ``vals`` is unchanged.</span>
+
+<span class="sd">    Returns an Astropy Table with a row for each interval.  Columns are:</span>
+
+<span class="sd">    * datestart: date of interval start</span>
+<span class="sd">    * datestop: date of interval stop</span>
+<span class="sd">    * duration: duration of interval (sec)</span>
+<span class="sd">    * tstart: time of interval start (CXC sec)</span>
+<span class="sd">    * tstop: time of interval stop (CXC sec)</span>
+<span class="sd">    * val: MSID value during the interval</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">      &gt;&gt;&gt; from Ska.engarchive import fetch, utils</span>
+<span class="sd">      &gt;&gt;&gt; dat = fetch.Msid(&#39;cobsrqid&#39;, &#39;2010:003&#39;, &#39;2010:004&#39;)</span>
+<span class="sd">      &gt;&gt;&gt; obsids = utils.state_intervals(dat.times, dat.vals)</span>
+<span class="sd">      &gt;&gt;&gt; print obsids[&#39;datestart&#39;, &#39;datestop&#39;, &#39;val&#39;]</span>
+<span class="sd">            datestart              datestop         val</span>
+<span class="sd">      --------------------- --------------------- -------</span>
+<span class="sd">      2010:003:12:00:00.976 2010:004:09:07:44.180 11011.0</span>
+<span class="sd">      2010:004:09:07:44.180 2010:004:09:40:52.680 56548.0</span>
+<span class="sd">      2010:004:09:40:52.680 2010:004:12:00:00.280 12068.0</span>
+
+<span class="sd">    :param times: times (CXC seconds)</span>
+<span class="sd">    :param vals: state values for which intervals are returned.</span>
+<span class="sd">    :returns: structured array table of intervals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Filtered data length must be at least 2&#39;</span><span class="p">)</span>
+
+    <span class="n">transitions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="kc">True</span><span class="p">],</span> <span class="n">vals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="p">[</span><span class="kc">True</span><span class="p">]])</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">midtimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="n">t0</span><span class="p">],</span> <span class="p">(</span><span class="n">times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="n">t1</span><span class="p">]])</span>
+
+    <span class="n">state_vals</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">transitions</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+    <span class="n">state_times</span> <span class="o">=</span> <span class="n">midtimes</span><span class="p">[</span><span class="n">transitions</span><span class="p">]</span>
+
+    <span class="n">intervals</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;datestart&#39;</span><span class="p">:</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+                 <span class="s1">&#39;datestop&#39;</span><span class="p">:</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+                 <span class="s1">&#39;tstart&#39;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="s1">&#39;tstop&#39;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                 <span class="s1">&#39;duration&#39;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="s1">&#39;val&#39;</span><span class="p">:</span> <span class="n">state_vals</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">Table</span><span class="p">(</span><span class="n">intervals</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">intervals</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_date_id"><a class="viewcode-back" href="../../../utils.html#Ska.engarchive.utils.get_date_id">[docs]</a><span class="k">def</span> <span class="nf">get_date_id</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get date_id format used in sync repo index.</span>
+
+<span class="sd">    :param date:</span>
+<span class="sd">    :return: date_id</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">date_id</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">fits</span>
+    <span class="n">date_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">date_id</span><span class="p">[:</span><span class="mi">16</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;z&#39;</span>
+    <span class="k">return</span> <span class="n">date_id</span></div>
+
+
+<div class="viewcode-block" id="set_fetch_basedir"><a class="viewcode-back" href="../../../utils.html#Ska.engarchive.utils.set_fetch_basedir">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">set_fetch_basedir</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Temporarily override the base directory that fetch uses for telemetry data.</span>
+
+<span class="sd">    Example to use local data::</span>
+
+<span class="sd">      &gt;&gt;&gt; with set_fetch_basedir(&#39;.&#39;):</span>
+<span class="sd">      ...     dat = fetch.Msid(&#39;aacccdpt&#39;, &#39;2018:001&#39;, &#39;2018:100&#39;)</span>
+
+<span class="sd">    :param basedir: str or os.PathLike, base directory for cheta data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fetch</span>
+    <span class="n">orig_basedir</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">msid_files</span><span class="o">.</span><span class="n">basedir</span>
+    <span class="n">fetch</span><span class="o">.</span><span class="n">msid_files</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">basedir</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">fetch</span><span class="o">.</span><span class="n">msid_files</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="n">orig_basedir</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+
+
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

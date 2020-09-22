@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ska Engineering Telemetry Archive &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Ska Analysis Tutorial" href="tutorial.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="#"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="tutorial.html" title="Ska Analysis Tutorial">
+	  next &raquo;
+	</a>
+      </li>
+      <li>
+	<a href="#">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ska-engineering-telemetry-archive">
+<h1>Ska Engineering Telemetry Archive<a class="headerlink" href="#ska-engineering-telemetry-archive" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>Overview<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The Ska engineering telemetry archive is a suite of tools and data products
+that make available the majority of all Chandra engineering telemetry since the
+start of the mission (1999:204).  This includes about 6300 MSIDs.  The telemetry are stored
+in a way that allows for very fast and efficient retrieval into memory.
+Typical retrieve rates are around 10^7 samples/sec.  For an MSID sampled once
+per second this translates to about 3 sec per year of data.</p>
+<p>The engineering telemetry archive consists of:</p>
+<ul class="simple">
+<li><p>Tools to ingest and compress telemetry from the CXC Chandra archive products.</p></li>
+<li><p>Compressed telemetry files in HDF5 format.  Each MSID has three associated products:</p>
+<ul>
+<li><p>Full time-resolution data: time, value, quality</p></li>
+<li><p>5-minute statistics: min, max, mean, sampled value, number of samples</p></li>
+<li><p>Daily statistics: min, max, mean, sampled value, standard deviation, percentiles (1,
+5, 16, 50, 84, 95, 99), number of samples.</p></li>
+</ul>
+</li>
+<li><p>A python module to retrieve telemetry values.</p></li>
+</ul>
+</div>
+<div class="section" id="pseudo-msids">
+<h2>Pseudo-MSIDs<a class="headerlink" href="#pseudo-msids" title="Permalink to this headline">¶</a></h2>
+<p>A small selection of pseudo-MSIDs that do not come in the engineering telemetry
+stream are also available in the archive.  These are:</p>
+<ul class="simple">
+<li><p>SIM telemetry: SIM position and moving status (deprecated)</p></li>
+<li><p>EPHIN telemetry: level-0 science telemetry from EPHIN</p></li>
+<li><p>ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)</p></li>
+<li><p>Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values</p></li>
+<li><p>Derived parameters: values computed from other MSIDs in the archive (ACIS power, orbital elements, PCAD, thermal)</p></li>
+</ul>
+<p>For details see the documentation on Pseudo-MSIDs in the engineering archive.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Ska Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fetch_tutorial.html">Fetch Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ska_fetch.html">Command-line fetch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pseudo_msids.html">Pseudo-MSIDs in the engineering archive</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="api-docs">
+<h2>API docs<a class="headerlink" href="#api-docs" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fetch.html">Fetch API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities API documentation</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Ska Engineering Telemetry Archive</a><ul>
+<li><a class="reference internal" href="#id1">Overview</a></li>
+<li><a class="reference internal" href="#pseudo-msids">Pseudo-MSIDs</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#api-docs">API docs</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Ska Analysis Tutorial</a></p>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

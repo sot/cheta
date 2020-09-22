@@ -1,0 +1,494 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command-line fetch &#8212; Eng archive 4.48.1.dev26+g3f7fcb8 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pseudo-MSIDs in the engineering archive" href="pseudo_msids.html" />
+    <link rel="prev" title="Fetch Tutorial" href="fetch_tutorial.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">Ska! </span><span id="logotext2">Eng</span><span id="logotext3">archive</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="pseudo_msids.html" title="Pseudo-MSIDs in the engineering archive">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="fetch_tutorial.html" title="Fetch Tutorial">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">Eng archive 4.48.1.dev26+g3f7fcb8 documentation</a>
+	 &#187;
+      </li>
+      
+      <li>Command-line fetch</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="command-line-fetch">
+<h1>Command-line fetch<a class="headerlink" href="#command-line-fetch" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">fetch_ska</span></code> application allows use of the Ska engineering archive
+without getting into Python or using any scripting.  From a single command
+line tool you can access most of the common processing steps associated with
+fetching and using telemetry data:</p>
+<ul class="simple">
+<li><p>Fetch a set of MSIDs over a time range, specifying the sampling as
+either full-resolution, 5-minute, or daily data.</p></li>
+<li><p>Filter out bad or missing data.</p></li>
+<li><p>Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.</p></li>
+<li><p>Remove or select time intervals corresponding to specified Kadi event types.</p></li>
+<li><p>Change the time format from CXC seconds (seconds since 1998.0) to something more
+convenient like GRETA time.</p></li>
+<li><p>Write the MSID telemetry data to a zip file.</p></li>
+</ul>
+<p>Aside from the first two steps (fetching data and filtering bad data), all the steps are
+optional.</p>
+<div class="section" id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>The very first thing is to get set up to use the Ska environment following the
+instructions in the <a class="reference external" href="tutorial.html#configure">Ska Analysis Tutorial</a>.  Assuming that is
+done, then you need to enter the Ska environment using the <code class="docutils literal notranslate"><span class="pre">ska</span></code> (or <code class="docutils literal notranslate"><span class="pre">skatest</span></code>)
+alias:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska</span>
+</pre></div>
+</div>
+<p>(In case you don’t use linux frequently, the <code class="docutils literal notranslate"><span class="pre">%</span></code> is meant to represent the command
+prompt, so don’t type that).  After doing <code class="docutils literal notranslate"><span class="pre">ska</span></code> you should see your prompt change to
+include a <code class="docutils literal notranslate"><span class="pre">ska-</span></code> prefix.</p>
+<div class="section" id="getting-help">
+<h3>Getting help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h3>
+<p>You can get help by asking <code class="docutils literal notranslate"><span class="pre">ska_fetch</span></code> to print its command line options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="o">--</span><span class="n">help</span>
+
+<span class="n">usage</span><span class="p">:</span> <span class="n">ska_fetch</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">start</span> <span class="n">START</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stop</span> <span class="n">STOP</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">sampling</span> <span class="n">SAMPLING</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">unit</span><span class="o">-</span><span class="n">system</span> <span class="n">UNIT_SYSTEM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">interpolate</span><span class="o">-</span><span class="n">dt</span> <span class="n">INTERPOLATE_DT</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">remove</span><span class="o">-</span><span class="n">events</span> <span class="n">REMOVE_EVENTS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">select</span><span class="o">-</span><span class="n">events</span> <span class="n">SELECT_EVENTS</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">time</span><span class="o">-</span><span class="nb">format</span> <span class="n">TIME_FORMAT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">outfile</span> <span class="n">OUTFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">quiet</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">fetch</span><span class="o">-</span><span class="n">Mb</span> <span class="n">MAX_FETCH_MB</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">Mb</span> <span class="n">MAX_OUTPUT_MB</span><span class="p">]</span>
+                 <span class="n">MSID</span> <span class="p">[</span><span class="n">MSID</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="n">Fetch</span> <span class="n">telemetry</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">Ska</span> <span class="n">engineering</span> <span class="n">archive</span><span class="o">.</span>
+
+<span class="n">Examples</span>
+<span class="o">========</span>
+
+  <span class="c1"># Get full-resolution TEPHIN, AOPCADMD for last 30 days, and save as telem.zip</span>
+  <span class="o">%</span> <span class="n">ska_fetch</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="mi">5</span><span class="nb">min</span> <span class="o">--</span><span class="n">outfile</span><span class="o">=</span><span class="n">telem</span><span class="o">.</span><span class="n">zip</span> <span class="o">--</span><span class="n">time</span><span class="o">-</span><span class="nb">format</span><span class="o">=</span><span class="n">greta</span> <span class="n">TEPHIN</span> <span class="n">AOPCADMD</span>
+
+  <span class="c1"># Get daily temps since 2000, removing times within 100000 seconds of safe- or normal- sun</span>
+  <span class="o">%</span> <span class="n">ska_fetch</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="n">daily</span> <span class="o">--</span><span class="n">outfile</span><span class="o">=</span><span class="n">tephin</span><span class="o">.</span><span class="n">zip</span> \
+              <span class="o">--</span><span class="n">remove</span><span class="o">-</span><span class="n">events</span><span class="o">=</span><span class="s1">&#39;safe_suns[pad=100000] | normal_suns[pad=100000]&#39;</span> \
+              <span class="n">tephin</span> <span class="n">tcylaft6</span>
+
+  <span class="c1"># Get daily IRU-2 temps since 2004, removing known LTT bad times</span>
+  <span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">AIRU2BT</span> <span class="o">--</span><span class="n">start</span> <span class="mi">2004</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="n">daily</span> <span class="o">--</span><span class="n">outfile</span><span class="o">=</span><span class="n">airu2bt</span><span class="o">.</span><span class="n">zip</span> \
+              <span class="o">--</span><span class="n">remove</span><span class="o">-</span><span class="n">events</span><span class="o">=</span><span class="s1">&#39;ltt_bads[msid=&quot;AIRU2BT&quot;]&#39;</span>
+
+<span class="n">Arguments</span>
+<span class="o">=========</span>
+
+<span class="n">positional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="n">MSID</span>                  <span class="n">MSID</span> <span class="n">to</span> <span class="n">fetch</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="n">start</span> <span class="n">START</span>         <span class="n">Start</span> <span class="n">time</span> <span class="k">for</span> <span class="n">data</span> <span class="n">fetch</span> <span class="p">(</span><span class="n">default</span><span class="o">=&lt;</span><span class="n">stop</span><span class="o">&gt;</span> <span class="o">-</span> <span class="mi">30</span> <span class="n">days</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">stop</span> <span class="n">STOP</span>           <span class="n">Stop</span> <span class="n">time</span> <span class="k">for</span> <span class="n">data</span> <span class="n">fetch</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">NOW</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">sampling</span> <span class="n">SAMPLING</span>   <span class="n">Data</span> <span class="n">sampling</span> <span class="p">(</span><span class="n">full</span><span class="o">|</span><span class="mi">5</span><span class="nb">min</span><span class="o">|</span><span class="n">daily</span><span class="p">)</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="nb">min</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">unit</span><span class="o">-</span><span class="n">system</span> <span class="n">UNIT_SYSTEM</span>
+                        <span class="n">Unit</span> <span class="n">system</span> <span class="k">for</span> <span class="n">data</span> <span class="p">(</span><span class="n">eng</span><span class="o">|</span><span class="n">sci</span><span class="o">|</span><span class="n">cxc</span><span class="p">)</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">eng</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">interpolate</span><span class="o">-</span><span class="n">dt</span> <span class="n">INTERPOLATE_DT</span>
+                        <span class="n">Interpolate</span> <span class="n">to</span> <span class="n">uniform</span> <span class="n">time</span> <span class="n">steps</span> <span class="p">(</span><span class="n">secs</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">remove</span><span class="o">-</span><span class="n">events</span> <span class="n">REMOVE_EVENTS</span>
+                        <span class="n">Remove</span> <span class="n">kadi</span> <span class="n">events</span> <span class="n">expression</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">select</span><span class="o">-</span><span class="n">events</span> <span class="n">SELECT_EVENTS</span>
+                        <span class="n">Select</span> <span class="n">kadi</span> <span class="n">events</span> <span class="n">expression</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">time</span><span class="o">-</span><span class="nb">format</span> <span class="n">TIME_FORMAT</span>
+                        <span class="n">Output</span> <span class="n">time</span> <span class="nb">format</span> <span class="p">(</span><span class="n">secs</span><span class="o">|</span><span class="n">date</span><span class="o">|</span><span class="n">greta</span><span class="o">|</span><span class="n">jd</span><span class="o">|</span><span class="n">frac_year</span><span class="o">|...</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">outfile</span> <span class="n">OUTFILE</span>     <span class="n">Output</span> <span class="n">file</span> <span class="n">name</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">fetch</span><span class="o">.</span><span class="n">zip</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">quiet</span>               <span class="n">Suppress</span> <span class="n">run</span><span class="o">-</span><span class="n">time</span> <span class="n">logging</span> <span class="n">output</span>
+  <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">fetch</span><span class="o">-</span><span class="n">Mb</span> <span class="n">MAX_FETCH_MB</span>
+                        <span class="n">Max</span> <span class="n">allowed</span> <span class="n">memory</span> <span class="p">(</span><span class="n">Mb</span><span class="p">)</span> <span class="k">for</span> <span class="n">fetching</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+  <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">Mb</span> <span class="n">MAX_OUTPUT_MB</span>
+                        <span class="n">Max</span> <span class="n">allowed</span> <span class="n">memory</span> <span class="p">(</span><span class="n">Mb</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="n">output</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="try-it-out">
+<h3>Try it out<a class="headerlink" href="#try-it-out" title="Permalink to this headline">¶</a></h3>
+<p>There are plenty of options but frequently you’ll only need a few.  Let’s start by
+trying the first example provided in the help output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">TEPHIN</span> <span class="n">AOPCADMD</span> <span class="o">--</span><span class="n">start</span><span class="o">=</span><span class="mi">2013</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">stop</span><span class="o">=</span><span class="mi">2013</span><span class="p">:</span><span class="mi">030</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="mi">5</span><span class="nb">min</span> \
+            <span class="o">--</span><span class="n">time</span><span class="o">-</span><span class="nb">format</span><span class="o">=</span><span class="n">greta</span> <span class="o">--</span><span class="n">outfile</span><span class="o">=</span><span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">Fetching</span> <span class="mi">5</span><span class="nb">min</span><span class="o">-</span><span class="n">resolution</span> <span class="n">data</span> <span class="k">for</span> <span class="n">MSIDS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TEPHIN&#39;</span><span class="p">,</span> <span class="s1">&#39;AOPCADMD&#39;</span><span class="p">]</span>
+  <span class="kn">from</span> <span class="mi">2013</span><span class="p">:</span><span class="mi">001</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span> <span class="n">to</span> <span class="mi">2013</span><span class="p">:</span><span class="mi">030</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span>
+<span class="n">Writing</span> <span class="n">data</span> <span class="n">to</span> <span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
+</pre></div>
+</div>
+<p>That was easy, now let’s unzip the archive and see what we got.  First look at the archive contents:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">unzip</span> <span class="o">-</span><span class="n">l</span> <span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">Archive</span><span class="p">:</span>  <span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
+  <span class="n">Length</span>      <span class="n">Date</span>    <span class="n">Time</span>    <span class="n">Name</span>
+<span class="o">---------</span>  <span class="o">----------</span> <span class="o">-----</span>   <span class="o">----</span>
+   <span class="mi">460424</span>  <span class="mi">03</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">2014</span> <span class="mi">11</span><span class="p">:</span><span class="mi">46</span>   <span class="n">TEPHIN</span><span class="o">.</span><span class="n">csv</span>
+   <span class="mi">221559</span>  <span class="mi">03</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">2014</span> <span class="mi">11</span><span class="p">:</span><span class="mi">46</span>   <span class="n">AOPCADMD</span><span class="o">.</span><span class="n">csv</span>
+<span class="o">---------</span>                     <span class="o">-------</span>
+   <span class="mi">681983</span>                     <span class="mi">2</span> <span class="n">files</span>
+</pre></div>
+</div>
+<p>Now let’s unzip:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">unzip</span> <span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">Archive</span><span class="p">:</span>  <span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
+  <span class="n">inflating</span><span class="p">:</span> <span class="n">TEPHIN</span><span class="o">.</span><span class="n">csv</span>
+  <span class="n">inflating</span><span class="p">:</span> <span class="n">AOPCADMD</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+<p>The first data file is a comma-separated values file <code class="docutils literal notranslate"><span class="pre">TEPHIN.csv</span></code>.   This could be
+imported into Excel or any number of other applications.  Let’s look at the first few
+lines of the file with the linux <code class="docutils literal notranslate"><span class="pre">head</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">head</span> <span class="n">TEPHIN</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">times</span><span class="p">,</span><span class="n">samples</span><span class="p">,</span><span class="n">vals</span><span class="p">,</span><span class="n">mins</span><span class="p">,</span><span class="n">maxes</span><span class="p">,</span><span class="n">means</span><span class="p">,</span><span class="n">midvals</span>
+<span class="mf">2013001.120424816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.120952816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.121520816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.122048816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.122616816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.123144816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.123712816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.124240816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+<span class="mf">2013001.124808816</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span><span class="p">,</span><span class="mf">113.798</span>
+</pre></div>
+</div>
+<p>For the TEPHIN data the column names are mostly straighforward.  For 5-minute or daily
+data, the <code class="docutils literal notranslate"><span class="pre">vals</span></code> column is the same as the mean.  This is a convience so you can
+use <code class="docutils literal notranslate"><span class="pre">vals</span></code> for <code class="docutils literal notranslate"><span class="pre">full</span></code>, <code class="docutils literal notranslate"><span class="pre">5min</span></code> and <code class="docutils literal notranslate"><span class="pre">daily</span></code> sampling analysis.  The <code class="docutils literal notranslate"><span class="pre">midvals</span></code>
+column represents the telemetered value at exactly the midpoint of the interval.</p>
+<p>Now let’s examine the AOPCADMD output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">head</span> <span class="n">AOPCADMD</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">times</span><span class="p">,</span><span class="n">samples</span><span class="p">,</span><span class="n">vals</span><span class="p">,</span><span class="n">raw_vals</span>
+<span class="mf">2013001.120424816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.120952816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.121520816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.122048816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.122616816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.123144816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.123712816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.124240816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+<span class="mf">2013001.124808816</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="n">NPNT</span><span class="p">,</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>For the AOPCADMD data notice there are no statistic values.  This is because it is a state
+code MSID and so there is no useful meaning for a mean or max.  The final <code class="docutils literal notranslate"><span class="pre">raw_vals</span></code>
+column is the raw telemetered value, while <code class="docutils literal notranslate"><span class="pre">vals</span></code> has been translated into the
+corresponding state code string.</p>
+</div>
+</div>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>There are many options controlling <code class="docutils literal notranslate"><span class="pre">fetch_ska</span></code>, but they can be broken down
+into manageable subsets as in the following sections.  This will include detailed
+discussion of how to use each of the options.</p>
+<div class="section" id="desired-telemetry">
+<h3>Desired telemetry<a class="headerlink" href="#desired-telemetry" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 79%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>msids</p></td>
+<td><p>MSID(s) to fetch (string or list of strings)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–start</p></td>
+<td><p>Start time for data fetch (default=&lt;stop&gt; - 30 days)</p></td>
+</tr>
+<tr class="row-even"><td><p>–stop</p></td>
+<td><p>Stop time for data fetch (default=NOW)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–sampling</p></td>
+<td><p>Data sampling (full | 5min | daily) (default=5min))</p></td>
+</tr>
+<tr class="row-even"><td><p>–unit_system</p></td>
+<td><p>Unit system for data (eng | sci | cxc) (default=eng)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The first argument <code class="docutils literal notranslate"><span class="pre">msids</span></code> is the only one that always has to be provided.  It should be
+either a single string like <code class="docutils literal notranslate"><span class="pre">COBSRQID</span></code> or a list of strings like <code class="docutils literal notranslate"><span class="pre">TEPHIN</span>
+<span class="pre">TCYLAFT6</span> <span class="pre">TEIO</span></code>.  Note that the MSID is case-insensitive so <code class="docutils literal notranslate"><span class="pre">tephin</span></code> is fine.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--start</span></code> and <code class="docutils literal notranslate"><span class="pre">--stop</span></code> arguments are typically a string like <code class="docutils literal notranslate"><span class="pre">2012:001</span></code> or
+<code class="docutils literal notranslate"><span class="pre">2012:001:02:03:04</span></code> (ISO time) or <code class="docutils literal notranslate"><span class="pre">2012001.020304</span></code> (GRETA time).  If not provided
+then the last 30 days of telemetry will be fetched.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--sampling</span></code> argument will choose between either full-resolution telemetry
+or the 5-minute or daily summary statistic values.  The default is <code class="docutils literal notranslate"><span class="pre">5min</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--unit_system</span></code> argument selects the output unit system.  The choices are engineering
+units (i.e. what is in the TDB and GRETA), science units (mostly just temperatures in C
+instead of F), or CXC units (whatever is in CXC decom, which e.g. has temperatures in K).</p>
+</div>
+<div class="section" id="interpolation">
+<h3>Interpolation<a class="headerlink" href="#interpolation" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–interpolate_dt</p></td>
+<td><p>Interpolate to uniform time steps (secs, default=None)</p></td>
+</tr>
+</tbody>
+</table>
+<p>In general different MSIDs will come down in telemetry with different sampling and time
+stamps.  Interpolation allows you to put all the MSIDs onto a common time sequence so you
+can compare them, plot one against the other, and so forth.  You can see the
+<a class="reference internal" href="#interpolation">Interpolation</a> section for the gory details, but if you need to have your MSIDs on
+a common time sequence then set <code class="docutils literal notranslate"><span class="pre">interpolate_dt</span></code> to the desired time step
+in seconds.  When interpolating <code class="docutils literal notranslate"><span class="pre">ska_fetch</span></code> uses <code class="docutils literal notranslate"><span class="pre">filter_bad=True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">union_bad=True</span></code> (as described in <a class="reference internal" href="#interpolation">Interpolation</a>).</p>
+</div>
+<div class="section" id="intervals">
+<h3>Intervals<a class="headerlink" href="#intervals" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–remove_events</p></td>
+<td><p>Remove kadi events expression (default=None)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–select_events</p></td>
+<td><p>Select kadi events expression (default=None)</p></td>
+</tr>
+</tbody>
+</table>
+<p>These arguments allow you to select or remove intervals in the data using the <a class="reference external" href="http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions">Kadi event
+definitions</a>.
+For instance we can select times of stable NPM dwells during radiation zones:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">AOATTER1</span> <span class="n">AOATTER2</span> <span class="n">AOATTER3</span> <span class="o">--</span><span class="n">start</span><span class="o">=</span><span class="mi">2014</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">stop</span><span class="o">=</span><span class="mi">2014</span><span class="p">:</span><span class="mi">010</span> \
+            <span class="n">select_events</span><span class="o">=</span><span class="s1">&#39;dwells &amp; rad_zones&#39;</span>
+</pre></div>
+</div>
+<p>Note the use of a single-quote string for the select events expression.  This makes sure
+the expression is treated as a single entity and special characters are not interpreted
+by the shell.</p>
+<p>The order of processing is to first remove event intervals, then select event intervals.</p>
+<p>The expression for <code class="docutils literal notranslate"><span class="pre">--remove_events</span></code> or <code class="docutils literal notranslate"><span class="pre">--select_events</span></code> can be any logical expression
+involving Kadi query names (see the <a class="reference external" href="http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions">event definitions table</a>).  The
+following string would be valid: <code class="docutils literal notranslate"><span class="pre">'dsn_comms</span> <span class="pre">|</span> <span class="pre">(dwells[pad=-300]</span> <span class="pre">&amp;</span> <span class="pre">~eclipses)'</span></code>, and for
+<code class="docutils literal notranslate"><span class="pre">select_events</span></code> this would imply selecting telemetry which is either during a DSN pass
+or (within a NPM dwell and not during an eclipse).  The <code class="docutils literal notranslate"><span class="pre">[pad=-300]</span></code> qualifier means
+that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
+A positive padding expands the event intervals while negative contracts the intervals.</p>
+<p>Another example of practical interest is using the LTT bad times event to remove bad times
+for long-term trending plots by MSID.  In this case we get daily IRU-2 temps since 2004,
+removing known LTT bad times:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">AIRU2BT</span> <span class="o">--</span><span class="n">start</span> <span class="mi">2004</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="n">daily</span> <span class="o">--</span><span class="n">outfile</span><span class="o">=</span><span class="n">airu2bt</span><span class="o">.</span><span class="n">zip</span> \
+              <span class="o">--</span><span class="n">remove</span><span class="o">-</span><span class="n">events</span><span class="o">=</span><span class="s1">&#39;ltt_bads[msid=&quot;AIRU2BT&quot;]&#39;</span>
+</pre></div>
+</div>
+<p>Notice the syntax here which indicates selecting all the LTT bad times corresponding
+to <code class="docutils literal notranslate"><span class="pre">AIRU2BT</span></code>.  See the
+<a class="reference external" href="http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#ltt-bad-times">LTT bad times</a>
+section for more details.</p>
+</div>
+<div class="section" id="output">
+<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 78%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–time_format</p></td>
+<td><p>Output time format (secs|date|greta|jd|…, default=secs)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–outfile</p></td>
+<td><p>Output file name (default=’fetch.zip’)</p></td>
+</tr>
+</tbody>
+</table>
+<p>By default the <code class="docutils literal notranslate"><span class="pre">times</span></code> column for each MSID output is provided in the format of seconds
+since 1998.0 (CXC seconds).  The <code class="docutils literal notranslate"><span class="pre">time_format</span></code> argument allows selecting any time format
+supported by <a class="reference external" href="http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/pydocs/Chandra.Time.html">Chandra.Time</a>.  A common
+option for FOT analysis will be <code class="docutils literal notranslate"><span class="pre">greta</span></code>.</p>
+<p>The MSID set will always be written out as a compressed zip archive with the given name
+(or <code class="docutils literal notranslate"><span class="pre">fetch.zip</span></code> if not provided).  This archive will contain one or more CSV files
+corresponding to the MSIDs in the set.</p>
+</div>
+<div class="section" id="process-control">
+<h3>Process control<a class="headerlink" href="#process-control" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–quiet</p></td>
+<td><p>Suppress run-time logging output (default=False)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–max_fetch_Mb</p></td>
+<td><p>Max allowed memory (Mb) for fetching (default=1000)</p></td>
+</tr>
+<tr class="row-even"><td><p>–max_output_Mb</p></td>
+<td><p>Max allowed memory (Mb) for output (default=100)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Normally <code class="docutils literal notranslate"><span class="pre">ska_fetch</span></code> outputs a few lines of progress information as it is processing the
+request.  To disable this logging use the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> flag.</p>
+<p>The next two arguments are in place to prevent accidentally doing a huge query that will
+consume all available memory or generate a large file that will be slow to read.  For
+instance getting all the gyro count data for the mission will take more than 70 Gb of
+memory.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--max_fetch_Mb</span></code> argument specifies how much memory the fetched MSID set can
+take.  This has a default of 1000 Mb = 1 Gb.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--max_output_Mb</span></code> checks the size of the actual output MSID set (the uncompressed
+binary in memory), which may be smaller than the fetch object if data sampling has been
+reduced via the <code class="docutils literal notranslate"><span class="pre">--interpolate_dt</span></code> argument.  This has a default of 100 Mb.</p>
+<p>As an example of what happens if you run into the limits, here is an attempt at the
+aforementioned gyro counts query:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">AOGYRCT1</span> <span class="n">AOGYRCT2</span> <span class="n">AOGYRCT3</span> <span class="n">AOGYRCT4</span> <span class="o">--</span><span class="n">start</span><span class="o">=</span><span class="mi">2000</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="n">full</span>
+<span class="n">Fetching</span> <span class="n">full</span><span class="o">-</span><span class="n">resolution</span> <span class="n">data</span> <span class="k">for</span> <span class="n">MSIDS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;AOGYRCT1&#39;</span><span class="p">,</span> <span class="s1">&#39;AOGYRCT2&#39;</span><span class="p">,</span> <span class="s1">&#39;AOGYRCT3&#39;</span><span class="p">,</span> <span class="s1">&#39;AOGYRCT4&#39;</span><span class="p">]</span>
+  <span class="kn">from</span> <span class="mi">2000</span><span class="p">:</span><span class="mi">001</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span> <span class="n">to</span> <span class="mi">2014</span><span class="p">:</span><span class="mi">065</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mf">42.347</span>
+
+<span class="o">********************************************************************************</span>
+<span class="n">ERROR</span><span class="p">:</span> <span class="n">Requested</span> <span class="n">fetch</span> <span class="n">requires</span> <span class="mf">76821.73</span> <span class="n">Mb</span> <span class="n">vs</span><span class="o">.</span> <span class="n">limit</span> <span class="n">of</span> <span class="mf">1000.00</span> <span class="n">Mb</span>
+<span class="o">********************************************************************************</span>
+</pre></div>
+</div>
+<p>Both of the defaults here are relatively conservative, and with experience you can set
+larger values.</p>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Command-line fetch</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#getting-help">Getting help</a></li>
+<li><a class="reference internal" href="#try-it-out">Try it out</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#details">Details</a><ul>
+<li><a class="reference internal" href="#desired-telemetry">Desired telemetry</a></li>
+<li><a class="reference internal" href="#interpolation">Interpolation</a></li>
+<li><a class="reference internal" href="#intervals">Intervals</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
+<li><a class="reference internal" href="#process-control">Process control</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="fetch_tutorial.html"
+                        title="previous chapter">Fetch Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pseudo_msids.html"
+                        title="next chapter">Pseudo-MSIDs in the engineering archive</a></p>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
