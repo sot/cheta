@@ -97,7 +97,7 @@ class MsidPlot(object):
 
     @property
     def npix(self):
-        dims = self.ax.axesPatch.get_window_extent().bounds
+        dims = self.ax.get_window_extent().bounds
         return int(dims[2] + 0.5)
 
     def key_press(self, event):
