@@ -112,8 +112,8 @@ html_theme = 'bootstrap-ska'
 #html_theme_options = {}
 html_theme_options = {
     'logotext1': 'Ska! ',  # white,  semi-bold
-    'logotext2': 'Quaternion',  # orange, light
-    'logotext3': '',   # white,  light
+    'logotext2': 'Eng',  # orange, light
+    'logotext3': 'archive',   # white,  light
     'homepage_url': 'https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc',
     'homepage_text': 'ska',
     'homepage_text_2': 'tools'
