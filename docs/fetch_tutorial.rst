@@ -1545,9 +1545,10 @@ the network), the use of ``fetch`` is essentially the same whether the archive i
 local or remote.
 
 In order to use this option, the user must have a special key file
-``ska_remote_access.json``placed at the root of the local Python installation folder.  This is
-placed in the directory shown with ``import sys; print(sys.prefix)``.  To get a copy of this file
-contact Mark Baski or Tom Aldcroft.
+``ska_remote_access.json`` placed at the root of the local Python installation
+folder.  This is placed in the directory shown with ``import sys;
+print(sys.prefix)``.  To get a copy of this file contact Mark Baski or Tom
+Aldcroft.
 
 Remote access is controlled as follows:
 
@@ -1559,6 +1560,9 @@ Remote access is controlled as follows:
   is *enabled* unless the system finds a local engineering data archive.  It looks
   for data in either ``$SKA/data/eng_archive`` or ``$ENG_ARCHIVE``, where those
   refer to user-defined environment variables.
+- If remote access is disabled and there is no local engineering data archive,
+  then a warning is issued. In this case you can still use MAUDE for data access
+  with ``fetch.data_source.set('maude')``.
 
 Local cheta archive
 ===================
