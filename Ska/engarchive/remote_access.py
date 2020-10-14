@@ -8,15 +8,14 @@ import sys
 import os
 import getpass
 from pathlib import Path
+import platform
 
-try:
-    import ipyparallel as parallel
-except ImportError:
-    from IPython import parallel
-from six.moves import input
+import ipyparallel as parallel
+
+IS_WINDOWS = platform.system() == 'Windows'
 
 
-def get_data_access_info(is_windows=sys.platform.startswith('win')):
+def get_data_access_info(is_windows=IS_WINDOWS):
     """
     Determine path to eng archive data and whether to access data remotely.
 
@@ -120,6 +119,12 @@ def establish_connection():
 
     # Loop until the user is able to connect or cancels
     while _remote_client is None:
+        if IS_WINDOWS:
+            # Deal with an obscure problem in remote access on Windows.
+            # See https://github.com/tornadoweb/tornado/issues/2608#issuecomment-491489432
+            import asyncio
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
         # Get the username and password if not already set
         hostname = hostname or input('Enter hostname (or IP) of Ska ' +
                                      'server (enter to cancel):')
@@ -138,7 +143,6 @@ def establish_connection():
                                              sshserver=f'{username}@{hostname}',
                                              password=password)
         except Exception:
-            raise
             print('Error connecting to server ', hostname, ': ', sys.exc_info()[0])
             sys.stdout.flush()
             _remote_client = None
