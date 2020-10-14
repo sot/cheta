@@ -1,6 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Settings and functions for remotely accessing an engineering archive.
+
+NOTE: see test_remote_access.py for useful information about doing functional
+testing of this code.
 """
 from __future__ import print_function, division, absolute_import
 
@@ -9,6 +12,7 @@ import os
 import getpass
 from pathlib import Path
 import platform
+import warnings
 
 import ipyparallel as parallel
 
@@ -64,7 +68,10 @@ def get_data_access_info(is_windows=IS_WINDOWS):
             msg = 'need to define SKA or ENG_ARCHIVE environment variable'
         else:
             msg = f'no {eng_archive} directory'
-        raise RuntimeError(f'no local Ska data found and remote access is not selected: {msg}')
+        from astropy.utils.exceptions import AstropyUserWarning
+        warnings.warn(f'no local Ska data found and remote access is not selected: {msg}\n'
+                      'You can still access MAUDE data by running '
+                      '`fetch.data_source.set("maude")`', AstropyUserWarning)
 
     if ska_access_remotely:
         # If accessing remotely, then hardwire eng_archive to the linux path where
@@ -94,7 +101,7 @@ password = None
 ask_again_if_connect_fails = True
 
 # Flag to show print output for remote calls
-show_print_output = sys.platform.startswith('win')
+show_print_output = IS_WINDOWS
 
 # Client key file for connecting to the remote server (ipcontroller)
 client_key_file = os.path.join(sys.prefix, "ska_remote_access.json")
