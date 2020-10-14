@@ -117,7 +117,8 @@ def test_remote_access_get_data_access_info1(remote_setup_dirs):
     assert ska_access_remotely is True
 
     # Not windows
-    eng_archive, ska_access_remotely = get_data_access_info(is_windows=False)
+    with pytest.warns(AstropyUserWarning):
+        eng_archive, ska_access_remotely = get_data_access_info(is_windows=False)
     assert eng_archive is None
     assert ska_access_remotely is False
 
@@ -169,9 +170,9 @@ def test_remote_access_get_data_access_info4(remote_setup_dirs):
     assert ska_access_remotely is True
 
     # Not windows: raises RuntimeError because no local data around found
-    with pytest.raises(RuntimeError):
+    with pytest.warns(AstropyUserWarning,
+                      match='no local Ska data found and remote access is not selected'):
         get_data_access_info(is_windows=False)
-
 
 
 def test_remote_access_get_data_access_info5(remote_setup_dirs):
