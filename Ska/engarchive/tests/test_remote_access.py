@@ -13,29 +13,40 @@ Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
   SKA_ACCESS_REMOTELY). Confirm that remote access is enabled and works by
   fetching an MSID::
 
-    import os os.environ.pop('SKA', None) os.environ.pop('ENG_ARCHIVE', None)
-    os.environ.pop('SKA_ACCESS_REMOTELY', None) from Ska.engarchive import
-    fetch, remote_access fetch.add_logging_handler() assert
-    remote_access.access_remotely is True dat = fetch.Msid('tephin', '2018:001',
-    '2018:010') print(dat.vals)
+    >>> import os os.environ.pop('SKA', None)
+    >>> os.environ.pop('ENG_ARCHIVE', None)
+    >>> os.environ.pop('SKA_ACCESS_REMOTELY', None)
+    >>> from Ska.engarchive import fetch, remote_access
+    >>> fetch.add_logging_handler()
+    >>> assert remote_access.access_remotely is True
+    >>> dat = fetch.Msid('tephin', '2018:001', '2018:010')
+    >>> print(dat.vals)
 
 - Override remote access on Windows by setting SKA to a valid path so eng
   archive data will be found. Confirm that remote access is disabled and fetch
   uses local access::
 
-    import os os.environ['SKA'] = <path_to_ska_root>
-    os.environ.pop('ENG_ARCHIVE', None) os.environ.pop('SKA_ACCESS_REMOTELY',
-    None) from Ska.engarchive import fetch, remote_access
-    fetch.add_logging_handler() assert remote_access.access_remotely is False
-    dat = fetch.Msid('1wrat', '2018:001', '2018:010') print(dat.vals)
+    >>> import os
+    >>> os.environ['SKA'] = <path_to_ska_root>
+    >>> os.environ.pop('ENG_ARCHIVE', None)
+    >>> os.environ.pop('SKA_ACCESS_REMOTELY', None)
+    >>> from Ska.engarchive import fetch, remote_access
+    >>> fetch.add_logging_handler()
+    >>> assert remote_access.access_remotely is False
+    >>> dat = fetch.Msid('1wrat', '2018:001', '2018:010')
+    >>> print(dat.vals)
 
 - Override remote access on non-Windows by setting SKA_ACCESS_REMOTELY to
   'True'::
 
-    import os os.environ['SKA_ACCESS_REMOTELY'] = 'True' from Ska.engarchive
-    import fetch, remote_access fetch.add_logging_handler() assert
-    remote_access.access_remotely is True dat = fetch.Msid('tephin', '2018:001',
-    '2018:010') print(dat.vals)
+    >>> import os
+    >>> os.environ['SKA_ACCESS_REMOTELY'] = 'True'
+    >>> from Ska.engarchive
+    >>> import fetch, remote_access
+    >>> fetch.add_logging_handler()
+    >>> assert remote_access.access_remotely is True
+    >>> dat = fetch.Msid('tephin', '2018:001', '2018:010')
+    >>> print(dat.vals)
 
 Scripts related to starting and maintaining a remote data server can be found in
 `/home/mbaski/python`. The files there are named obviously.
