@@ -1,6 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Settings and functions for remotely accessing an engineering archive.
+
+NOTE: see test_remote_access.py for useful information about doing functional
+testing of this code.
 """
 from __future__ import print_function, division, absolute_import
 
