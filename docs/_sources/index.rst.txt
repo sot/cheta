@@ -63,7 +63,6 @@ API docs
    :hidden:
 
    date_time_formats
-   fetch_tutorial_standalone
    ipython_tutorial
    matplotlib_tutorial
    numpy_tutorial

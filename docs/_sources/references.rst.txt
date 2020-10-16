@@ -12,4 +12,3 @@
 .. _HEAsoft: http://heasarc.gsfc.nasa.gov/lheasoft/
 .. _CIAO: http://cxc.harvard.edu/ciao/
 .. _SAS: http://xmm.vilspa.esa.es/sas/
-

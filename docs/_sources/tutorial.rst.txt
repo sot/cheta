@@ -26,13 +26,13 @@ The telemetry archive consists of:
     5, 16, 50, 84, 95, 99), number of samples.
 
 
-Configure 
+Configure
 -----------------------------
 
 The first requirement is to make sure that your local machine is set up to run
 X11.  On a Microsoft windows PC that probably means having `Cygwin/X <http://x.cygwin.com/>`_
 installed and running.  On a Mac you will need X11 installed.  If you don't
-have this already the best option is to install X11.pkg from 
+have this already the best option is to install X11.pkg from
 `<http://xquartz.macosforge.org/trac/wiki/Releases>`_.  From Linux you are
 already set with X-windows.
 
@@ -64,12 +64,12 @@ variables so all the tools are accessible and use the correct libraries.::
 
   source /proj/sot/ska/bin/ska_envs.csh
 
-If you have not used Python and matplotlib before you should do the 
+If you have not used Python and matplotlib before you should do the
 following setup::
 
   mkdir -p ~/.matplotlib
   cp $SKA/include/cfg/matplotlibrc ~/.matplotlib/
-  
+
 Next setup the interactive Python tool.  If you already have a ``~/.ipython``
 directory then rename it for safekeeping::
 
@@ -81,7 +81,7 @@ Now make a new default IPython profile and copy the Ska customizations::
   ipython profile create --ipython-dir=~/.ipython
   cp $SKA/include/cfg/ipython_config.py ~/.ipython/profile_default/
   cp $SKA/include/cfg/10_define_impska.py ~/.ipython/profile_default/startup/
-  
+
 Finally it is quite useful to define aliases to get into one of the Ska
 environments and adjust your prompt to indicate that you are using Ska.  The
 command and file to modify depends on the shell you are using and the network.
@@ -125,7 +125,7 @@ Ska, Ska-dev, and Ska-test
 On the GRETA network the Ska-test environment will typically
 correspond to the Ska environment on the HEAD network.  The GRETA Ska
 environment is tied to the FOT Matlab tools and may lag behind the
-latest updates to the HEAD Ska environment.  
+latest updates to the HEAD Ska environment.
 
 The Ska-dev environment is potentially unstable and should not normally be used
 unless you are developing the Ska environment.
@@ -144,10 +144,10 @@ to indicate the shell prompt.  Your prompt may be different and you should
 not include the "% " when copying the examples.::
 
   % ipython --pylab
-  
+
 You should see something that looks like::
 
-    Python 2.7.1 (r271:86832, Feb  7 2011, 11:30:54) 
+    Python 2.7.1 (r271:86832, Feb  7 2011, 11:30:54)
     Type "copyright", "credits" or "license" for more information.
 
     IPython 0.12 -- An enhanced Interactive Python.
@@ -159,14 +159,14 @@ You should see something that looks like::
     Welcome to pylab, a matplotlib-based Python environment [backend: Qt4Agg].
     For more information, type 'help(pylab)'.
 
-    In [1]: 
+    In [1]:
 
 Now read some data and make a simple plot by copying the following lines in ``ipython``::
 
   import Ska.engarchive.fetch as fetch
   tephin = fetch.MSID('tephin', '2009:001', '2009:002')
   plot(tephin.times, tephin.vals)
-  
+
 You should get a figure like:
 
 .. image:: fetchplots/basic_func.png
@@ -190,7 +190,7 @@ IPython
 ~~~~~~~~~~
 `IPython`_ is a command-line tool that provides a python prompt
 that is the basis for interactive analysis.  At the core it provides
-an interpreter for python language commands but with the addition of 
+an interpreter for python language commands but with the addition of
 external packages like `matplotlib`_ and `numpy`_ it becomes a full-featured
 data analysis environment.  `IPython`_ is similar in many ways to the command-line interface in Matlab or IDL.
 
@@ -213,4 +213,3 @@ elements, all of the same type, indexed by a vector of nonnegative integers.
 Matplotlib
 ~~~~~~~~~~~
 .. include:: matplotlib_tutorial.rst
-

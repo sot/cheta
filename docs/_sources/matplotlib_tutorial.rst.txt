@@ -22,9 +22,9 @@ some change to a figure: eg, create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
 with labels, etc....  ``Pylab`` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
-functions are directed to the current axes.  On the 
-`matplotlib FAQ <http://matplotlib.sourceforge.net/faq/index.html>`_ page there is a 
-very good discussion on 
+functions are directed to the current axes.  On the
+`matplotlib FAQ <http://matplotlib.sourceforge.net/faq/index.html>`_ page there is a
+very good discussion on
 `Matplotlib, pylab, and pyplot: how are they related? <http://matplotlib.sourceforge.net/faq/usage_faq.html#matplotlib-pylab-and-pyplot-how-are-they-related>`_.
 
 This tutorial has been copied and adapted from the matplotlib
@@ -127,7 +127,7 @@ and axes.  If you want to place an axes manually, ie, not on a
 rectangular grid, use the `axes()`_ command,
 which allows you to specify the location as ``axes([left, bottom,
 width, height])`` where all values are in fractional (0 to 1)
-coordinates.  
+coordinates.
 
 You can create multiple figures by using multiple
 `figure()`_ calls with an increasing figure
@@ -202,7 +202,7 @@ The ``r`` preceeding the title string is important -- it signifies
 that the string is a *raw* string and not to treate backslashes and
 python escapes.  matplotlib has a built-in TeX expression parser and
 layout engine, and ships its own math fonts -- for details see
-`mathtext-tutorial <http://matplotlib.sourceforge.net/users/mathtext.html#mathtext-tutorial>`_.  
+`mathtext-tutorial <http://matplotlib.sourceforge.net/users/mathtext.html#mathtext-tutorial>`_.
 Thus you can use mathematical text across platforms
 without requiring a TeX installation.  For those who have LaTeX and
 dvipng installed, you can also use LaTeX to format your text and

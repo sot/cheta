@@ -27,4 +27,3 @@ is implied.
 The default time "System" for the different formats is either ``tt``
 (Terrestrial Time) or ``utc`` (UTC).  Since TT differs from UTC by around 64
 seconds it is important to be consistent in specifying the time format.
-

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Tutorial &#8212; Eng archive 4.48.1.dev27+g78af10f documentation</title>
+    <title>Fetch Tutorial &#8212; Eng archive 4.49.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.48.1.dev27+g78af10f documentation</a>
+	<a href="index.html">Eng archive 4.49.0 documentation</a>
 	 &#187;
       </li>
       
@@ -361,10 +361,7 @@ highlights the large rates during maneuvers:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;.r&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//fetch_tutorial-1.py">Source code</a>, <a class="reference external" href=".//fetch_tutorial-1.png">png</a>, <a class="reference external" href=".//fetch_tutorial-1.hires.png">hires.png</a>, <a class="reference external" href=".//fetch_tutorial-1.pdf">pdf</a>)</p>
-<div class="figure align-default">
-<img alt="_images/fetch_tutorial-1.png" src="_images/fetch_tutorial-1.png" />
-</div>
+<p>(<a class="reference external" href=".//fetch_tutorial-1.py">Source code</a>)</p>
 <p>The following code illustrates use of the <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID.remove_intervals" title="Ska.engarchive.fetch.MSID.remove_intervals"><code class="xref py py-func docutils literal notranslate"><span class="pre">remove_intervals()</span></code></a>
 method to select all all time intervals when the spacecraft is <em>not</em> maneuvering.  In this
 case we include a pad time of 600 seconds before the start of a maneuver and 300 seconds
@@ -375,10 +372,7 @@ after the end of each maneuver.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//fetch_tutorial-2.py">Source code</a>, <a class="reference external" href=".//fetch_tutorial-2.png">png</a>, <a class="reference external" href=".//fetch_tutorial-2.hires.png">hires.png</a>, <a class="reference external" href=".//fetch_tutorial-2.pdf">pdf</a>)</p>
-<div class="figure align-default">
-<img alt="_images/fetch_tutorial-2.png" src="_images/fetch_tutorial-2.png" />
-</div>
+<p>(<a class="reference external" href=".//fetch_tutorial-2.py">Source code</a>)</p>
 </div>
 <div class="section" id="using-logical-intervals">
 <h4>Using logical intervals<a class="headerlink" href="#using-logical-intervals" title="Permalink to this headline">¶</a></h4>
@@ -403,10 +397,7 @@ angle is between 5 and 10 degrees you would do:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sa_temps_off_nom</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;.b&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//fetch_tutorial-3.py">Source code</a>, <a class="reference external" href=".//fetch_tutorial-3.png">png</a>, <a class="reference external" href=".//fetch_tutorial-3.hires.png">hires.png</a>, <a class="reference external" href=".//fetch_tutorial-3.pdf">pdf</a>)</p>
-<div class="figure align-default">
-<img alt="_images/fetch_tutorial-3.png" src="_images/fetch_tutorial-3.png" />
-</div>
+<p>(<a class="reference external" href=".//fetch_tutorial-3.py">Source code</a>)</p>
 <p>Notice that we created a new version of the solar array temperatures MSID object called
 <code class="docutils literal notranslate"><span class="pre">sa_temps_off_nom</span></code> (using <code class="docutils literal notranslate"><span class="pre">copy=True</span></code>) instead of filtering in place.  Sometimes it is
 convenient to have both the original and filtered data, e.g. when you want to plot both.</p>
@@ -494,7 +485,7 @@ just simple time plots.</p>
 the archive (e.g. there is a single value of AORATE1 of around 2e32
 in 2007).  These are not marked with bad quality in the CXC archive and are
 presumably real telemetry errors.  If you run across a bad data point you can
-locate and filter it out as follows (but see also <a class="reference internal" href="fetch_tutorial_standalone.html#filter-bad-times"><span class="std std-ref">Filtering out arbitrary time intervals</span></a>):</p>
+locate and filter it out as follows (but see also <a class="reference internal" href="#filter-bad-times"><span class="std std-ref">Filtering out arbitrary time intervals</span></a>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aorate1</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;aorate1&#39;</span><span class="p">,</span> <span class="s1">&#39;2007:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2008:001&#39;</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">bad_vals_mask</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">aorate1</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.01</span>
 <span class="n">aorate1</span><span class="o">.</span><span class="n">vals</span><span class="p">[</span><span class="n">bad_vals_mask</span><span class="p">]</span>
@@ -517,7 +508,7 @@ locate and filter it out as follows (but see also <a class="reference internal" 
 and telemetry values may be unreliable without being marked as bad by CXC data
 processing.  For example during safemode the OBC
 values (AO*) may be meaningless.  The preferred way to handle this situation is
-using <a class="reference internal" href="fetch_tutorial_standalone.html#event-intervals"><span class="std std-ref">Event interval filtering</span></a> since those intervals are always up to date.</p>
+using <a class="reference internal" href="#event-intervals"><span class="std std-ref">Event interval filtering</span></a> since those intervals are always up to date.</p>
 <p>However, in cases where event interval filter is not applicable, an alternative mechanism
 is available to remove arbitrary times of undesired data in either a
 <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID" title="Ska.engarchive.fetch.MSID"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSID()</span></code></a> or <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSIDset" title="Ska.engarchive.fetch.MSIDset"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSIDset()</span></code></a> object:</p>
@@ -1700,9 +1691,10 @@ data.  Besides the initial query for credentials (and slower speeds when fetchin
 the network), the use of <code class="docutils literal notranslate"><span class="pre">fetch</span></code> is essentially the same whether the archive is
 local or remote.</p>
 <p>In order to use this option, the user must have a special key file
-<code class="docutils literal notranslate"><span class="pre">ska_remote_access.json``placed</span> <span class="pre">at</span> <span class="pre">the</span> <span class="pre">root</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">local</span> <span class="pre">Python</span> <span class="pre">installation</span> <span class="pre">folder.</span>&#160; <span class="pre">This</span> <span class="pre">is</span>
-<span class="pre">placed</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">directory</span> <span class="pre">shown</span> <span class="pre">with</span> <span class="pre">``import</span> <span class="pre">sys;</span> <span class="pre">print(sys.prefix)</span></code>.  To get a copy of this file
-contact Mark Baski or Tom Aldcroft.</p>
+<code class="docutils literal notranslate"><span class="pre">ska_remote_access.json</span></code> placed at the root of the local Python installation
+folder.  This is placed in the directory shown with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">sys;</span>
+<span class="pre">print(sys.prefix)</span></code>.  To get a copy of this file contact Mark Baski or Tom
+Aldcroft.</p>
 <p>Remote access is controlled as follows:</p>
 <ul class="simple">
 <li><p>The environment variable <code class="docutils literal notranslate"><span class="pre">SKA_ACCESS_REMOTELY</span></code> can be set to “False” or “True”
@@ -1713,6 +1705,9 @@ is always <em>disabled</em>.</p></li>
 is <em>enabled</em> unless the system finds a local engineering data archive.  It looks
 for data in either <code class="docutils literal notranslate"><span class="pre">$SKA/data/eng_archive</span></code> or <code class="docutils literal notranslate"><span class="pre">$ENG_ARCHIVE</span></code>, where those
 refer to user-defined environment variables.</p></li>
+<li><p>If remote access is disabled and there is no local engineering data archive,
+then a warning is issued. In this case you can still use MAUDE for data access
+with <code class="docutils literal notranslate"><span class="pre">fetch.data_source.set('maude')</span></code>.</p></li>
 </ul>
 </div>
 <div class="section" id="local-cheta-archive">
