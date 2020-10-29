@@ -43,6 +43,6 @@ class LazyDict(dict):
         self.load()
         return super().__len__()
 
-    def get(self, key, default=None, /):
+    def get(self, key, default=None):
         self.load()
         return super().get(key, default)
