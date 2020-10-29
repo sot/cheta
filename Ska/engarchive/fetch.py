@@ -20,9 +20,8 @@ from pathlib import Path
 import numpy as np
 from astropy.io import ascii
 import pyyaks.context
-import six
-from six.moves import cPickle as pickle
-from six.moves import zip
+
+import pickle
 
 from . import file_defs
 from .units import Units
@@ -282,10 +281,9 @@ for filetype in filetypes:
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
-    import six
-    from six.moves import cPickle as pickle
+    import pickle
     all_colnames = dict()
-    for k, msid_names_file in six.iteritems(all_msid_names_files):
+    for k, msid_names_file in all_msid_names_files.items():
         try:
             all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), 'rb'))
         except IOError:
@@ -297,7 +295,7 @@ def load_msid_names(all_msid_names_files):
 all_colnames = load_msid_names(all_msid_names_files)
 
 # Save the names
-for k, colnames in six.iteritems(all_colnames):
+for k, colnames in all_colnames.items():
     content.update((x, k) for x in sorted(colnames)
                    if x not in IGNORE_COLNAMES)
 
@@ -709,14 +707,13 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
-        # Possibly convert vals to unicode for Python 3+.  If this MSID is a
+        # Convert vals to unicode for Python 3+.  If this MSID is a
         # state-valued MSID (with string value) then `vals` is the only possible
         # string attribute.  None of the others like mins/maxes etc will exist.
-        if not six.PY2:
-            for colname in self.colnames:
-                vals = getattr(self, colname)
-                if vals.dtype.kind == 'S':
-                    setattr(self, colname, vals.astype('U'))
+        for colname in self.colnames:
+            vals = getattr(self, colname)
+            if vals.dtype.kind == 'S':
+                setattr(self, colname, vals.astype('U'))
 
     @staticmethod
     @cache.lru_cache(30)
@@ -816,8 +813,8 @@ class MSID(object):
         # have incorrect values in CXCDS telemetry
         bads = _fix_ctu_dwell_mode_bads(msid, bads)
 
-        # In Python 3+ change bytestring to (unicode) string
-        if not six.PY2 and vals.dtype.kind == 'S':
+        # Change bytestring to (unicode) string
+        if vals.dtype.kind == 'S':
             vals = vals.astype('U')
 
         return (vals, times, bads)
