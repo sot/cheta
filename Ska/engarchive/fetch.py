@@ -29,6 +29,7 @@ from . import cache
 from . import remote_access
 from .remote_access import ENG_ARCHIVE
 from .derived.comps import ComputedMsid
+from .lazy import LazyDict
 from . import __version__  # noqa
 
 from Chandra.Time import DateTime
@@ -267,8 +268,6 @@ filetypes_arr = filetypes.as_array()
 filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
 filetypes[()] = filetypes_arr
 
-content = collections.OrderedDict()
-
 # Get the list of filenames (an array is built to pass all the filenames at
 # once to the remote machine since passing them one at a time is rather slow)
 all_msid_names_files = dict()
@@ -291,13 +290,22 @@ def load_msid_names(all_msid_names_files):
     return all_colnames
 
 
-# Load the MSID names
-all_colnames = load_msid_names(all_msid_names_files)
+def load_content(all_colnames):
+    out = {}
+    # Save the names
+    for content_type, msid_names in all_colnames.items():
+        out.update((name, content_type) for name in sorted(msid_names)
+                   if name not in IGNORE_COLNAMES)
+    return out
 
-# Save the names
-for k, colnames in all_colnames.items():
-    content.update((x, k) for x in sorted(colnames)
-                   if x not in IGNORE_COLNAMES)
+
+# Define MSID names as a dict of content_type: [MSID_names_for_content_type].
+# This is a LazyDict so nothing happens until a value is requested.
+all_colnames = LazyDict(load_msid_names, all_msid_names_files)
+
+# Define MSID content definition as dict of MSID_name: content_type
+content = LazyDict(load_content, all_colnames)
+
 
 # Cache of the most-recently used TIME array and associated bad values mask.
 # The key is (content_type, tstart, tstop).
