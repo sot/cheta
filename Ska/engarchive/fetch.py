@@ -20,9 +20,8 @@ from pathlib import Path
 import numpy as np
 from astropy.io import ascii
 import pyyaks.context
-import six
-from six.moves import cPickle as pickle
-from six.moves import zip
+
+import pickle
 
 from . import file_defs
 from .units import Units
@@ -30,6 +29,7 @@ from . import cache
 from . import remote_access
 from .remote_access import ENG_ARCHIVE
 from .derived.comps import ComputedMsid
+from .lazy import LazyDict
 from . import __version__  # noqa
 
 from Chandra.Time import DateTime
@@ -268,8 +268,6 @@ filetypes_arr = filetypes.as_array()
 filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
 filetypes[()] = filetypes_arr
 
-content = collections.OrderedDict()
-
 # Get the list of filenames (an array is built to pass all the filenames at
 # once to the remote machine since passing them one at a time is rather slow)
 all_msid_names_files = dict()
@@ -282,10 +280,9 @@ for filetype in filetypes:
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
-    import six
-    from six.moves import cPickle as pickle
+    import pickle
     all_colnames = dict()
-    for k, msid_names_file in six.iteritems(all_msid_names_files):
+    for k, msid_names_file in all_msid_names_files.items():
         try:
             all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), 'rb'))
         except IOError:
@@ -293,13 +290,22 @@ def load_msid_names(all_msid_names_files):
     return all_colnames
 
 
-# Load the MSID names
-all_colnames = load_msid_names(all_msid_names_files)
+def load_content(all_colnames):
+    out = {}
+    # Save the names
+    for content_type, msid_names in all_colnames.items():
+        out.update((name, content_type) for name in sorted(msid_names)
+                   if name not in IGNORE_COLNAMES)
+    return out
 
-# Save the names
-for k, colnames in six.iteritems(all_colnames):
-    content.update((x, k) for x in sorted(colnames)
-                   if x not in IGNORE_COLNAMES)
+
+# Define MSID names as a dict of content_type: [MSID_names_for_content_type].
+# This is a LazyDict so nothing happens until a value is requested.
+all_colnames = LazyDict(load_msid_names, all_msid_names_files)
+
+# Define MSID content definition as dict of MSID_name: content_type
+content = LazyDict(load_content, all_colnames)
+
 
 # Cache of the most-recently used TIME array and associated bad values mask.
 # The key is (content_type, tstart, tstop).
@@ -709,14 +715,13 @@ class MSID(object):
             self.midvals = self.vals
             self.vals = self.means
 
-        # Possibly convert vals to unicode for Python 3+.  If this MSID is a
+        # Convert vals to unicode for Python 3+.  If this MSID is a
         # state-valued MSID (with string value) then `vals` is the only possible
         # string attribute.  None of the others like mins/maxes etc will exist.
-        if not six.PY2:
-            for colname in self.colnames:
-                vals = getattr(self, colname)
-                if vals.dtype.kind == 'S':
-                    setattr(self, colname, vals.astype('U'))
+        for colname in self.colnames:
+            vals = getattr(self, colname)
+            if vals.dtype.kind == 'S':
+                setattr(self, colname, vals.astype('U'))
 
     @staticmethod
     @cache.lru_cache(30)
@@ -816,8 +821,8 @@ class MSID(object):
         # have incorrect values in CXCDS telemetry
         bads = _fix_ctu_dwell_mode_bads(msid, bads)
 
-        # In Python 3+ change bytestring to (unicode) string
-        if not six.PY2 and vals.dtype.kind == 'S':
+        # Change bytestring to (unicode) string
+        if vals.dtype.kind == 'S':
             vals = vals.astype('U')
 
         return (vals, times, bads)
