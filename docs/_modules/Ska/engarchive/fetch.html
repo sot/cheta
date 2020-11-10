@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska.engarchive.fetch &#8212; Eng archive 4.49.0 documentation</title>
+    <title>Ska.engarchive.fetch &#8212; Eng archive 4.50.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../index.html">Eng archive 4.49.0 documentation</a>
+	<a href="../../../index.html">Eng archive 4.50.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -85,9 +85,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
 <span class="kn">import</span> <span class="nn">pyyaks.context</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">cPickle</span> <span class="k">as</span> <span class="n">pickle</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">zip</span>
+
+<span class="kn">import</span> <span class="nn">pickle</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">file_defs</span>
 <span class="kn">from</span> <span class="nn">.units</span> <span class="kn">import</span> <span class="n">Units</span>
@@ -95,6 +94,7 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">remote_access</span>
 <span class="kn">from</span> <span class="nn">.remote_access</span> <span class="kn">import</span> <span class="n">ENG_ARCHIVE</span>
 <span class="kn">from</span> <span class="nn">.derived.comps</span> <span class="kn">import</span> <span class="n">ComputedMsid</span>
+<span class="kn">from</span> <span class="nn">.lazy</span> <span class="kn">import</span> <span class="n">LazyDict</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">__version__</span>  <span class="c1"># noqa</span>
 
 <span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
@@ -333,8 +333,6 @@
 <span class="n">filetypes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filetypes_arr</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">filetypes_arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 <span class="n">filetypes</span><span class="p">[()]</span> <span class="o">=</span> <span class="n">filetypes_arr</span>
 
-<span class="n">content</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
-
 <span class="c1"># Get the list of filenames (an array is built to pass all the filenames at</span>
 <span class="c1"># once to the remote machine since passing them one at a time is rather slow)</span>
 <span class="n">all_msid_names_files</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -347,10 +345,9 @@
 <span class="c1"># Function to load MSID names from the files (executed remotely, if necessary)</span>
 <span class="nd">@local_or_remote_function</span><span class="p">(</span><span class="s2">&quot;Loading MSID names from Ska eng archive server...&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">load_msid_names</span><span class="p">(</span><span class="n">all_msid_names_files</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">six</span>
-    <span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">cPickle</span> <span class="k">as</span> <span class="n">pickle</span>
+    <span class="kn">import</span> <span class="nn">pickle</span>
     <span class="n">all_colnames</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">msid_names_file</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">all_msid_names_files</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">msid_names_file</span> <span class="ow">in</span> <span class="n">all_msid_names_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">all_colnames</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">msid_names_file</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
@@ -358,13 +355,22 @@
     <span class="k">return</span> <span class="n">all_colnames</span>
 
 
-<span class="c1"># Load the MSID names</span>
-<span class="n">all_colnames</span> <span class="o">=</span> <span class="n">load_msid_names</span><span class="p">(</span><span class="n">all_msid_names_files</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_content</span><span class="p">(</span><span class="n">all_colnames</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># Save the names</span>
+    <span class="k">for</span> <span class="n">content_type</span><span class="p">,</span> <span class="n">msid_names</span> <span class="ow">in</span> <span class="n">all_colnames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">content_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">msid_names</span><span class="p">)</span>
+                   <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">IGNORE_COLNAMES</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
 
-<span class="c1"># Save the names</span>
-<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">colnames</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">all_colnames</span><span class="p">):</span>
-    <span class="n">content</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">colnames</span><span class="p">)</span>
-                   <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">IGNORE_COLNAMES</span><span class="p">)</span>
+
+<span class="c1"># Define MSID names as a dict of content_type: [MSID_names_for_content_type].</span>
+<span class="c1"># This is a LazyDict so nothing happens until a value is requested.</span>
+<span class="n">all_colnames</span> <span class="o">=</span> <span class="n">LazyDict</span><span class="p">(</span><span class="n">load_msid_names</span><span class="p">,</span> <span class="n">all_msid_names_files</span><span class="p">)</span>
+
+<span class="c1"># Define MSID content definition as dict of MSID_name: content_type</span>
+<span class="n">content</span> <span class="o">=</span> <span class="n">LazyDict</span><span class="p">(</span><span class="n">load_content</span><span class="p">,</span> <span class="n">all_colnames</span><span class="p">)</span>
+
 
 <span class="c1"># Cache of the most-recently used TIME array and associated bad values mask.</span>
 <span class="c1"># The key is (content_type, tstart, tstop).</span>
@@ -774,14 +780,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">midvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">means</span>
 
-        <span class="c1"># Possibly convert vals to unicode for Python 3+.  If this MSID is a</span>
+        <span class="c1"># Convert vals to unicode for Python 3+.  If this MSID is a</span>
         <span class="c1"># state-valued MSID (with string value) then `vals` is the only possible</span>
         <span class="c1"># string attribute.  None of the others like mins/maxes etc will exist.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="n">vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;U&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="n">vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;U&#39;</span><span class="p">))</span>
 
     <span class="nd">@staticmethod</span>
     <span class="nd">@cache</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
@@ -881,8 +886,8 @@
         <span class="c1"># have incorrect values in CXCDS telemetry</span>
         <span class="n">bads</span> <span class="o">=</span> <span class="n">_fix_ctu_dwell_mode_bads</span><span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="n">bads</span><span class="p">)</span>
 
-        <span class="c1"># In Python 3+ change bytestring to (unicode) string</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span> <span class="ow">and</span> <span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span>
+        <span class="c1"># Change bytestring to (unicode) string</span>
+        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;U&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">bads</span><span class="p">)</span>
