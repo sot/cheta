@@ -34,13 +34,13 @@
  fully-dropped state (and 10% is not recoverable).
 
  ```
- def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None):
-
+ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
+                      version=None):
      Fetch a cleaned version of telemetry for ``msid``.
 
-     If not supplied the model spec will be downloaded from github using this URL:
-       https://raw.githubusercontent.com/sot/chandra_models/master/chandra_models/xija/
-               mups_valve/{msid}_spec.json
+      If not supplied the model spec will come from
+      ``xija.get_model_spec.get_xija_model_spec(msid, version=version)``
+      (which uses ``$SKA/data/chandra_models/chandra_models/xija/mups_valve/{msid}_spec.json``).
 
      This function returns a `fetch.Msid` object like a normal fetch but with extra attributes:
 
@@ -60,6 +60,7 @@
      :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
      :param median: length of median filter (default=7, use 0 to disable)
      :param model_spec: file name or URL containing relevant xija model spec
+     :param version: version of chandra_models repo (tag, branch, or commit)
 
      :returns: fetch.Msid object
  ```
@@ -69,12 +70,12 @@ import os
 
 import numpy as np
 import numba
-from astropy.utils.data import download_file
 from scipy.interpolate import interp1d
 from scipy.ndimage import median_filter
 
 from cheta import fetch_eng
 from xija import XijaModel
+from xija.get_model_spec import get_xija_model_spec
 
 
 def c2f(degc):
@@ -176,12 +177,12 @@ def select_using_model(data1, data2, model, dt_thresh, out, source):
 
 
 def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
-                     branch='master'):
+                     version=None):
     """Fetch a cleaned version of telemetry for ``msid``.
 
-    If not supplied the model spec will be downloaded from github using this URL:
-      https://raw.githubusercontent.com/sot/chandra_models/master/chandra_models/xija/
-              mups_valve/{msid}_spec.json
+     If not supplied the model spec will come from
+     ``xija.get_model_spec.get_xija_model_spec(msid, version=version)``
+     (which uses ``$SKA/data/chandra_models/chandra_models/xija/mups_valve/{msid}_spec.json``).
 
     This function returns a `fetch.Msid` object like a normal fetch but with extra attributes:
 
@@ -201,13 +202,14 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
     :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
     :param median: length of median filter (default=7, use 0 to disable)
     :param model_spec: file name or URL containing relevant xija model spec
+    :param version: version of chandra_models repo (tag, branch, or commit)
 
     :returns: fetch.Msid object
     """
     if model_spec is None or not os.path.exists(model_spec):
-        url = (f'https://raw.githubusercontent.com/sot/chandra_models/{branch}/chandra_models/xija/'
-               f'mups_valve/{msid}_spec.json')
-        model_spec = download_file(url, cache=True)
+        # Get spec from $SKA/data/chandra_models/chandra_models/xija/mups_valve/{msid}_spec.json.
+        # This function also returns the version of the chandra_models repo but we don't need it.
+        model_spec, _ = get_xija_model_spec(msid, version=version)
 
     # NOTE: all temperatures are in degF unless otherwise noted
 

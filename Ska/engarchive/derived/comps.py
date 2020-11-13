@@ -363,13 +363,13 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
         """
         from .mups_valve import fetch_clean_msid
 
-        # Git branch of chandra_models to use for MUPS model spec from 2nd match group.
-        # If not supplied it will be None so use master.
-        branch = 'master' if msid_args[1] is None else msid_args[1][1:]
+        # Git version of chandra_models to use for MUPS model spec from 2nd match group.
+        # If not supplied it will be None so use default main version.
+        version = None if msid_args[1] is None else msid_args[1][1:]
 
         # Get cleaned MUPS valve temperature data as an MSID object
         dat = fetch_clean_msid(msid_args[0], tstart, tstop,
-                               dt_thresh=5.0, median=7, model_spec=None, branch=branch)
+                               dt_thresh=5.0, median=7, model_spec=None, version=version)
 
         # Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`
         # returns an MSID object with the following attrs.
