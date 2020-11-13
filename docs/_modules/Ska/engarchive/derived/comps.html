@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska.engarchive.derived.comps &#8212; Eng archive 4.50.0 documentation</title>
+    <title>Ska.engarchive.derived.comps &#8212; Eng archive 4.50.1 documentation</title>
     <link rel="stylesheet" href="../../../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../../index.html">Eng archive 4.50.0 documentation</a>
+	<a href="../../../../index.html">Eng archive 4.50.1 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -428,13 +428,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">.mups_valve</span> <span class="kn">import</span> <span class="n">fetch_clean_msid</span>
 
-        <span class="c1"># Git branch of chandra_models to use for MUPS model spec from 2nd match group.</span>
-        <span class="c1"># If not supplied it will be None so use master.</span>
-        <span class="n">branch</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span> <span class="k">if</span> <span class="n">msid_args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">msid_args</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="c1"># Git version of chandra_models to use for MUPS model spec from 2nd match group.</span>
+        <span class="c1"># If not supplied it will be None so use default main version.</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">msid_args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">msid_args</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
 
         <span class="c1"># Get cleaned MUPS valve temperature data as an MSID object</span>
         <span class="n">dat</span> <span class="o">=</span> <span class="n">fetch_clean_msid</span><span class="p">(</span><span class="n">msid_args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span>
-                               <span class="n">dt_thresh</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">median</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">model_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
+                               <span class="n">dt_thresh</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">median</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">model_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">)</span>
 
         <span class="c1"># Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`</span>
         <span class="c1"># returns an MSID object with the following attrs.</span>
