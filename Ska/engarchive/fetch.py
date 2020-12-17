@@ -741,8 +741,14 @@ class MSID(object):
         # the required time range plus a little padding on each end.
         h5_slice = get_interval(content, tstart, tstop)
 
+        # Cache the last set of TIME values so repeated queries from within a
+        # content type use the already-available times. Use the content, start
+        # row and stop row as key. This guarantees that the times array matches
+        # the subsequent values.
+        cache_key = (content, h5_slice.start, h5_slice.stop)
+
         # Read the TIME values either from cache or from disk.
-        if times_cache['key'] == (content, tstart, tstop):
+        if times_cache['key'] == cache_key:
             logger.info('Using times_cache for %s %s to %s',
                         content, tstart, tstop)
             times = times_cache['val']  # Already filtered on times_ok
@@ -772,7 +778,7 @@ class MSID(object):
             if not times_all_ok:
                 times = times[times_ok]
 
-            times_cache.update(dict(key=(content, tstart, tstop),
+            times_cache.update(dict(key=cache_key,
                                     val=times,
                                     ok=times_ok,
                                     all_ok=times_all_ok))
