@@ -33,6 +33,7 @@ from .lazy import LazyDict
 from . import __version__  # noqa
 
 from Chandra.Time import DateTime
+from ska_helpers.utils import lru_cache_timed
 
 # Module-level units, defaults to CXC units (e.g. Kelvins etc)
 UNITS = Units(system='cxc')
@@ -1864,11 +1865,15 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
                      max_fetch_Mb, max_output_Mb)
 
 
-@memoized
+@lru_cache_timed(maxsize=1000, timeout=600)
 def get_interval(content, tstart, tstop):
     """
     Get the approximate row intervals that enclose the specified ``tstart`` and
     ``tstop`` times for the ``content`` type.
+
+    The output of this function is cached with an LRU cache of the most recent
+    1000 results. The cache expires every 10 minutes to ensure that a persistent
+    session will get new data if the archive gets updated.
 
     :param content: content type (e.g. 'pcad3eng', 'thm1eng')
     :param tstart: start time (CXC seconds)
