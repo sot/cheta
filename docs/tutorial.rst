@@ -37,7 +37,7 @@ Basic Functionality Test
 ----------------------------------------------
 
 Once you have done the configuration setup that was just described, open a new
-xterm window and get into the Ska environment by use the ``ska`` or ``skatest`` alias::
+xterm window and get into the Ska3 environment by use the ``ska3`` alias::
 
   % ska3
 

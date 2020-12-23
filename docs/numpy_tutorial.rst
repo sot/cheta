@@ -1,18 +1,19 @@
-NumPy has an excellent `basic tutorial
-<http://www.scipy.org/Tentative_NumPy_Tutorial>`_ available.  Here I just copy
-the Quick Tour from that tutorial but you should read the rest as well.  In
-these examples the python prompt is shown as ">>>" in order to distinguish the
-input from the outputs.
+NumPy has an excellent `quickstart tutorial
+<https://numpy.org/doc/stable/user/quickstart.html>`_ available.
+
+Here we just show the very basics. In these examples the python prompt is shown
+as ">>>" in order to distinguish the input from the outputs.
 
 Arrays can be created in different ways::
 
-  >>> a = array( [ 10, 20, 30, 40 ] )   # create an array out of a list
+  >>> import numpy as np
+  >>> a = np.array( [ 10, 20, 30, 40 ] )   # create an array out of a list
   >>> a
   array([10, 20, 30, 40])
-  >>> b = arange( 4 )                   # create an array of 4 integers, from 0 to 3
+  >>> b = np.arange( 4 )                   # create an array of 4 integers, from 0 to 3
   >>> b
   array([0, 1, 2, 3])
-  >>> c = linspace(-pi,pi,3)            # create an array of 3 evenly spaced samples from -pi to pi
+  >>> c = np.linspace(-pi,pi,3)            # create an array of 3 evenly spaced samples from -pi to pi
   >>> c
   array([-3.14159265,  0.        ,  3.14159265])
 
@@ -24,7 +25,7 @@ New arrays can be obtained by operating with existing arrays::
 
 Arrays may have more than one dimension::
 
-  >>> x = ones( (3,4) )
+  >>> x = np.ones( (3,4) )
   >>> x
   array([[1., 1., 1., 1.],
          [1., 1., 1., 1.],
@@ -34,7 +35,7 @@ Arrays may have more than one dimension::
 
 and you can change the dimensions of existing arrays::
 
-  >>> y = arange(12)
+  >>> y = np.arange(12)
   >>> y
   array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])
   >>> y.shape = 3,4              # does not modify the total number of elements
@@ -56,7 +57,7 @@ Similar to Python lists, arrays can be indexed, sliced and iterated over::
 
   >>> a[2:4] = -7,-3                     # modify last two elements of a
   >>> for i in a:                        # iterate over a
-  ...     print i
+  ...     print(i)
   ...
   10
   20

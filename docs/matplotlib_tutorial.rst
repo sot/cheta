@@ -1,40 +1,42 @@
 .. include:: references.rst
 
-.. _`plot()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot
-.. _`axis()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.axis
-.. _`cla()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.cla
-.. _`clf()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.clf
-.. _`title()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.title
-.. _`gca()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.gca
-.. _`gcf()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.gcf
-.. _`subplot()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.subplot
-.. _`axes()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.axes
-.. _`xlabel()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.xlabel
-.. _`ylabel()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.ylabel
-.. _`text()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.text
-.. _`setp()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.setp
-.. _`figure()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.figure
-.. _`annotate()`: http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.annotate
+.. _`plot()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.plot
+.. _`axis()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.axis
+.. _`cla()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.cla
+.. _`clf()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.clf
+.. _`title()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.title
+.. _`gca()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.gca
+.. _`gcf()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.gcf
+.. _`subplot()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.subplot
+.. _`axes()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.axes
+.. _`xlabel()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.xlabel
+.. _`ylabel()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.ylabel
+.. _`text()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.text
+.. _`setp()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.setp
+.. _`figure()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.figure
+.. _`annotate()`: http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.annotate
 
-The ``pylab`` mode of `matplotlib`_ is a collection of command style functions
-that make `matplotlib`_  work like matlab.  Each ``pylab`` function makes
+The ``pyplot`` mode of `matplotlib`_ is a collection of command style functions
+that make `matplotlib`_  work like matlab.  Each ``pyplot`` function makes
 some change to a figure: eg, create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
-with labels, etc....  ``Pylab`` is stateful, in that it
+with labels, etc....  ``Pyplot`` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
 functions are directed to the current axes.  On the
-`matplotlib FAQ <http://matplotlib.sourceforge.net/faq/index.html>`_ page there is a
+`matplotlib FAQ <http://matplotlib.org/faq/index.html>`_ page there is a
 very good discussion on
-`Matplotlib, pylab, and pyplot: how are they related? <http://matplotlib.sourceforge.net/faq/usage_faq.html#matplotlib-pylab-and-pyplot-how-are-they-related>`_.
+`Matplotlib, pylab, and pyplot: how are they related?
+<http://matplotlib.org/faq/usage_faq.html#matplotlib-pylab-and-pyplot-how-are-they-related>`_.
 
 This tutorial has been copied and adapted from the matplotlib
-`pyplot tutorial <http://matplotlib.sourceforge.net/users/pyplot_tutorial.html>`_.
+`pyplot tutorial <http://matplotlib.org/users/pyplot_tutorial.html>`_.
 
 To see `matplotlib`_ in action and make a simple plot do::
 
-  clf()
-  plot([1,2,3])
-  ylabel('some numbers')
+  import matplotlib.pyplot as plt
+  plt.clf()
+  plt.plot([1,2,3])
+  plt.ylabel('some numbers')
 
 .. image:: pyplots/pyplot_simple.png
 
@@ -50,8 +52,8 @@ same length as y but starts with 0.  Hence the x data are
 an arbitrary number of arguments.  For example, to plot x versus y,
 you can issue the command::
 
-  clf()
-  plot([1,2,3,4], [1,4,9,16])
+  plt.clf()
+  plt.plot([1,2,3,4], [1,4,9,16])
 
 For every x, y pair of arguments, there is a optional third argument
 which is the format string that indicates the color and line type of
@@ -60,9 +62,9 @@ matlab, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue::
 
-  clf()
-  plot([1,2,3,4], [1,4,9,16], 'ro')
-  axis([0, 6, 0, 20])
+  plt.clf()
+  plt.plot([1,2,3,4], [1,4,9,16], 'ro')
+  plt.axis([0, 6, 0, 20])
 
 .. image:: pyplots/pyplot_formatstr.png
 
@@ -81,11 +83,11 @@ using arrays.
 ::
 
   # evenly sampled time at 200ms intervals
-  t = arange(0., 5., 0.2)
+  t = np.arange(0., 5., 0.2)
 
   # red dashes, blue squares and green triangles
-  clf()
-  plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
+  plt.clf()
+  plt.plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
 
 .. image:: pyplots/pyplot_three.png
 
@@ -101,18 +103,18 @@ scenes.  Below is a script to create two subplots.
 ::
 
   def f(t):
-      return exp(-t) * cos(2*pi*t)
+      return np.exp(-t) * np.cos(2*np.pi*t)
 
-  t1 = arange(0.0, 5.0, 0.1)
-  t2 = arange(0.0, 5.0, 0.02)
+  t1 = np.arange(0.0, 5.0, 0.1)
+  t2 = np.arange(0.0, 5.0, 0.02)
 
-  figure(1)
-  clf()
-  subplot(2, 1, 1)  # (nrows, ncols, fignum)
-  plot(t1, f(t1), 'bo', t2, f(t2), 'k')
+  plt.figure(1)
+  plt.clf()
+  plt.subplot(2, 1, 1)  # (nrows, ncols, fignum)
+  plt.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 
-  subplot(2, 1, 2)
-  plot(t2, cos(2*pi*t2), 'r--')
+  plt.subplot(2, 1, 2)
+  plt.plot(t2, cos(2*pi*t2), 'r--')
 
 .. image:: pyplots/pyplot_two_subplots.png
 
@@ -134,49 +136,49 @@ You can create multiple figures by using multiple
 number.  Of course, each figure can contain as many axes and subplots
 as your heart desires::
 
-    figure(1)                # the first figure
-    clf()
-    subplot(2, 1, 1)         # the first subplot in the first figure
-    plot([1,2,3])
-    subplot(2, 1, 2)         # the second subplot in the first figure
-    plot([4,5,6])
+    plt.figure(1)                # the first figure
+    plt.clf()
+    plt.subplot(2, 1, 1)         # the first subplot in the first figure
+    plt.plot([1,2,3])
+    plt.subplot(2, 1, 2)         # the second subplot in the first figure
+    plt.plot([4,5,6])
 
 
-    figure(2)                # a second figure
-    clf()
-    plot([4,5,6])            # creates a subplot(111) by default
+    plt.figure(2)                # a second figure
+    plt.clf()
+    plt.plot([4,5,6])            # creates a subplot(111) by default
 
-    figure(1)                # figure 1 current; subplot(2, 1, 2) still current
-    subplot(2, 1, 1)         # make subplot(2, 1, 1) in figure1 current
-    title('Easy as 1,2,3')   # subplot 2, 1, 1 title
+    plt.figure(1)                # figure 1 current; subplot(2, 1, 2) still current
+    plt.subplot(2, 1, 1)         # make subplot(2, 1, 1) in figure1 current
+    plt.title('Easy as 1,2,3')   # subplot 2, 1, 1 title
 
 You can clear the current figure with `clf()`_
 and the current axes with `cla()`_.  If you find
 this statefulness, annoying, don't despair, this is just a thin
 stateful wrapper around an object oriented API, which you can use
-instead  (see `artist-tutorial <http://matplotlib.sourceforge.net/users/artists.html#artist-tutorial>`_)
+instead  (see `artist-tutorial <http://matplotlib.org/users/artists.html#artist-tutorial>`_)
 
 **Working with text**
 
 The `text()`_ command can be used to add text in
 an arbitrary location, and the `xlabel()`_,
 `ylabel()`_ and `title()`_
-are used to add text in the indicated locations (see `text-intro <http://matplotlib.sourceforge.net/users/text_intro.html#text-intro>`_
+are used to add text in the indicated locations (see `text-intro <http://matplotlib.org/users/text_intro.html#text-intro>`_
 for a more detailed example)::
 
   mu, sigma = 100, 15
-  x = mu + sigma * normal(size=10000)
+  x = mu + sigma * np.random.normal(size=10000)
 
   # the histogram of the data
-  clf()
-  n, bins, patches = hist(x, 50, normed=1, facecolor='g', alpha=0.75)
+  plt.clf()
+  n, bins, patches = plt.hist(x, 50, normed=1, facecolor='g', alpha=0.75)
 
-  xlabel('Smarts')
-  ylabel('Probability')
-  title('Histogram of IQ')
-  text(60, .025, r'$\mu=100,\ \sigma=15$')
-  axis([40, 160, 0, 0.03])
-  grid(True)
+  plt.xlabel('Smarts')
+  plt.ylabel('Probability')
+  plt.title('Histogram of IQ')
+  plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
+  plt.axis([40, 160, 0, 0.03])
+  plt.grid(True)
 
 .. image:: pyplots/pyplot_text.png
 
@@ -185,9 +187,10 @@ All of the `text()`_ commands return an
 above, you can customize the properties by passing keyword arguments
 into the text functions or using `setp()`_::
 
-  t = xlabel('my data', fontsize=14, color='red')
+  t = plt.xlabel('my data', fontsize=14, color='red')
 
-These properties are covered in more detail in `text-properties <http://matplotlib.sourceforge.net/users/text_props.html#text-properties>`.
+These properties are covered in more detail in `text-properties
+<http://matplotlib.org/users/text_props.html#text-properties>`.
 
 
 **Using mathematical expressions in text**
@@ -196,18 +199,18 @@ matplotlib accepts TeX equation expressions in any text expression.
 For example to write the expression ``\sigma_i=15`` in the title,
 you can write a TeX expression surrounded by dollar signs::
 
-    title(r'$\sigma_i=15$')
+    plt.title(r'$\sigma_i=15$')
 
 The ``r`` preceeding the title string is important -- it signifies
 that the string is a *raw* string and not to treate backslashes and
 python escapes.  matplotlib has a built-in TeX expression parser and
 layout engine, and ships its own math fonts -- for details see
-`mathtext-tutorial <http://matplotlib.sourceforge.net/users/mathtext.html#mathtext-tutorial>`_.
+`mathtext-tutorial <http://matplotlib.org/users/mathtext.html#mathtext-tutorial>`_.
 Thus you can use mathematical text across platforms
 without requiring a TeX installation.  For those who have LaTeX and
 dvipng installed, you can also use LaTeX to format your text and
 incorporate the output directly into your display figures or saved
-postscript -- see `usetex-tutorial <http://matplotlib.sourceforge.net/users/usetex.html#usetex-tutorial>`_.
+postscript -- see `usetex-tutorial <http://matplotlib.org/users/usetex.html#usetex-tutorial>`_.
 
 
 **Annotating text**

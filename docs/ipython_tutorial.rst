@@ -1,16 +1,15 @@
-**Pylab**
+For interactive data analysis IPython has a special ``--matplotlib`` command line
+option which enables interactive plotting from the command line::
 
-For interactive data analysis IPython has a special ``--pylab`` command line
-option which automatically imports elements of the Numpy and the Matplotlib
-environments.  This provides a Matlab-like environment allowing very simple
-and direct commands like::
+  % ipython --matplotlib
 
-  % ipython --pylab
+  import matplotlib.pyplot as plt
+  import numpy as np
 
-  x = arange(0, 10, 0.2)
-  y = sin(x)
-  print x
-  plot(x, y)
+  x = np.arange(0, 10, 0.2)
+  y = np.sin(x)
+  print(x)
+  plt.plot(x, y)
 
 **Keyboard navigation and history**
 
@@ -19,8 +18,8 @@ you command line history.  This lets you quickly re-do commands, perhaps with a
 slight variation based on seeing the last result.  Try cut-n-pasting the above
 lines in an IPython session.  This should bring up a plot of a sine wave.
 
-Now hit up-arrow once and get back the ``plot(x, y)`` line.  Hit the left-arrow
-key (not backspace) once and type ``**2`` so that the line reads ``plot(x,
+Now hit up-arrow once and get back the ``plt.plot(x, y)`` line.  Hit the left-arrow
+key (not backspace) once and type ``**2`` so that the line reads ``plt.plot(x,
 y**2)``.  Now you can hit Return to see the new curve overlayed within the same
 plot window.  It is not necessary to forward-space to the end of the line, you
 can hit Return with the cursor anywhere in the line.
@@ -29,7 +28,7 @@ Now say you want to change the ``x`` values slightly.  One option is to just hit
 up-arrow 5 times, but a much faster way is to remember that the line started
 with ``x``, so type ``x`` and then start hitting up-arrow.  Only lines that
 start with ``x`` will be displayed and you are immediately at the
-``x = arange(0, 10, 0.2)`` line.  Now use the right-arrow and backspace to change ``10`` to
+``x = np.arange(0, 10, 0.2)`` line.  Now use the right-arrow and backspace to change ``10`` to
 ``15`` and hit Return.  Of course ``y`` needs to be recalculated, so hit ``y``
 then up-arrow, then Return.  Finally ``pl`` up-arrow and Return.  Nice and fast!
 
@@ -56,7 +55,7 @@ can be executed by preceding it with an exclamation point "!".
 **Tab completion**
 
 IPython has a very useful tab completion feature that can be used both to
-complete file names and to inspect python objects.  As a first example do::
+complete file names and to inspect Python objects.  As a first example do::
 
   ls /proj/sot/ska/<TAB>
 
@@ -68,7 +67,7 @@ constant in python is actually a object with a type and associated attributes
 and methods.  For instance try to create a list of 3 numbers::
 
   a = [3, 1, 2, 4]
-  print a
+  print(a)
   a.<TAB>
 
 This will show the available methods for ``a``::
@@ -82,7 +81,7 @@ get help for and use::
 
   help a.sort
   a.sort()
-  print a
+  print(a)
 
 For a more concrete example, say you want to fetch some daily telemetry values
 but forgot exactly how to do the query and what are the available columns.  Use
@@ -109,9 +108,9 @@ help and TAB completion to remind yourself::
 OK, now you remember you wanted ``times`` and ``maxes``.  But look, there are
 other tidbits there for free that look interesting.  So go ahead and print a few::
 
-  print tephin.colnames
-  print tephin.dt
-  print tephin.MSID
+  print(tephin.colnames)
+  print(tephin.dt)
+  print(tephin.MSID)
 
 To make it even easier you don't usually have to use ``print``.  Try the
 following::
