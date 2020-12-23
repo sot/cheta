@@ -1232,8 +1232,9 @@ This brings up a text-based process monitor.  Focus on that window and hit "M"
 to tell it to order by memory usage.  Now go back to your main window and get
 all the ``TEIO`` data for the mission::
 
-  ipython --pylab
+  ipython --matplotlib
   import Ska.engarchive.fetch as fetch
+  import matplotlib.pyplot as plt
   from Ska.Matplotlib import plot_cxctime
   time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
   Out[]: CPU times: user 2.08 s, sys: 0.49 s, total: 2.57 s
@@ -1242,18 +1243,18 @@ all the ``TEIO`` data for the mission::
 Now look at the memory usage and see that around a 1 Gb is being used::
 
   len(teio.vals) / 1e6
-  clf()
+  plt.clf()
   plot_cxctime(teio.times, teio.vals, '.', markersize=0.5)
 
 Making a plot with 13 million points takes 5 to 10 seconds and some memory.
 See what happens to memory when you clear the plot::
 
-  clf()
+  plt.clf()
 
 Now let's get serious and fetch all the AORATE3 values (1 per second) for the mission after deleting the TEIO data::
 
     del teio
-    time aorate3 = fetch.MSID('aorate3', '2000:001', '2010:001', filter_bad=True)
+    %time aorate3 = fetch.MSID('aorate3', '2000:001', '2010:001', filter_bad=True)
     Out[]: CPU times: user 38.83 s, sys: 7.43 s, total: 46.26 s
            Wall time: 60.10 s
 
@@ -1268,8 +1269,8 @@ If you try to make a simple scatter plot with 300 million points you will
 make the machine very unhappy.  But we can do computations or make a histogram of
 the distribution::
 
-  clf()
-  hist(log10(abs(aorate3.vals)+1e-15), log=True, bins=100)
+  plt.clf()
+  plt.hist(np.log10(abs(aorate3.vals)+1e-15), log=True, bins=100)
 
 .. image:: fetchplots/aorate3_hist.png
 
