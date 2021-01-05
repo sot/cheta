@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska Analysis Tutorial &#8212; Eng archive 4.50.1 documentation</title>
+    <title>Ska Analysis Tutorial &#8212; Eng archive 4.51.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.50.1 documentation</a>
+	<a href="index.html">Eng archive 4.51.0 documentation</a>
 	 &#187;
       </li>
       
@@ -99,153 +99,36 @@ telemetry archive.</p>
 </div>
 <div class="section" id="configure">
 <h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
-<p>The first requirement is to make sure that your local machine is set up to run
-X11.  On a Microsoft windows PC that probably means having <a class="reference external" href="http://x.cygwin.com/">Cygwin/X</a>
-installed and running.  On a Mac you will need X11 installed.  If you don’t
-have this already the best option is to install X11.pkg from
-<a class="reference external" href="http://xquartz.macosforge.org/trac/wiki/Releases">http://xquartz.macosforge.org/trac/wiki/Releases</a>.  From Linux you are
-already set with X-windows.</p>
-<p>To set up and to use the archive it is best to start with a “clean” environment
-by opening a new X-terminal window.  It is assumed you are using <code class="docutils literal notranslate"><span class="pre">csh</span></code> or
-<code class="docutils literal notranslate"><span class="pre">tcsh</span></code>.</p>
-<p>The first step is to log in to a linux machine on either the HEAD LAN
-(e.g. <code class="docutils literal notranslate"><span class="pre">ccosmos</span></code>) or on the GRETA LAN (<code class="docutils literal notranslate"><span class="pre">chimchim</span></code>).  On the GRETA network
-the Ska analysis environment is available from any GRETA machine, but the
-64-bit machine <code class="docutils literal notranslate"><span class="pre">chimchim</span></code> will run analysis and telemetry access tasks much
-faster.</p>
-<p>To configure the Ska runtime environment and make a new xterm window with a black
-background do the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssh</span> <span class="o">-</span><span class="n">Y</span> <span class="o">&lt;</span><span class="n">username</span><span class="o">&gt;@&lt;</span><span class="n">hostname</span><span class="o">&gt;</span>  <span class="c1"># where &lt;username&gt; and &lt;hostname&gt; are filled in</span>
- <span class="o">&lt;</span><span class="n">Enter</span> <span class="n">password</span><span class="o">&gt;</span>
-</pre></div>
-</div>
-<div class="section" id="initial-file-setup">
-<h3>Initial file setup<a class="headerlink" href="#initial-file-setup" title="Permalink to this headline">¶</a></h3>
-<p>First make a new xterm window, for instance with the following command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xterm</span> <span class="o">-</span><span class="n">bg</span> <span class="n">black</span> <span class="o">-</span><span class="n">fg</span> <span class="n">green</span> <span class="o">&amp;</span>
-</pre></div>
-</div>
-<p>Now focus on the new xterm window and set up your path and various environment
-variables so all the tools are accessible and use the correct libraries.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">sot</span><span class="o">/</span><span class="n">ska</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">ska_envs</span><span class="o">.</span><span class="n">csh</span>
-</pre></div>
-</div>
-<p>If you have not used Python and matplotlib before you should do the
-following setup:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir -p ~/.matplotlib
-cp $SKA/include/cfg/matplotlibrc ~/.matplotlib/
-</pre></div>
-</div>
-<p>Next setup the interactive Python tool.  If you already have a <code class="docutils literal notranslate"><span class="pre">~/.ipython</span></code>
-directory then rename it for safekeeping:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="o">~/.</span><span class="n">ipython</span> <span class="o">~/.</span><span class="n">ipython</span><span class="o">.</span><span class="n">bak</span>
-</pre></div>
-</div>
-<p>Now make a new default IPython profile and copy the Ska customizations:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir -p ~/.ipython
-ipython profile create --ipython-dir=~/.ipython
-cp $SKA/include/cfg/ipython_config.py ~/.ipython/profile_default/
-cp $SKA/include/cfg/10_define_impska.py ~/.ipython/profile_default/startup/
-</pre></div>
-</div>
-<p>Finally it is quite useful to define aliases to get into one of the Ska
-environments and adjust your prompt to indicate that you are using Ska.  The
-command and file to modify depends on the shell you are using and the network.
-First if you don’t know what shell you are using then do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>echo $0
-</pre></div>
-</div>
-<p>This should say either <code class="docutils literal notranslate"><span class="pre">csh</span></code> or <code class="docutils literal notranslate"><span class="pre">tcsh</span></code> or <code class="docutils literal notranslate"><span class="pre">bash</span></code>.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 42%" />
-<col style="width: 29%" />
-<col style="width: 29%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Shell</p></th>
-<th class="head"><p>Network</p></th>
-<th class="head"><p>File</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">csh</span></code> or <code class="docutils literal notranslate"><span class="pre">tcsh</span></code></p></td>
-<td><p>HEAD</p></td>
-<td><p>~/.cshrc.user</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">csh</span></code> or <code class="docutils literal notranslate"><span class="pre">tcsh</span></code></p></td>
-<td><p>GRETA</p></td>
-<td><p>~/.cshrc</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bash</span></code></p></td>
-<td><p>HEAD or GRETA</p></td>
-<td><p>~/.bashrc</p></td>
-</tr>
-</tbody>
-</table>
-<p>Now put the appropriate lines at the end of the indicated file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Csh or tcsh</span>
-<span class="n">alias</span> <span class="n">ska</span>  <span class="s1">&#39;unsetenv PERL5LIB; source /proj/sot/ska/bin/ska_envs.csh; set prompt=&quot;ska-$prompt:q&quot;&#39;</span>
-<span class="n">alias</span> <span class="n">skadev</span>  <span class="s1">&#39;unsetenv PERL5LIB; source /proj/sot/ska/dev/bin/ska_envs.csh; set prompt=&quot;ska-dev-$prompt:q&quot;&#39;</span>
-<span class="n">alias</span> <span class="n">skatest</span>  <span class="s1">&#39;unsetenv PERL5LIB; source /proj/sot/ska/test/bin/ska_envs.csh; set prompt=&quot;ska-test-$prompt:q&quot;&#39;</span>
-<span class="n">alias</span> <span class="n">pylab</span> <span class="s2">&quot;ipython --pylab&quot;</span>
-
-<span class="c1"># Bash</span>
-<span class="n">alias</span> <span class="n">ska</span><span class="o">=</span><span class="s1">&#39;unset PERL5LIB; . /proj/sot/ska/bin/ska_envs.sh; export PS1=&quot;ska-$PS1&quot;&#39;</span>
-<span class="n">alias</span> <span class="n">skadev</span><span class="o">=</span><span class="s1">&#39;unset PERL5LIB; . /proj/sot/ska/dev/bin/ska_envs.sh; export PS1=&quot;ska-dev-$PS1&quot;&#39;</span>
-<span class="n">alias</span> <span class="n">skatest</span><span class="o">=</span><span class="s1">&#39;unset PERL5LIB; . /proj/sot/ska/test/bin/ska_envs.sh; export PS1=&quot;ska-test-$PS1&quot;&#39;</span>
-<span class="n">alias</span> <span class="n">pylab</span><span class="o">=</span><span class="s1">&#39;ipython --pylab&#39;</span>
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">ska</span></code>, <code class="docutils literal notranslate"><span class="pre">skadev</span></code> and <code class="docutils literal notranslate"><span class="pre">skatest</span></code> aliases are a one-way ticket.  Once you
-get into a Ska environment the recommended way to get out or change to a
-different version is to start a new window.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">pylab</span></code> alias is just a quicker way to get into <code class="docutils literal notranslate"><span class="pre">ipython</span> <span class="pre">--pylab</span></code>.</p>
-</div>
-<div class="section" id="ska-ska-dev-and-ska-test">
-<h3>Ska, Ska-dev, and Ska-test<a class="headerlink" href="#ska-ska-dev-and-ska-test" title="Permalink to this headline">¶</a></h3>
-<p>On the GRETA network the Ska-test environment will typically
-correspond to the Ska environment on the HEAD network.  The GRETA Ska
-environment is tied to the FOT Matlab tools and may lag behind the
-latest updates to the HEAD Ska environment.</p>
-<p>The Ska-dev environment is potentially unstable and should not normally be used
-unless you are developing the Ska environment.</p>
-</div>
+<p>To set up for using the Ska3 environment, visit the <a class="reference external" href="https://github.com/sot/skare3/wiki/Ska3-runtime-environment-for-users#configuration-hints">Ska3 configuration hints</a>
+page.</p>
 </div>
 <div class="section" id="basic-functionality-test">
 <h2>Basic Functionality Test<a class="headerlink" href="#basic-functionality-test" title="Permalink to this headline">¶</a></h2>
 <p>Once you have done the configuration setup that was just described, open a new
-xterm window and get into the Ska environment by use the <code class="docutils literal notranslate"><span class="pre">ska</span></code> or <code class="docutils literal notranslate"><span class="pre">skatest</span></code> alias:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska</span>
+xterm window and get into the Ska3 environment by use the <code class="docutils literal notranslate"><span class="pre">ska3</span></code> alias:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska3</span>
 </pre></div>
 </div>
 <p>To test the basic functionality of your setup, try the following at the linux
 shell prompt.  In this tutorial all shell commands are shown with a “% ”
 to indicate the shell prompt.  Your prompt may be different and you should
 not include the “% ” when copying the examples.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ipython</span> <span class="o">--</span><span class="n">matplotlib</span>
 </pre></div>
 </div>
 <p>You should see something that looks like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Python 2.7.1 (r271:86832, Feb  7 2011, 11:30:54)
-Type &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="mf">3.8</span><span class="o">.</span><span class="mi">3</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Jul</span>  <span class="mi">2</span> <span class="mi">2020</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">31</span><span class="p">)</span>
+<span class="n">Type</span> <span class="s1">&#39;copyright&#39;</span><span class="p">,</span> <span class="s1">&#39;credits&#39;</span> <span class="ow">or</span> <span class="s1">&#39;license&#39;</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span>
+<span class="n">IPython</span> <span class="mf">7.16</span><span class="o">.</span><span class="mi">1</span> <span class="o">--</span> <span class="n">An</span> <span class="n">enhanced</span> <span class="n">Interactive</span> <span class="n">Python</span><span class="o">.</span> <span class="n">Type</span> <span class="s1">&#39;?&#39;</span> <span class="k">for</span> <span class="n">help</span><span class="o">.</span>
 
-IPython 0.12 -- An enhanced Interactive Python.
-?         -&gt; Introduction and overview of IPython&#39;s features.
-%quickref -&gt; Quick reference.
-help      -&gt; Python&#39;s own help system.
-object?   -&gt; Details about &#39;object&#39;, use &#39;object??&#39; for extra details.
-
-Welcome to pylab, a matplotlib-based Python environment [backend: Qt4Agg].
-For more information, type &#39;help(pylab)&#39;.
-
-In [1]:
+<span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
 </pre></div>
 </div>
 <p>Now read some data and make a simple plot by copying the following lines in <code class="docutils literal notranslate"><span class="pre">ipython</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">Ska.engarchive.fetch</span> <span class="k">as</span> <span class="nn">fetch</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="n">tephin</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;tephin&#39;</span><span class="p">,</span> <span class="s1">&#39;2009:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2009:002&#39;</span><span class="p">)</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">tephin</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">tephin</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tephin</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">tephin</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You should get a figure like:</p>
@@ -273,22 +156,18 @@ that is the basis for interactive analysis.  At the core it provides
 an interpreter for python language commands but with the addition of
 external packages like <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> and <a class="reference external" href="http://numpy.scipy.org/">numpy</a> it becomes a full-featured
 data analysis environment.  <a class="reference external" href="http://ipython.scipy.org/moin/">IPython</a> is similar in many ways to the command-line interface in Matlab or IDL.</p>
-<p><strong>Links</strong></p>
-<ul class="simple">
-<li><p><a class="reference external" href="http://ipython.org/ipython-doc/rel-0.12/interactive/index.html">Main documentation page</a></p></li>
-<li><p><a class="reference external" href="http://onlamp.com/pub/a/python/2005/01/27/ipython.html">Tutorial (older but good)</a></p></li>
-</ul>
-<p><strong>Pylab</strong></p>
-<p>For interactive data analysis IPython has a special <code class="docutils literal notranslate"><span class="pre">--pylab</span></code> command line
-option which automatically imports elements of the Numpy and the Matplotlib
-environments.  This provides a Matlab-like environment allowing very simple
-and direct commands like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
+<p>See the <a class="reference external" href="https://ipython.readthedocs.io/en/stable/">IPython documentation page</a>.</p>
+<p>For interactive data analysis IPython has a special <code class="docutils literal notranslate"><span class="pre">--matplotlib</span></code> command line
+option which enables interactive plotting from the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ipython</span> <span class="o">--</span><span class="n">matplotlib</span>
 
-<span class="n">x</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="nb">print</span> <span class="n">x</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Keyboard navigation and history</strong></p>
@@ -296,8 +175,8 @@ and direct commands like:</p>
 you command line history.  This lets you quickly re-do commands, perhaps with a
 slight variation based on seeing the last result.  Try cut-n-pasting the above
 lines in an IPython session.  This should bring up a plot of a sine wave.</p>
-<p>Now hit up-arrow once and get back the <code class="docutils literal notranslate"><span class="pre">plot(x,</span> <span class="pre">y)</span></code> line.  Hit the left-arrow
-key (not backspace) once and type <code class="docutils literal notranslate"><span class="pre">**2</span></code> so that the line reads <code class="docutils literal notranslate"><span class="pre">plot(x,</span>
+<p>Now hit up-arrow once and get back the <code class="docutils literal notranslate"><span class="pre">plt.plot(x,</span> <span class="pre">y)</span></code> line.  Hit the left-arrow
+key (not backspace) once and type <code class="docutils literal notranslate"><span class="pre">**2</span></code> so that the line reads <code class="docutils literal notranslate"><span class="pre">plt.plot(x,</span>
 <span class="pre">y**2)</span></code>.  Now you can hit Return to see the new curve overlayed within the same
 plot window.  It is not necessary to forward-space to the end of the line, you
 can hit Return with the cursor anywhere in the line.</p>
@@ -305,7 +184,7 @@ can hit Return with the cursor anywhere in the line.</p>
 up-arrow 5 times, but a much faster way is to remember that the line started
 with <code class="docutils literal notranslate"><span class="pre">x</span></code>, so type <code class="docutils literal notranslate"><span class="pre">x</span></code> and then start hitting up-arrow.  Only lines that
 start with <code class="docutils literal notranslate"><span class="pre">x</span></code> will be displayed and you are immediately at the
-<code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">arange(0,</span> <span class="pre">10,</span> <span class="pre">0.2)</span></code> line.  Now use the right-arrow and backspace to change <code class="docutils literal notranslate"><span class="pre">10</span></code> to
+<code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">np.arange(0,</span> <span class="pre">10,</span> <span class="pre">0.2)</span></code> line.  Now use the right-arrow and backspace to change <code class="docutils literal notranslate"><span class="pre">10</span></code> to
 <code class="docutils literal notranslate"><span class="pre">15</span></code> and hit Return.  Of course <code class="docutils literal notranslate"><span class="pre">y</span></code> needs to be recalculated, so hit <code class="docutils literal notranslate"><span class="pre">y</span></code>
 then up-arrow, then Return.  Finally <code class="docutils literal notranslate"><span class="pre">pl</span></code> up-arrow and Return.  Nice and fast!</p>
 <p>Bonus points: to speed up by another factor of several, use Ctrl-p (prev) instead of
@@ -326,7 +205,7 @@ These include <code class="docutils literal notranslate"><span class="pre">ls</s
 can be executed by preceding it with an exclamation point “!”.</p>
 <p><strong>Tab completion</strong></p>
 <p>IPython has a very useful tab completion feature that can be used both to
-complete file names and to inspect python objects.  As a first example do:</p>
+complete file names and to inspect Python objects.  As a first example do:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ls</span> <span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">sot</span><span class="o">/</span><span class="n">ska</span><span class="o">/&lt;</span><span class="n">TAB</span><span class="o">&gt;</span>
 </pre></div>
 </div>
@@ -336,7 +215,7 @@ this way searching through files or hit Return to complete the command.</p>
 constant in python is actually a object with a type and associated attributes
 and methods.  For instance try to create a list of 3 numbers:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
-<span class="nb">print</span> <span class="n">a</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="n">a</span><span class="o">.&lt;</span><span class="n">TAB</span><span class="o">&gt;</span>
 </pre></div>
 </div>
@@ -350,7 +229,7 @@ and methods.  For instance try to create a list of 3 numbers:</p>
 get help for and use:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">help</span> <span class="n">a</span><span class="o">.</span><span class="n">sort</span>
 <span class="n">a</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-<span class="nb">print</span> <span class="n">a</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For a more concrete example, say you want to fetch some daily telemetry values
@@ -377,9 +256,9 @@ help and TAB completion to remind yourself:</p>
 </div>
 <p>OK, now you remember you wanted <code class="docutils literal notranslate"><span class="pre">times</span></code> and <code class="docutils literal notranslate"><span class="pre">maxes</span></code>.  But look, there are
 other tidbits there for free that look interesting.  So go ahead and print a few:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span> <span class="n">tephin</span><span class="o">.</span><span class="n">colnames</span>
-<span class="nb">print</span> <span class="n">tephin</span><span class="o">.</span><span class="n">dt</span>
-<span class="nb">print</span> <span class="n">tephin</span><span class="o">.</span><span class="n">MSID</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tephin</span><span class="o">.</span><span class="n">colnames</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tephin</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tephin</span><span class="o">.</span><span class="n">MSID</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To make it even easier you don’t usually have to use <code class="docutils literal notranslate"><span class="pre">print</span></code>.  Try the
@@ -401,18 +280,18 @@ billion-element python list you’ll be waiting for a while.</p>
 the examples so far.  NumPy is a Python library for working with
 multidimensional arrays. The main data type is an array. An array is a set of
 elements, all of the same type, indexed by a vector of nonnegative integers.</p>
-<p>NumPy has an excellent <a class="reference external" href="http://www.scipy.org/Tentative_NumPy_Tutorial">basic tutorial</a> available.  Here I just copy
-the Quick Tour from that tutorial but you should read the rest as well.  In
-these examples the python prompt is shown as “&gt;&gt;&gt;” in order to distinguish the
-input from the outputs.</p>
+<p>NumPy has an excellent <a class="reference external" href="https://numpy.org/doc/stable/user/quickstart.html">quickstart tutorial</a> available.</p>
+<p>Here we just show the very basics. In these examples the python prompt is shown
+as “&gt;&gt;&gt;” in order to distinguish the input from the outputs.</p>
 <p>Arrays can be created in different ways:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span> <span class="p">]</span> <span class="p">)</span>   <span class="c1"># create an array out of a list</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span> <span class="p">]</span> <span class="p">)</span>   <span class="c1"># create an array out of a list</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
 <span class="go">array([10, 20, 30, 40])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span> <span class="mi">4</span> <span class="p">)</span>                   <span class="c1"># create an array of 4 integers, from 0 to 3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="mi">4</span> <span class="p">)</span>                   <span class="c1"># create an array of 4 integers, from 0 to 3</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span>
 <span class="go">array([0, 1, 2, 3])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">pi</span><span class="p">,</span><span class="n">pi</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>            <span class="c1"># create an array of 3 evenly spaced samples from -pi to pi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">pi</span><span class="p">,</span><span class="n">pi</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>            <span class="c1"># create an array of 3 evenly spaced samples from -pi to pi</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span>
 <span class="go">array([-3.14159265,  0.        ,  3.14159265])</span>
 </pre></div>
@@ -424,7 +303,7 @@ input from the outputs.</p>
 </pre></div>
 </div>
 <p>Arrays may have more than one dimension:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">ones</span><span class="p">(</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
 <span class="go">array([[1., 1., 1., 1.],</span>
 <span class="go">       [1., 1., 1., 1.],</span>
@@ -434,7 +313,7 @@ input from the outputs.</p>
 </pre></div>
 </div>
 <p>and you can change the dimensions of existing arrays:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
 <span class="go">array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span><span class="mi">4</span>              <span class="c1"># does not modify the total number of elements</span>
@@ -456,7 +335,7 @@ input from the outputs.</p>
 <p>Similar to Python lists, arrays can be indexed, sliced and iterated over:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">7</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span>                     <span class="c1"># modify last two elements of a</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>                        <span class="c1"># iterate over a</span>
-<span class="gp">... </span>    <span class="nb">print</span> <span class="n">i</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 <span class="gp">...</span>
 <span class="go">10</span>
 <span class="go">20</span>
@@ -478,37 +357,38 @@ input from the outputs.</p>
 </div>
 <div class="section" id="id4">
 <h3>Matplotlib<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">pylab</span></code> mode of <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> is a collection of command style functions
-that make <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>  work like matlab.  Each <code class="docutils literal notranslate"><span class="pre">pylab</span></code> function makes
+<p>The <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> mode of <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> is a collection of command style functions
+that make <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>  work like matlab.  Each <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> function makes
 some change to a figure: eg, create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
-with labels, etc….  <code class="docutils literal notranslate"><span class="pre">Pylab</span></code> is stateful, in that it
+with labels, etc….  <code class="docutils literal notranslate"><span class="pre">Pyplot</span></code> is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
 functions are directed to the current axes.  On the
-<a class="reference external" href="http://matplotlib.sourceforge.net/faq/index.html">matplotlib FAQ</a> page there is a
+<a class="reference external" href="http://matplotlib.org/faq/index.html">matplotlib FAQ</a> page there is a
 very good discussion on
-<a class="reference external" href="http://matplotlib.sourceforge.net/faq/usage_faq.html#matplotlib-pylab-and-pyplot-how-are-they-related">Matplotlib, pylab, and pyplot: how are they related?</a>.</p>
+<a class="reference external" href="http://matplotlib.org/faq/usage_faq.html#matplotlib-pylab-and-pyplot-how-are-they-related">Matplotlib, pylab, and pyplot: how are they related?</a>.</p>
 <p>This tutorial has been copied and adapted from the matplotlib
-<a class="reference external" href="http://matplotlib.sourceforge.net/users/pyplot_tutorial.html">pyplot tutorial</a>.</p>
+<a class="reference external" href="http://matplotlib.org/users/pyplot_tutorial.html">pyplot tutorial</a>.</p>
 <p>To see <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> in action and make a simple plot do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
-<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-<span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;some numbers&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;some numbers&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="_images/pyplot_simple.png" src="_images/pyplot_simple.png" />
 <p>You may be wondering why the x-axis ranges from 0-2 and the y-axis
 from 1-3.  If you provide a single list or array to the
-<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> command, matplotlib assumes it is a
+<a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> command, matplotlib assumes it is a
 sequence of y values, and automatically generates the x values for
 you.  Since python ranges start with 0, the default x vector has the
 same length as y but starts with 0.  Hence the x data are
 <code class="docutils literal notranslate"><span class="pre">[0,1,2]</span></code>.</p>
-<p><a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> is a versatile command, and will take
+<p><a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> is a versatile command, and will take
 an arbitrary number of arguments.  For example, to plot x versus y,
 you can issue the command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
-<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">16</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">16</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>For every x, y pair of arguments, there is a optional third argument
@@ -517,15 +397,15 @@ the plot.  The letters and symbols of the format string are from
 matlab, and you concatenate a color string with a line style string.
 The default format string is ‘b-‘, which is a solid blue line.  For
 example, to plot the above with red circles, you would issue:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
-<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">16</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">)</span>
-<span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">16</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
 </pre></div>
 </div>
 <img alt="_images/pyplot_formatstr.png" src="_images/pyplot_formatstr.png" />
-<p>See the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> documentation for a complete
+<p>See the <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.plot">plot()</a> documentation for a complete
 list of line styles and format strings.  The
-<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.axis">axis()</a> command in the example above takes a
+<a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.axis">axis()</a> command in the example above takes a
 list of <code class="docutils literal notranslate"><span class="pre">[xmin,</span> <span class="pre">xmax,</span> <span class="pre">ymin,</span> <span class="pre">ymax]</span></code> and specifies the viewport of the
 axes.</p>
 <p>If matplotlib were limited to working with lists, it would be fairly
@@ -535,128 +415,129 @@ converted to numpy arrays internally.  The example below illustrates a
 plotting several lines with different format styles in one command
 using arrays.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># evenly sampled time at 200ms intervals</span>
-<span class="n">t</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
 
 <span class="c1"># red dashes, blue squares and green triangles</span>
-<span class="n">clf</span><span class="p">()</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;bs&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;g^&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;bs&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;g^&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="_images/pyplot_three.png" src="_images/pyplot_three.png" />
 <p><strong>Working with multiple figures and axes</strong></p>
 <p>Both Matlab and Pylab have the concept of the current
 figure and the current axes.  All plotting commands apply to the
-current axes.  The function <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.gca">gca()</a> returns the
+current axes.  The function <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.gca">gca()</a> returns the
 current axes and
-<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.gcf">gcf()</a> returns the current figure. Normally, you don’t have
+<a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.gcf">gcf()</a> returns the current figure. Normally, you don’t have
 to worry about this, because it is all taken care of behind the
 scenes.  Below is a script to create two subplots.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
 
-<span class="n">t1</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-<span class="n">t2</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">)</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">)</span>
 
-<span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">clf</span><span class="p">()</span>
-<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># (nrows, ncols, fignum)</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">t2</span><span class="p">),</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># (nrows, ncols, fignum)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">t2</span><span class="p">),</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
 
-<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">t2</span><span class="p">),</span> <span class="s1">&#39;r--&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">t2</span><span class="p">),</span> <span class="s1">&#39;r--&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="_images/pyplot_two_subplots.png" src="_images/pyplot_two_subplots.png" />
-<p>The <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.figure">figure()</a> command here is optional because
+<p>The <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.figure">figure()</a> command here is optional because
 <code class="docutils literal notranslate"><span class="pre">figure(1)</span></code> will be created by default, just as a <code class="docutils literal notranslate"><span class="pre">subplot(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></code>
 will be created by default if you don’t manually specify an axes.  The
-<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.subplot">subplot()</a> command specifies <code class="docutils literal notranslate"><span class="pre">numrows,</span>
+<a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.subplot">subplot()</a> command specifies <code class="docutils literal notranslate"><span class="pre">numrows,</span>
 <span class="pre">numcols,</span> <span class="pre">fignum</span></code> where <code class="docutils literal notranslate"><span class="pre">fignum</span></code> ranges from 1 to
 <code class="docutils literal notranslate"><span class="pre">numrows*numcols</span></code>.  The commas in the <code class="docutils literal notranslate"><span class="pre">subplot</span></code> command are
 optional if <code class="docutils literal notranslate"><span class="pre">numrows*numcols&lt;10</span></code>.  You can create an arbitrary number of subplots
 and axes.  If you want to place an axes manually, ie, not on a
-rectangular grid, use the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.axes">axes()</a> command,
+rectangular grid, use the <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.axes">axes()</a> command,
 which allows you to specify the location as <code class="docutils literal notranslate"><span class="pre">axes([left,</span> <span class="pre">bottom,</span>
 <span class="pre">width,</span> <span class="pre">height])</span></code> where all values are in fractional (0 to 1)
 coordinates.</p>
 <p>You can create multiple figures by using multiple
-<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.figure">figure()</a> calls with an increasing figure
+<a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.figure">figure()</a> calls with an increasing figure
 number.  Of course, each figure can contain as many axes and subplots
 as your heart desires:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="c1"># the first figure</span>
-<span class="n">clf</span><span class="p">()</span>
-<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>         <span class="c1"># the first subplot in the first figure</span>
-<span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>         <span class="c1"># the second subplot in the first figure</span>
-<span class="n">plot</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="c1"># the first figure</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>         <span class="c1"># the first subplot in the first figure</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>         <span class="c1"># the second subplot in the first figure</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
 
 
-<span class="n">figure</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>                <span class="c1"># a second figure</span>
-<span class="n">clf</span><span class="p">()</span>
-<span class="n">plot</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>            <span class="c1"># creates a subplot(111) by default</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>                <span class="c1"># a second figure</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>            <span class="c1"># creates a subplot(111) by default</span>
 
-<span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="c1"># figure 1 current; subplot(2, 1, 2) still current</span>
-<span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>         <span class="c1"># make subplot(2, 1, 1) in figure1 current</span>
-<span class="n">title</span><span class="p">(</span><span class="s1">&#39;Easy as 1,2,3&#39;</span><span class="p">)</span>   <span class="c1"># subplot 2, 1, 1 title</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="c1"># figure 1 current; subplot(2, 1, 2) still current</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>         <span class="c1"># make subplot(2, 1, 1) in figure1 current</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Easy as 1,2,3&#39;</span><span class="p">)</span>   <span class="c1"># subplot 2, 1, 1 title</span>
 </pre></div>
 </div>
-<p>You can clear the current figure with <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.clf">clf()</a>
-and the current axes with <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.cla">cla()</a>.  If you find
+<p>You can clear the current figure with <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.clf">clf()</a>
+and the current axes with <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.cla">cla()</a>.  If you find
 this statefulness, annoying, don’t despair, this is just a thin
 stateful wrapper around an object oriented API, which you can use
-instead  (see <a class="reference external" href="http://matplotlib.sourceforge.net/users/artists.html#artist-tutorial">artist-tutorial</a>)</p>
+instead  (see <a class="reference external" href="http://matplotlib.org/users/artists.html#artist-tutorial">artist-tutorial</a>)</p>
 <p><strong>Working with text</strong></p>
-<p>The <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> command can be used to add text in
-an arbitrary location, and the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.xlabel">xlabel()</a>,
-<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.ylabel">ylabel()</a> and <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.title">title()</a>
-are used to add text in the indicated locations (see <a class="reference external" href="http://matplotlib.sourceforge.net/users/text_intro.html#text-intro">text-intro</a>
+<p>The <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> command can be used to add text in
+an arbitrary location, and the <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.xlabel">xlabel()</a>,
+<a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.ylabel">ylabel()</a> and <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.title">title()</a>
+are used to add text in the indicated locations (see <a class="reference external" href="http://matplotlib.org/users/text_intro.html#text-intro">text-intro</a>
 for a more detailed example):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">15</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
 
 <span class="c1"># the histogram of the data</span>
-<span class="n">clf</span><span class="p">()</span>
-<span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">hist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
 
-<span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Smarts&#39;</span><span class="p">)</span>
-<span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Probability&#39;</span><span class="p">)</span>
-<span class="n">title</span><span class="p">(</span><span class="s1">&#39;Histogram of IQ&#39;</span><span class="p">)</span>
-<span class="n">text</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="o">.</span><span class="mi">025</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mu=100,\ \sigma=15$&#39;</span><span class="p">)</span>
-<span class="n">axis</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
-<span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Smarts&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Probability&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Histogram of IQ&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="o">.</span><span class="mi">025</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mu=100,\ \sigma=15$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="_images/pyplot_text.png" src="_images/pyplot_text.png" />
-<p>All of the <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> commands return an
+<p>All of the <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> commands return an
 <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code> instance.  Just as with with lines
 above, you can customize the properties by passing keyword arguments
-into the text functions or using <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.setp">setp()</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;my data&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+into the text functions or using <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.setp">setp()</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;my data&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>These properties are covered in more detail in <cite>text-properties &lt;http://matplotlib.sourceforge.net/users/text_props.html#text-properties&gt;</cite>.</p>
+<p>These properties are covered in more detail in <cite>text-properties
+&lt;http://matplotlib.org/users/text_props.html#text-properties&gt;</cite>.</p>
 <p><strong>Using mathematical expressions in text</strong></p>
 <p>matplotlib accepts TeX equation expressions in any text expression.
 For example to write the expression <code class="docutils literal notranslate"><span class="pre">\sigma_i=15</span></code> in the title,
 you can write a TeX expression surrounded by dollar signs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\sigma_i=15$&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\sigma_i=15$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">r</span></code> preceeding the title string is important – it signifies
 that the string is a <em>raw</em> string and not to treate backslashes and
 python escapes.  matplotlib has a built-in TeX expression parser and
 layout engine, and ships its own math fonts – for details see
-<a class="reference external" href="http://matplotlib.sourceforge.net/users/mathtext.html#mathtext-tutorial">mathtext-tutorial</a>.
+<a class="reference external" href="http://matplotlib.org/users/mathtext.html#mathtext-tutorial">mathtext-tutorial</a>.
 Thus you can use mathematical text across platforms
 without requiring a TeX installation.  For those who have LaTeX and
 dvipng installed, you can also use LaTeX to format your text and
 incorporate the output directly into your display figures or saved
-postscript – see <a class="reference external" href="http://matplotlib.sourceforge.net/users/usetex.html#usetex-tutorial">usetex-tutorial</a>.</p>
+postscript – see <a class="reference external" href="http://matplotlib.org/users/usetex.html#usetex-tutorial">usetex-tutorial</a>.</p>
 <p><strong>Annotating text</strong></p>
-<p>The uses of the basic <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> command above
+<p>The uses of the basic <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.text">text()</a> command above
 place text at an arbitrary position on the Axes.  A common use case of
 text is to annotate some feature of the plot, and the
-<a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.annotate">annotate()</a> method provides helper
+<a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.annotate">annotate()</a> method provides helper
 functionality to make annotations easy.  In an annotation, there are
 two points to consider: the location being annotated represented by
 the argument <code class="docutils literal notranslate"><span class="pre">xy</span></code> and the location of the text <code class="docutils literal notranslate"><span class="pre">xytext</span></code>.  Both of
@@ -681,11 +562,7 @@ locations (text location) are in data coordinates.</p>
 <ul>
 <li><a class="reference internal" href="#">Ska Analysis Tutorial</a><ul>
 <li><a class="reference internal" href="#id1">Overview</a></li>
-<li><a class="reference internal" href="#configure">Configure</a><ul>
-<li><a class="reference internal" href="#initial-file-setup">Initial file setup</a></li>
-<li><a class="reference internal" href="#ska-ska-dev-and-ska-test">Ska, Ska-dev, and Ska-test</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#configure">Configure</a></li>
 <li><a class="reference internal" href="#basic-functionality-test">Basic Functionality Test</a></li>
 <li><a class="reference internal" href="#tools-overview">Tools overview</a><ul>
 <li><a class="reference internal" href="#ska-engarchive-fetch">Ska.engarchive.fetch</a></li>

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Tutorial &#8212; Eng archive 4.50.1 documentation</title>
+    <title>Fetch Tutorial &#8212; Eng archive 4.51.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.50.1 documentation</a>
+	<a href="index.html">Eng archive 4.51.0 documentation</a>
 	 &#187;
       </li>
       
@@ -1340,8 +1340,9 @@ you watch memory usage:</p>
 <p>This brings up a text-based process monitor.  Focus on that window and hit “M”
 to tell it to order by memory usage.  Now go back to your main window and get
 all the <code class="docutils literal notranslate"><span class="pre">TEIO</span></code> data for the mission:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">matplotlib</span>
 <span class="kn">import</span> <span class="nn">Ska.engarchive.fetch</span> <span class="k">as</span> <span class="nn">fetch</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">Ska.Matplotlib</span> <span class="kn">import</span> <span class="n">plot_cxctime</span>
 <span class="n">time</span> <span class="n">teio</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;teio&#39;</span><span class="p">,</span> <span class="s1">&#39;2000:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:001&#39;</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Out</span><span class="p">[]:</span> <span class="n">CPU</span> <span class="n">times</span><span class="p">:</span> <span class="n">user</span> <span class="mf">2.08</span> <span class="n">s</span><span class="p">,</span> <span class="n">sys</span><span class="p">:</span> <span class="mf">0.49</span> <span class="n">s</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="mf">2.57</span> <span class="n">s</span>
@@ -1350,18 +1351,18 @@ all the <code class="docutils literal notranslate"><span class="pre">TEIO</span>
 </div>
 <p>Now look at the memory usage and see that around a 1 Gb is being used:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">teio</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>
-<span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
 <span class="n">plot_cxctime</span><span class="p">(</span><span class="n">teio</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">teio</span><span class="o">.</span><span class="n">vals</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Making a plot with 13 million points takes 5 to 10 seconds and some memory.
 See what happens to memory when you clear the plot:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Now let’s get serious and fetch all the AORATE3 values (1 per second) for the mission after deleting the TEIO data:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">del</span> <span class="n">teio</span>
-<span class="n">time</span> <span class="n">aorate3</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;aorate3&#39;</span><span class="p">,</span> <span class="s1">&#39;2000:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:001&#39;</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="o">%</span><span class="n">time</span> <span class="n">aorate3</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;aorate3&#39;</span><span class="p">,</span> <span class="s1">&#39;2000:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:001&#39;</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Out</span><span class="p">[]:</span> <span class="n">CPU</span> <span class="n">times</span><span class="p">:</span> <span class="n">user</span> <span class="mf">38.83</span> <span class="n">s</span><span class="p">,</span> <span class="n">sys</span><span class="p">:</span> <span class="mf">7.43</span> <span class="n">s</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="mf">46.26</span> <span class="n">s</span>
        <span class="n">Wall</span> <span class="n">time</span><span class="p">:</span> <span class="mf">60.10</span> <span class="n">s</span>
 </pre></div>
@@ -1376,8 +1377,8 @@ See what happens to memory when you clear the plot:</p>
 <p>If you try to make a simple scatter plot with 300 million points you will
 make the machine very unhappy.  But we can do computations or make a histogram of
 the distribution:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clf</span><span class="p">()</span>
-<span class="n">hist</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">aorate3</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-15</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">aorate3</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-15</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="_images/aorate3_hist.png" src="_images/aorate3_hist.png" />
