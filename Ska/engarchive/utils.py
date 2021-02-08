@@ -18,26 +18,6 @@ STATS_DT = {'5min': 328,
             'daily': 86400}
 
 
-def tables_open_file(*args, **kwargs):
-    """Call tables.open_file(*args, **kwargs) with retry up to 3 times.
-
-    This only catches tables.exceptions.HDF5ExtError. After an initial failure
-    it will try again after 2 seconds and once more after 4 seconds.
-
-    :param *args: args passed through to tables.open_file()
-    :param **kwargs: kwargs passed through to tables.open_file()
-    :returns: tables file handle
-    """
-    import ska_helpers.retry
-    import tables
-
-    h5 = ska_helpers.retry.retry_call(
-        tables.open_file, args=args, kwargs=kwargs,
-        exceptions=tables.exceptions.HDF5ExtError,
-        delay=2, tries=3, backoff=2)
-    return h5
-
-
 def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True):
     """
     Estimate the memory size required to fetch the ``msids`` between ``start`` and

@@ -22,12 +22,12 @@ import astropy.io.fits as pyfits
 import tables
 import numpy as np
 import scipy.stats.mstats
+from ska_helpers.retry import tables_open_file
 
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.converters as converters
 import Ska.engarchive.file_defs as file_defs
 import Ska.engarchive.derived as derived
-from Ska.engarchive.utils import tables_open_file
 import Ska.arc5gl
 
 
