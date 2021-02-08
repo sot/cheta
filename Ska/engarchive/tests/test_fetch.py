@@ -407,3 +407,9 @@ def test_daily_state_bins():
 
     dat = fetch.Msid('aoacaseq', '2016:234:12:00:00', '2016:234:12:30:00', stat='5min')
     assert np.all(dat.n_BRITs == [0, 0, 51, 17, 0, 0])
+
+def test_time_adjust():
+     CPA2PWR = fetch.Msid('CPA2PWR', '2020:230:00:00:01', '2020:230:00:00:04') # just a spot check
+     CPA2PWR_adj = adjust_time(CPA2PWR, '2020:230:00:00:01', '2020:230:00:00:04')
+     for t, t_adj in zip(CPA2PWR.times, CPA2PWR_adj.times):
+        assert (t_adj - t) == 0.25625

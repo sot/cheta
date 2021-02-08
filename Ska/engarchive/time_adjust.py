@@ -11,12 +11,14 @@ from Ska.engarchive import fetch_eng as fetch
 from Ska.tdb import tables
 
 
-def adjust_time(msid, ts, tp):
+def adjust_time(msid, start, stop):
     """
-    Describe what the function does in one sentence.
+    Apply an offset to cheta timestamps to achieve minor frame time resolution
 
-    Describe what the function does in more detail. Include notes about usage,
-    for instance the important caveat about the MSID data source.
+    Given an msid returned by fetch.MSID or fetch.Msid and a time interval, 
+    determine the time offset for each sample.  Time offset is based on the TDB 
+    and the Telemetry format at the time.  Only applies to msids retrieved with
+    'cxc' as a data source
 
     Notes/Improvements:
 
@@ -31,9 +33,9 @@ def adjust_time(msid, ts, tp):
 
     :param msid: fetch ``MSID`` or ``Msid`` object
         MSID for which to calculate the time adjustments statistics for.
-    :param ts: str, ``CxoTime``, ``DateTime``
+    :param start: str, ``CxoTime``, ``DateTime``
         Start time (CxoTime-compatible format)
-    :param tp: str, ``CxoTime``, ``DateTime``
+    :param stop: str, ``CxoTime``, ``DateTime``
         Stop time (CxoTime-compatible format)
 
     :returns: fetch ``MSID`` or ``Msid`` object
@@ -71,7 +73,7 @@ def adjust_time(msid, ts, tp):
 
     # Get Telemetry format for the time interval in question.  CCSDSTMF is
     # updated 128x per MjF, so it's at max time resolution
-    tmf = fetch.Msid('CCSDSTMF', ts, tp)
+    tmf = fetch.Msid('CCSDSTMF', start, stop)
 
     # Generate list of intervals for each format using logical intervals
     fmts = ('FMT1', 'FMT2', 'FMT3', 'FMT4', 'FMT5', 'FMT6')
@@ -92,26 +94,3 @@ def adjust_time(msid, ts, tp):
     out_msid = copy.copy(msid)
     out_msid.times = times
     return out_msid
-
-
-# DEBUG/TEST SECTION
-def main():
-    print("---CPA2PWR-------------------")
-    print("--- This has start minor frame of 1, so adjusted time should be "
-          "offset by 0.25625 from even VCDU counts")
-    CPA2PWR = fetch.Msid('CPA2PWR', '2020:230:00:00:01', '2020:230:00:00:04')
-    for t in CPA2PWR.times:
-        print(f"{DateTime(t).greta} - unadjusted")
-    print("-----------------------------")
-    CPA2PWR_adj = adjust_time(CPA2PWR, '2020:230:00:00:01', '2020:230:00:00:04')
-    for t in CPA2PWR_adj.times:
-        print(f"{DateTime(t).greta} - adjusted")
-    print("-----------------------------")
-    CCSDSVCD = fetch.Msid('CCSDSVCD', '2020:230:00:00:01', '2020:230:00:00:04')
-    for ii in range(len(CCSDSVCD.vals)):
-        print(f"VCDU CNT: {CCSDSVCD.vals[ii]} - {DateTime(CCSDSVCD.times[ii]).greta}")
-
-
-if __name__ == "__main__":
-    # execute only if run as a script
-    main()
