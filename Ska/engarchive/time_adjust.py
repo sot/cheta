@@ -5,7 +5,6 @@ Describe what this module does.
 
 import copy
 
-from Chandra.Time import DateTime
 from Ska.engarchive.utils import logical_intervals
 from Ska.engarchive import fetch_eng as fetch
 from Ska.tdb import tables
@@ -15,8 +14,8 @@ def adjust_time(msid, start, stop):
     """
     Apply an offset to cheta timestamps to achieve minor frame time resolution
 
-    Given an msid returned by fetch.MSID or fetch.Msid and a time interval, 
-    determine the time offset for each sample.  Time offset is based on the TDB 
+    Given an msid returned by fetch.MSID or fetch.Msid and a time interval,
+    determine the time offset for each sample.  Time offset is based on the TDB
     and the Telemetry format at the time.  Only applies to msids retrieved with
     'cxc' as a data source
 
