@@ -157,7 +157,7 @@ def remove_outdated_sync_files(opt, logger, index_tbl, index_file):
 
     index_tbl = index_tbl[idx0:]
     logger.info(f'Writing {len(index_tbl)} row(s) to index file {index_file}')
-    index_tbl.write(index_file, format='ascii.ecsv', overwrite=True)
+    index_tbl[file_defs.sync_index_cols].write(index_file, format='ascii.ecsv', overwrite=True)
 
 
 def update_sync_repo(opt, logger, content):
@@ -312,7 +312,7 @@ def update_index_file(index_file, opt, logger):
         return None
 
     logger.info(f'Writing {len(rows)} row(s) to index file {index_file}')
-    index_tbl.write(index_file, format='ascii.ecsv')
+    index_tbl[file_defs.sync_index_cols].write(index_file, format='ascii.ecsv')
 
     return index_tbl
 
