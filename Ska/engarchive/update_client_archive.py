@@ -476,14 +476,14 @@ def update_full_h5_files(dat, logger, msid_files, msids, opt):
 def get_full_data_sets(ft, index_tbl, logger, opt):
     # Iterate over sync files that contain new data
     dats = []
-    for entry in index_tbl:
+    for row in index_tbl:
 
         # Limit processed archfiles by date
-        if entry['filetime0'] > DateTime(opt.date_stop).secs:
+        if row['filetime0'] > DateTime(opt.date_stop).secs:
             break
 
         # File names like sync/acis4eng/2019-07-08T1150z/full.npz
-        ft['date_id'] = entry['date_id']
+        ft['date_id'] = row['date_id']
 
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
@@ -588,11 +588,11 @@ def _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
 def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
     # Iterate over sync files that contain new data
     dats = []
-    for entry in index_tbl:
-        date_id = entry['date_id']
+    for row in index_tbl:
+        date_id = row['date_id']
 
         # Limit processed archfiles by date
-        if entry['filetime0'] > DateTime(opt.date_stop).secs:
+        if row['filetime0'] > DateTime(opt.date_stop).secs:
             logger.verbose(f'Index {date_id} filetime0 > date_stop, breaking')
             break
 
