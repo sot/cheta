@@ -57,6 +57,3 @@ sync_files = {'index':         'sync/{{ft.content}}/index.ecsv',
 # Used when originally creating database.
 orig_arch_root = '/data/cosmos2/tlm'
 orig_arch_files = {'contentdir':   '{{ft.content}}/'}
-
-# Define the order and names for the columns of the sync index file
-sync_index_cols = ['date_id', 'filetime0', 'filetime1', 'row0', 'row1']
