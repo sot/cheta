@@ -21,17 +21,17 @@ SKA = os.environ.get('SKA') or '/proj/sot/ska'
 msid_root = os.path.join(SKA, 'data', 'eng_archive')
 msid_roots = [msid_root]
 
-msid_files = {'filetypes':    'filetypes.dat',
+msid_files = {'filetypes': 'filetypes.dat',
               'msid_bad_times': 'msid_bad_times.dat',
-              'contentdir':   'data/{{ft.content}}/',
-              'headers':      'data/{{ft.content}}/headers.pickle',
-              'archfiles':    'data/{{ft.content}}/archfiles.db3',
-              'colnames':     'data/{{ft.content}}/colnames.pickle',
+              'contentdir': 'data/{{ft.content}}/',
+              'headers': 'data/{{ft.content}}/headers.pickle',
+              'archfiles': 'data/{{ft.content}}/archfiles.db3',
+              'colnames': 'data/{{ft.content}}/colnames.pickle',
               'colnames_all': 'data/{{ft.content}}/colnames_all.pickle',
-              'msid':         'data/{{ft.content}}/{{ft.msid | upper}}.h5',
-              'data':         'data/{{ft.content}}/{{ft.msid | upper}}.h5',
-              'statsdir':     'data/{{ft.content}}/{{ft.interval}}/',
-              'stats':        'data/{{ft.content}}/{{ft.interval}}/{{ft.msid | upper}}.h5',
+              'msid': 'data/{{ft.content}}/{{ft.msid | upper}}.h5',
+              'data': 'data/{{ft.content}}/{{ft.msid | upper}}.h5',
+              'statsdir': 'data/{{ft.content}}/{{ft.interval}}/',
+              'stats': 'data/{{ft.content}}/{{ft.interval}}/{{ft.msid | upper}}.h5',
               'last_date_id': 'data/{{ft.content}}/{{ft.interval}}/last_date_id',
               }
 
@@ -41,19 +41,19 @@ msid_files = {'filetypes':    'filetypes.dat',
 arch_root = '/data/cosmos2/eng_archive'
 arch_files = {'stagedir': 'stage/{{ft.content}}/',
               'rootdir': '',
-              'archrootdir':  'data/{{ft.content}}/arch/',
-              'archdir':      'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/',
-              'archfile':     'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
+              'archrootdir': 'data/{{ft.content}}/arch/',
+              'archdir': 'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/',
+              'archfile': 'data/{{ft.content}}/arch/{{ft.year}}/{{ft.doy}}/{{ft.basename}}',
               }
 
 # Files within the sync repo (for maintaining client archive)
-sync_files = {'index':         'sync/{{ft.content}}/index.ecsv',
+sync_files = {'index': 'sync/{{ft.content}}/index.ecsv',
               'msid_contents': 'sync/msid_contents.pkl.gz',
-              'last_rows':     'sync/{{ft.content}}/last_rows_{{ft.interval}}.pkl',
-              'data_dir':      'sync/{{ft.content}}/{{ft.date_id}}',
-              'data':          'sync/{{ft.content}}/{{ft.date_id}}/{{ft.interval}}.pkl.gz',
+              'last_rows': 'sync/{{ft.content}}/last_rows_{{ft.interval}}.pkl',
+              'data_dir': 'sync/{{ft.content}}/{{ft.date_id}}',
+              'data': 'sync/{{ft.content}}/{{ft.date_id}}/{{ft.interval}}.pkl.gz',
               }
 
 # Used when originally creating database.
 orig_arch_root = '/data/cosmos2/tlm'
-orig_arch_files = {'contentdir':   '{{ft.content}}/'}
+orig_arch_files = {'contentdir': '{{ft.content}}/'}
