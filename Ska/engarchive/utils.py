@@ -2,13 +2,10 @@
 """
 Utilities for the engineering archive.
 """
-from __future__ import print_function, division, absolute_import
-
 import re
 from contextlib import contextmanager
 
 import six
-from six.moves import zip
 import numpy as np
 from Chandra.Time import DateTime
 

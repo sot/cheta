@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from __future__ import print_function, division, absolute_import
-
 import re
 import os
 import glob
 import time
 from pathlib import Path
 
-from six.moves import cPickle as pickle
-from six.moves import zip
+import pickle
 import argparse
 import itertools
 from collections import OrderedDict
@@ -25,6 +22,7 @@ import astropy.io.fits as pyfits
 import tables
 import numpy as np
 import scipy.stats.mstats
+from ska_helpers.retry import tables_open_file
 
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.converters as converters
@@ -309,7 +307,7 @@ def fix_misorders(filetype):
             ft['msid'] = colname
             logger.info('Fixing %s', msid_files['msid'].abs)
             if not opt.dry_run:
-                h5 = tables.open_file(msid_files['msid'].abs, mode='a')
+                h5 = tables_open_file(msid_files['msid'].abs, mode='a')
                 hrd = h5.root.data
                 hrq = h5.root.quality
 
@@ -368,7 +366,7 @@ def del_stats(colname, time0, interval):
 
     logger.info('Fixing stats file %s after time %s', stats_file, DateTime(time0).date)
 
-    stats = tables.open_file(stats_file, mode='a',
+    stats = tables_open_file(stats_file, mode='a',
                              filters=tables.Filters(complevel=5, complib='zlib'))
     index0 = time0 // dt - 1
     indexes = stats.root.data.col('index')[:]
@@ -504,7 +502,7 @@ def update_stats(colname, interval, msid=None):
         logger.info('Making stats dir {}'.format(msid_files['statsdir'].abs))
         os.makedirs(msid_files['statsdir'].abs)
 
-    stats = tables.open_file(stats_file, mode='a',
+    stats = tables_open_file(stats_file, mode='a',
                              filters=tables.Filters(complevel=5, complib='zlib'))
 
     # INDEX0 is somewhat before any CXC archive data (which starts around 1999:205)
@@ -580,6 +578,7 @@ def update_derived(filetype):
     colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
     colnames = [x for x in colnames if x.startswith('DP_')]
     msids = set()
+    time_step = None
     for colname in colnames:
         dp_class = getattr(derived, colname)
         dp = dp_class()
@@ -595,7 +594,7 @@ def update_derived(filetype):
         ft['msid'] = 'TIME'
         content = ft['content'] = fetch.content[msid]
         if content not in last_times:
-            h5 = tables.open_file(fetch.msid_files['msid'].abs, mode='r')
+            h5 = tables_open_file(fetch.msid_files['msid'].abs, mode='r')
             last_times[content] = h5.root.data[-1]
             h5.close()
     last_time = min(last_times.values()) - 1000
@@ -654,7 +653,7 @@ def make_h5_col_file(dats, colname):
     n_rows = int(86400 * 365 * 20 / dt)
 
     filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables.open_file(filename, mode='w', filters=filters)
+    h5 = tables_open_file(filename, mode='w', filters=filters)
 
     col = dats[-1][colname]
     h5shape = (0,) + col.shape[1:]
@@ -689,7 +688,7 @@ def append_filled_h5_col(dats, colname, data_len):
     quals = np.zeros(fill_len, dtype=bool)
 
     # Append zeros (for the data type) and quality=True (bad)
-    h5 = tables.open_file(msid_files['msid'].abs, mode='a')
+    h5 = tables_open_file(msid_files['msid'].abs, mode='a')
     logger.verbose('Appending %d zeros to %s' % (len(zeros), msid_files['msid'].abs))
     if not opt.dry_run:
         h5.root.data.append(zeros)
@@ -710,7 +709,7 @@ def append_h5_col(dats, colname, files_overlaps):
         """Return the index for `colname` in `dat`"""
         return list(dat.dtype.names).index(colname)
 
-    h5 = tables.open_file(msid_files['msid'].abs, mode='a')
+    h5 = tables_open_file(msid_files['msid'].abs, mode='a')
     stacked_data = np.hstack([x[colname] for x in dats])
     stacked_quality = np.hstack([x['QUALITY'][:, i_colname(x)] for x in dats])
     logger.verbose('Appending %d items to %s' % (len(stacked_data), msid_files['msid'].abs))
@@ -779,7 +778,7 @@ def truncate_archive(filetype, date):
         filename = msid_files['msid'].abs
         if os.path.exists(filename):
             if not opt.dry_run:
-                h5 = tables.open_file(filename, mode='a')
+                h5 = tables_open_file(filename, mode='a')
                 h5.root.data.truncate(rowstart)
                 h5.root.quality.truncate(rowstart)
                 h5.close()
