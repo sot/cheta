@@ -7,7 +7,9 @@ import copy
 
 from Ska.engarchive.utils import logical_intervals
 from Ska.engarchive import fetch_eng as fetch
-from Ska.tdb import tables
+from Ska.tdb import tables, msids as tdb_msids
+
+MNF_TIME = 0.25625  # Minor frame time (s)
 
 
 def adjust_time(msid, start, stop):
@@ -65,7 +67,7 @@ def adjust_time(msid, start, stop):
         fmt = fmt_dict[stream]
         # Note this will fail for very long data sets.  Should use average mission
         # rate or clock look up table.
-        off_phase = 0.25625 * start_minor_frame[str_num_2_idx[stream]]
+        off_phase = MNF_TIME * start_minor_frame[str_num_2_idx[stream]]
         t_off[fmt] = off_phase
         # 128 -> 0.25625, 64 -> 0.51250 , &c.
         t_samp[fmt] = (128 / samp_rate[str_num_2_idx[stream]]) * 0.25625
@@ -93,3 +95,66 @@ def adjust_time(msid, start, stop):
     out_msid = copy.deepcopy(msid)
     out_msid.times = times
     return out_msid
+
+
+def get_hi_res_times(msid, fmt_intervals=None):
+    """
+    Determine MSID timestamps to achieve minor frame time resolution.
+
+    Given an msid returned by fetch.MSID or fetch.Msid determine the time offset
+    for each sample. Time offset is based on the TDB and the Telemetry format
+    at the time. Only applies to msids retrieved with 'cxc' as a data source
+
+    :param msid: ``MSID`` or ``Msid`` object
+        MSID for which to calculate the time adjustments statistics.
+    :param fmt_intervals: TBD
+
+    :returns: (np.array, TDB)
+        Return tuple of (hi-res times, telemetry format intervals)
+    """
+    # TODO: check for data_source
+    # TODO: check for stats MSID
+
+    try:
+        tdb_msid = tdb_msids[msid.msid]
+    except KeyError:
+        raise ValueError(f'msid {msid.msid} is not in TDB')
+
+    # stream# to FMT name converter. Unsure if FMT6/SHuttle data needs to be handled
+    fmt_dict = {1: 'FMT1', 2: 'FMT2', 3: 'FMT3', 4: 'FMT4', 5: 'FMT5', 72: 'FMT6', 6: 'FMT6'}
+
+    # For each format, generate time offset based on stream number
+    t_off = {}
+    for stream, start_minor_frame in zip(tdb_msid.Tloc['STREAM_NUMBER'],
+                                         tdb_msid.Tloc['START_MINOR_FRAME']):
+        fmt = fmt_dict[stream]
+        # Note this will fail for very long data sets.  Should use average mission
+        # rate or clock look up table.
+        t_off[fmt] = MNF_TIME * start_minor_frame
+
+    if fmt_intervals is None:
+        fmt_intervals = get_fmt_intervals(msid.tstart, msid.tstop)
+
+    fmts = ('FMT1', 'FMT2', 'FMT3', 'FMT4', 'FMT5', 'FMT6')
+    times = msid.times.copy()
+    for fmt in fmts:
+        for interval in fmt_intervals[fmt]:
+            # Now traverse each interval in the msid to be adjusted and add the
+            # appropriate offset.
+            # TODO: check on the >= vs > here.
+            ok = (msid.times >= interval['tstart']) & (msid.times < interval['tstop'])
+            times[ok] += t_off[fmt]
+
+    return times, fmt_intervals
+
+
+def get_fmt_intervals(start, stop):
+    msid_fmt = fetch.Msid('CCSDSTMF', start, stop)
+
+    # Generate list of intervals for each format using logical intervals
+    fmts = ('FMT1', 'FMT2', 'FMT3', 'FMT4', 'FMT5', 'FMT6')
+    fmt_intervals = {}
+    for fmt in fmts:
+        fmt_intervals[fmt] = logical_intervals(msid_fmt.times, msid_fmt.vals == fmt,
+                                               complete_intervals=False)
+    return fmt_intervals

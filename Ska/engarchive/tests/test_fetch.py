@@ -8,7 +8,7 @@ import pytest
 
 from .. import fetch
 from .. import fetch_eng
-from ..time_adjust import adjust_time
+from ..time_adjust import adjust_time, get_hi_res_times, MNF_TIME
 from Chandra.Time import DateTime
 
 print(fetch.__file__)
@@ -410,8 +410,28 @@ def test_daily_state_bins():
     assert np.all(dat.n_BRITs == [0, 0, 51, 17, 0, 0])
 
 
-def test_time_adjust():
+def test_time_adjust_adjust_time():
     cpa2pwr = fetch.Msid('cpa2pwr', '2020:230:00:00:01', '2020:230:00:00:04')
     cpa2pwr_adj = adjust_time(cpa2pwr, '2020:230:00:00:01', '2020:230:00:00:04')
     for t, t_adj in zip(cpa2pwr.times, cpa2pwr_adj.times):
-        assert np.isclose(t_adj - t, 0.25625)
+        assert np.isclose(t_adj - t, MNF_TIME)  # MNF offset is 1 for this MSID
+
+
+def test_time_adjust_get_hi_res_times():
+    start = '2020:030:03:00:00'
+    stop = '2020:030:05:00:00'
+    dat = fetch.Msid('tephin', start, stop)
+
+    dat_adj = adjust_time(dat, start, stop)
+    times_adj, fmt_intervals = get_hi_res_times(dat)
+
+    # Test re-using fmt_intervals
+    times_adj2, fmt_intervals = get_hi_res_times(dat, fmt_intervals)
+
+    assert np.all(times_adj == dat_adj.times)
+    assert np.all(times_adj2 == times_adj)
+
+    offsets = times_adj - dat.times
+    assert np.allclose(offsets[:115], 59 * MNF_TIME)  # Format 2 MNF offset is 59
+    assert np.allclose(offsets[115:1011], 0 * MNF_TIME)  # Format 4 MNF offset is 0
+    assert np.allclose(offsets[1011:], 59 * MNF_TIME)  # Format 1 MNF offset is 59
