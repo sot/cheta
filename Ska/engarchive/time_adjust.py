@@ -5,7 +5,9 @@ Describe what this module does.
 
 import copy
 
-from Ska.engarchive.utils import logical_intervals
+import numpy as np
+
+from Ska.engarchive.utils import logical_intervals, state_intervals
 from Ska.engarchive import fetch_eng as fetch
 from Ska.tdb import tables, msids as tdb_msids
 
@@ -133,28 +135,18 @@ def get_hi_res_times(msid, fmt_intervals=None):
         t_off[fmt] = MNF_TIME * start_minor_frame
 
     if fmt_intervals is None:
-        fmt_intervals = get_fmt_intervals(msid.tstart, msid.tstop)
+        msid_fmt = fetch.Msid('CCSDSTMF', msid.tstart, msid.tstop)
+        fmt_intervals = state_intervals(msid_fmt.times, msid_fmt.vals)
 
-    fmts = ('FMT1', 'FMT2', 'FMT3', 'FMT4', 'FMT5', 'FMT6')
+    # This gives start/stop indices that are equivalent to:
+    # (msid.times >= fmt_interval['tstart']) & (msid.times < fmt_interval['tstop'])
+    # Note see: Boolean masks and np.searchsorted() in
+    # https://occweb.cfa.harvard.edu/twiki/bin/view/Aspect/SkaPython#Ska_idioms_and_style
+    i_starts = np.searchsorted(msid.times, fmt_intervals['tstart'])
+    i_stops = np.searchsorted(msid.times, fmt_intervals['tstop'])
+
     times = msid.times.copy()
-    for fmt in fmts:
-        for interval in fmt_intervals[fmt]:
-            # Now traverse each interval in the msid to be adjusted and add the
-            # appropriate offset.
-            # TODO: check on the >= vs > here.
-            ok = (msid.times >= interval['tstart']) & (msid.times < interval['tstop'])
-            times[ok] += t_off[fmt]
+    for i_start, i_stop, fmt in zip(i_starts, i_stops, fmt_intervals['val']):
+        times[i_start:i_stop] += t_off[fmt]
 
     return times, fmt_intervals
-
-
-def get_fmt_intervals(start, stop):
-    msid_fmt = fetch.Msid('CCSDSTMF', start, stop)
-
-    # Generate list of intervals for each format using logical intervals
-    fmts = ('FMT1', 'FMT2', 'FMT3', 'FMT4', 'FMT5', 'FMT6')
-    fmt_intervals = {}
-    for fmt in fmts:
-        fmt_intervals[fmt] = logical_intervals(msid_fmt.times, msid_fmt.vals == fmt,
-                                               complete_intervals=False)
-    return fmt_intervals
