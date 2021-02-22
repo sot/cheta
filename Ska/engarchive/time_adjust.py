@@ -82,7 +82,7 @@ def adjust_time(msid, start, stop):
 
     # Make scratchpad copy to avoid in-place effects (I think need to check by
     # ref or by val convention)
-    times = msid.times
+    times = msid.times.copy()
     for fmt in fmts:
         for interval in tmf_intervals[fmt]:
             # Now traverse each interval in the msid to be adjusted and add the appropriate offset.
@@ -90,6 +90,6 @@ def adjust_time(msid, start, stop):
                   ] += t_off[fmt]  # not positive on >= convention
 
     # This is abusing the MSID class a bit.  Not sure how to create 'empty' MSID object
-    out_msid = copy.copy(msid)
+    out_msid = copy.deepcopy(msid)
     out_msid.times = times
     return out_msid
