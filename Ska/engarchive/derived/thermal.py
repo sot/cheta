@@ -11,6 +11,21 @@ from . import base
 class DerivedParameterThermal(base.DerivedParameter):
     content_root = 'thermal'
 
+    def fix_bus_5_and_bus_6(self, data):
+        # These zones cannot be commanded if Bus 5 or Bus 6 is disabled
+        bus_5_and_6_zones = ['4OHTRZ27', '4OHTRZ28', '4OHTRZ43', '4OHTRZ45',
+                             '4OHTRZ47', '4OHTRZ49', '4OHTRZ52', '4OHTRZ53',
+                             '4OHTRZ29', '4OHTRZ35', '4OHTRZ42', '4OHTRZ44',
+                             '4OHTRZ46', '4OHTRZ48', '4OHTRZ50', '4OHTRZ54']
+
+        for msid in bus_5_and_6_zones:
+            if msid in data.keys():
+                data[msid].vals = (data['4S1PWR05'].vals == 'ENAB') & \
+                                  (data['4S1PWR06'].vals == 'ENAB') & \
+                                  (data[msid].vals == 1)
+                # Convert bool type back to original int8 dtype
+                data[msid].vals = data[msid].vals.astype(np.int8)
+
     def fix_4OHTRZ50(self, data):
         # This is the first period when zone 50 became stuck on, up until it
         # became temporarily unstuck in 2006:363.
@@ -19,6 +34,7 @@ class DerivedParameterThermal(base.DerivedParameter):
         stuck2 = data.times > 283844996.184
         stuck = stuck1 | stuck2
         data['4OHTRZ50'].vals[stuck] = 1
+
 
 # --------------------------------------------
 
@@ -754,10 +770,11 @@ class DP_P26(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P27(DerivedParameterThermal):
-    rootparams = ['4OHTRZ27', 'ELBV']
+    rootparams = ['4OHTRZ27', 'ELBV', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P27 = data['4OHTRZ27'].vals * VSQUARED / 383.0
         return P27
@@ -765,10 +782,11 @@ class DP_P27(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P28(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ28']
+    rootparams = ['ELBV', '4OHTRZ28', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P28 = data['4OHTRZ28'].vals * VSQUARED / 382.3
         return P28
@@ -776,10 +794,11 @@ class DP_P28(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P29(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ29']
+    rootparams = ['ELBV', '4OHTRZ29', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P29 = data['4OHTRZ29'].vals * VSQUARED / 384.0
         return P29
@@ -842,10 +861,11 @@ class DP_P34(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P35(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ35']
+    rootparams = ['ELBV', '4OHTRZ35', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P35 = data['4OHTRZ35'].vals * VSQUARED / 32.2
         return P35
@@ -919,10 +939,11 @@ class DP_P41(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P42(DerivedParameterThermal):
-    rootparams = ['4OHTRZ42', 'ELBV']
+    rootparams = ['4OHTRZ42', 'ELBV', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P42 = data['4OHTRZ42'].vals * VSQUARED / 51.7
         return P42
@@ -930,10 +951,11 @@ class DP_P42(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P43(DerivedParameterThermal):
-    rootparams = ['4OHTRZ43', 'ELBV']
+    rootparams = ['4OHTRZ43', 'ELBV', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P43 = data['4OHTRZ43'].vals * VSQUARED / 36.8
         return P43
@@ -941,10 +963,11 @@ class DP_P43(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P44(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ44']
+    rootparams = ['ELBV', '4OHTRZ44', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P44 = data['4OHTRZ44'].vals * VSQUARED / 36.9
         return P44
@@ -952,10 +975,11 @@ class DP_P44(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P45(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ45']
+    rootparams = ['ELBV', '4OHTRZ45', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P45 = data['4OHTRZ45'].vals * VSQUARED / 36.8
         return P45
@@ -963,10 +987,11 @@ class DP_P45(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P46(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ46']
+    rootparams = ['ELBV', '4OHTRZ46', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P46 = data['4OHTRZ46'].vals * VSQUARED / 36.5
         return P46
@@ -974,10 +999,11 @@ class DP_P46(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P47(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ47']
+    rootparams = ['ELBV', '4OHTRZ47', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P47 = data['4OHTRZ47'].vals * VSQUARED / 52.3
         return P47
@@ -985,10 +1011,11 @@ class DP_P47(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P48(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ48']
+    rootparams = ['ELBV', '4OHTRZ48', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P48 = data['4OHTRZ48'].vals * VSQUARED / 79.5
         return P48
@@ -996,10 +1023,11 @@ class DP_P48(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P49(DerivedParameterThermal):
-    rootparams = ['4OHTRZ49', 'ELBV']
+    rootparams = ['4OHTRZ49', 'ELBV', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P49 = data['4OHTRZ49'].vals * VSQUARED / 34.8
         return P49
@@ -1007,11 +1035,12 @@ class DP_P49(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P50(DerivedParameterThermal):
-    rootparams = ['4OHTRZ50', 'ELBV']
+    rootparams = ['4OHTRZ50', 'ELBV', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
         self.fix_4OHTRZ50(data)
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P50 = data['4OHTRZ50'].vals * VSQUARED / 35.2
         return P50
@@ -1030,10 +1059,11 @@ class DP_P51(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P52(DerivedParameterThermal):
-    rootparams = ['4OHTRZ52', 'ELBV']
+    rootparams = ['4OHTRZ52', 'ELBV', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P52 = data['4OHTRZ52'].vals * VSQUARED / 34.4
         return P52
@@ -1041,10 +1071,11 @@ class DP_P52(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P53(DerivedParameterThermal):
-    rootparams = ['4OHTRZ53', 'ELBV']
+    rootparams = ['4OHTRZ53', 'ELBV', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P53 = data['4OHTRZ53'].vals * VSQUARED / 94.1
         return P53
@@ -1052,10 +1083,11 @@ class DP_P53(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_P54(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ54']
+    rootparams = ['ELBV', '4OHTRZ54', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P54 = data['4OHTRZ54'].vals * VSQUARED / 124.4
         return P54
@@ -1283,10 +1315,12 @@ class DP_P80(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PABH(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57']
+    rootparams = ['ELBV', '4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57',
+                  '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P53 = data['4OHTRZ53'].vals * VSQUARED / 94.1
         P54 = data['4OHTRZ54'].vals * VSQUARED / 124.4
@@ -1298,11 +1332,13 @@ class DP_PABH(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PAFTCONE(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51', '4OHTRZ52']
+    rootparams = ['ELBV', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51', 
+                  '4OHTRZ52', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
         self.fix_4OHTRZ50(data)
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P48 = data['4OHTRZ48'].vals * VSQUARED / 79.5
         P49 = data['4OHTRZ49'].vals * VSQUARED / 34.8
@@ -1378,10 +1414,11 @@ class DP_PFAP(DerivedParameterThermal):
 class DP_PFWDCONE(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ31', '4OHTRZ32', '4OHTRZ33', '4OHTRZ34',
                   '4OHTRZ35', '4OHTRZ36', '4OHTRZ37', '4OHTRZ38', '4OHTRZ39',
-                  '4OHTRZ40']
+                  '4OHTRZ40', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P31 = data['4OHTRZ31'].vals * VSQUARED / 32.2
         P32 = data['4OHTRZ32'].vals * VSQUARED / 28.6
@@ -1454,10 +1491,11 @@ class DP_PHRMA(DerivedParameterThermal):
 # --------------------------------------------
 class DP_PHRMASTRUTS(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ25', '4OHTRZ26', '4OHTRZ27', '4OHTRZ28',
-                  '4OHTRZ29', '4OHTRZ30']
+                  '4OHTRZ29', '4OHTRZ30', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P25 = data['4OHTRZ25'].vals * VSQUARED / 383.0
         P26 = data['4OHTRZ26'].vals * VSQUARED / 383.5
@@ -1485,10 +1523,11 @@ class DP_PIC(DerivedParameterThermal):
 # --------------------------------------------
 class DP_PMIDCONE(DerivedParameterThermal):
     rootparams = ['ELBV', '4OHTRZ41', '4OHTRZ42', '4OHTRZ43', '4OHTRZ44',
-                  '4OHTRZ45', '4OHTRZ46', '4OHTRZ47']
+                  '4OHTRZ45', '4OHTRZ46', '4OHTRZ47', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P41 = data['4OHTRZ41'].vals * VSQUARED / 61.7
         P42 = data['4OHTRZ42'].vals * VSQUARED / 51.7
@@ -1524,11 +1563,12 @@ class DP_POBAT(DerivedParameterThermal):
                   '4OHTRZ45', '4OHTRZ46', '4OHTRZ47', '4OHTRZ48', '4OHTRZ49',
                   '4OHTRZ50', '4OHTRZ51', '4OHTRZ52', '4OHTRZ53', '4OHTRZ54',
                   '4OHTRZ55', '4OHTRZ57', '4OHTRZ75', '4OHTRZ76', '4OHTRZ77',
-                  '4OHTRZ78', '4OHTRZ79', '4OHTRZ80']
+                  '4OHTRZ78', '4OHTRZ79', '4OHTRZ80', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
         self.fix_4OHTRZ50(data)
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P75 = data['4OHTRZ75'].vals * VSQUARED / 130.2
         P76 = data['4OHTRZ76'].vals * VSQUARED / 133.4
@@ -1682,11 +1722,12 @@ class DP_PTOTAL(DerivedParameterThermal):
                   '4OHTRZ58', '4OHTRZ59', '4OHTRZ60', '4OHTRZ61', '4OHTRZ62',
                   '4OHTRZ63', '4OHTRZ64', '4OHTRZ65', '4OHTRZ66', '4OHTRZ67',
                   '4OHTRZ68', '4OHTRZ69', '4OHTRZ75', '4OHTRZ76', '4OHTRZ77',
-                  '4OHTRZ78', '4OHTRZ79', '4OHTRZ80']
+                  '4OHTRZ78', '4OHTRZ79', '4OHTRZ80', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
     def calc(self, data):
         self.fix_4OHTRZ50(data)
+        self.fix_bus_5_and_bus_6(data)
         VSQUARED = data['ELBV'].vals * data['ELBV'].vals
         P01 = data['4OHTRZ01'].vals * VSQUARED / 110.2
         P02 = data['4OHTRZ02'].vals * VSQUARED / 109.7
@@ -1973,10 +2014,11 @@ class DP_HADG(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_ABH_DUTYCYCLE(DerivedParameterThermal):
-    rootparams = ['4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57']
+    rootparams = ['4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57', '4S1PWR05', '4S1PWR06']
     time_step = 32.8
 
     def calc(self, data):
+        self.fix_bus_5_and_bus_6(data)
         RTOTAL = 1. / (1 / 94.1 + 1 / 124.3 + 1 / 126.8 + 1 / 142.3)
         DC1 = np.abs(data['4OHTRZ53'].vals) / 94.1 + np.abs(data['4OHTRZ54'].vals) / 124.3
         DC2 = np.abs(data['4OHTRZ55'].vals) / 126.8 + np.abs(data['4OHTRZ57'].vals) / 142.3
