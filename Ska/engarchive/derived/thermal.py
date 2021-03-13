@@ -20,7 +20,7 @@ class DerivedParameterThermal(base.DerivedParameter):
 
         for msid in bus_5_and_6_zones:
             if msid in data.keys():
-               # Heater must be off if either bus is disabled
+                # Heater must be off if either bus is disabled
                 disa = (data['4S1PWR05'].vals == 'DISA') | (data['4S1PWR06'].vals == 'DISA')
                 data[msid].vals[disa] = 0
 
@@ -1330,7 +1330,7 @@ class DP_PABH(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PAFTCONE(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51', 
+    rootparams = ['ELBV', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51',
                   '4OHTRZ52', '4S1PWR05', '4S1PWR06']
     time_step = 0.25625
 
