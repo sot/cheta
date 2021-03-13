@@ -20,11 +20,9 @@ class DerivedParameterThermal(base.DerivedParameter):
 
         for msid in bus_5_and_6_zones:
             if msid in data.keys():
-                data[msid].vals = (data['4S1PWR05'].vals == 'ENAB') & \
-                                  (data['4S1PWR06'].vals == 'ENAB') & \
-                                  (data[msid].vals == 1)
-                # Convert bool type back to original int8 dtype
-                data[msid].vals = data[msid].vals.astype(np.int8)
+               # Heater must be off if either bus is disabled
+                disa = (data['4S1PWR05'].vals == 'DISA') | (data['4S1PWR06'].vals == 'DISA')
+                data[msid].vals[disa] = 0
 
     def fix_4OHTRZ50(self, data):
         # This is the first period when zone 50 became stuck on, up until it
