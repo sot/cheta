@@ -2005,7 +2005,7 @@ class DP_HADG(DerivedParameterThermal):
     time_step = 32.8
 
     def calc(self, data):
-        HADG = np.max((data['OHRMGRD3'].vals, data['OHRMGRD6'].vals), axis=0)
+        HADG = np.max((np.abs(data['OHRMGRD3'].vals), np.abs(data['OHRMGRD6'].vals)), axis=0)
 
         return HADG
 
