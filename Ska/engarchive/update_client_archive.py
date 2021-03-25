@@ -202,6 +202,8 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=
         for copy_file in copy_files:
             local_file = Path(opt.data_root, copy_file)
             server_file = Path(server_path, copy_file)
+            logger.debug(f'Local file={local_file}')
+            logger.debug(f'Server file={server_file}')
             if as_posix:
                 server_file = server_file.as_posix()
             local_file.parent.mkdir(parents=True, exist_ok=True)
@@ -294,11 +296,16 @@ def get_copy_files(logger, msids, msids_content):
             ft['msid'] = ft_msid
             ft['interval'] = interval
             pth = Path(msid_files[filetype].abs)
-            if not pth.exists():
+            # Copy files that do not exist locally. An exception is the colnames
+            # file (colnames.pkl), which must get updated even if it exists.
+            if not pth.exists() or filetype == 'colnames':
                 copy_files.add(str(pth.relative_to(basedir)))
 
     logger.info(f'Found {len(copy_files)} local archive files that are '
                 f'missing and need to be copied')
+    logger.debug(f'Copy_files:')
+    for copy_file in sorted(copy_files):
+        logger.debug(copy_file)
 
     return sorted(copy_files)
 
