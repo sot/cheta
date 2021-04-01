@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska.engarchive.derived.thermal &#8212; Eng archive 4.52.0 documentation</title>
+    <title>Ska.engarchive.derived.thermal &#8212; Eng archive 4.53.0 documentation</title>
     <link rel="stylesheet" href="../../../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../../index.html">Eng archive 4.52.0 documentation</a>
+	<a href="../../../../index.html">Eng archive 4.53.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -76,6 +76,19 @@
 <div class="viewcode-block" id="DerivedParameterThermal"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DerivedParameterThermal">[docs]</a><span class="k">class</span> <span class="nc">DerivedParameterThermal</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
     <span class="n">content_root</span> <span class="o">=</span> <span class="s1">&#39;thermal&#39;</span>
 
+<div class="viewcode-block" id="DerivedParameterThermal.fix_bus_5_and_bus_6"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DerivedParameterThermal.fix_bus_5_and_bus_6">[docs]</a>    <span class="k">def</span> <span class="nf">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># These zones cannot be commanded if Bus 5 or Bus 6 is disabled</span>
+        <span class="n">bus_5_and_6_zones</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ27&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ28&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ43&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ45&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;4OHTRZ47&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ52&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;4OHTRZ29&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ35&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ42&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ44&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;4OHTRZ46&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">bus_5_and_6_zones</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># Heater must be off if either bus is disabled</span>
+                <span class="n">disa</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;4S1PWR05&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">==</span> <span class="s1">&#39;DISA&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">==</span> <span class="s1">&#39;DISA&#39;</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">msid</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">[</span><span class="n">disa</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
+
 <div class="viewcode-block" id="DerivedParameterThermal.fix_4OHTRZ50"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DerivedParameterThermal.fix_4OHTRZ50">[docs]</a>    <span class="k">def</span> <span class="nf">fix_4OHTRZ50</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="c1"># This is the first period when zone 50 became stuck on, up until it</span>
         <span class="c1"># became temporarily unstuck in 2006:363.</span>
@@ -84,6 +97,7 @@
         <span class="n">stuck2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">times</span> <span class="o">&gt;</span> <span class="mf">283844996.184</span>
         <span class="n">stuck</span> <span class="o">=</span> <span class="n">stuck1</span> <span class="o">|</span> <span class="n">stuck2</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">[</span><span class="n">stuck</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span></div></div>
+
 
 <span class="c1"># --------------------------------------------</span>
 
@@ -819,10 +833,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P27"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P27">[docs]</a><span class="k">class</span> <span class="nc">DP_P27</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ27&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ27&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P27.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P27.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P27</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ27&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">383.0</span>
         <span class="k">return</span> <span class="n">P27</span></div></div>
@@ -830,10 +845,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P28"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P28">[docs]</a><span class="k">class</span> <span class="nc">DP_P28</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ28&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ28&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P28.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P28.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P28</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ28&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">382.3</span>
         <span class="k">return</span> <span class="n">P28</span></div></div>
@@ -841,10 +857,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P29"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P29">[docs]</a><span class="k">class</span> <span class="nc">DP_P29</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ29&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ29&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P29.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P29.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P29</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ29&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">384.0</span>
         <span class="k">return</span> <span class="n">P29</span></div></div>
@@ -907,10 +924,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P35"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P35">[docs]</a><span class="k">class</span> <span class="nc">DP_P35</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ35&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ35&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P35.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P35.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P35</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ35&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">32.2</span>
         <span class="k">return</span> <span class="n">P35</span></div></div>
@@ -984,10 +1002,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P42"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P42">[docs]</a><span class="k">class</span> <span class="nc">DP_P42</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ42&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ42&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P42.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P42.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P42</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ42&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">51.7</span>
         <span class="k">return</span> <span class="n">P42</span></div></div>
@@ -995,10 +1014,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P43"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P43">[docs]</a><span class="k">class</span> <span class="nc">DP_P43</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ43&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ43&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P43.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P43.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P43</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ43&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">36.8</span>
         <span class="k">return</span> <span class="n">P43</span></div></div>
@@ -1006,10 +1026,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P44"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P44">[docs]</a><span class="k">class</span> <span class="nc">DP_P44</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ44&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ44&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P44.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P44.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P44</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ44&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">36.9</span>
         <span class="k">return</span> <span class="n">P44</span></div></div>
@@ -1017,10 +1038,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P45"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P45">[docs]</a><span class="k">class</span> <span class="nc">DP_P45</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ45&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ45&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P45.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P45.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P45</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ45&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">36.8</span>
         <span class="k">return</span> <span class="n">P45</span></div></div>
@@ -1028,10 +1050,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P46"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P46">[docs]</a><span class="k">class</span> <span class="nc">DP_P46</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ46&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ46&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P46.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P46.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P46</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ46&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">36.5</span>
         <span class="k">return</span> <span class="n">P46</span></div></div>
@@ -1039,10 +1062,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P47"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P47">[docs]</a><span class="k">class</span> <span class="nc">DP_P47</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ47&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ47&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P47.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P47.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P47</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ47&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">52.3</span>
         <span class="k">return</span> <span class="n">P47</span></div></div>
@@ -1050,10 +1074,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P48"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P48">[docs]</a><span class="k">class</span> <span class="nc">DP_P48</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P48.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P48.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P48</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">79.5</span>
         <span class="k">return</span> <span class="n">P48</span></div></div>
@@ -1061,10 +1086,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P49"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P49">[docs]</a><span class="k">class</span> <span class="nc">DP_P49</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P49.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P49.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P49</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">34.8</span>
         <span class="k">return</span> <span class="n">P49</span></div></div>
@@ -1072,11 +1098,12 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P50"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P50">[docs]</a><span class="k">class</span> <span class="nc">DP_P50</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P50.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P50.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fix_4OHTRZ50</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P50</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">35.2</span>
         <span class="k">return</span> <span class="n">P50</span></div></div>
@@ -1095,10 +1122,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P52"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P52">[docs]</a><span class="k">class</span> <span class="nc">DP_P52</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ52&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ52&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P52.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P52.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P52</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ52&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">34.4</span>
         <span class="k">return</span> <span class="n">P52</span></div></div>
@@ -1106,10 +1134,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P53"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P53">[docs]</a><span class="k">class</span> <span class="nc">DP_P53</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span> <span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P53.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P53.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P53</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">94.1</span>
         <span class="k">return</span> <span class="n">P53</span></div></div>
@@ -1117,10 +1146,11 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_P54"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P54">[docs]</a><span class="k">class</span> <span class="nc">DP_P54</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_P54.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_P54.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P54</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">124.4</span>
         <span class="k">return</span> <span class="n">P54</span></div></div>
@@ -1348,10 +1378,12 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_PABH"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PABH">[docs]</a><span class="k">class</span> <span class="nc">DP_PABH</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ55&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ57&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ55&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ57&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_PABH.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PABH.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P53</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">94.1</span>
         <span class="n">P54</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">124.4</span>
@@ -1363,11 +1395,13 @@
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_PAFTCONE"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PAFTCONE">[docs]</a><span class="k">class</span> <span class="nc">DP_PAFTCONE</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ51&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ52&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ51&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;4OHTRZ52&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_PAFTCONE.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PAFTCONE.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fix_4OHTRZ50</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P48</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">79.5</span>
         <span class="n">P49</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">34.8</span>
@@ -1443,10 +1477,11 @@
 <div class="viewcode-block" id="DP_PFWDCONE"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PFWDCONE">[docs]</a><span class="k">class</span> <span class="nc">DP_PFWDCONE</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
     <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ31&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ32&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ33&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ34&#39;</span><span class="p">,</span>
                   <span class="s1">&#39;4OHTRZ35&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ36&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ37&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ38&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ39&#39;</span><span class="p">,</span>
-                  <span class="s1">&#39;4OHTRZ40&#39;</span><span class="p">]</span>
+                  <span class="s1">&#39;4OHTRZ40&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_PFWDCONE.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PFWDCONE.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P31</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ31&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">32.2</span>
         <span class="n">P32</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ32&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">28.6</span>
@@ -1519,10 +1554,11 @@
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_PHRMASTRUTS"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PHRMASTRUTS">[docs]</a><span class="k">class</span> <span class="nc">DP_PHRMASTRUTS</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
     <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ25&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ26&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ27&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ28&#39;</span><span class="p">,</span>
-                  <span class="s1">&#39;4OHTRZ29&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ30&#39;</span><span class="p">]</span>
+                  <span class="s1">&#39;4OHTRZ29&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ30&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_PHRMASTRUTS.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PHRMASTRUTS.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P25</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ25&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">383.0</span>
         <span class="n">P26</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ26&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">383.5</span>
@@ -1550,10 +1586,11 @@
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_PMIDCONE"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PMIDCONE">[docs]</a><span class="k">class</span> <span class="nc">DP_PMIDCONE</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
     <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ41&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ42&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ43&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ44&#39;</span><span class="p">,</span>
-                  <span class="s1">&#39;4OHTRZ45&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ46&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ47&#39;</span><span class="p">]</span>
+                  <span class="s1">&#39;4OHTRZ45&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ46&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ47&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_PMIDCONE.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PMIDCONE.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P41</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ41&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">61.7</span>
         <span class="n">P42</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ42&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">51.7</span>
@@ -1589,11 +1626,12 @@
                   <span class="s1">&#39;4OHTRZ45&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ46&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ47&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ48&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ49&#39;</span><span class="p">,</span>
                   <span class="s1">&#39;4OHTRZ50&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ51&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ52&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">,</span>
                   <span class="s1">&#39;4OHTRZ55&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ57&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ75&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ76&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ77&#39;</span><span class="p">,</span>
-                  <span class="s1">&#39;4OHTRZ78&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ79&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ80&#39;</span><span class="p">]</span>
+                  <span class="s1">&#39;4OHTRZ78&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ79&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ80&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_POBAT.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_POBAT.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fix_4OHTRZ50</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P75</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ75&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">130.2</span>
         <span class="n">P76</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ76&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">133.4</span>
@@ -1747,11 +1785,12 @@
                   <span class="s1">&#39;4OHTRZ58&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ59&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ60&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ61&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ62&#39;</span><span class="p">,</span>
                   <span class="s1">&#39;4OHTRZ63&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ64&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ65&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ66&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ67&#39;</span><span class="p">,</span>
                   <span class="s1">&#39;4OHTRZ68&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ69&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ75&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ76&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ77&#39;</span><span class="p">,</span>
-                  <span class="s1">&#39;4OHTRZ78&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ79&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ80&#39;</span><span class="p">]</span>
+                  <span class="s1">&#39;4OHTRZ78&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ79&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ80&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
 <div class="viewcode-block" id="DP_PTOTAL.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_PTOTAL.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fix_4OHTRZ50</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P01</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ01&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">110.2</span>
         <span class="n">P02</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ02&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">109.7</span>
@@ -2031,17 +2070,18 @@
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">32.8</span>
 
 <div class="viewcode-block" id="DP_HADG.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_HADG.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">HADG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;OHRMGRD3&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;OHRMGRD6&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">HADG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;OHRMGRD3&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;OHRMGRD6&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">HADG</span></div></div>
 
 
 <span class="c1"># --------------------------------------------</span>
 <div class="viewcode-block" id="DP_ABH_DUTYCYCLE"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_ABH_DUTYCYCLE">[docs]</a><span class="k">class</span> <span class="nc">DP_ABH_DUTYCYCLE</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
-    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ55&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ57&#39;</span><span class="p">]</span>
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ55&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ57&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR05&#39;</span><span class="p">,</span> <span class="s1">&#39;4S1PWR06&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">32.8</span>
 
 <div class="viewcode-block" id="DP_ABH_DUTYCYCLE.calc"><a class="viewcode-back" href="../../../../pseudo_msids.html#Ska.engarchive.derived.thermal.DP_ABH_DUTYCYCLE.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_bus_5_and_bus_6</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">RTOTAL</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">94.1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">124.3</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">126.8</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">142.3</span><span class="p">)</span>
         <span class="n">DC1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ53&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mf">94.1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ54&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mf">124.3</span>
         <span class="n">DC2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ55&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mf">126.8</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ57&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mf">142.3</span>
