@@ -1,9 +1,9 @@
 In the case where there is a gap in telemetry that really needs to be skipped
 over then do the procedure below.  An example is the safemode from 2011:187.
 
-** ERROR - line 1790: 2011-07-14 06:05:09,378 WARNING: found gap of 2100.00 secs 
+** ERROR - line 1790: 2011-07-14 06:05:09,378 WARNING: found gap of 2100.00 secs
   between archfiles anglesf426340500N001_eph1.fits.gz and anglesf426344400N001_eph1.fits.gz
-** ERROR - line 66288: 2011-07-14 08:13:24,853 WARNING: found gap of 106.92 secs 
+** ERROR - line 66288: 2011-07-14 08:13:24,853 WARNING: found gap of 106.92 secs
   between archfiles simf426340586N001_coor0a.fits.gz and simf426342628N001_coor0a.fits.gz
 
 ****************************************************************************
@@ -13,10 +13,7 @@ over then do the procedure below.  An example is the safemode from 2011:187.
 
 Check initial conditions
 =========================
-- HEAD task_sched.cfg has been run and all other filetypes are up to date.  
-- OCC task_sched.cfg has been run successfully on the tar output from the 
-  HEAD version.  [I.e. OCC is synced to latest HEAD]
-- Lucky dir /taldcroft/eng_archive is empty.
+- HEAD task_sched.cfg has been run and all other filetypes are up to date.
 - There is NOT an steadily increasing GAP.  Read the "NOTE for OCC" section
   below and be sure that does not apply.
 
@@ -30,10 +27,6 @@ HEAD::
   # In Ska flight env on kadi as aldcroft
   /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap.cfg
 
-OCC::
-  # In Ska test env on chimchim as SOT
-  /proj/sot/ska/test/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
-
 More focused processing
 -----------------------
 Edit /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg on HEAD and change the
@@ -46,60 +39,3 @@ HEAD::
   # In Ska flight env on kadi as aldcroft
   emacs /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
  /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_gap_custom.cfg
-
-OCC::
-
-  # In Ska test env on chimchim as SOT
- /proj/sot/ska/bin/task_schedule.pl -config /proj/sot/ska/data/eng_archive/task_schedule_occ_gap.cfg
-
-For the OCC it is not necessarily required to use a custom file since it will only
-be processing the new files from the HEAD run, though it will make things go a
-bit faster (but total time for procedure will probably be longer).
-
-NOTE for OCC: steadily increasing gap
-=====================================
-** If the OCC has gotten behind and there are a number of emails showing an
-   increasing gap (see below)...
-
-Copy all archived files of the correct type from the last ingested at OCC 
-(e.g. acisf432766656N001_hkp0.fits.gz) until the last ingested in HEAD.  Determine
-last file from email logs
-
-HEAD files: /proj/sot/ska/data/eng_archive/data/<content>/arch/YYYY/DDD
-Copy all newer HEAD files into OCC:/proj/sot/ska/data/eng_archive/stage/<content>/
-
-Then run something like on GRETA network:
-
-proj/sot/ska/share/eng_archive/update_archive.py --occ \
-   --data-root /proj/sot/ska/data/eng_archive --max-gap 1000000 \
-   --content acisdeahk --max-arch-files=2000
-
-----
-Mail version 8.1 6/6/93.  Type ? for help.
-"/var/spool/mail/SOT": 14 messages 14 unread
->U  1 SOT@gretasot.greta.o  Tue Sep 27 11:09  20/1001  "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  2 SOT@gretasot.greta.o  Wed Sep 28 11:06  20/1001  "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  3 SOT@gretasot.greta.o  Thu Sep 29 11:06  20/1001  "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  4 SOT@gretasot.greta.o  Sun Oct  2 11:05  20/999   "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  5 SOT@gretasot.greta.o  Mon Oct  3 11:07  20/998   "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  6 SOT@gretasot.greta.o  Wed Oct  5 11:08  20/999   "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  7 SOT@gretasot.greta.o  Thu Oct  6 11:07  20/999   "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  8 SOT@gretasot.greta.o  Fri Oct  7 11:21  20/999   "Engineering telemetry archive (watch_cron_logs): ALERT"
- U  9 SOT@gretasot.greta.o  Sat Oct  8 11:06  20/999   "Engineering telemetry archive (watch_cron_logs): ALERT"
- U 10 SOT@gretasot.greta.o  Mon Oct 10 11:06  20/1002  "Engineering telemetry archive (watch_cron_logs): ALERT"
- U 11 SOT@gretasot.greta.o  Tue Oct 11 11:06  20/1002  "Engineering telemetry archive (watch_cron_logs): ALERT"
- U 12 SOT@gretasot.greta.o  Wed Oct 12 11:27  20/1002  "Engineering telemetry archive (watch_cron_logs): ALERT"
- U 13 SOT@gretasot.greta.o  Thu Oct 13 11:06  20/1002  "Engineering telemetry archive (watch_cron_logs): ALERT"
- U 14 SOT@gretasot.greta.o  Sat Oct 15 11:06  20/1002  "Engineering telemetry archive (watch_cron_logs): ALERT"
-& 12
-Message 12:
-From SOT@gretasot.greta.occ.harvard.edu  Wed Oct 12 11:27:00 2011
-Date: Wed, 12 Oct 2011 11:27:00 GMT
-From: SOT <SOT@gretasot.greta.occ.harvard.edu>
-Subject: Engineering telemetry archive (watch_cron_logs): ALERT
-To: SOT@gretasot.greta.occ.harvard.edu
-
-Errors in files:
-/proj/sot/ska/data/eng_archive/logs/eng_archive.log
-** ERROR - line 234: 2011-10-12 11:21:06,865 WARNING: found gap of 1857071.01 secs between archfiles acisf432766656N001_hkp0.fits.gz and acisf434657170N001_hkp0.fits.gz
-
