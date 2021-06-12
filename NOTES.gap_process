@@ -9,6 +9,10 @@ over then do the procedure below.  An example is the safemode from 2011:187.
 ****************************************************************************
 *** ONLY run this is the gaps are understood and acceptable.  This procedure
     is set to allow gaps up to 1000000 sec (~12 days)
+    
+    Once the gap more than 4 days old (with at least 3 error emails sent out, 
+    the ingest code is set to automatically ignore it and move on. See 
+    NOTES.fix_bad_ingest to fix a problem beyond that point.
 ****************************************************************************
 
 Check initial conditions
