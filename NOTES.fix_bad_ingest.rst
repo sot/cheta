@@ -45,8 +45,8 @@ Next fix up the sync archive.
   mv $SKA/data/eng_archive/sync/${CONTENT} \
      $SKA/data/eng_archive/sync/${CONTENT}-bak
 
-  # Choose a start date about 10 days before the truncate date.
-  cheta_update_server_sync --content=$CONTENT --date-start=2021:110 \
+  # Choose a start date about 60 days before the truncate date.
+  cheta_update_server_sync --content=$CONTENT --date-start=2021:057 \
     --sync-root=$SKA/data/eng_archive
 
 
