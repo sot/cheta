@@ -4,6 +4,8 @@ Fixing bad ingest
 These notes document how to fix the cheta archive if a bad CXC archive file has
 been ingested and then the CXC archive is subsequently repaired.
 
+*IMPORTANT: Before going any further, consider just using the NetApp back-up to roll
+back the files to before the bad ingest and starting over.*
 
 Case story
 ----------
@@ -12,7 +14,6 @@ See thread "Gap in ACIS housekeeping telemetry" from May 1, 2021. The bad file
 was less than a second long and this messed up CXC archiving. They fixed this
 after a few days with a new file of the same name. The cheta archive had already
 ingested the bad file, so these notes document how to fix things.
-
 
 On HEAD
 -------
