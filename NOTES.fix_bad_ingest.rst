@@ -4,9 +4,6 @@ Fixing bad ingest
 These notes document how to fix the cheta archive if a bad CXC archive file has
 been ingested and then the CXC archive is subsequently repaired.
 
-*IMPORTANT: Before going any further, consider just using the NetApp back-up to roll
-back the files to before the bad ingest and starting over.*
-
 Case story
 ----------
 Around 2021:118 there was a bad ACIS DEA HK file put into the CXC archive.
@@ -15,8 +12,51 @@ was less than a second long and this messed up CXC archiving. They fixed this
 after a few days with a new file of the same name. The cheta archive had already
 ingested the bad file, so these notes document how to fix things.
 
+Rsync with snapshot
+--------------------
+
+Here we use the NetApp back-up to roll back the files to before the bad ingest
+and start over.
+
+This is generally the preferred method since it is simpler. Note that users
+may still need to truncate (see the `GRETA and users`_ section.)
+
+The example in this section is from another bad file ingested June 11, 2021.
+See email ``Fwd: [operators] 2 small files to replace in archive``.
+
+HEAD
+^^^^
+
+Find the last snapshot before the bad ingest::
+
+  ls /proj/sot/.snapshot/
+
+  rsync -av /proj/sot/.snapshot/weekly.2021-06-06_0015/ska/data/eng_archive/data/acisdeahk/ \
+            /proj/sot/ska/data/eng_archive/data/acisdeahk/
+  rsync -av --delete /proj/sot/.snapshot/weekly.2021-06-06_0015/ska/data/eng_archive/sync/acisdeahk/ \
+            /proj/sot/ska/data/eng_archive/sync/acisdeahk/
+
+The ``--delete`` flag is important in the second ``rsync`` because the previous
+sync directories need to be removed.
+
+GRETA
+^^^^^
+
+As the ``SOT`` user::
+
+   cd /proj/sot/ska/data/eng_archive
+   rsync -av <user>@ccosmos.cfa.harvard.edu:/proj/sot/ska/data/eng_archive/data/acisdeahk/ \
+             data/acisdeahk/
+   rm data/acisdeahk/5min/last_date_id
+   rm data/acisdeahk/daily/last_date_id
+
+Truncate and rebuild
+--------------------
+
+This may be needed if more than 2 weeks went by since the problem.
+
 On HEAD
--------
+^^^^^^^
 First we truncate the data files to a time about 2 days before the bad file.
 Start by defining the content type::
 
@@ -52,7 +92,7 @@ Next fix up the sync archive.
 
 
 GRETA and users
----------------
+^^^^^^^^^^^^^^^
 On either a local laptop or on GRETA (``SOT@cheru``) do the following::
 
   # Do first with --dry-run and then for real
@@ -63,7 +103,7 @@ On either a local laptop or on GRETA (``SOT@cheru``) do the following::
 
 
 HEAD cleanup
-------------
+^^^^^^^^^^^^
 ::
 
   rm -rf $SKA/data/eng_archive/sync/${CONTENT}-bak
