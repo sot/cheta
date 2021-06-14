@@ -39,6 +39,10 @@ Find the last snapshot before the bad ingest::
 The ``--delete`` flag is important in the second ``rsync`` because the previous
 sync directories need to be removed.
 
+Now update the archive. It's most reliable to do the full-update with the cron command::
+
+  /proj/sot/ska3/flight/bin/skare task_schedule3.pl -config eng_archive/task_schedule.cfg
+
 GRETA
 ^^^^^
 
