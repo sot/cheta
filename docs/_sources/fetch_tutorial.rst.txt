@@ -1548,8 +1548,10 @@ local or remote.
 In order to use this option, the user must have a special key file
 ``ska_remote_access.json`` placed at the root of the local Python installation
 folder.  This is placed in the directory shown with ``import sys;
-print(sys.prefix)``.  To get a copy of this file contact Mark Baski or Tom
-Aldcroft.
+print(sys.prefix)``.
+
+To get a copy of this file contact Mark Baski or Tom Aldcroft, or look in the
+``DAWG_TIPS_AND_TRICKS`` topic in the ``SpecialProjects`` Web on the TWiki.
 
 Remote access is controlled as follows:
 
@@ -1564,6 +1566,39 @@ Remote access is controlled as follows:
 - If remote access is disabled and there is no local engineering data archive,
   then a warning is issued. In this case you can still use MAUDE for data access
   with ``fetch.data_source.set('maude')``.
+
+Scripts using remote access
+---------------------------
+
+If you are using remote data access from within a script, you should write the
+script using calls to functions instead of having everything at the main level.
+For example::
+
+    from cheta import fetch
+
+    def main():
+        # For remote access this will interactively prompt the user for an
+        # IP address, user name and password (for only the first fetch).
+        dat = fetch.Msid('tephin', '2020:001', '2020:002')
+
+        # Now do something with dat
+        print(dat)
+
+    if __name__ == '__main__':
+        main()
+
+The reason for this is that the code which accesses the remote server may end
+up importing the main script many times, so if you have non-trivial code at the
+top level this causes problems. For example::
+
+    # DO NOT DO THIS
+    from cheta import fetch
+
+    # This line gets run multiple times in succession via multiprocessing: FAIL
+    dat = fetch.Msid('tephin', '2020:001', '2020:002')
+
+These problems are known to happen on Windows, but following this best practice
+should be done for all remote-access scripts.
 
 Local cheta archive
 ===================
