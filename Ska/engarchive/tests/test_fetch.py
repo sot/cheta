@@ -47,7 +47,7 @@ def test_filter_bad_times_overlap():
     fetch.msid_bad_times = msid_bad_times_cache
 
     # Test repr, len, and dtype attribute here where we have an MSID object handy
-    assert repr(dat) == ('<MSID start=2008:290:12:00:00.000 stop=2008:300:12:00:00.000'
+    assert repr(dat) == ('<MSID AOGBIAS1 start=2008:290:12:00:00.000 stop=2008:300:12:00:00.000'
                          ' len=5 dtype=float32 unit=rad/s stat=daily>')
     assert dat.dtype.name == 'float32'
     assert len(dat) == 5
@@ -56,7 +56,7 @@ def test_filter_bad_times_overlap():
 def test_filter_bad_times_list():
     dat = fetch.MSID('aogyrct1', '2008:291:12:00:00', '2008:298:12:00:00')
     # 2nd test of repr here where we have an MSID object handy
-    assert repr(dat) == ('<MSID start=2008:291:12:00:00.000 '
+    assert repr(dat) == ('<MSID AOGYRCT1 start=2008:291:12:00:00.000 '
                          'stop=2008:298:12:00:00.000 len=2360195 dtype=int16>')
 
     dat.filter_bad_times(table=BAD_TIMES)

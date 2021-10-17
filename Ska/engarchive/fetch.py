@@ -556,7 +556,7 @@ class MSID(object):
         return self.vals.dtype
 
     def __repr__(self):
-        attrs = [self.__class__.__name__]
+        attrs = [self.__class__.__name__, self.MSID]
         for name, val in (('start', self.datestart),
                           ('stop', self.datestop),
                           ('len', len(self)),
