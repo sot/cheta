@@ -6,6 +6,7 @@ import os
 import glob
 import time
 from pathlib import Path
+import warnings
 
 import pickle
 import argparse
@@ -467,8 +468,17 @@ def calc_stats_vals(msid, rows, indexes, interval):
                 out['mean'][i] = np.sum(dts * vals) / sum_dts
                 if interval == 'daily':
                     # biased weighted estimator of variance (N should be big enough)
-                    # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
-                    sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
+                    # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation.
+                    # Note casting of vals to float64 to avoid overflow in square.
+                    vals_minus_mean = vals.astype(np.float64) - out['mean'][i]
+                    with warnings.catch_warnings(record=True) as warns:
+                        sigma_sq = np.sum(dts * vals_minus_mean**2) / sum_dts
+                        if warns:
+                            logger.warning(repr(warns[0].message))
+                            logger.warning(f'{msid=}')
+                            logger.warning(f'{np.max(np.abs(vals_minus_mean))=}')
+                            logger.warning(f'{vals_minus_mean.dtype=}')
+
                     out['std'][i] = np.sqrt(sigma_sq)
                     quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
                     for quant_val, quantile in zip(quant_vals, quantiles):
