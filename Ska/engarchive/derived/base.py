@@ -48,7 +48,7 @@ class DerivedParameter(object):
                 data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
 
         times, indexes = times_indexes(start, stop, self.time_step)
-        bads = np.zeros(len(times), dtype=np.bool)  # All data OK (false)
+        bads = np.zeros(len(times), dtype=np.bool_)  # All data OK (false)
 
         for msidname, data in dataset.items():
             # If no data are found in specified interval then stub two fake
@@ -56,7 +56,7 @@ class DerivedParameter(object):
             # be bad.
             if len(data) < 2:
                 data.vals = np.zeros(2, dtype=data.vals.dtype)  # two null points
-                data.bads = np.ones(2, dtype=np.bool)  # all points bad
+                data.bads = np.ones(2, dtype=np.bool_)  # all points bad
                 data.times = np.array([times[0], times[-1]])
                 print('No data in {} between {} and {} (setting all bad)'
                       .format(msidname, DateTime(start).date, DateTime(stop).date))
