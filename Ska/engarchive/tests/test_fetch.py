@@ -123,6 +123,15 @@ def test_filter_bad_times_default_copy():
     assert np.all(dates == DATES_EXPECT2)
 
 
+def test_fetch_derived_param_aliases():
+    dat1 = fetch.Msid('calc_pitch', '2020:001', '2020:002')
+    dat2 = fetch.Msid('dp_pitch', '2020:001', '2020:002')
+    dat3 = fetch.Msid('pitch', '2020:001', '2020:002')
+    for d1, d2 in ((dat1, dat2), (dat1, dat3)):
+        assert np.all(d1.times == d2.times)
+        assert np.all(d1.vals == d2.vals)
+
+
 def test_interpolate():
     dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
                         '2008:002:21:48:00', '2008:002:21:50:00')

@@ -3,8 +3,6 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
-from __future__ import print_function, division, absolute_import
-
 import sys
 import os
 import time
@@ -382,8 +380,12 @@ def msid_glob(msid):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
-    msids = collections.OrderedDict()
-    MSIDS = collections.OrderedDict()
+    msids = {}
+    MSIDS = {}
+
+    # CALC_ is taken as a synonym for DP_. MAUDE can accept either CALC_ or DP_
+    # (but cheta takes only DP_)
+    msid = re.sub(r'^CALC_', 'DP_', msid, flags=re.IGNORECASE)
 
     # First check if `msid` matches a computed class.  This does not allow
     # for globs, and here the output MSIDs is the single computed class.
