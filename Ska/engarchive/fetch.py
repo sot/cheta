@@ -1424,7 +1424,10 @@ class MSIDset(collections.OrderedDict):
     """
     MSID = MSID
 
-    def __init__(self, msids, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None):
+    def __init__(self, msids=None, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None):
+        if msids is None:
+            msids = []
+
         super(MSIDset, self).__init__()
 
         intervals = _get_table_intervals_as_list(start, check_overlaps=True)

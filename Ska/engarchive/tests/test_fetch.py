@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
-
+import pickle
 from copy import deepcopy
 
 import numpy as np
@@ -67,6 +66,35 @@ def test_filter_bad_times_list():
     dat.filter_bad_times(table=BAD_TIMES)
     dates = DateTime(dat.times[168581:168588]).date
     assert np.all(dates == DATES_EXPECT1)
+
+
+@pytest.mark.parametrize('stat', [None, '5min'])
+def test_pickle_MSID(stat):
+    """Test pickling of MSID objects"""
+    msid = 'aoattqt1'
+    start, stop = '2022:001:00:00:00', '2022:001:00:15:00'
+    dat = fetch.MSID(msid, start, stop, stat=stat)
+    dat2 = pickle.loads(pickle.dumps(dat))
+    attrs = ('tstart', 'tstop', 'datestart', 'datestop', 'data_source', 'content')
+    for attr in attrs:
+        assert getattr(dat, attr) == getattr(dat2, attr)
+    for attr in ('times', 'vals'):
+        assert np.all(getattr(dat, attr) == getattr(dat2, attr))
+
+
+@pytest.mark.parametrize('stat', [None, '5min'])
+def test_pickle_MSIDset(stat):
+    """Test pickling of MSIDset objects"""
+    msid = 'aoattqt1'
+    start, stop = '2022:001:00:00:00', '2022:001:00:15:00'
+    dat = fetch.MSIDset([msid], start, stop, stat=stat)
+    dat2 = pickle.loads(pickle.dumps(dat))
+    attrs = ('tstart', 'tstop', 'datestart', 'datestop')
+    assert dat.keys() == dat2.keys()
+    for attr in attrs:
+        assert getattr(dat, attr) == getattr(dat2, attr)
+    for attr in ('times', 'vals') + attrs:
+        assert np.all(getattr(dat[msid], attr) == getattr(dat2[msid], attr))
 
 
 def test_msidset_filter_bad_times_list():
