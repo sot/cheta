@@ -9,8 +9,6 @@ import pytest
 from .. import fetch
 from .. import fetch_eng
 from Chandra.Time import DateTime
-from cxotime import CxoTime
-import astropy.units as u
 
 print(fetch.__file__)
 
