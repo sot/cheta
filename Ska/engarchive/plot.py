@@ -206,7 +206,10 @@ Interactive MSID plot keys:
                 dy = min(ymin + ymax, 1e-12) * 0.05
             self.ax.set_ylim(ymin - dy, ymax + dy)
 
-        self.ax.set_title('{} {}'.format(msid.MSID, msid.stat or ''))
+        title = msid.msid.upper()
+        if msid.stat:
+            title = f'{title} ({msid.stat})'
+        self.ax.set_title(title)
         if msid.unit:
             self.ax.set_ylabel(msid.unit)
 
