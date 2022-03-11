@@ -63,6 +63,26 @@ a stop time then it defaults to the latest available data in the archive.
   tephin = fetch.Msid('tephin', '2010:001') # Same as previous
   tephin = fetch.Msid('tephin') # Launch through NOW
 
+**Derived parameters (calcs)**
+
+The engineering archive has pseudo-MSIDs that are derived via calculation from
+telemetry MSIDs. These are also known as "calcs" in the context of MAUDE. In
+MAUDE, a calc is normally indicated with a prefix of ``CALC_``, but for
+compatibility with cheta a prefix of ``DP_`` is also allowed.
+
+Derived parameter names begin with the characters ``DP_`` (not case sensitive as
+usual).  Otherwise there is no difference from standard MSIDs. When querying
+the archive using ``fetch``, there are three equivalent ways to specify an
+MSID name:
+
+- ``DP_<name>>`` e.g. ``DP_PITCH_FSS``
+- ``CALC_<name>`` e.g. ``CALC_PITCH_FSS``
+- ``<name>`` e.g. ``PITCH_FSS``: this is a convenience and internally fetch will
+  search for derived parameters matching ``DP_<name>``.
+
+See the :ref:`derived-parameters-or-calcs` section for more details and full
+listings of available MSIDs.
+
 **Other details**
 
 If you are wondering what time range of data is available for a particular MSID
@@ -1041,8 +1061,7 @@ The key differences between the CXC and MAUDE telemetry data sources are:
 - CXC includes `pseudo-MSIDs <../pseudo_msids.html>`_ such as ephemeris data, ACIS and HRC
   housekeeping, and derived parameters like the pitch and off-nominal roll angle.
 - CXC has a latency of 2-3 days vs. hours for MAUDE back-orbit telemetry.
-- During a realtime support MAUDE provides near-realime telemetry.
-- As of MAUDE 0.7.2 there is no support for 5-minute and daily stats (coming in 0.7.3).
+- During a realtime support MAUDE provides real-time telemetry.
 - CXC has about 6800 MSIDs while MAUDE has around 11350.  At least some of the MSIDs that
   are only in MAUDE are somewhat obscure ones like ``ACIMG1D1`` (PEA1 PIXEL D1 DATA IMAGE
   1) which the CXC decoms into higher-level products.
@@ -1050,8 +1069,9 @@ The key differences between the CXC and MAUDE telemetry data sources are:
   system memory (gigabytes) and **always returns all available data points**.
 - MAUDE is optimized for smaller, more frequent queries and uses a secure web server to
   provide data.  It has limits on both the number of returned data values (around 100k)
-  and the total number of bytes in the data (around 1.6 Mb).  **MAUDE will sub-sample
-  the data as necessary to fit in the data limits (see below for example)**.
+  and the total number of bytes in the data (around 1.6 Mb).
+- By default MAUDE will sub-sample the data as necessary to fit in the data limits
+  (see below for example of disabling this feature).
 
 Basic usage
 -----------
