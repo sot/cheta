@@ -151,6 +151,22 @@ def test_filter_bad_times_default_copy():
     assert np.all(dates == DATES_EXPECT2)
 
 
+@pytest.mark.parametrize('msid', ['DP_piTch_fss', 'Calc_pitCH_fss'])
+@pytest.mark.parametrize('sources', (('cxc',), ('maude',), ('cxc', 'maude')))
+def test_fetch_derived_param_aliases(msid, sources):
+    cxc_tstop = fetch.get_time_range('dp_pitch_fss', 'secs')[1]
+    with fetch.data_source(*sources):
+        # Get data from 2 days to present to ensure MAUDE is queried
+        dt = 200  # seconds
+        d1 = fetch.Msid('piTch_fss', cxc_tstop - dt, cxc_tstop + dt)
+        d2 = fetch.Msid(msid, cxc_tstop - dt, cxc_tstop + dt)
+    assert d2.msid == msid  # version as the user provide
+    assert d2.MSID == d1.MSID  # normalized version for accessing databases
+    assert np.all(d1.times == d2.times)
+    assert np.all(d1.vals == d2.vals)
+    assert len(d1) > 0
+
+
 def test_interpolate():
     dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
                         '2008:002:21:48:00', '2008:002:21:50:00')

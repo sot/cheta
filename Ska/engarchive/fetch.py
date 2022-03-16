@@ -3,8 +3,6 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
-from __future__ import print_function, division, absolute_import
-
 import sys
 import os
 import time
@@ -382,8 +380,8 @@ def msid_glob(msid):
     :param msid: input MSID glob
     :returns: tuple (msids, MSIDs)
     """
-    msids = collections.OrderedDict()
-    MSIDS = collections.OrderedDict()
+    msids = {}
+    MSIDS = {}
 
     # First check if `msid` matches a computed class.  This does not allow
     # for globs, and here the output MSIDs is the single computed class.
@@ -416,10 +414,25 @@ def _msid_glob(msid, source):
     """
     source_msids = data_source.get_msids(source)
 
+    # MSID is the upper-case version of the MSID name that is actually used in
+    # backend queries. ``msid`` is the user-supplied version.
     MSID = msid.upper()
-    # First try MSID or DP_<MSID>.  If success then return the upper
+
+    # CALC_ is a synonym for DP_ which works in both CXC and MAUDE archives, so
+    # swap to DP_ if CALC_ is found. These are calculated pseudo-MSIDs.
+    if MSID.startswith('CALC_'):
+        MSID = 'DP_' + MSID[5:]
+
+    # matches_msid is a list of MSIDs that match the input MSID. Providing the
+    # initial DP_ is optional so we try both if the MSID doesn't already start
+    # with DP_ (i.e. PITCH or DP_PITCH).
+    matches_msid = (MSID,)
+    if not MSID.startswith('DP_'):
+        matches_msid += ('DP_' + MSID,)
+
+    # If one of matches_msid is in the source then return the upper
     # case version and whatever the user supplied (could be any case).
-    for match in (MSID, 'DP_' + MSID):
+    for match in matches_msid:
         if match in source_msids:
             return [msid], [match]
 
@@ -427,7 +440,7 @@ def _msid_glob(msid, source):
     # list of matches, all lower case and all upper case.  Since the
     # input was a glob the returned msids are just lower case versions
     # of the matched upper case MSIDs.
-    for match in (MSID, 'DP_' + MSID):
+    for match in matches_msid:
         matches = fnmatch.filter(source_msids, match)
         if matches:
             if len(matches) > MAX_GLOB_MATCHES:
@@ -1401,7 +1414,11 @@ class MSID(object):
         plot_cxctime(self.times, vals, *args, state_codes=self.state_codes,
                      **kwargs)
         plt.margins(0.02, 0.05)
-        plt.title(self.MSID)
+        # Upper-cased version of msid name from user
+        title = self.msid.upper()
+        if self.stat:
+            title = f'{title} ({self.stat})'
+        plt.title(title)
         if self.unit:
             plt.ylabel(self.unit)
 

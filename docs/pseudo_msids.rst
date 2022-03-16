@@ -565,14 +565,38 @@ SCCT4                        Sci single detector counter CT4
 SCCT5                        Sci single detector counter CT5
 ==================== ====== =========================================
 
+.. _derived-parameters-or-calcs:
 
-Derived Parameters
-------------------
+Derived Parameters or Calcs
+---------------------------
 
 The engineering archive has pseudo-MSIDs that are derived via computation from
-telemetry MSIDs.  All derived parameter names begin with the characters ``DP_``
-(not case sensitive as usual).  Otherwise there is no difference from standard
-MSIDs.
+telemetry MSIDs. These are also known as "calcs" in the context of MAUDE (which
+inherited this from GRETA). In MAUDE, a calc is normally indicated with a prefix
+of ``CALC_``, but for compatibility with cheta a prefix of ``DP_`` is also
+allowed.
+
+Derived parameter names begin with the characters ``DP_`` (not case sensitive as
+usual).  Otherwise there is no difference from standard MSIDs. When querying
+the archive using ``fetch``, there are three equivalent ways to specify an
+MSID name:
+
+- ``DP_<name>>`` e.g. ``DP_PITCH_FSS``
+- ``CALC_<name>`` e.g. ``CALC_PITCH_FSS``
+- ``<name>`` e.g. ``PITCH_FSS``: this is a convenience and internally ``fetch``
+  will search for derived parameters matching ``DP_<name>``.
+
+Available MSIDs
+^^^^^^^^^^^^^^^
+
+To see the available derived parameters or calcs in the CXC archive or MAUDE
+archive, issue the following commands respectively::
+
+   >>> from cheta import fetch
+   >>> sorted([msid for msid in fetch.data_source.get_msids('cxc')
+   ...        if msid.startswith('DP_')])
+   >>> sorted([msid for msid in fetch.data_source.get_msids('maude')
+   ...        if msid.startswith('CALC_')])
 
 Definition
 ^^^^^^^^^^^
