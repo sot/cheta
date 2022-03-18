@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utilities API documentation &#8212; Eng archive 4.54.1 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Utilities API documentation &#8212; Eng archive 4.55.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -60,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.54.1 documentation</a>
+	<a href="index.html">Eng archive 4.55.0 documentation</a>
 	 &#187;
       </li>
       
@@ -74,12 +75,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-Ska.engarchive.utils">
+  <section id="module-Ska.engarchive.utils">
 <span id="utilities-api-documentation"></span><h1>Utilities API documentation<a class="headerlink" href="#module-Ska.engarchive.utils" title="Permalink to this headline">¶</a></h1>
 <p>Utilities for the engineering archive.</p>
 <dl class="py function">
-<dt id="Ska.engarchive.utils.get_date_id">
-<code class="sig-prename descclassname">Ska.engarchive.utils.</code><code class="sig-name descname">get_date_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">date</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#get_date_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.utils.get_date_id" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.utils.get_date_id">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.utils.</span></span><span class="sig-name descname"><span class="pre">get_date_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#get_date_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.utils.get_date_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get date_id format used in sync repo index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -92,8 +93,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.utils.get_fetch_size">
-<code class="sig-prename descclassname">Ska.engarchive.utils.</code><code class="sig-name descname">get_fetch_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msids</span></em>, <em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">stop</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">interpolate_dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fast</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#get_fetch_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.utils.get_fetch_size" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.utils.get_fetch_size">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.utils.</span></span><span class="sig-name descname"><span class="pre">get_fetch_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#get_fetch_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.utils.get_fetch_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate the memory size required to fetch the <code class="docutils literal notranslate"><span class="pre">msids</span></code> between <code class="docutils literal notranslate"><span class="pre">start</span></code> and
 <code class="docutils literal notranslate"><span class="pre">stop</span></code>.  This is generally intended for limiting queries to be less than ~100 Mb and
 allows for making some assumptions for improved performance (see below).</p>
@@ -127,8 +128,8 @@ should be OK.  (This does not account for the number of MSIDs passed in <code cl
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.utils.logical_intervals">
-<code class="sig-prename descclassname">Ska.engarchive.utils.</code><code class="sig-name descname">logical_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">times</span></em>, <em class="sig-param"><span class="n">bools</span></em>, <em class="sig-param"><span class="n">complete_intervals</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">max_gap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#logical_intervals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.utils.logical_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.utils.logical_intervals">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.utils.</span></span><span class="sig-name descname"><span class="pre">logical_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bools</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_intervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#logical_intervals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.utils.logical_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which <cite>bools</cite> is True.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">complete_intervals</span></code> is True (default) then the intervals are guaranteed to
 be complete so that the all reported intervals had a transition before and after
@@ -176,8 +177,8 @@ boundary at <code class="docutils literal notranslate"><span class="pre">max_gap
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.utils.set_fetch_basedir">
-<code class="sig-prename descclassname">Ska.engarchive.utils.</code><code class="sig-name descname">set_fetch_basedir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basedir</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#set_fetch_basedir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.utils.set_fetch_basedir" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.utils.set_fetch_basedir">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.utils.</span></span><span class="sig-name descname"><span class="pre">set_fetch_basedir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basedir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#set_fetch_basedir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.utils.set_fetch_basedir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temporarily override the base directory that fetch uses for telemetry data.</p>
 <p>Example to use local data:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">set_fetch_basedir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
@@ -192,8 +193,8 @@ boundary at <code class="docutils literal notranslate"><span class="pre">max_gap
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.utils.ss_vector">
-<code class="sig-prename descclassname">Ska.engarchive.utils.</code><code class="sig-name descname">ss_vector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obj</span><span class="o">=</span><span class="default_value">'Earth'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#ss_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.utils.ss_vector" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.utils.ss_vector">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.utils.</span></span><span class="sig-name descname"><span class="pre">ss_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Earth'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#ss_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.utils.ss_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate vector to Earth, Sun, or Moon in Chandra body coordinates
 between <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> dates at 5 minute (328 sec) intervals.</p>
 <p>The return value in a NumPy structured array table (see below) which
@@ -245,8 +246,8 @@ are also provided.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.utils.state_intervals">
-<code class="sig-prename descclassname">Ska.engarchive.utils.</code><code class="sig-name descname">state_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">times</span></em>, <em class="sig-param"><span class="n">vals</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#state_intervals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.utils.state_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.utils.state_intervals">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.utils.</span></span><span class="sig-name descname"><span class="pre">state_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/utils.html#state_intervals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.utils.state_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which the <code class="docutils literal notranslate"><span class="pre">vals</span></code> is unchanged.</p>
 <p>Returns an Astropy Table with a row for each interval.  Columns are:</p>
 <ul class="simple">
@@ -282,7 +283,7 @@ are also provided.</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -319,7 +320,7 @@ are also provided.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>

@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Tutorial &#8212; Eng archive 4.54.1 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Fetch Tutorial &#8212; Eng archive 4.55.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -60,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.54.1 documentation</a>
+	<a href="index.html">Eng archive 4.55.0 documentation</a>
 	 &#187;
       </li>
       
@@ -74,14 +75,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="fetch-tutorial">
+  <section id="fetch-tutorial">
 <h1>Fetch Tutorial<a class="headerlink" href="#fetch-tutorial" title="Permalink to this headline">¶</a></h1>
 <p>The python module <code class="docutils literal notranslate"><span class="pre">Ska.engarchive.fetch</span></code> provides a simple interface to the
 engineering archive data files.  Using the module functions it is easy to
 retrieve data over a time range for a single MSID or a related set of MSIDs.
 The data are return as MSID objects that contain not only the telemetry timestamps
 and values but also various other data arrays and MSID metadata.</p>
-<div class="section" id="getting-started">
+<section id="getting-started">
 <h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <p><strong>First fetch</strong></p>
 <p>The basic process of fetching data always starts with importing the module
@@ -124,6 +125,23 @@ a stop time then it defaults to the latest available data in the archive.</p>
 <span class="n">tephin</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;tephin&#39;</span><span class="p">)</span> <span class="c1"># Launch through NOW</span>
 </pre></div>
 </div>
+<p><strong>Derived parameters (calcs)</strong></p>
+<p>The engineering archive has pseudo-MSIDs that are derived via calculation from
+telemetry MSIDs. These are also known as “calcs” in the context of MAUDE. In
+MAUDE, a calc is normally indicated with a prefix of <code class="docutils literal notranslate"><span class="pre">CALC_</span></code>, but for
+compatibility with cheta a prefix of <code class="docutils literal notranslate"><span class="pre">DP_</span></code> is also allowed.</p>
+<p>Derived parameter names begin with the characters <code class="docutils literal notranslate"><span class="pre">DP_</span></code> (not case sensitive as
+usual).  Otherwise there is no difference from standard MSIDs. When querying
+the archive using <code class="docutils literal notranslate"><span class="pre">fetch</span></code>, there are three equivalent ways to specify an
+MSID name:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DP_&lt;name&gt;&gt;</span></code> e.g. <code class="docutils literal notranslate"><span class="pre">DP_PITCH_FSS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CALC_&lt;name&gt;</span></code> e.g. <code class="docutils literal notranslate"><span class="pre">CALC_PITCH_FSS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> e.g. <code class="docutils literal notranslate"><span class="pre">PITCH_FSS</span></code>: this is a convenience and internally fetch will
+search for derived parameters matching <code class="docutils literal notranslate"><span class="pre">DP_&lt;name&gt;</span></code>.</p></li>
+</ul>
+<p>See the <a class="reference internal" href="pseudo_msids.html#derived-parameters-or-calcs"><span class="std std-ref">Derived Parameters or Calcs</span></a> section for more details and full
+listings of available MSIDs.</p>
 <p><strong>Other details</strong></p>
 <p>If you are wondering what time range of data is available for a particular MSID
 use the <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.get_time_range" title="Ska.engarchive.fetch.get_time_range"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_time_range()</span></code></a> function:</p>
@@ -143,8 +161,8 @@ itself.  Case is not important when specifying the MSID name so one might do:</p
 the basis for time for all CXC data files.  In order to make life inconvenient
 1998-01-01T00:00:00 is actually 1997:365:23:58:56.816 (UTC).  This stems from
 the difference of around 64 seconds between TT and UTC.</p>
-</div>
-<div class="section" id="date-and-time-formats">
+</section>
+<section id="date-and-time-formats">
 <h2>Date and time formats<a class="headerlink" href="#date-and-time-formats" title="Permalink to this headline">¶</a></h2>
 <p>The Ska engineering telemetry archive tools support a wide
 range of formats for representing date-time stamps.  Note that within this and
@@ -221,8 +239,8 @@ seconds it is important to be consistent in specifying the time format.</p>
 <span class="n">Out</span><span class="p">[]:</span> <span class="mf">367416860.18399996</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="exporting-to-csv">
+</section>
+<section id="exporting-to-csv">
 <h2>Exporting to CSV<a class="headerlink" href="#exporting-to-csv" title="Permalink to this headline">¶</a></h2>
 <p>If you want to move the fetch data to your local machine an <code class="docutils literal notranslate"><span class="pre">MSID</span></code> or
 <code class="docutils literal notranslate"><span class="pre">MSIDset</span></code> can be exported as ASCII data table(s) in CSV format.  This can
@@ -258,8 +276,8 @@ unzip as follows:</p>
 <span class="n">unzip</span> <span class="n">biases</span><span class="o">.</span><span class="n">zip</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="plotting-time-data">
+</section>
+<section id="plotting-time-data">
 <h2>Plotting time data<a class="headerlink" href="#plotting-time-data" title="Permalink to this headline">¶</a></h2>
 <p>Even though seconds since 1998.0 is convenient for computations it isn’t so
 natural for humans.  As mentioned the <code class="docutils literal notranslate"><span class="pre">Chandra.Time</span></code> module can help with
@@ -284,8 +302,8 @@ function of the <code class="docutils literal notranslate"><span class="pre">Ska
 work with the Matplotlib <a class="reference external" href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot_date">plot_date()</a>
 function</p>
 </div>
-</div>
-<div class="section" id="interactive-plotting">
+</section>
+<section id="interactive-plotting">
 <h2>Interactive plotting<a class="headerlink" href="#interactive-plotting" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID.iplot" title="Ska.engarchive.fetch.MSID.iplot"><code class="xref py py-func docutils literal notranslate"><span class="pre">iplot()</span></code></a> function is a handy way to quickly
 explore MSID data over a wide range of time scales, from seconds to the entire
@@ -330,13 +348,13 @@ other plotting commands directed at the same plot figure.  Instead one
 should use the MSID <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID.plot" title="Ska.engarchive.fetch.MSID.plot"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot()</span></code></a> method in this
 case.</p>
 </div>
-</div>
-<div class="section" id="data-filtering">
+</section>
+<section id="data-filtering">
 <h2>Data filtering<a class="headerlink" href="#data-filtering" title="Permalink to this headline">¶</a></h2>
 <p>Often one needs to filter or select subsets of the raw telemetry that gets fetched from
 the archive in order to use the values in analysis.  Here we describe the ways to
 accomplish this in different circumstances.</p>
-<div class="section" id="event-interval-filtering">
+<section id="event-interval-filtering">
 <span id="event-intervals"></span><h3>Event interval filtering<a class="headerlink" href="#event-interval-filtering" title="Permalink to this headline">¶</a></h3>
 <p>The first case is when one needs to either select or remove specific intervals of
 telemetry values from a full <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID" title="Ska.engarchive.fetch.MSID"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSID()</span></code></a> or <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSIDset" title="Ska.engarchive.fetch.MSIDset"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSIDset()</span></code></a> object based on known
@@ -344,7 +362,7 @@ spacecraft events.  For instance when analyzing OBC rate noise we need to use on
 during periods of stable Kalman lock.  Likewise it is frequently useful to exclude time
 intervals during which the spacecraft was in an anomalous state and OBC telemetry is
 unreliable.</p>
-<div class="section" id="using-kadi">
+<section id="using-kadi">
 <h4>Using Kadi<a class="headerlink" href="#using-kadi" title="Permalink to this headline">¶</a></h4>
 <p>Frequently one can handle this with the <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID.remove_intervals" title="Ska.engarchive.fetch.MSID.remove_intervals"><code class="xref py py-func docutils literal notranslate"><span class="pre">remove_intervals()</span></code></a>
 <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID.select_intervals" title="Ska.engarchive.fetch.MSID.select_intervals"><code class="xref py py-func docutils literal notranslate"><span class="pre">select_intervals()</span></code></a> methods in conjunction with the <a class="reference external" href="http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-intervals">kadi event
@@ -373,8 +391,8 @@ after the end of each maneuver.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//fetch_tutorial-2.py">Source code</a>)</p>
-</div>
-<div class="section" id="using-logical-intervals">
+</section>
+<section id="using-logical-intervals">
 <h4>Using logical intervals<a class="headerlink" href="#using-logical-intervals" title="Permalink to this headline">¶</a></h4>
 <p>For cases where the intervals to be filtered cannot be expressed as Kadi events,
 the approach is to use the <a class="reference internal" href="utils.html#Ska.engarchive.utils.logical_intervals" title="Ska.engarchive.utils.logical_intervals"><code class="xref py py-func docutils literal notranslate"><span class="pre">logical_intervals()</span></code></a> function
@@ -404,8 +422,8 @@ convenient to have both the original and filtered data, e.g. when you want to pl
 <p>Note also that <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID.remove_intervals" title="Ska.engarchive.fetch.MSID.remove_intervals"><code class="xref py py-func docutils literal notranslate"><span class="pre">remove_intervals()</span></code></a>
 <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID.select_intervals" title="Ska.engarchive.fetch.MSID.select_intervals"><code class="xref py py-func docutils literal notranslate"><span class="pre">select_intervals()</span></code></a> will accept <em>any</em> table
 with columns <code class="docutils literal notranslate"><span class="pre">datestart</span></code> / <code class="docutils literal notranslate"><span class="pre">datestop</span></code> or <code class="docutils literal notranslate"><span class="pre">tstart</span></code> / <code class="docutils literal notranslate"><span class="pre">tstop</span></code> as input.</p>
-</div>
-<div class="section" id="fetching-only-small-intervals">
+</section>
+<section id="fetching-only-small-intervals">
 <h4>Fetching only small intervals<a class="headerlink" href="#fetching-only-small-intervals" title="Permalink to this headline">¶</a></h4>
 <p>It may be the case that you want to fetch a number of small intervals of an
 MSID that is sampled at a high rate.  An example is looking at the load bus
@@ -450,9 +468,9 @@ faster:</p>
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="_images/load_bus_voltage.png"><img alt="_images/load_bus_voltage.png" src="_images/load_bus_voltage.png" style="width: 400px;" /></a>
-</div>
-</div>
-<div class="section" id="bad-data">
+</section>
+</section>
+<section id="bad-data">
 <h3>Bad data<a class="headerlink" href="#bad-data" title="Permalink to this headline">¶</a></h3>
 <p>For various reasons (typically a VCDU drop) the data value associated with a particular
 readout may be bad.  To handle this the engineering archive provides a boolean array
@@ -479,7 +497,7 @@ task, with the first one being the preferred idiom:</p>
 <p>You might wonder why fetch ever bothers to return bad data and a bad mask, but
 this will become apparent later when we start using time-correlated values instead
 just simple time plots.</p>
-<div class="section" id="really-bad-data">
+<section id="really-bad-data">
 <h4>Really bad data<a class="headerlink" href="#really-bad-data" title="Permalink to this headline">¶</a></h4>
 <p>Even after applying <code class="docutils literal notranslate"><span class="pre">filter_bad()</span></code> you may run across obviously bad data in
 the archive (e.g. there is a single value of AORATE1 of around 2e32
@@ -501,8 +519,8 @@ locate and filter it out as follows (but see also <a class="reference internal" 
 <span class="n">Out</span><span class="p">[]:</span> <span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="filtering-out-arbitrary-time-intervals">
+</section>
+<section id="filtering-out-arbitrary-time-intervals">
 <span id="filter-bad-times"></span><h4>Filtering out arbitrary time intervals<a class="headerlink" href="#filtering-out-arbitrary-time-intervals" title="Permalink to this headline">¶</a></h4>
 <p>There are many periods of time where the spacecraft was in an anomalous state
 and telemetry values may be unreliable without being marked as bad by CXC data
@@ -577,8 +595,8 @@ can always be filtered by all users of fetch then send an email to Tom Aldcroft
 with the interval and MSID and that will be added to the global registry.
 After that there will be no need to explicitly run the
 <code class="docutils literal notranslate"><span class="pre">fetch.read_bad_times(filename)</span></code> command to exclude that interval.</p>
-</div>
-<div class="section" id="copy-versus-in-place">
+</section>
+<section id="copy-versus-in-place">
 <h4>Copy versus in-place<a class="headerlink" href="#copy-versus-in-place" title="Permalink to this headline">¶</a></h4>
 <p>All of the data filter methods shown here take an optional <code class="docutils literal notranslate"><span class="pre">copy</span></code> argument.  By default
 this is set to <code class="docutils literal notranslate"><span class="pre">False</span></code> so that the filtering is done in-place, as shown in the previous
@@ -603,10 +621,10 @@ objects have a <code class="docutils literal notranslate"><span class="pre">copy
 <span class="go">False</span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
-<div class="section" id="five-minute-and-daily-stats">
+</section>
+</section>
+</section>
+<section id="five-minute-and-daily-stats">
 <h2>Five minute and daily stats<a class="headerlink" href="#five-minute-and-daily-stats" title="Permalink to this headline">¶</a></h2>
 <p>The engineering telemetry archive also hosts tables of telemetry statistics
 computed over 5 minute and daily intervals.  To be more precise, the intervals
@@ -773,8 +791,8 @@ there is no really useful meaning for the other statistics.</p>
 that they do not have an associated bad values mask.  Instead if there are not
 at least 3 good samples within an interval then no record for that interval
 will exist.</p>
-</div>
-<div class="section" id="msid-sets">
+</section>
+<section id="msid-sets">
 <h2>MSID sets<a class="headerlink" href="#msid-sets" title="Permalink to this headline">¶</a></h2>
 <p>Frequently one wants to fetch a set of MSIDs over the same time range.  This is
 easily accomplished:</p>
@@ -857,14 +875,14 @@ new centroid value every 2.05 sec.</p>
 </pre></div>
 </div>
 <img alt="_images/aca_gyro_rates.png" src="_images/aca_gyro_rates.png" />
-<div class="section" id="interpolation">
+<section id="interpolation">
 <h3>Interpolation<a class="headerlink" href="#interpolation" title="Permalink to this headline">¶</a></h3>
 <p>The <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSIDset.interpolate" title="Ska.engarchive.fetch.MSIDset.interpolate"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate()</span></code></a> method allows for resampling all the MSIDs in a
 set onto a single common time sequence.  This is done by performing
 nearest-neighbor interpolation of all MSID values.  By default the update
 is done in-place, but if called with <code class="docutils literal notranslate"><span class="pre">copy=True</span></code> then a new <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSIDset" title="Ska.engarchive.fetch.MSIDset"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSIDset()</span></code></a>
 is returned and the original is not modified (see <a class="reference internal" href="#copy-versus-in-place">Copy versus in-place</a>).</p>
-<div class="section" id="times">
+<section id="times">
 <h4>Times<a class="headerlink" href="#times" title="Permalink to this headline">¶</a></h4>
 <p>The time sequence steps uniformly by <code class="docutils literal notranslate"><span class="pre">dt</span></code> seconds starting at the
 <code class="docutils literal notranslate"><span class="pre">start</span></code> time and ending at the <code class="docutils literal notranslate"><span class="pre">stop</span></code> time.  If not provided the
@@ -875,8 +893,8 @@ progression from <code class="docutils literal notranslate"><span class="pre">st
 time sequence.  In addition a new attribute <code class="docutils literal notranslate"><span class="pre">times0</span></code> is defined that
 stores the nearest neighbor interpolated time, providing the <em>original</em>
 timestamps of each new interpolated value for that MSID.</p>
-</div>
-<div class="section" id="filtering-and-bad-values">
+</section>
+<section id="filtering-and-bad-values">
 <h4>Filtering and bad values<a class="headerlink" href="#filtering-and-bad-values" title="Permalink to this headline">¶</a></h4>
 <p>A key issue in interpolation is the handling of bad (missing) telemetry
 values.  There are two parameters that control the behavior, <code class="docutils literal notranslate"><span class="pre">filter_bad</span></code>
@@ -930,10 +948,10 @@ crossed-out points removed.</p>
 <a class="reference internal image-reference" href="_images/interpolate_False_True.png"><img alt="_images/interpolate_False_True.png" src="_images/interpolate_False_True.png" style="width: 400px;" /></a>
 </li>
 </ol>
-</div>
-</div>
-</div>
-<div class="section" id="unit-systems">
+</section>
+</section>
+</section>
+<section id="unit-systems">
 <h2>Unit systems<a class="headerlink" href="#unit-systems" title="Permalink to this headline">¶</a></h2>
 <p>Within <code class="docutils literal notranslate"><span class="pre">fetch</span></code> it is possible to select a different system of physical
 units for the retrieved telemetry.  Internally the engineering archive
@@ -977,7 +995,7 @@ units use the command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Ska.engarchive</span> <span class="kn">import</span> <span class="n">fetch_sci</span> <span class="k">as</span> <span class="n">fetch</span>
 </pre></div>
 </div>
-<div class="section" id="mixing-units">
+<section id="mixing-units">
 <h3>Mixing units<a class="headerlink" href="#mixing-units" title="Permalink to this headline">¶</a></h3>
 <p>Beginning with version 0.18 of the engineering archive it is possible to
 reliably use the import mechanism to select different unit systems within the
@@ -997,9 +1015,9 @@ same script or Python process.</p>
 <span class="nb">print</span> <span class="n">t3</span><span class="o">.</span><span class="n">unit</span>  <span class="c1"># prints &quot;DEGC&quot;</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="msid-globs">
+</section>
+</section>
+<section id="msid-globs">
 <h2>MSID globs<a class="headerlink" href="#msid-globs" title="Permalink to this headline">¶</a></h2>
 <p>Each input <code class="docutils literal notranslate"><span class="pre">msid</span></code> for <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID" title="Ska.engarchive.fetch.MSID"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSID()</span></code></a> or <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSIDset" title="Ska.engarchive.fetch.MSIDset"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSIDset()</span></code></a> is
 case-insensitive and can include the linux file “glob” patterns “*”, “?”, and
@@ -1043,8 +1061,8 @@ module attribute:</p>
 <span class="s2">&quot;roll&quot;</span><span class="p">:</span> <span class="n">DP_ROLL</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="state-valued-msids">
+</section>
+<section id="state-valued-msids">
 <h2>State-valued MSIDs<a class="headerlink" href="#state-valued-msids" title="Permalink to this headline">¶</a></h2>
 <p>MSIDs that are state-valued such as <code class="docutils literal notranslate"><span class="pre">AOPCADMD</span></code> or <code class="docutils literal notranslate"><span class="pre">AOECLIPS</span></code> have the full
 state code values stored in the <code class="docutils literal notranslate"><span class="pre">vals</span></code> attribute.  The raw count values can
@@ -1071,7 +1089,7 @@ in the <code class="docutils literal notranslate"><span class="pre">state_codes<
 <span class="go"> (6, &#39;NULL&#39;)]</span>
 </pre></div>
 </div>
-<div class="section" id="state-value-counts">
+<section id="state-value-counts">
 <h3>State value counts<a class="headerlink" href="#state-value-counts" title="Permalink to this headline">¶</a></h3>
 <p>For state-valued MSIDs, the 5-minute and daily statistics include attributes that provide
 the count of samples within the interval for each possible state.  The attribute will be
@@ -1112,9 +1130,9 @@ via the daily state code counts is a snap:</p>
 </pre></div>
 </div>
 <p>One could then drill down on these dates using 5-minute or full-resolution telemetry.</p>
-</div>
-</div>
-<div class="section" id="telemetry-database">
+</section>
+</section>
+<section id="telemetry-database">
 <h2>Telemetry database<a class="headerlink" href="#telemetry-database" title="Permalink to this headline">¶</a></h2>
 <p>With an <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.MSID" title="Ska.engarchive.fetch.MSID"><code class="xref py py-func docutils literal notranslate"><span class="pre">MSID()</span></code></a> object you can directly access all the information
 in the Chandra Telemetry Database which relates to that MSID.  This is
@@ -1150,8 +1168,8 @@ module.  For example:</p>
 so refer to the
 <a class="reference external" href="http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html">Ska.tdb</a>
 documentation for further information.</p>
-</div>
-<div class="section" id="maude-telemetry-server">
+</section>
+<section id="maude-telemetry-server">
 <h2>MAUDE telemetry server<a class="headerlink" href="#maude-telemetry-server" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">fetch</span></code> module provides the capability to choose the source of telemetry data used
 in queries.  The historical (and current default) source of telemetry data consists of a
@@ -1164,8 +1182,7 @@ typically has a latency of 2-3 days.</p>
 <li><p>CXC includes <a class="reference external" href="../pseudo_msids.html">pseudo-MSIDs</a> such as ephemeris data, ACIS and HRC
 housekeeping, and derived parameters like the pitch and off-nominal roll angle.</p></li>
 <li><p>CXC has a latency of 2-3 days vs. hours for MAUDE back-orbit telemetry.</p></li>
-<li><p>During a realtime support MAUDE provides near-realime telemetry.</p></li>
-<li><p>As of MAUDE 0.7.2 there is no support for 5-minute and daily stats (coming in 0.7.3).</p></li>
+<li><p>During a realtime support MAUDE provides real-time telemetry.</p></li>
 <li><p>CXC has about 6800 MSIDs while MAUDE has around 11350.  At least some of the MSIDs that
 are only in MAUDE are somewhat obscure ones like <code class="docutils literal notranslate"><span class="pre">ACIMG1D1</span></code> (PEA1 PIXEL D1 DATA IMAGE
 1) which the CXC decoms into higher-level products.</p></li>
@@ -1173,10 +1190,11 @@ are only in MAUDE are somewhat obscure ones like <code class="docutils literal n
 system memory (gigabytes) and <strong>always returns all available data points</strong>.</p></li>
 <li><p>MAUDE is optimized for smaller, more frequent queries and uses a secure web server to
 provide data.  It has limits on both the number of returned data values (around 100k)
-and the total number of bytes in the data (around 1.6 Mb).  <strong>MAUDE will sub-sample
-the data as necessary to fit in the data limits (see below for example)</strong>.</p></li>
+and the total number of bytes in the data (around 1.6 Mb).</p></li>
+<li><p>By default MAUDE will sub-sample the data as necessary to fit in the data limits
+(see below for example of disabling this feature).</p></li>
 </ul>
-<div class="section" id="basic-usage">
+<section id="basic-usage">
 <h3>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h3>
 <p>Once you have followed the steps to <a class="reference internal" href="#setup-for-maude-authentication">Setup for MAUDE authentication</a>, you can access
 the MAUDE data.</p>
@@ -1258,8 +1276,8 @@ This is done by specifying the data source as both <code class="docutils literal
 </div>
 <p>This shows that data have been fetched from both data sources and stitched together
 seamlessly.</p>
-</div>
-<div class="section" id="context-manager">
+</section>
+<section id="context-manager">
 <h3>Context manager<a class="headerlink" href="#context-manager" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">fetch.data_source</span></code> object can also be used as a context manager to <em>temporarily</em>
 change the data source within an enclosed code block.  This is useful because it restores
@@ -1276,8 +1294,8 @@ instance:</p>
 <span class="go">(&#39;cxc&#39;,)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="data-source-differences">
+</section>
+<section id="data-source-differences">
 <h3>Data source differences<a class="headerlink" href="#data-source-differences" title="Permalink to this headline">¶</a></h3>
 <p>There are different MSIDs available in the different data sources (but <em>mostly</em> they
 overlap).  To directly understand this you can access the MSID lists as follows.  The
@@ -1307,8 +1325,8 @@ only one of the sources, then just the one source will be used.  For instance:</
 <span class="go">         &#39;stop&#39;: &#39;2016:150:18:37:01.841&#39;}}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="setup-for-maude-authentication">
+</section>
+<section id="setup-for-maude-authentication">
 <h3>Setup for MAUDE authentication<a class="headerlink" href="#setup-for-maude-authentication" title="Permalink to this headline">¶</a></h3>
 <p>In order to use MAUDE as the data source you must have authentication credentials
 (username and password) to access OCCweb.  One can provide those credentials manually to
@@ -1326,9 +1344,9 @@ other machines defined you need a blank line between the machine configs.</p>
 <span class="n">password</span> <span class="n">your</span><span class="o">-</span><span class="n">occweb</span><span class="o">-</span><span class="n">password</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="pushing-it-to-the-limit">
+</section>
+</section>
+<section id="pushing-it-to-the-limit">
 <h2>Pushing it to the limit<a class="headerlink" href="#pushing-it-to-the-limit" title="Permalink to this headline">¶</a></h2>
 <p>The engineering telemetry archive is designed to help answer questions that
 require big datasets.  Let’s explore what is possible.  First quit from your
@@ -1399,7 +1417,7 @@ be done using density image maps binning in 2-d.</p></li>
 <li><p>Look before you leap, do smaller fetches first and check sizes as shown below.</p></li>
 <li><p>5-minute stats are ~10 million so you are always OK.</p></li>
 </ul>
-<div class="section" id="estimating-fetch-size">
+<section id="estimating-fetch-size">
 <h3>Estimating fetch size<a class="headerlink" href="#estimating-fetch-size" title="Permalink to this headline">¶</a></h3>
 <p>You can do a better than the above rules of thumb using the
 <a class="reference internal" href="utils.html#Ska.engarchive.utils.get_fetch_size" title="Ska.engarchive.utils.get_fetch_size"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_fetch_size()</span></code></a> function in the <code class="docutils literal notranslate"><span class="pre">Ska.engarchive.utils</span></code>
@@ -1417,9 +1435,9 @@ time sampling of 32.8 seconds:</p>
 operation to get the telemetry data, and the second is the memory for the interpolated
 output.  This estimate is made by fetching a 3-day sample of data starting at 2010:001
 and extrapolating.  Therefore the size estimates are reflective of normal operations.</p>
-</div>
-</div>
-<div class="section" id="fetching-the-easy-way">
+</section>
+</section>
+<section id="fetching-the-easy-way">
 <h2>Fetching the easy way<a class="headerlink" href="#fetching-the-easy-way" title="Permalink to this headline">¶</a></h2>
 <p>The high-level function <a class="reference internal" href="fetch.html#Ska.engarchive.fetch.get_telem" title="Ska.engarchive.fetch.get_telem"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_telem()</span></code></a> is available to simplify use of the Ska engineering
 archive.  It provides a way to combine many of the common processing steps associated with
@@ -1616,8 +1634,8 @@ fetch object if data sampling has been reduced via the <code class="docutils lit
 has a default of 100 Mb.</p>
 <p>Both of the defaults here are relatively conservative, and with experience you can set
 larger values.</p>
-</div>
-<div class="section" id="putting-it-all-together">
+</section>
+<section id="putting-it-all-together">
 <h2>Putting it all together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline">¶</a></h2>
 <p>As a final example here is a real-world problem of wanting to compare OBC
 rates to those derived on the ground using raw gyro data.</p>
@@ -1682,8 +1700,8 @@ rates to those derived on the ground using raw gyro data.</p>
 </div>
 <img alt="_images/obc_rates.png" src="_images/obc_rates.png" />
 <img alt="_images/gyro_sc_rates.png" src="_images/gyro_sc_rates.png" />
-</div>
-<div class="section" id="remote-data-access">
+</section>
+<section id="remote-data-access">
 <h2>Remote data access<a class="headerlink" href="#remote-data-access" title="Permalink to this headline">¶</a></h2>
 <p>The telemetry archive can be accessed remotely if ssh access to
 <code class="docutils literal notranslate"><span class="pre">chimchim</span></code> is available.  The user will be queried for ssh credentials and
@@ -1711,7 +1729,7 @@ refer to user-defined environment variables.</p></li>
 then a warning is issued. In this case you can still use MAUDE for data access
 with <code class="docutils literal notranslate"><span class="pre">fetch.data_source.set('maude')</span></code>.</p></li>
 </ul>
-<div class="section" id="scripts-using-remote-access">
+<section id="scripts-using-remote-access">
 <h3>Scripts using remote access<a class="headerlink" href="#scripts-using-remote-access" title="Permalink to this headline">¶</a></h3>
 <p>If you are using remote data access from within a script, you should write the
 script using calls to functions instead of having everything at the main level.
@@ -1742,15 +1760,15 @@ top level this causes problems. For example:</p>
 </div>
 <p>These problems are known to happen on Windows, but following this best practice
 should be done for all remote-access scripts.</p>
-</div>
-</div>
-<div class="section" id="local-cheta-archive">
+</section>
+</section>
+<section id="local-cheta-archive">
 <h2>Local cheta archive<a class="headerlink" href="#local-cheta-archive" title="Permalink to this headline">¶</a></h2>
 <p>Instructions for creating, using, and maintaining a local cheta archive (on your
 laptop for instance) are found at the <a class="reference external" href="https://github.com/sot/eng_archive/wiki/Tutorial:-install-and-maintain-cheta-telemetry-archive">Tutorial for installing and maintaining a
 cheta telemetry archive</a>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -1832,7 +1850,7 @@ cheta telemetry archive</a>.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>

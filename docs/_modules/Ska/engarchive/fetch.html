@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska.engarchive.fetch &#8212; Eng archive 4.54.1 documentation</title>
-    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ska.engarchive.fetch &#8212; Eng archive 4.55.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
     
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script type="text/javascript" src="../../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../index.html">Eng archive 4.54.1 documentation</a>
+	<a href="../../../index.html">Eng archive 4.55.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -68,8 +68,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Fetch values from the Ska engineering telemetry archive.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
-
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -447,8 +445,8 @@
 <span class="sd">    :param msid: input MSID glob</span>
 <span class="sd">    :returns: tuple (msids, MSIDs)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">msids</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
-    <span class="n">MSIDS</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">msids</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">MSIDS</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># First check if `msid` matches a computed class.  This does not allow</span>
     <span class="c1"># for globs, and here the output MSIDs is the single computed class.</span>
@@ -481,10 +479,25 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">source_msids</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">get_msids</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
 
+    <span class="c1"># MSID is the upper-case version of the MSID name that is actually used in</span>
+    <span class="c1"># backend queries. ``msid`` is the user-supplied version.</span>
     <span class="n">MSID</span> <span class="o">=</span> <span class="n">msid</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-    <span class="c1"># First try MSID or DP_&lt;MSID&gt;.  If success then return the upper</span>
+
+    <span class="c1"># CALC_ is a synonym for DP_ which works in both CXC and MAUDE archives, so</span>
+    <span class="c1"># swap to DP_ if CALC_ is found. These are calculated pseudo-MSIDs.</span>
+    <span class="k">if</span> <span class="n">MSID</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;CALC_&#39;</span><span class="p">):</span>
+        <span class="n">MSID</span> <span class="o">=</span> <span class="s1">&#39;DP_&#39;</span> <span class="o">+</span> <span class="n">MSID</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
+
+    <span class="c1"># matches_msid is a list of MSIDs that match the input MSID. Providing the</span>
+    <span class="c1"># initial DP_ is optional so we try both if the MSID doesn&#39;t already start</span>
+    <span class="c1"># with DP_ (i.e. PITCH or DP_PITCH).</span>
+    <span class="n">matches_msid</span> <span class="o">=</span> <span class="p">(</span><span class="n">MSID</span><span class="p">,)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">MSID</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;DP_&#39;</span><span class="p">):</span>
+        <span class="n">matches_msid</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;DP_&#39;</span> <span class="o">+</span> <span class="n">MSID</span><span class="p">,)</span>
+
+    <span class="c1"># If one of matches_msid is in the source then return the upper</span>
     <span class="c1"># case version and whatever the user supplied (could be any case).</span>
-    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="p">(</span><span class="n">MSID</span><span class="p">,</span> <span class="s1">&#39;DP_&#39;</span> <span class="o">+</span> <span class="n">MSID</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches_msid</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">source_msids</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">msid</span><span class="p">],</span> <span class="p">[</span><span class="n">match</span><span class="p">]</span>
 
@@ -492,7 +505,7 @@
     <span class="c1"># list of matches, all lower case and all upper case.  Since the</span>
     <span class="c1"># input was a glob the returned msids are just lower case versions</span>
     <span class="c1"># of the matched upper case MSIDs.</span>
-    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="p">(</span><span class="n">MSID</span><span class="p">,</span> <span class="s1">&#39;DP_&#39;</span> <span class="o">+</span> <span class="n">MSID</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches_msid</span><span class="p">:</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">source_msids</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_GLOB_MATCHES</span><span class="p">:</span>
@@ -1466,7 +1479,11 @@
         <span class="n">plot_cxctime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">state_codes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">state_codes</span><span class="p">,</span>
                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MSID</span><span class="p">)</span>
+        <span class="c1"># Upper-cased version of msid name from user</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msid</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="si">}</span><span class="s1">)&#39;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span></div></div>
 
@@ -1489,7 +1506,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MSID</span> <span class="o">=</span> <span class="n">MSID</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msids</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">LAUNCH_DATE</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">LAUNCH_DATE</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">msids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msids</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="nb">super</span><span class="p">(</span><span class="n">MSIDset</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="n">intervals</span> <span class="o">=</span> <span class="n">_get_table_intervals_as_list</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">check_overlaps</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2095,7 +2115,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>

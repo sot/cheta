@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch API documentation &#8212; Eng archive 4.54.1 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Fetch API documentation &#8212; Eng archive 4.55.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -60,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.54.1 documentation</a>
+	<a href="index.html">Eng archive 4.55.0 documentation</a>
 	 &#187;
       </li>
       
@@ -74,14 +75,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-Ska.engarchive.fetch">
+  <section id="module-Ska.engarchive.fetch">
 <span id="fetch-api-documentation"></span><h1>Fetch API documentation<a class="headerlink" href="#module-Ska.engarchive.fetch" title="Permalink to this headline">¶</a></h1>
 <p>Fetch values from the Ska engineering telemetry archive.</p>
-<div class="section" id="classes">
+<section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="Ska.engarchive.fetch.MSID">
-<em class="property">class </em><code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">MSID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msid</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">'1999:204'</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">MSID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1999:204'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Fetch data from the engineering telemetry archive into an MSID object.</p>
 <p>The input <code class="docutils literal notranslate"><span class="pre">msid</span></code> is case-insensitive and can include linux file “glob”
@@ -103,13 +104,13 @@ instance <code class="docutils literal notranslate"><span class="pre">dpa_pow*</
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="Ska.engarchive.fetch.MSID.fetch">
-<code class="sig-name descname">fetch</code><em class="property"> = &lt;module 'Ska.engarchive.fetch' from '/export/jgonzale/github-workflows/shiny-runner-sot/_work/eng_archive/eng_archive/source/Ska/engarchive/fetch.py'&gt;</em><a class="headerlink" href="#Ska.engarchive.fetch.MSID.fetch" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;module</span> <span class="pre">'Ska.engarchive.fetch'</span> <span class="pre">from</span> <span class="pre">'/export/jgonzale/github-workflows/shiny-runner-sot/_work/eng_archive/eng_archive/source/Ska/engarchive/fetch.py'&gt;</span></em><a class="headerlink" href="#Ska.engarchive.fetch.MSID.fetch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.filter_bad">
-<code class="sig-name descname">filter_bad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bads</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.filter_bad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.filter_bad" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.filter_bad">
+<span class="sig-name descname"><span class="pre">filter_bad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.filter_bad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.filter_bad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out any bad values.</p>
 <p>After applying this method the “bads” column will be set to None to
 indicate that there are no bad values.</p>
@@ -124,8 +125,8 @@ indicate that there are no bad values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.filter_bad_times">
-<code class="sig-name descname">filter_bad_times</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">table</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.filter_bad_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.filter_bad_times" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.filter_bad_times">
+<span class="sig-name descname"><span class="pre">filter_bad_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.filter_bad_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.filter_bad_times" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out intervals of bad data in the MSID object.</p>
 <p>There are three usage options:</p>
 <ul class="simple">
@@ -159,8 +160,8 @@ table file, for example:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.interpolate">
-<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.interpolate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform nearest-neighbor interpolation of the MSID to the specified
 time sequence.</p>
 <p>The time sequence steps uniformly by <code class="docutils literal notranslate"><span class="pre">dt</span></code> seconds starting at the
@@ -185,8 +186,8 @@ progression from <code class="docutils literal notranslate"><span class="pre">st
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.iplot">
-<code class="sig-name descname">iplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'-b'</span></em>, <em class="sig-param"><span class="n">fmt_minmax</span><span class="o">=</span><span class="default_value">'-c'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">plot_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.iplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.iplot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.iplot">
+<span class="sig-name descname"><span class="pre">iplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_minmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-c'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.iplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.iplot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an interactive plot for exploring the MSID data.</p>
 <p>This method opens a new plot figure (or clears the current figure) and
 plots the MSID <code class="docutils literal notranslate"><span class="pre">vals</span></code> versus <code class="docutils literal notranslate"><span class="pre">times</span></code>.  This plot can be panned or
@@ -225,8 +226,8 @@ commands directed at the same plot figure.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.logical_intervals">
-<code class="sig-name descname">logical_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">op</span></em>, <em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">complete_intervals</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">max_gap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.logical_intervals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.logical_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.logical_intervals">
+<span class="sig-name descname"><span class="pre">logical_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_intervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.logical_intervals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.logical_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which the logical comparison
 expression “MSID.vals op val” is True.  Allowed values for <code class="docutils literal notranslate"><span class="pre">op</span></code>
 are:</p>
@@ -272,8 +273,8 @@ Columns are:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the MSID <code class="docutils literal notranslate"><span class="pre">vals</span></code> using Ska.Matplotlib.plot_cxctime()</p>
 <p>This is a convenience function for plotting the MSID values.  It
 is equivalent to:</p>
@@ -289,16 +290,16 @@ additional keyword arguments that are accepted by <code class="docutils literal 
 </div>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.raw_vals">
-<em class="property">property </em><code class="sig-name descname">raw_vals</code><a class="headerlink" href="#Ska.engarchive.fetch.MSID.raw_vals" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.raw_vals">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">raw_vals</span></span><a class="headerlink" href="#Ska.engarchive.fetch.MSID.raw_vals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw counts corresponding to the string state-code values that are
 stored in <code class="docutils literal notranslate"><span class="pre">self.vals</span></code></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.remove_intervals">
-<code class="sig-name descname">remove_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intervals</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.remove_intervals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.remove_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.remove_intervals">
+<span class="sig-name descname"><span class="pre">remove_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.remove_intervals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.remove_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove telemetry points that occur within the specified <code class="docutils literal notranslate"><span class="pre">intervals</span></code></p>
 <p>This method is the converse of select_intervals().</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">intervals</span></code> argument can be either a list of (start, stop) tuples
@@ -335,8 +336,8 @@ rates during maneuvers:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.select_intervals">
-<code class="sig-name descname">select_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intervals</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.select_intervals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.select_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.select_intervals">
+<span class="sig-name descname"><span class="pre">select_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.select_intervals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.select_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select telemetry points that occur within the specified <code class="docutils literal notranslate"><span class="pre">intervals</span></code></p>
 <p>This method is the converse of remove_intervals().</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">intervals</span></code> argument can be either a list of (start, stop) tuples
@@ -372,16 +373,16 @@ maneuvers:</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.state_codes">
-<em class="property">property </em><code class="sig-name descname">state_codes</code><a class="headerlink" href="#Ska.engarchive.fetch.MSID.state_codes" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.state_codes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">state_codes</span></span><a class="headerlink" href="#Ska.engarchive.fetch.MSID.state_codes" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of state codes tuples (raw_count, state_code) for state-valued
 MSIDs</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.state_intervals">
-<code class="sig-name descname">state_intervals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.state_intervals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.state_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.state_intervals">
+<span class="sig-name descname"><span class="pre">state_intervals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.state_intervals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.state_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which the MSID value
 is unchanged.</p>
 <p>Returns a structured array table with a row for each interval.
@@ -409,15 +410,15 @@ Columns are:</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.tdb">
-<em class="property">property </em><code class="sig-name descname">tdb</code><a class="headerlink" href="#Ska.engarchive.fetch.MSID.tdb" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.tdb">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tdb</span></span><a class="headerlink" href="#Ska.engarchive.fetch.MSID.tdb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Access the Telemetry database entries for this MSID</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSID.write_zip">
-<code class="sig-name descname">write_zip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">append</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.write_zip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.write_zip" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSID.write_zip">
+<span class="sig-name descname"><span class="pre">write_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSID.write_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSID.write_zip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write MSID to a zip file named <code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
 <p>Within the zip archive the data for this MSID will be stored in csv
 format with the name &lt;msid_name&gt;.csv.</p>
@@ -434,8 +435,8 @@ format with the name &lt;msid_name&gt;.csv.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="Ska.engarchive.fetch.MSIDset">
-<em class="property">class </em><code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">MSIDset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msids</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">'1999:204'</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">MSIDset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1999:204'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.OrderedDict</span></code></p>
 <p>Fetch a set of MSIDs from the engineering telemetry archive.</p>
 <p>Each input <code class="docutils literal notranslate"><span class="pre">msid</span></code> is case-insensitive and can include linux file “glob”
@@ -457,8 +458,8 @@ initial <code class="docutils literal notranslate"><span class="pre">DP_</span><
 </dd>
 </dl>
 <dl class="py class">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID">
-<em class="property">class </em><code class="sig-name descname">MSID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msid</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">'1999:204'</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MSID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1999:204'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Fetch data from the engineering telemetry archive into an MSID object.</p>
 <p>The input <code class="docutils literal notranslate"><span class="pre">msid</span></code> is case-insensitive and can include linux file “glob”
@@ -479,24 +480,14 @@ instance <code class="docutils literal notranslate"><span class="pre">dpa_pow*</
 <dd class="field-even"><p>MSID instance</p>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.dtype">
-<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.dtype" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.fetch">
-<code class="sig-name descname">fetch</code><em class="property"> = &lt;module 'Ska.engarchive.fetch' from '/export/jgonzale/github-workflows/shiny-runner-sot/_work/eng_archive/eng_archive/source/Ska/engarchive/fetch.py'&gt;</em><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.fetch" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;module</span> <span class="pre">'Ska.engarchive.fetch'</span> <span class="pre">from</span> <span class="pre">'/export/jgonzale/github-workflows/shiny-runner-sot/_work/eng_archive/eng_archive/source/Ska/engarchive/fetch.py'&gt;</span></em><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.fetch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.filter_bad">
-<code class="sig-name descname">filter_bad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bads</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.filter_bad" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.filter_bad">
+<span class="sig-name descname"><span class="pre">filter_bad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.filter_bad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out any bad values.</p>
 <p>After applying this method the “bads” column will be set to None to
 indicate that there are no bad values.</p>
@@ -511,8 +502,8 @@ indicate that there are no bad values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.filter_bad_times">
-<code class="sig-name descname">filter_bad_times</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">table</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.filter_bad_times" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.filter_bad_times">
+<span class="sig-name descname"><span class="pre">filter_bad_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.filter_bad_times" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out intervals of bad data in the MSID object.</p>
 <p>There are three usage options:</p>
 <ul class="simple">
@@ -546,8 +537,8 @@ table file, for example:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.interpolate">
-<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.interpolate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform nearest-neighbor interpolation of the MSID to the specified
 time sequence.</p>
 <p>The time sequence steps uniformly by <code class="docutils literal notranslate"><span class="pre">dt</span></code> seconds starting at the
@@ -572,8 +563,8 @@ progression from <code class="docutils literal notranslate"><span class="pre">st
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.iplot">
-<code class="sig-name descname">iplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'-b'</span></em>, <em class="sig-param"><span class="n">fmt_minmax</span><span class="o">=</span><span class="default_value">'-c'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">plot_kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.iplot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.iplot">
+<span class="sig-name descname"><span class="pre">iplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_minmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-c'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.iplot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an interactive plot for exploring the MSID data.</p>
 <p>This method opens a new plot figure (or clears the current figure) and
 plots the MSID <code class="docutils literal notranslate"><span class="pre">vals</span></code> versus <code class="docutils literal notranslate"><span class="pre">times</span></code>.  This plot can be panned or
@@ -612,8 +603,8 @@ commands directed at the same plot figure.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.logical_intervals">
-<code class="sig-name descname">logical_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">op</span></em>, <em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">complete_intervals</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">max_gap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.logical_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.logical_intervals">
+<span class="sig-name descname"><span class="pre">logical_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_intervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.logical_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which the logical comparison
 expression “MSID.vals op val” is True.  Allowed values for <code class="docutils literal notranslate"><span class="pre">op</span></code>
 are:</p>
@@ -659,8 +650,8 @@ Columns are:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the MSID <code class="docutils literal notranslate"><span class="pre">vals</span></code> using Ska.Matplotlib.plot_cxctime()</p>
 <p>This is a convenience function for plotting the MSID values.  It
 is equivalent to:</p>
@@ -676,16 +667,16 @@ additional keyword arguments that are accepted by <code class="docutils literal 
 </div>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.raw_vals">
-<em class="property">property </em><code class="sig-name descname">raw_vals</code><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.raw_vals" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.raw_vals">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">raw_vals</span></span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.raw_vals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw counts corresponding to the string state-code values that are
 stored in <code class="docutils literal notranslate"><span class="pre">self.vals</span></code></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.remove_intervals">
-<code class="sig-name descname">remove_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intervals</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.remove_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.remove_intervals">
+<span class="sig-name descname"><span class="pre">remove_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.remove_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove telemetry points that occur within the specified <code class="docutils literal notranslate"><span class="pre">intervals</span></code></p>
 <p>This method is the converse of select_intervals().</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">intervals</span></code> argument can be either a list of (start, stop) tuples
@@ -722,8 +713,8 @@ rates during maneuvers:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.select_intervals">
-<code class="sig-name descname">select_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intervals</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.select_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.select_intervals">
+<span class="sig-name descname"><span class="pre">select_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.select_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select telemetry points that occur within the specified <code class="docutils literal notranslate"><span class="pre">intervals</span></code></p>
 <p>This method is the converse of remove_intervals().</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">intervals</span></code> argument can be either a list of (start, stop) tuples
@@ -759,16 +750,16 @@ maneuvers:</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.state_codes">
-<em class="property">property </em><code class="sig-name descname">state_codes</code><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.state_codes" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.state_codes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">state_codes</span></span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.state_codes" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of state codes tuples (raw_count, state_code) for state-valued
 MSIDs</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.state_intervals">
-<code class="sig-name descname">state_intervals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.state_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.state_intervals">
+<span class="sig-name descname"><span class="pre">state_intervals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.state_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which the MSID value
 is unchanged.</p>
 <p>Returns a structured array table with a row for each interval.
@@ -796,15 +787,15 @@ Columns are:</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.tdb">
-<em class="property">property </em><code class="sig-name descname">tdb</code><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.tdb" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.tdb">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tdb</span></span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.tdb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Access the Telemetry database entries for this MSID</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.MSID.write_zip">
-<code class="sig-name descname">write_zip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">append</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.write_zip" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.MSID.write_zip">
+<span class="sig-name descname"><span class="pre">write_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.MSID.write_zip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write MSID to a zip file named <code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
 <p>Within the zip archive the data for this MSID will be stored in csv
 format with the name &lt;msid_name&gt;.csv.</p>
@@ -821,13 +812,13 @@ format with the name &lt;msid_name&gt;.csv.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a shallow copy of od<a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.copy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">od</span></span></span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.filter_bad">
-<code class="sig-name descname">filter_bad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.filter_bad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.filter_bad" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.filter_bad">
+<span class="sig-name descname"><span class="pre">filter_bad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.filter_bad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.filter_bad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter bad values for the MSID set.</p>
 <p>This function applies the union (logical-OR) of bad value masks for all
 MSIDs in the set with the same content type.  The result is that the
@@ -860,8 +851,8 @@ the individual MSID.filter_bad() function for each MSID in the set:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.filter_bad_times">
-<code class="sig-name descname">filter_bad_times</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">table</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.filter_bad_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.filter_bad_times" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.filter_bad_times">
+<span class="sig-name descname"><span class="pre">filter_bad_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.filter_bad_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.filter_bad_times" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out intervals of bad data in the MSIDset object.</p>
 <p>There are three usage options:</p>
 <ul class="simple">
@@ -896,8 +887,8 @@ table file, for example:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.interpolate">
-<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_bad</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bad_union</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.interpolate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad_union</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform nearest-neighbor interpolation of all MSID values in the set
 to a common time sequence.  The values are updated in-place.</p>
 <p><strong>Times</strong></p>
@@ -948,8 +939,8 @@ safer option.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.MSIDset.write_zip">
-<code class="sig-name descname">write_zip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.write_zip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.write_zip" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.write_zip">
+<span class="sig-name descname"><span class="pre">write_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.write_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.write_zip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write MSIDset to a zip file named <code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
 <p>Within the zip archive the data for each MSID in the set will be stored
 in csv format with the name &lt;msid_name&gt;.csv.</p>
@@ -963,8 +954,8 @@ in csv format with the name &lt;msid_name&gt;.csv.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="Ska.engarchive.fetch.Msid">
-<em class="property">class </em><code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">Msid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msid</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">'1999:204'</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_bad</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#Msid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.Msid" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msid">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">Msid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1999:204'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#Msid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.Msid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#Ska.engarchive.fetch.MSID" title="Ska.engarchive.fetch.MSID"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ska.engarchive.fetch.MSID</span></code></a></p>
 <p>Fetch data from the engineering telemetry archive into an MSID object.
 Same as MSID class but with filter_bad=True by default.</p>
@@ -986,8 +977,8 @@ Same as MSID class but with filter_bad=True by default.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="Ska.engarchive.fetch.Msidset">
-<em class="property">class </em><code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">Msidset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msids</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">'1999:204'</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_bad</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#Msidset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.Msidset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">Msidset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1999:204'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#Msidset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.Msidset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#Ska.engarchive.fetch.MSIDset" title="Ska.engarchive.fetch.MSIDset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ska.engarchive.fetch.MSIDset</span></code></a></p>
 <p>Fetch a set of MSIDs from the engineering telemetry archive.
 Same as MSIDset class but with filter_bad=True by default.</p>
@@ -1007,8 +998,8 @@ Same as MSIDset class but with filter_bad=True by default.</p>
 </dd>
 </dl>
 <dl class="py class">
-<dt id="Ska.engarchive.fetch.Msidset.MSID">
-<em class="property">class </em><code class="sig-name descname">MSID</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msid</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">'1999:204'</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MSID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1999:204'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Fetch data from the engineering telemetry archive into an MSID object.</p>
 <p>The input <code class="docutils literal notranslate"><span class="pre">msid</span></code> is case-insensitive and can include linux file “glob”
@@ -1029,24 +1020,14 @@ instance <code class="docutils literal notranslate"><span class="pre">dpa_pow*</
 <dd class="field-even"><p>MSID instance</p>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.dtype">
-<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.dtype" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.fetch">
-<code class="sig-name descname">fetch</code><em class="property"> = &lt;module 'Ska.engarchive.fetch' from '/export/jgonzale/github-workflows/shiny-runner-sot/_work/eng_archive/eng_archive/source/Ska/engarchive/fetch.py'&gt;</em><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.fetch" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;module</span> <span class="pre">'Ska.engarchive.fetch'</span> <span class="pre">from</span> <span class="pre">'/export/jgonzale/github-workflows/shiny-runner-sot/_work/eng_archive/eng_archive/source/Ska/engarchive/fetch.py'&gt;</span></em><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.fetch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.filter_bad">
-<code class="sig-name descname">filter_bad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bads</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.filter_bad" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.filter_bad">
+<span class="sig-name descname"><span class="pre">filter_bad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.filter_bad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out any bad values.</p>
 <p>After applying this method the “bads” column will be set to None to
 indicate that there are no bad values.</p>
@@ -1061,8 +1042,8 @@ indicate that there are no bad values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.filter_bad_times">
-<code class="sig-name descname">filter_bad_times</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">table</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.filter_bad_times" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.filter_bad_times">
+<span class="sig-name descname"><span class="pre">filter_bad_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.filter_bad_times" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out intervals of bad data in the MSID object.</p>
 <p>There are three usage options:</p>
 <ul class="simple">
@@ -1096,8 +1077,8 @@ table file, for example:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.interpolate">
-<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.interpolate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform nearest-neighbor interpolation of the MSID to the specified
 time sequence.</p>
 <p>The time sequence steps uniformly by <code class="docutils literal notranslate"><span class="pre">dt</span></code> seconds starting at the
@@ -1122,8 +1103,8 @@ progression from <code class="docutils literal notranslate"><span class="pre">st
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.iplot">
-<code class="sig-name descname">iplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'-b'</span></em>, <em class="sig-param"><span class="n">fmt_minmax</span><span class="o">=</span><span class="default_value">'-c'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">plot_kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.iplot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.iplot">
+<span class="sig-name descname"><span class="pre">iplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_minmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-c'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.iplot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an interactive plot for exploring the MSID data.</p>
 <p>This method opens a new plot figure (or clears the current figure) and
 plots the MSID <code class="docutils literal notranslate"><span class="pre">vals</span></code> versus <code class="docutils literal notranslate"><span class="pre">times</span></code>.  This plot can be panned or
@@ -1162,8 +1143,8 @@ commands directed at the same plot figure.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.logical_intervals">
-<code class="sig-name descname">logical_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">op</span></em>, <em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">complete_intervals</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">max_gap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.logical_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.logical_intervals">
+<span class="sig-name descname"><span class="pre">logical_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_intervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.logical_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which the logical comparison
 expression “MSID.vals op val” is True.  Allowed values for <code class="docutils literal notranslate"><span class="pre">op</span></code>
 are:</p>
@@ -1209,8 +1190,8 @@ Columns are:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the MSID <code class="docutils literal notranslate"><span class="pre">vals</span></code> using Ska.Matplotlib.plot_cxctime()</p>
 <p>This is a convenience function for plotting the MSID values.  It
 is equivalent to:</p>
@@ -1226,16 +1207,16 @@ additional keyword arguments that are accepted by <code class="docutils literal 
 </div>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.raw_vals">
-<em class="property">property </em><code class="sig-name descname">raw_vals</code><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.raw_vals" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.raw_vals">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">raw_vals</span></span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.raw_vals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw counts corresponding to the string state-code values that are
 stored in <code class="docutils literal notranslate"><span class="pre">self.vals</span></code></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.remove_intervals">
-<code class="sig-name descname">remove_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intervals</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.remove_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.remove_intervals">
+<span class="sig-name descname"><span class="pre">remove_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.remove_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove telemetry points that occur within the specified <code class="docutils literal notranslate"><span class="pre">intervals</span></code></p>
 <p>This method is the converse of select_intervals().</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">intervals</span></code> argument can be either a list of (start, stop) tuples
@@ -1272,8 +1253,8 @@ rates during maneuvers:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.select_intervals">
-<code class="sig-name descname">select_intervals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intervals</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.select_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.select_intervals">
+<span class="sig-name descname"><span class="pre">select_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.select_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select telemetry points that occur within the specified <code class="docutils literal notranslate"><span class="pre">intervals</span></code></p>
 <p>This method is the converse of remove_intervals().</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">intervals</span></code> argument can be either a list of (start, stop) tuples
@@ -1309,16 +1290,16 @@ maneuvers:</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.state_codes">
-<em class="property">property </em><code class="sig-name descname">state_codes</code><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.state_codes" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.state_codes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">state_codes</span></span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.state_codes" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of state codes tuples (raw_count, state_code) for state-valued
 MSIDs</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.state_intervals">
-<code class="sig-name descname">state_intervals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.state_intervals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.state_intervals">
+<span class="sig-name descname"><span class="pre">state_intervals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.state_intervals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine contiguous intervals during which the MSID value
 is unchanged.</p>
 <p>Returns a structured array table with a row for each interval.
@@ -1346,15 +1327,15 @@ Columns are:</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.tdb">
-<em class="property">property </em><code class="sig-name descname">tdb</code><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.tdb" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.tdb">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tdb</span></span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.tdb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Access the Telemetry database entries for this MSID</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.engarchive.fetch.Msidset.MSID.write_zip">
-<code class="sig-name descname">write_zip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">append</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.write_zip" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.Msidset.MSID.write_zip">
+<span class="sig-name descname"><span class="pre">write_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ska.engarchive.fetch.Msidset.MSID.write_zip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write MSID to a zip file named <code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
 <p>Within the zip archive the data for this MSID will be stored in csv
 format with the name &lt;msid_name&gt;.csv.</p>
@@ -1372,12 +1353,12 @@ format with the name &lt;msid_name&gt;.csv.</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="functions">
+</section>
+<section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="Ska.engarchive.fetch.get_telem">
-<code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">get_telem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msids</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sampling</span><span class="o">=</span><span class="default_value">'full'</span></em>, <em class="sig-param"><span class="n">unit_system</span><span class="o">=</span><span class="default_value">'eng'</span></em>, <em class="sig-param"><span class="n">interpolate_dt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">remove_events</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">select_events</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">time_format</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">outfile</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">quiet</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">max_fetch_Mb</span><span class="o">=</span><span class="default_value">1000</span></em>, <em class="sig-param"><span class="n">max_output_Mb</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#get_telem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.get_telem" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.get_telem">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">get_telem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fetch_Mb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_output_Mb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#get_telem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.get_telem" title="Permalink to this definition">¶</a></dt>
 <dd><p>High-level routine to get telemetry for one or more MSIDs and perform
 common processing functions:</p>
 <blockquote>
@@ -1417,8 +1398,8 @@ convenient like GRETA time.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.fetch.get_time_range">
-<code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">get_time_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msid</span></em>, <em class="sig-param"><span class="n">format</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#get_time_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.get_time_range" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.get_time_range">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">get_time_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#get_time_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.get_time_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the time range for the given <code class="docutils literal notranslate"><span class="pre">msid</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1434,14 +1415,14 @@ convenient like GRETA time.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.fetch.get_units">
-<code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">get_units</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#get_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.get_units" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.get_units">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">get_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#get_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.get_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the unit system currently being used for conversions.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.fetch.msid_glob">
-<code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">msid_glob</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msid</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#msid_glob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.msid_glob" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.msid_glob">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">msid_glob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#msid_glob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.msid_glob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the archive MSIDs matching <code class="docutils literal notranslate"><span class="pre">msid</span></code>.</p>
 <p>The function returns a tuple of (msids, MSIDs) where <code class="docutils literal notranslate"><span class="pre">msids</span></code> is a list of
 MSIDs that is all lower case and (where possible) matches the input
@@ -1458,8 +1439,8 @@ exact MSID names stored in the archive HDF5 files.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.fetch.read_bad_times">
-<code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">read_bad_times</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">table</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#read_bad_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.read_bad_times" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.read_bad_times">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">read_bad_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#read_bad_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.read_bad_times" title="Permalink to this definition">¶</a></dt>
 <dd><p>Include a list of bad times from <code class="docutils literal notranslate"><span class="pre">table</span></code> in the fetch module
 <code class="docutils literal notranslate"><span class="pre">bad_times</span></code> registry.  This routine can be called multiple times with
 different tables and the bad times will be appended to the registry.  The
@@ -1475,8 +1456,8 @@ character are ignored.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="Ska.engarchive.fetch.set_units">
-<code class="sig-prename descclassname">Ska.engarchive.fetch.</code><code class="sig-name descname">set_units</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unit_system</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#set_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.engarchive.fetch.set_units" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Ska.engarchive.fetch.set_units">
+<span class="sig-prename descclassname"><span class="pre">Ska.engarchive.fetch.</span></span><span class="sig-name descname"><span class="pre">set_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#set_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.set_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the unit system used for output telemetry values.  The default
 is “cxc”.  Allowed values for <code class="docutils literal notranslate"><span class="pre">unit_system</span></code>  are:</p>
 <table class="docutils align-default">
@@ -1503,8 +1484,8 @@ is “cxc”.  Allowed values for <code class="docutils literal notranslate"><sp
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="time-and-date-formats">
+</section>
+<section id="time-and-date-formats">
 <h2>Time and Date formats<a class="headerlink" href="#time-and-date-formats" title="Permalink to this headline">¶</a></h2>
 <p>The Ska engineering telemetry archive tools support a wide
 range of formats for representing date-time stamps.  Note that within this and
@@ -1568,8 +1549,8 @@ is implied.</p>
 <p>The default time “System” for the different formats is either <code class="docutils literal notranslate"><span class="pre">tt</span></code>
 (Terrestrial Time) or <code class="docutils literal notranslate"><span class="pre">utc</span></code> (UTC).  Since TT differs from UTC by around 64
 seconds it is important to be consistent in specifying the time format.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -1611,7 +1592,7 @@ seconds it is important to be consistent in specifying the time format.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>

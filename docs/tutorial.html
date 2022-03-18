@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska Analysis Tutorial &#8212; Eng archive 4.54.1 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Ska Analysis Tutorial &#8212; Eng archive 4.55.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -60,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.54.1 documentation</a>
+	<a href="index.html">Eng archive 4.55.0 documentation</a>
 	 &#187;
       </li>
       
@@ -74,9 +75,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="ska-analysis-tutorial">
+  <section id="ska-analysis-tutorial">
 <h1>Ska Analysis Tutorial<a class="headerlink" href="#ska-analysis-tutorial" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
+<section id="id1">
 <h2>Overview<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>This document gives a tutorial introduction to analysis using the Ska analysis
 environment, including basic configuration and a number
@@ -96,13 +97,13 @@ telemetry archive.</p>
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="configure">
+</section>
+<section id="configure">
 <h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
 <p>To set up for using the Ska3 environment, visit the <a class="reference external" href="https://github.com/sot/skare3/wiki/Ska3-runtime-environment-for-users#configuration-hints">Ska3 configuration hints</a>
 page.</p>
-</div>
-<div class="section" id="basic-functionality-test">
+</section>
+<section id="basic-functionality-test">
 <h2>Basic Functionality Test<a class="headerlink" href="#basic-functionality-test" title="Permalink to this headline">¶</a></h2>
 <p>Once you have done the configuration setup that was just described, open a new
 xterm window and get into the Ska3 environment by use the <code class="docutils literal notranslate"><span class="pre">ska3</span></code> alias:</p>
@@ -117,9 +118,9 @@ not include the “% ” when copying the examples.:</p>
 </pre></div>
 </div>
 <p>You should see something that looks like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="mf">3.8</span><span class="o">.</span><span class="mi">3</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Jul</span>  <span class="mi">2</span> <span class="mi">2020</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">31</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="mf">3.8.3</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Jul</span>  <span class="mi">2</span> <span class="mi">2020</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">31</span><span class="p">)</span>
 <span class="n">Type</span> <span class="s1">&#39;copyright&#39;</span><span class="p">,</span> <span class="s1">&#39;credits&#39;</span> <span class="ow">or</span> <span class="s1">&#39;license&#39;</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span>
-<span class="n">IPython</span> <span class="mf">7.16</span><span class="o">.</span><span class="mi">1</span> <span class="o">--</span> <span class="n">An</span> <span class="n">enhanced</span> <span class="n">Interactive</span> <span class="n">Python</span><span class="o">.</span> <span class="n">Type</span> <span class="s1">&#39;?&#39;</span> <span class="k">for</span> <span class="n">help</span><span class="o">.</span>
+<span class="n">IPython</span> <span class="mf">7.16.1</span> <span class="o">--</span> <span class="n">An</span> <span class="n">enhanced</span> <span class="n">Interactive</span> <span class="n">Python</span><span class="o">.</span> <span class="n">Type</span> <span class="s1">&#39;?&#39;</span> <span class="k">for</span> <span class="n">help</span><span class="o">.</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
 </pre></div>
@@ -133,8 +134,8 @@ not include the “% ” when copying the examples.:</p>
 </div>
 <p>You should get a figure like:</p>
 <img alt="_images/basic_func.png" src="_images/basic_func.png" />
-</div>
-<div class="section" id="tools-overview">
+</section>
+<section id="tools-overview">
 <h2>Tools overview<a class="headerlink" href="#tools-overview" title="Permalink to this headline">¶</a></h2>
 <p>There are four key elements that are the basis for doing plotting and analysis
 with the engineering archive.</p>
@@ -144,12 +145,12 @@ with the engineering archive.</p>
 <li><p><a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>: python plotting package with an interface similar to Matlab</p></li>
 <li><p><a class="reference external" href="http://numpy.scipy.org/">NumPy</a>: python numerical package for fast vector and array math</p></li>
 </ul>
-<div class="section" id="ska-engarchive-fetch">
+<section id="ska-engarchive-fetch">
 <h3>Ska.engarchive.fetch<a class="headerlink" href="#ska-engarchive-fetch" title="Permalink to this headline">¶</a></h3>
 <p>The tools to access and manipulate telemetry with the Ska engineering archive
 are described in the <a class="reference internal" href="fetch_tutorial.html"><span class="doc">Fetch Tutorial</span></a>.</p>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h3>IPython<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="http://ipython.scipy.org/moin/">IPython</a> is a command-line tool that provides a python prompt
 that is the basis for interactive analysis.  At the core it provides
@@ -273,8 +274,8 @@ it is a billion elements long.  Numpy will only print an abbreviated version if
 it is too long.  But beware that this applies to Numpy arrays which as we’ll
 see are a special version of generic python lists.  If you print a
 billion-element python list you’ll be waiting for a while.</p>
-</div>
-<div class="section" id="id3">
+</section>
+<section id="id3">
 <h3>NumPy<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>Even though it was not explicit we have already been using <a class="reference external" href="http://numpy.scipy.org/">NumPy</a> arrays in
 the examples so far.  NumPy is a Python library for working with
@@ -354,8 +355,8 @@ as “&gt;&gt;&gt;” in order to distinguish the input from the outputs.</p>
 <span class="go">       [ 1,  1,  1,  1]])</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id4">
+</section>
+<section id="id4">
 <h3>Matplotlib<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> mode of <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> is a collection of command style functions
 that make <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>  work like matlab.  Each <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> function makes
@@ -395,7 +396,7 @@ you can issue the command:</p>
 which is the format string that indicates the color and line type of
 the plot.  The letters and symbols of the format string are from
 matlab, and you concatenate a color string with a line style string.
-The default format string is ‘b-‘, which is a solid blue line.  For
+The default format string is ‘b-’, which is a solid blue line.  For
 example, to plot the above with red circles, you would issue:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">16</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">)</span>
@@ -501,7 +502,7 @@ for a more detailed example):</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Smarts&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Probability&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Histogram of IQ&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="o">.</span><span class="mi">025</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mu=100,\ \sigma=15$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">.025</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mu=100,\ \sigma=15$&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -545,9 +546,9 @@ these arguments are <code class="docutils literal notranslate"><span class="pre"
 <img alt="_images/pyplot_annotate.png" src="_images/pyplot_annotate.png" />
 <p>In this basic example, both the <code class="docutils literal notranslate"><span class="pre">xy</span></code> (arrow tip) and <code class="docutils literal notranslate"><span class="pre">xytext</span></code>
 locations (text location) are in data coordinates.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -596,7 +597,7 @@ locations (text location) are in data coordinates.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>

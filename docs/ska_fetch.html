@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command-line fetch &#8212; Eng archive 4.54.1 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Command-line fetch &#8212; Eng archive 4.55.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -60,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.54.1 documentation</a>
+	<a href="index.html">Eng archive 4.55.0 documentation</a>
 	 &#187;
       </li>
       
@@ -74,7 +75,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="command-line-fetch">
+  <section id="command-line-fetch">
 <h1>Command-line fetch<a class="headerlink" href="#command-line-fetch" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">fetch_ska</span></code> application allows use of the Ska engineering archive
 without getting into Python or using any scripting.  From a single command
@@ -92,7 +93,7 @@ convenient like GRETA time.</p></li>
 </ul>
 <p>Aside from the first two steps (fetching data and filtering bad data), all the steps are
 optional.</p>
-<div class="section" id="getting-started">
+<section id="getting-started">
 <h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <p>The very first thing is to get set up to use the Ska environment following the
 instructions in the <a class="reference external" href="tutorial.html#configure">Ska Analysis Tutorial</a>.  Assuming that is
@@ -104,7 +105,7 @@ alias:</p>
 <p>(In case you don’t use linux frequently, the <code class="docutils literal notranslate"><span class="pre">%</span></code> is meant to represent the command
 prompt, so don’t type that).  After doing <code class="docutils literal notranslate"><span class="pre">ska</span></code> you should see your prompt change to
 include a <code class="docutils literal notranslate"><span class="pre">ska-</span></code> prefix.</p>
-<div class="section" id="getting-help">
+<section id="getting-help">
 <h3>Getting help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h3>
 <p>You can get help by asking <code class="docutils literal notranslate"><span class="pre">ska_fetch</span></code> to print its command line options:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="o">--</span><span class="n">help</span>
@@ -162,8 +163,8 @@ include a <code class="docutils literal notranslate"><span class="pre">ska-</spa
                         <span class="n">Max</span> <span class="n">allowed</span> <span class="n">memory</span> <span class="p">(</span><span class="n">Mb</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="n">output</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="try-it-out">
+</section>
+<section id="try-it-out">
 <h3>Try it out<a class="headerlink" href="#try-it-out" title="Permalink to this headline">¶</a></h3>
 <p>There are plenty of options but frequently you’ll only need a few.  Let’s start by
 trying the first example provided in the help output:</p>
@@ -230,14 +231,14 @@ column represents the telemetered value at exactly the midpoint of the interval.
 code MSID and so there is no useful meaning for a mean or max.  The final <code class="docutils literal notranslate"><span class="pre">raw_vals</span></code>
 column is the raw telemetered value, while <code class="docutils literal notranslate"><span class="pre">vals</span></code> has been translated into the
 corresponding state code string.</p>
-</div>
-</div>
-<div class="section" id="details">
+</section>
+</section>
+<section id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>There are many options controlling <code class="docutils literal notranslate"><span class="pre">fetch_ska</span></code>, but they can be broken down
 into manageable subsets as in the following sections.  This will include detailed
 discussion of how to use each of the options.</p>
-<div class="section" id="desired-telemetry">
+<section id="desired-telemetry">
 <h3>Desired telemetry<a class="headerlink" href="#desired-telemetry" title="Permalink to this headline">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
@@ -278,8 +279,8 @@ or the 5-minute or daily summary statistic values.  The default is <code class="
 <p>The <code class="docutils literal notranslate"><span class="pre">--unit_system</span></code> argument selects the output unit system.  The choices are engineering
 units (i.e. what is in the TDB and GRETA), science units (mostly just temperatures in C
 instead of F), or CXC units (whatever is in CXC decom, which e.g. has temperatures in K).</p>
-</div>
-<div class="section" id="interpolation">
+</section>
+<section id="interpolation">
 <h3>Interpolation<a class="headerlink" href="#interpolation" title="Permalink to this headline">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
@@ -304,8 +305,8 @@ can compare them, plot one against the other, and so forth.  You can see the
 a common time sequence then set <code class="docutils literal notranslate"><span class="pre">interpolate_dt</span></code> to the desired time step
 in seconds.  When interpolating <code class="docutils literal notranslate"><span class="pre">ska_fetch</span></code> uses <code class="docutils literal notranslate"><span class="pre">filter_bad=True</span></code> and
 <code class="docutils literal notranslate"><span class="pre">union_bad=True</span></code> (as described in <a class="reference internal" href="#interpolation">Interpolation</a>).</p>
-</div>
-<div class="section" id="intervals">
+</section>
+<section id="intervals">
 <h3>Intervals<a class="headerlink" href="#intervals" title="Permalink to this headline">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
@@ -355,8 +356,8 @@ removing known LTT bad times:</p>
 to <code class="docutils literal notranslate"><span class="pre">AIRU2BT</span></code>.  See the
 <a class="reference external" href="http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#ltt-bad-times">LTT bad times</a>
 section for more details.</p>
-</div>
-<div class="section" id="output">
+</section>
+<section id="output">
 <h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
@@ -384,8 +385,8 @@ option for FOT analysis will be <code class="docutils literal notranslate"><span
 <p>The MSID set will always be written out as a compressed zip archive with the given name
 (or <code class="docutils literal notranslate"><span class="pre">fetch.zip</span></code> if not provided).  This archive will contain one or more CSV files
 corresponding to the MSIDs in the set.</p>
-</div>
-<div class="section" id="process-control">
+</section>
+<section id="process-control">
 <h3>Process control<a class="headerlink" href="#process-control" title="Permalink to this headline">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
@@ -433,9 +434,9 @@ aforementioned gyro counts query:</p>
 </div>
 <p>Both of the defaults here are relatively conservative, and with experience you can set
 larger values.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -487,7 +488,7 @@ larger values.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>
