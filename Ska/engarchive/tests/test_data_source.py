@@ -74,18 +74,34 @@ def test_maude_data_source():
         datm = fetch.Msid('aogyrct1', date1, date3)
         assert np.all(datm.vals == datc.vals)
         assert not np.all(datm.times == datc.times)
-        assert datm.data_source == {'maude': {'start': '2016:001:00:00:00.287',
-                                              'stop': '2016:001:00:00:04.900',
-                                              'flags': {'tolerance': False, 'subset': False}}}
+        assert datm.data_source == {'maude': {
+            'start': '2016:001:00:00:00.287',
+            'stop': '2016:001:00:00:04.900',
+            'flags': {
+                'allpoints_incomplete': False,
+                'tolerance': False,
+                'subset': False
+            }
+        }}
 
     with fetch.data_source('cxc', 'maude', 'test-drop-half'):
         datcm = fetch.Msid('aogyrct1', date1, date3)
         assert np.all(datcm.vals == datc.vals)
-        assert datcm.data_source == {'cxc': {'start': '2016:001:00:00:00.287',
-                                             'stop': '2016:001:00:00:02.337'},
-                                     'maude': {'start': '2016:001:00:00:02.593',
-                                               'stop': '2016:001:00:00:04.900',
-                                               'flags': {'tolerance': False, 'subset': False}}}
+        assert datcm.data_source == {
+            'cxc': {
+                'start': '2016:001:00:00:00.287',
+                'stop': '2016:001:00:00:02.337'
+            },
+            'maude': {
+                'start': '2016:001:00:00:02.593',
+                'stop': '2016:001:00:00:04.900',
+                'flags': {
+                    'allpoints_incomplete': False,
+                    'tolerance': False,
+                    'subset': False
+                }
+            }
+        }
 
 
 @pytest.mark.skipif("not HAS_MAUDE")
@@ -168,4 +184,8 @@ def test_zero_length_fetch_maude():
     """Zero length fetch gives a data source with empty dict"""
     with fetch.data_source('maude'):
         dat = fetch.Msid('tephin', '2015:001', '2015:001')
-    assert dat.data_source == {'maude': {'flags': {'tolerance': False, 'subset': False}}}
+    assert dat.data_source == {
+        'maude': {
+            'flags': {'allpoints_incomplete': False, 'tolerance': False, 'subset': False}
+        }
+    }
