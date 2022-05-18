@@ -158,8 +158,8 @@ def test_mups_valve():
 
     # Check using default master branch
     dat = fetch_eng.Msid('pm1thv2t_clean', '2020:001:12:00:00', '2020:010:12:00:00')
-    assert len(dat.vals) == 36240  # Some bad values
-    assert len(dat.source) == 36240  # Filtering applies to sources
+    assert len(dat.vals) < 36661  # Some bad values (36661 is number of raw samples)
+    assert len(dat.source) == len(dat.vals)  # Filtering applies to sources
     assert dat.colnames == colnames
     for attr in colnames:
         if attr != 'bads':
