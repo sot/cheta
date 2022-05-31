@@ -8,6 +8,7 @@ import pytest
 from .. import fetch
 from .. import fetch_eng
 from Chandra.Time import DateTime
+from cxotime import CxoTime
 
 print(fetch.__file__)
 
@@ -156,15 +157,20 @@ def test_filter_bad_times_default_copy():
 def test_fetch_derived_param_aliases(msid, sources):
     cxc_tstop = fetch.get_time_range('dp_pitch_fss', 'secs')[1]
     with fetch.data_source(*sources):
-        # Get data from 2 days to present to ensure MAUDE is queried
-        dt = 200  # seconds
+        # Get data from +/- 1 day from end of CXC data
+        dt = 86400  # seconds
         d1 = fetch.Msid('piTch_fss', cxc_tstop - dt, cxc_tstop + dt)
         d2 = fetch.Msid(msid, cxc_tstop - dt, cxc_tstop + dt)
     assert d2.msid == msid  # version as the user provide
     assert d2.MSID == d1.MSID  # normalized version for accessing databases
     assert np.all(d1.times == d2.times)
     assert np.all(d1.vals == d2.vals)
-    assert len(d1) > 0
+    if len(d1) == 0:
+        msg = (f'No data found for cxo_tstop={CxoTime(cxc_tstop).date} {dt=}'
+               f' {sources=} {msid=} '
+               f'{CxoTime(cxc_tstop - dt).date=} '
+               f'{CxoTime(cxc_tstop + dt).date=}')
+        raise AssertionError(msg)
 
 
 def test_interpolate():
