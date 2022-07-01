@@ -3,6 +3,7 @@
 """Test that computed MSIDs work as expected."""
 
 import numpy as np
+from Quaternion import Quat
 import pytest
 
 from .. import fetch_eng, fetch_sci, fetch as fetch_cxc
@@ -202,3 +203,27 @@ def test_stats(stat):
             assert np.allclose(val, valc)
         else:
             assert np.all(val == valc)
+
+
+@pytest.mark.parametrize('msid', ['aoattqt', 'aoatupq', 'aocmdqt', 'aotarqt'])
+def test_quat_comp(msid):
+    start, stop = '2022:002', '2022:003'
+    datq = fetch_eng.MSID(f'quat_{msid}', start, stop)
+    dats = fetch_eng.MSIDset([f'{msid}*'], start, stop)
+    n_comp = len(dats)
+    for ii in range(n_comp):
+        vq = datq.vals.q[:, ii]
+        vn = dats[f'{msid}{ii + 1}'].vals
+        # Code handles q1**2 + q2**2 + q3**2 > 1 by clipping the norm and renormalizing
+        # the quaternion. This generates a significant difference for the cmd quat.
+        ok = np.isclose(vq, vn, rtol=0, atol=(1e-4 if msid == 'aocmdqt' else 1e-8))
+        assert np.all(ok)
+    assert isinstance(datq.vals, Quat)
+
+
+@pytest.mark.parametrize('msid', ['aoattqt', 'aoatupq', 'aocmdqt', 'aotarqt'])
+def test_quat_comp_exception(msid):
+    start, stop = '2022:002', '2022:003'
+    with pytest.raises(ValueError, match=f'quat_{msid} is not available from MAUDE'):
+        with fetch_eng.data_source('maude'):
+            fetch_eng.MSID(f'quat_{msid}', start, stop)
