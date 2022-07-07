@@ -155,7 +155,7 @@ def test_filter_bad_times_default_copy():
 @pytest.mark.parametrize('msid', ['DP_piTch_css', 'Calc_pitCH_css'])
 @pytest.mark.parametrize('sources', (('cxc',), ('maude',), ('cxc', 'maude')))
 def test_fetch_derived_param_aliases(msid, sources):
-    cxc_tstop = fetch.get_time_range('dp_pitch', 'secs')[1]
+    cxc_tstop = fetch.get_time_range('dp_pitch_css', 'secs')[1]
     dt = 2000  # seconds
     msg = (f'{CxoTime(cxc_tstop).date=} {dt=}\n'
            f'{CxoTime(cxc_tstop - dt).date=}\n'
@@ -166,8 +166,8 @@ def test_fetch_derived_param_aliases(msid, sources):
     print(msg)  # stdout gets reported for test failures
     with fetch.data_source(*sources):
         # Get data within `dt` secs of end of CXC data
-        d1 = fetch.Msid('piTCh_css', cxc_tstop - dt, cxc_tstop + dt)
-        d2 = fetch.Msid(msid, cxc_tstop - dt, cxc_tstop + dt)
+        d1 = fetch.MSID('piTCh_css', cxc_tstop - dt, cxc_tstop + dt)
+        d2 = fetch.MSID(msid, cxc_tstop - dt, cxc_tstop + dt)
     assert d2.msid == msid  # version as the user provide
     assert d2.MSID == d1.MSID  # normalized version for accessing databases
     assert np.all(d1.times == d2.times)
