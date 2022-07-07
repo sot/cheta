@@ -152,25 +152,27 @@ def test_filter_bad_times_default_copy():
     assert np.all(dates == DATES_EXPECT2)
 
 
-@pytest.mark.parametrize('msid', ['DP_piTch_fss', 'Calc_pitCH_fss'])
+@pytest.mark.parametrize('msid', ['DP_piTch_css', 'Calc_pitCH_css'])
 @pytest.mark.parametrize('sources', (('cxc',), ('maude',), ('cxc', 'maude')))
 def test_fetch_derived_param_aliases(msid, sources):
-    cxc_tstop = fetch.get_time_range('dp_pitch_fss', 'secs')[1]
+    cxc_tstop = fetch.get_time_range('dp_pitch_css', 'secs')[1]
+    dt = 2000  # seconds
+    msg = (f'{CxoTime(cxc_tstop).date=} {dt=}\n'
+           f'{CxoTime(cxc_tstop - dt).date=}\n'
+           f'{CxoTime(cxc_tstop + dt).date=}\n'
+           f'{CxoTime.now().date=}\n'
+           f'{CxoTime.now().iso=}\n'
+           f'{sources=} {msid=}')
+    print(msg)  # stdout gets reported for test failures
     with fetch.data_source(*sources):
-        # Get data from +/- 1 day from end of CXC data
-        dt = 86400  # seconds
-        d1 = fetch.Msid('piTch_fss', cxc_tstop - dt, cxc_tstop + dt)
-        d2 = fetch.Msid(msid, cxc_tstop - dt, cxc_tstop + dt)
+        # Get data within `dt` secs of end of CXC data
+        d1 = fetch.MSID('piTCh_css', cxc_tstop - dt, cxc_tstop + dt)
+        d2 = fetch.MSID(msid, cxc_tstop - dt, cxc_tstop + dt)
     assert d2.msid == msid  # version as the user provide
     assert d2.MSID == d1.MSID  # normalized version for accessing databases
     assert np.all(d1.times == d2.times)
     assert np.all(d1.vals == d2.vals)
-    if len(d1) == 0:
-        msg = (f'No data found for cxo_tstop={CxoTime(cxc_tstop).date} {dt=}'
-               f' {sources=} {msid=} '
-               f'{CxoTime(cxc_tstop - dt).date=} '
-               f'{CxoTime(cxc_tstop + dt).date=}')
-        raise AssertionError(msg)
+    assert len(d1) > 0
 
 
 def test_interpolate():
