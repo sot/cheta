@@ -1482,12 +1482,15 @@ class MSIDset(collections.OrderedDict):
     def copy(self):
         return self.__deepcopy__()
 
-    def filter_bad(self, copy=False):
+    def filter_bad(self, copy=False, union=False):
         """Filter bad values for the MSID set.
 
-        This function applies the union (logical-OR) of bad value masks for all
-        MSIDs in the set with the same content type.  The result is that the
-        filtered MSID samples are valid for *all* MSIDs within the
+        By default (``union=False``) the bad values are filtered individually for
+        each MSID.
+
+        If ``union=True`` this method applies the union (logical-OR) of bad value
+        masks for all MSIDs in the set with the same content type.  The result
+        is that the filtered MSID samples are valid for *all* MSIDs within the
         content type and the arrays all match up.
 
         For example::
@@ -1513,6 +1516,15 @@ class MSIDset(collections.OrderedDict):
         """
         obj = self.copy() if copy else self
 
+        if not union:
+            # Filter bad values individually for each MSID
+            for msid in obj.values():
+                msid.filter_bad()
+            # Maintain existing function API to return None for copy=False
+            return obj if copy else None
+
+        # Union of bad value masks for all MSIDs in the set with the same
+        # content type.
         for content in set(x.content for x in obj.values()):
             bads = None
 
