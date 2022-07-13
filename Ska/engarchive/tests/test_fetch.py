@@ -34,6 +34,14 @@ BAD_TIMES = ['2008:292:00:00:00 2008:297:00:00:00',
              '2008:305:00:12:00 2008:305:00:12:03',
              '2010:101:00:01:12 2010:101:00:01:25']
 
+try:
+    import maude
+    maude.get_msids(msids='ccsdsid', start='2016:001:00:00:00.1', stop='2016:001:00:00:02.0')
+except Exception:
+    HAS_MAUDE = False
+else:
+    HAS_MAUDE = True
+
 
 def test_filter_bad_times_overlap():
     """
@@ -152,6 +160,7 @@ def test_filter_bad_times_default_copy():
     assert np.all(dates == DATES_EXPECT2)
 
 
+@pytest.mark.skipif(not HAS_MAUDE, reason='no MAUDE server available')
 @pytest.mark.parametrize('msid', ['DP_piTch_css', 'Calc_pitCH_css'])
 @pytest.mark.parametrize('sources', (('cxc',), ('maude',), ('cxc', 'maude')))
 def test_fetch_derived_param_aliases(msid, sources):
@@ -337,6 +346,18 @@ def test_msidset_copy():
         assert list(msidset1.keys()) == list(msidset2.keys())
         for name in msidset1.keys():
             _assert_msid_equal(msidset1[name], msidset2[name])
+
+
+@pytest.mark.skipif(not HAS_MAUDE, reason='MAUDE server not available')
+def test_msidset_filter_bad():
+    """Fetch Msidset from MAUDE where data have different lengths and
+    the same "content" (None). This is a test of the fix for #234
+    Can't get Msidset with mismatches on shapes of bads. Prior to the
+    fix this raised an exception."""
+    msids = ['ACA00110', 'ACA00758']
+    with fetch.data_source('maude allow_subset=False'):
+        dat = fetch.Msidset(msids, '2022:001', '2022:001:00:01:00')
+    assert len(dat['ACA00110'].vals) != len(dat['ACA00758'].vals)
 
 
 def test_MSIDset_interpolate_filtering():
