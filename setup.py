@@ -21,7 +21,7 @@ console_scripts = ['ska_fetch = cheta.get_telem:main',
 
 # Install following into sys.prefix/share/eng_archive/ via the data_files directive.
 if "--user" not in sys.argv:
-    share_path = os.path.join(sys.prefix, "share", "eng_archive")
+    share_path = os.path.join("share", "eng_archive")
     task_files = glob.glob('task_schedule*.cfg')
     data_files = [(share_path, task_files)]
 else:
