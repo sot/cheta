@@ -177,7 +177,7 @@ def update_sync_repo(opt, logger, content):
 
     if index_tbl is None:
         # Index table was not created, nothing more to do here
-        logger.warning(f'No index table for {content}')
+        logger.warning(f'WARNING: No index table for {content}')
         return
 
     for row in index_tbl:
@@ -308,7 +308,7 @@ def update_index_file(index_file, opt, logger):
     if msg:
         msg += '\n'
         msg += '\n'.join(index_tbl.pformat(max_lines=-1, max_width=-1))
-        logger.error(f'Index table inconsistency: {msg}')
+        logger.error(f'ERROR: Index table inconsistency: {msg}')
         return None
 
     logger.info(f'Writing {len(rows)} row(s) to index file {index_file}')
