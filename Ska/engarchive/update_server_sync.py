@@ -78,7 +78,8 @@ def get_options(args=None):
                         default=20,
                         help="Logging level")
     parser.add_argument("--date-start",
-                        help="Start process date (default=NOW - max-lookback)")
+                        help=("Start process date (default=NOW - max-lookback). "
+                              "Provide this parameter when creating a new sync directory."))
     parser.add_argument("--date-stop",
                         help="Stop process date (default=NOW)")
     return parser.parse_args(args)
@@ -177,7 +178,7 @@ def update_sync_repo(opt, logger, content):
 
     if index_tbl is None:
         # Index table was not created, nothing more to do here
-        logger.warning(f'WARNING: No index table for {content}')
+        logger.warning(f'WARNING: No index table for {content} (use --date-start to create)')
         return
 
     for row in index_tbl:
