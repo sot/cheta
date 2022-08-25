@@ -780,7 +780,7 @@ class MSID(object):
                 times_ok = ~h5.root.quality[h5_slice]
                 times = h5.root.data[h5_slice]
                 h5.close()
-                return(times_ok, times)
+                return (times_ok, times)
 
             times_ok, times = get_time_data_from_server(h5_slice, _split_path(filename))
 
@@ -810,7 +810,7 @@ class MSID(object):
             vals = h5.root.data[h5_slice]
             bads = h5.root.quality[h5_slice]
             h5.close()
-            return(vals, bads)
+            return (vals, bads)
 
         vals, bads = get_msid_data_from_server(h5_slice, _split_path(filename))
 
