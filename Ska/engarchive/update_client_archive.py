@@ -236,10 +236,7 @@ def copy_server_files_ssh(opt, logger, copy_files):
     """
     import paramiko
 
-    match = re.match(r'(\w+)@([\w.]+)(:.+)?', opt.server_data_root)
-    if not match:
-        raise ValueError(f'could not parse {opt.server_data_root} into username@host:path')
-    username, hostname, server_path = match.groups()
+    username, hostname, server_path = parse_server_data_root(opt.server_data_root)
     server_path = server_path or '/proj/sot/ska/data/eng_archive'
 
     logger.info(f'Connecting to {hostname}')
@@ -265,6 +262,16 @@ def copy_server_files_ssh(opt, logger, copy_files):
                       as_posix=True)
     sftp_client.close()
     ssh_client.close()
+
+
+def parse_server_data_root(server_data_root):
+    match = re.match(r"([a-zA-Z][-.\w]*)@([\w.]+)(:.+)?", server_data_root)
+    if not match:
+        raise ValueError(
+            f"could not parse {server_data_root} into username@host:path"
+        )
+    username, hostname, server_path = match.groups()
+    return username, hostname, server_path
 
 
 def get_copy_files(logger, msids, msids_content):

@@ -348,3 +348,22 @@ def test_sync(tmpdir, content):
     # Clean up if test successful (otherwise check_content raises)
     if Path(tmpdir).exists():
         shutil.rmtree(tmpdir)
+
+
+def test_parse_server_data_root():
+    username, hostname, server_path = update_client_archive.parse_server_data_root(
+        "christian.anderson@host.name.com:/path/to/data/root"
+    )
+    assert username == "christian.anderson"
+    assert hostname == "host.name.com"
+    assert server_path == ":/path/to/data/root"
+
+    username, hostname, server_path = update_client_archive.parse_server_data_root(
+        "chris_and-son@host"
+    )
+    assert username == "chris_and-son"
+    assert hostname == "host"
+    assert server_path is None
+
+    with pytest.raises(ValueError, match="could not parse"):
+        update_client_archive.parse_server_data_root("_chris_and-son@host")
