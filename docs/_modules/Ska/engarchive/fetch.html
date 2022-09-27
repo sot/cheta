@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ska.engarchive.fetch &#8212; Eng archive 4.56.0 documentation</title>
+    <title>Ska.engarchive.fetch &#8212; Eng archive 4.57.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../index.html">Eng archive 4.56.0 documentation</a>
+	<a href="../../../index.html">Eng archive 4.57.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -845,7 +845,7 @@
                 <span class="n">times_ok</span> <span class="o">=</span> <span class="o">~</span><span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">quality</span><span class="p">[</span><span class="n">h5_slice</span><span class="p">]</span>
                 <span class="n">times</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">h5_slice</span><span class="p">]</span>
                 <span class="n">h5</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="k">return</span><span class="p">(</span><span class="n">times_ok</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">times_ok</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
 
             <span class="n">times_ok</span><span class="p">,</span> <span class="n">times</span> <span class="o">=</span> <span class="n">get_time_data_from_server</span><span class="p">(</span><span class="n">h5_slice</span><span class="p">,</span> <span class="n">_split_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
@@ -875,7 +875,7 @@
             <span class="n">vals</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">h5_slice</span><span class="p">]</span>
             <span class="n">bads</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">quality</span><span class="p">[</span><span class="n">h5_slice</span><span class="p">]</span>
             <span class="n">h5</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="k">return</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">bads</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">bads</span><span class="p">)</span>
 
         <span class="n">vals</span><span class="p">,</span> <span class="n">bads</span> <span class="o">=</span> <span class="n">get_msid_data_from_server</span><span class="p">(</span><span class="n">h5_slice</span><span class="p">,</span> <span class="n">_split_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
@@ -1547,12 +1547,15 @@
 <div class="viewcode-block" id="MSIDset.copy"><a class="viewcode-back" href="../../../fetch.html#Ska.engarchive.fetch.MSIDset.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deepcopy__</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="MSIDset.filter_bad"><a class="viewcode-back" href="../../../fetch.html#Ska.engarchive.fetch.MSIDset.filter_bad">[docs]</a>    <span class="k">def</span> <span class="nf">filter_bad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MSIDset.filter_bad"><a class="viewcode-back" href="../../../fetch.html#Ska.engarchive.fetch.MSIDset.filter_bad">[docs]</a>    <span class="k">def</span> <span class="nf">filter_bad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">union</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Filter bad values for the MSID set.</span>
 
-<span class="sd">        This function applies the union (logical-OR) of bad value masks for all</span>
-<span class="sd">        MSIDs in the set with the same content type.  The result is that the</span>
-<span class="sd">        filtered MSID samples are valid for *all* MSIDs within the</span>
+<span class="sd">        By default (``union=False``) the bad values are filtered individually for</span>
+<span class="sd">        each MSID.</span>
+
+<span class="sd">        If ``union=True`` this method applies the union (logical-OR) of bad value</span>
+<span class="sd">        masks for all MSIDs in the set with the same content type.  The result</span>
+<span class="sd">        is that the filtered MSID samples are valid for *all* MSIDs within the</span>
 <span class="sd">        content type and the arrays all match up.</span>
 
 <span class="sd">        For example::</span>
@@ -1578,6 +1581,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">copy</span> <span class="k">else</span> <span class="bp">self</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">union</span><span class="p">:</span>
+            <span class="c1"># Filter bad values individually for each MSID</span>
+            <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">msid</span><span class="o">.</span><span class="n">filter_bad</span><span class="p">()</span>
+            <span class="c1"># Maintain existing function API to return None for copy=False</span>
+            <span class="k">return</span> <span class="n">obj</span> <span class="k">if</span> <span class="n">copy</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># Union of bad value masks for all MSIDs in the set with the same</span>
+        <span class="c1"># content type.</span>
         <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="n">bads</span> <span class="o">=</span> <span class="kc">None</span>
 

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Fetch API documentation &#8212; Eng archive 4.56.0 documentation</title>
+    <title>Fetch API documentation &#8212; Eng archive 4.57.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -61,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.56.0 documentation</a>
+	<a href="index.html">Eng archive 4.57.0 documentation</a>
 	 &#187;
       </li>
       
@@ -818,11 +818,13 @@ format with the name &lt;msid_name&gt;.csv.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Ska.engarchive.fetch.MSIDset.filter_bad">
-<span class="sig-name descname"><span class="pre">filter_bad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.filter_bad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.filter_bad" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">filter_bad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">union</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/fetch.html#MSIDset.filter_bad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.fetch.MSIDset.filter_bad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter bad values for the MSID set.</p>
-<p>This function applies the union (logical-OR) of bad value masks for all
-MSIDs in the set with the same content type.  The result is that the
-filtered MSID samples are valid for <em>all</em> MSIDs within the
+<p>By default (<code class="docutils literal notranslate"><span class="pre">union=False</span></code>) the bad values are filtered individually for
+each MSID.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">union=True</span></code> this method applies the union (logical-OR) of bad value
+masks for all MSIDs in the set with the same content type.  The result
+is that the filtered MSID samples are valid for <em>all</em> MSIDs within the
 content type and the arrays all match up.</p>
 <p>For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msids</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSIDset</span><span class="p">([</span><span class="s1">&#39;aorate1&#39;</span><span class="p">,</span> <span class="s1">&#39;aorate2&#39;</span><span class="p">,</span> <span class="s1">&#39;aogyrct1&#39;</span><span class="p">,</span> <span class="s1">&#39;aogyrct2&#39;</span><span class="p">],</span>
