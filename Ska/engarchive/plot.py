@@ -1,12 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.dates import num2epoch, epoch2num
-
-from Ska.Matplotlib import plot_cxctime
+import numpy as np
 from Chandra.Time import DateTime
+from matplotlib.dates import epoch2num, num2epoch
+from Ska.Matplotlib import plot_cxctime
 
 from . import __version__  # noqa
 

@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
 import pytest
-
 from Chandra.Time import DateTime
+
 from .. import fetch, utils
 
 try:

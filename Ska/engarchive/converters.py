@@ -1,17 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 import logging
-import numpy
 import sys
 from collections import OrderedDict
 
-from six.moves import zip
-
+import numpy
 import numpy as np
 import Ska.Numpy
-from Chandra.Time import DateTime
 import Ska.tdb
+from Chandra.Time import DateTime
+from six.moves import zip
 
 from . import units
 

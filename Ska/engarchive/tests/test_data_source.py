@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import pytest
 
+from .. import fetch, fetch_eng, fetch_sci
 
-from .. import fetch, fetch_sci, fetch_eng
 fetch_cxc = fetch
 
 

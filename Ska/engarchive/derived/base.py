@@ -1,8 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from Chandra.Time import DateTime
-import Ska.Numpy
 import numpy as np
+import Ska.Numpy
+from Chandra.Time import DateTime
+
 from .. import cache
 
 __all__ = ['MNF_TIME', 'times_indexes', 'DerivedParameter']

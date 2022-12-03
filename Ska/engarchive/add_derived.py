@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import re
+import optparse
 import os
+import re
 from pathlib import Path
 
-from six.moves import cPickle as pickle
-import optparse
-
+import numpy as np
+import pyyaks.context
+import pyyaks.logger
+import Ska.DBI
 import tables
 from Chandra.Time import DateTime
+from six.moves import cPickle as pickle
 
-import Ska.DBI
-import pyyaks.logger
-import pyyaks.context
-import numpy as np
-
+import Ska.engarchive.derived as derived
 import Ska.engarchive.fetch as fetch
 import Ska.engarchive.file_defs as file_defs
-import Ska.engarchive.derived as derived
 
 
 def get_options():

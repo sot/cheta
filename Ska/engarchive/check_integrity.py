@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import re
-import os
 import optparse
+import os
+import re
+
+import pyyaks.context
+import pyyaks.logger
+import Ska.DBI
+import tables
 from six.moves import cPickle as pickle
 
-import tables
-import pyyaks.logger
-import pyyaks.context
-
 import Ska.engarchive.fetch as fetch
-import Ska.DBI
 
 opt = None
 ft = fetch.ft

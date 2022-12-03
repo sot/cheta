@@ -71,8 +71,8 @@ installation root directory (`python -c 'import sys; print(sys.prefix)'`) as
 `ska_remote_access.json`.
 """
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import pytest
 from astropy.utils.exceptions import AstropyUserWarning

@@ -2,10 +2,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import collections
 import functools
-import six
-from six.moves import filterfalse
 from heapq import nsmallest
 from operator import itemgetter
+
+import six
+from six.moves import filterfalse
 
 
 class Counter(dict):

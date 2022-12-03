@@ -68,14 +68,14 @@
 
 import os
 
-import numpy as np
 import numba
+import numpy as np
 from scipy.interpolate import interp1d
 from scipy.ndimage import median_filter
-
-from cheta import fetch_eng
 from xija import XijaModel
 from xija.get_model_spec import get_xija_model_spec
+
+from cheta import fetch_eng
 
 
 def c2f(degc):

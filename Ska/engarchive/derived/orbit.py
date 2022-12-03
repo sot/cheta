@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 """
 Orbital elements based on the position and velocity of Chandra at each 5 minute predictive
@@ -33,10 +33,9 @@ Example::
 The relevant equations were taken from http://www.castor2.ca/05_OD/01_Gauss/14_Kepler/index.html.
 """
 import numpy as np
+from Chandra.Time import DateTime
 
 from . import base
-
-from Chandra.Time import DateTime
 
 ELEMENTS_CACHE = {}
 R_E = 6378.137e3  # Earth Equatorial Radius (m)
@@ -65,7 +64,7 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
       perigee_radius      m
       ================ ====
     """
-    from numpy import sin, cos, arccos, sqrt, degrees, pi
+    from numpy import arccos, cos, degrees, pi, sin, sqrt
 
     def arccos_2pi(arg, reflect):
         """

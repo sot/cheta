@@ -20,19 +20,19 @@ Examples
 Arguments
 =========
 """
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-import ast
 import argparse
+import ast
 import re
 import shlex
 from itertools import count
-from six.moves import zip
-import six
 
 import numpy as np
-
+import six
 from Chandra.Time import DateTime
+from six.moves import zip
+
 from . import fetch, utils
 
 

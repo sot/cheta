@@ -4,11 +4,10 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
-
-from .. import fetch
-from .. import fetch_eng
 from Chandra.Time import DateTime
 from cxotime import CxoTime
+
+from .. import fetch, fetch_eng
 
 print(fetch.__file__)
 

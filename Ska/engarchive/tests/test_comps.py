@@ -3,10 +3,11 @@
 """Test that computed MSIDs work as expected."""
 
 import numpy as np
-from Quaternion import Quat
 import pytest
+from Quaternion import Quat
 
-from .. import fetch_eng, fetch_sci, fetch as fetch_cxc
+from .. import fetch as fetch_cxc
+from .. import fetch_eng, fetch_sci
 from ..derived.base import DerivedParameter
 from ..derived.comps import ComputedMsid
 

@@ -12,32 +12,32 @@ import collections
 import contextlib
 import getpass
 import gzip
+import importlib
 import itertools
 import os
-import shutil
-import sys
 import pickle
 import re
+import shutil
+import signal
 import sqlite3
+import sys
+import time
 import urllib
 import urllib.error
 from fnmatch import fnmatch
 from pathlib import Path
-import importlib
-import time
-import signal
 
 import numpy as np
 import pyyaks.context
 import pyyaks.logger
 import tables
-from Chandra.Time import DateTime
-from Ska.DBI import DBI
 from astropy.table import Table
 from astropy.utils.data import download_file
+from Chandra.Time import DateTime
+from Ska.DBI import DBI
 
-from . import file_defs, __version__
-from .utils import get_date_id, STATS_DT
+from . import __version__, file_defs
+from .utils import STATS_DT, get_date_id
 
 sync_files = pyyaks.context.ContextDict('update_client_archive.sync_files')
 sync_files.update(file_defs.sync_files)

@@ -4,5 +4,4 @@
 from .. import fetch as fetch_cxc  # noqa
 from .. import fetch_eng as fetch_eng  # noqa
 from .. import fetch_sci as fetch_sci  # noqa
-
 from .test_units import *  # noqa

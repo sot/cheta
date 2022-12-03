@@ -5,10 +5,9 @@ Utilities for the engineering archive.
 import re
 from contextlib import contextmanager
 
-import six
 import numpy as np
+import six
 from Chandra.Time import DateTime
-
 
 # Cache the results of fetching 3 days of telemetry keyed by MSID
 FETCH_SIZES = {}
@@ -128,8 +127,10 @@ def ss_vector(start, stop=None, obj='Earth'):
     :returns: table of vector values
     """
     from itertools import count
+
     from Quaternion import Quat
     from scipy.interpolate import interp1d
+
     from . import fetch
 
     sign = dict(earth=-1, sun=1, moon=1)

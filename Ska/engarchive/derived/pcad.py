@@ -13,7 +13,8 @@ Revision History::
 """
 
 import numpy as np
-from numpy import sin, cos, tan, arctan2, sqrt, degrees, radians
+from numpy import arctan2, cos, degrees, radians, sin, sqrt, tan
+
 from . import base
 
 

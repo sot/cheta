@@ -1,17 +1,16 @@
-import sys
 import os
 import pickle
 import shutil
+import sys
 from pathlib import Path
 
-import pytest
 import numpy as np
+import pytest
 import Ska.DBI
 import tables
 from Chandra.Time import DateTime
 
-from .. import fetch
-from .. import update_client_archive, update_server_sync
+from .. import fetch, update_client_archive, update_server_sync
 from ..utils import STATS_DT, set_fetch_basedir
 
 pytestmark = pytest.mark.skipif(sys.maxsize <= 2 ** 32, reason="tests for 64-bit only")

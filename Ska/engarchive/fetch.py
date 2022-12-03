@@ -3,35 +3,31 @@
 """
 Fetch values from the Ska engineering telemetry archive.
 """
-import sys
-import os
-import time
+import collections
 import contextlib
+import fnmatch
 import logging
 import operator
-import fnmatch
-import collections
-import warnings
+import os
+import pickle
 import re
+import sys
+import time
+import warnings
 from pathlib import Path
 
 import numpy as np
-from astropy.io import ascii
 import pyyaks.context
-
-import pickle
-
-from . import file_defs
-from .units import Units
-from . import cache
-from . import remote_access
-from .remote_access import ENG_ARCHIVE
-from .derived.comps import ComputedMsid
-from .lazy import LazyDict
-from . import __version__  # noqa
-
+from astropy.io import ascii
 from Chandra.Time import DateTime
 from ska_helpers.utils import lru_cache_timed
+
+from . import __version__  # noqa
+from . import cache, file_defs, remote_access
+from .derived.comps import ComputedMsid
+from .lazy import LazyDict
+from .remote_access import ENG_ARCHIVE
+from .units import Units
 
 # Module-level units, defaults to CXC units (e.g. Kelvins etc)
 UNITS = Units(system='cxc')

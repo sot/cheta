@@ -40,18 +40,18 @@ Example::
 """
 
 import argparse
-import itertools
 import contextlib
+import itertools
 
 import numpy as np
-import tables
-import scipy.stats.mstats
-
 import pyyaks.context
 import pyyaks.logger
-from Ska.engarchive import fetch
-import Ska.engarchive.file_defs as file_defs
+import scipy.stats.mstats
+import tables
 from Chandra.Time import DateTime
+
+import Ska.engarchive.file_defs as file_defs
+from Ska.engarchive import fetch
 
 ft = fetch.ft
 opt = None

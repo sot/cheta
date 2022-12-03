@@ -1,35 +1,34 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import re
-import os
-import glob
-import time
-from pathlib import Path
-import warnings
-
-import pickle
 import argparse
+import glob
 import itertools
+import os
+import pickle
+import re
+import time
+import warnings
 from collections import OrderedDict
+from pathlib import Path
 
-from Chandra.Time import DateTime
-import Ska.File
-import Ska.DBI
-import Ska.Numpy
-import pyyaks.logger
-import pyyaks.context
 import astropy.io.fits as pyfits
-import tables
 import numpy as np
+import pyyaks.context
+import pyyaks.logger
 import scipy.stats.mstats
+import Ska.arc5gl
+import Ska.DBI
+import Ska.File
+import Ska.Numpy
+import tables
+from Chandra.Time import DateTime
 from ska_helpers.retry import tables_open_file
 
-import Ska.engarchive.fetch as fetch
 import Ska.engarchive.converters as converters
-import Ska.engarchive.file_defs as file_defs
 import Ska.engarchive.derived as derived
-import Ska.arc5gl
+import Ska.engarchive.fetch as fetch
+import Ska.engarchive.file_defs as file_defs
 
 
 def get_options(args=None):

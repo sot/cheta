@@ -41,13 +41,12 @@ import numpy as np
 import pyyaks.context
 import pyyaks.logger
 import tables
+from astropy.table import Table
 from Chandra.Time import DateTime
 from Ska.DBI import DBI
-from astropy.table import Table
 
-from . import fetch
-from . import file_defs
-from .utils import get_date_id, STATS_DT
+from . import fetch, file_defs
+from .utils import STATS_DT, get_date_id
 
 sync_files = pyyaks.context.ContextDict('update_server_sync.sync_files')
 sync_files.update(file_defs.sync_files)

@@ -477,8 +477,8 @@ class Comp_KadiCommandState(ComputedMsid):
 
         :returns: dict of MSID attributes
         """
-        from kadi.commands.states import get_states
         from Chandra.Time import date2secs
+        from kadi.commands.states import get_states
 
         state_key = msid_args[0]
         dt = 1.025 * int(msid_args[1])

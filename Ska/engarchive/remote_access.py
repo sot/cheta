@@ -5,14 +5,14 @@ Settings and functions for remotely accessing an engineering archive.
 NOTE: see test_remote_access.py for useful information about doing functional
 testing of this code.
 """
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-import sys
-import os
 import getpass
-from pathlib import Path
+import os
 import platform
+import sys
 import warnings
+from pathlib import Path
 
 import ipyparallel as parallel
 
