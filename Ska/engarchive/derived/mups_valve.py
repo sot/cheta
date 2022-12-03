@@ -267,7 +267,7 @@ def fetch_clean_msid(
     mdl = XijaModel(
         model_spec=model_spec, start=dat.times[0] - 400000, stop=dat.times[-1]
     )
-    mdl.comp['mups0'].set_data(75)  # degC
+    mdl.comp["mups0"].set_data(75)  # degC
     mdl.make()
     mdl.calc()
 

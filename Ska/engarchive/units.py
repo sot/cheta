@@ -52,38 +52,38 @@ class NullHandler(logging.Handler):
         pass
 
 
-logger = logging.getLogger('Ska.engarchive.units')
+logger = logging.getLogger("Ska.engarchive.units")
 logger.addHandler(NullHandler())
 logger.propagate = False
 
 # This is effectively a singleton class
-SYSTEMS = set(('cxc', 'eng', 'sci'))
+SYSTEMS = set(("cxc", "eng", "sci"))
 module_dir = os.path.dirname(__file__)
 
 units = {}
-units['system'] = 'cxc'
-units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl'), 'rb'))
+units["system"] = "cxc"
+units["cxc"] = pickle.load(open(os.path.join(module_dir, "units_cxc.pkl"), "rb"))
 
 
 # Equivalent unit descriptors used in 'eng' and 'cxc' units
 equiv_units = set(
     [
-        ('AMP', 'A'),
-        ('ASEC', 'arcsec'),
-        ('DEG', 'deg'),
-        ('DEGPS', 'deg/s'),
-        ('KHZ', 'kHz'),
-        ('KM', 'km'),
-        ('KMPS', 'km/s'),
-        ('MAMP', 'mA'),
-        ('MSEC', 'ms'),
-        ('RAD', 'rad'),
-        ('RADPS', 'rad/s'),
-        ('RADSS', 'rad/s**2'),
-        ('SEC', 's'),
-        ('V', 'V'),
-        ('VDC', 'V'),
-        ('W', 'W'),
+        ("AMP", "A"),
+        ("ASEC", "arcsec"),
+        ("DEG", "deg"),
+        ("DEGPS", "deg/s"),
+        ("KHZ", "kHz"),
+        ("KM", "km"),
+        ("KMPS", "km/s"),
+        ("MAMP", "mA"),
+        ("MSEC", "ms"),
+        ("RAD", "rad"),
+        ("RADPS", "rad/s"),
+        ("RADSS", "rad/s**2"),
+        ("SEC", "s"),
+        ("V", "V"),
+        ("VDC", "V"),
+        ("W", "W"),
         (None, None),
     ]
 )
@@ -189,57 +189,57 @@ def divide(scale_factor, decimals=None):
 
 converters = {
     # CXC units to Eng or Sci
-    ('J', 'FTLB'): mult(0.7376),
-    ('J*s', 'FTLBSEC'): mult(0.7376),
-    ('K', 'DEGC'): K_to_C,
-    ('K', 'DEGF'): K_to_F,
-    ('deltaK', 'DEGF'): mult(1.8),
-    ('kPa', 'PSIA'): mult(0.145),
-    ('kPa', 'TORR'): mult(7.501),
-    ('mm', 'TSCSTEP'): mult(1.0 / 0.00251431530156, decimals=3),
-    ('mm', 'FASTEP'): mm_to_FASTEP,
-    ('PWM', 'PWMSTEP'): mult(16),
-    ('DEGC', 'DEGF'): C_to_F,
+    ("J", "FTLB"): mult(0.7376),
+    ("J*s", "FTLBSEC"): mult(0.7376),
+    ("K", "DEGC"): K_to_C,
+    ("K", "DEGF"): K_to_F,
+    ("deltaK", "DEGF"): mult(1.8),
+    ("kPa", "PSIA"): mult(0.145),
+    ("kPa", "TORR"): mult(7.501),
+    ("mm", "TSCSTEP"): mult(1.0 / 0.00251431530156, decimals=3),
+    ("mm", "FASTEP"): mm_to_FASTEP,
+    ("PWM", "PWMSTEP"): mult(16),
+    ("DEGC", "DEGF"): C_to_F,
     # Eng units to CXC or Sci
-    ('DEGC', 'K'): C_to_K,
-    ('DEGF', 'K'): F_to_K,
-    ('DEGF', 'deltaK'): divide(1.8),
-    ('DEGF', 'DEGC'): F_to_C,
-    ('FASTEP', 'mm'): FASTEP_to_mm,
-    ('FTLB', 'J'): divide(0.7376),
-    ('FTLBSEC', 'J*s'): divide(0.7376),
-    ('MIN', 's'): mult(60),
-    ('PSIA', 'kPa'): divide(0.145),
-    ('PWMSTEP', 'PWM'): divide(16),
-    ('TORR', 'kPa'): divide(7.501),
-    ('TSCSTEP', 'mm'): mult(0.00251431530156),
+    ("DEGC", "K"): C_to_K,
+    ("DEGF", "K"): F_to_K,
+    ("DEGF", "deltaK"): divide(1.8),
+    ("DEGF", "DEGC"): F_to_C,
+    ("FASTEP", "mm"): FASTEP_to_mm,
+    ("FTLB", "J"): divide(0.7376),
+    ("FTLBSEC", "J*s"): divide(0.7376),
+    ("MIN", "s"): mult(60),
+    ("PSIA", "kPa"): divide(0.145),
+    ("PWMSTEP", "PWM"): divide(16),
+    ("TORR", "kPa"): divide(7.501),
+    ("TSCSTEP", "mm"): mult(0.00251431530156),
 }
 
 
 def load_units(unit_system):
     """Load units definitions for unit_system if not already loaded."""
     if unit_system not in SYSTEMS:
-        raise ValueError('unit_system must be in {}'.format(SYSTEMS))
+        raise ValueError("unit_system must be in {}".format(SYSTEMS))
 
     if unit_system not in units:
-        filename = os.path.join(module_dir, 'units_{0}.pkl'.format(unit_system))
-        units[unit_system] = pickle.load(open(filename, 'rb'))
+        filename = os.path.join(module_dir, "units_{0}.pkl".format(unit_system))
+        units[unit_system] = pickle.load(open(filename, "rb"))
 
 
 def set_units(unit_system):
     """Set conversion unit system.  The input ``unit_system`` must be a string."""
     load_units(unit_system)
-    units['system'] = unit_system
+    units["system"] = unit_system
 
 
 def get_msid_unit(msid):
     MSID = msid.upper()
-    return units[units['system']].get(MSID)
+    return units[units["system"]].get(MSID)
 
 
 def convert(msid, vals, delta_val=False):
     MSID = msid.upper()
-    conversion = (units['cxc'].get(MSID), get_msid_unit(MSID))
+    conversion = (units["cxc"].get(MSID), get_msid_unit(MSID))
     try:
         vals = converters[conversion](vals, delta_val)
     except KeyError:
@@ -261,7 +261,7 @@ class Units(dict):
     It only allows a single key "system" to be set
     """
 
-    def __init__(self, system='cxc'):
+    def __init__(self, system="cxc"):
         super(Units, self).__init__(system=system)
 
     def __getitem__(self, item):
@@ -272,7 +272,7 @@ class Units(dict):
             return dict.__getitem__(self, item)
 
     def __setitem__(self, item, val):
-        if item == 'system':
+        if item == "system":
             load_units(val)
             dict.__setitem__(self, item, val)
         else:
@@ -282,16 +282,16 @@ class Units(dict):
         """Set conversion unit system.  The input ``unit_system`` must be a
         string.
         """
-        self['system'] = unit_system
+        self["system"] = unit_system
 
     def get_msid_unit(self, msid):
         MSID = msid.upper()
-        system = self['system']
-        cxc_unit = self['cxc'].get(MSID)
+        system = self["system"]
+        cxc_unit = self["cxc"].get(MSID)
         system_unit = self[system].get(MSID, cxc_unit)  # WHY this default of cxc_unit??
         return system_unit
 
-    def convert(self, msid, vals, delta_val=False, from_system='cxc'):
+    def convert(self, msid, vals, delta_val=False, from_system="cxc"):
         MSID = msid.upper()
         conversion = (self[from_system].get(MSID), self.get_msid_unit(MSID))
 
@@ -300,11 +300,11 @@ class Units(dict):
 
         if conversion not in converters:
             warnings.warn(
-                '\n\n\n**** WARNING ****\n'
-                'For MSID {} the requested unit conversion from {} to {}\n'
-                'does not have a defined transformation function.\n'
-                'You may be getting incorrect results now.\n\n'
-                'PLEASE REPORT THIS to the Ska developers!\n'.format(
+                "\n\n\n**** WARNING ****\n"
+                "For MSID {} the requested unit conversion from {} to {}\n"
+                "does not have a defined transformation function.\n"
+                "You may be getting incorrect results now.\n\n"
+                "PLEASE REPORT THIS to the Ska developers!\n".format(
                     MSID, conversion[0], conversion[1]
                 )
             )

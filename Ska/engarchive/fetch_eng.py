@@ -6,11 +6,11 @@ from . import fetch
 from .fetch import *  # noqa
 
 # Module-level units, defaults to CXC units (e.g. Kelvins etc)
-UNITS = fetch.Units('eng')
+UNITS = fetch.Units("eng")
 
 
 def get_units():
-    return UNITS['system']
+    return UNITS["system"]
 
 
 get_units.__doc__ = fetch.get_units.__doc__

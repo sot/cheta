@@ -10,7 +10,7 @@ from six.moves import filterfalse
 
 
 class Counter(dict):
-    'Mapping where default values are zero'
+    "Mapping where default values are zero"
 
     def __missing__(self, key):
         return 0
@@ -20,14 +20,14 @@ class Counter(dict):
 
 
 def lru_cache(maxsize=30):
-    '''Least-recently-used cache decorator.
+    """Least-recently-used cache decorator.
 
     Arguments to the cached function must be hashable.
     Cache performance statistics stored in f.hits and f.misses.
     Clear the cache with f.clear().
     http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used
 
-    '''
+    """
     maxqueue = maxsize * 10
 
     def decorating_function(
@@ -98,14 +98,14 @@ def lru_cache(maxsize=30):
 
 
 def lfu_cache(maxsize=100):
-    '''Least-frequenty-used cache decorator.
+    """Least-frequenty-used cache decorator.
 
     Arguments to the cached function must be hashable.
     Cache performance statistics stored in f.hits and f.misses.
     Clear the cache with f.clear().
     http://en.wikipedia.org/wiki/Least_Frequently_Used
 
-    '''
+    """
 
     def decorating_function(user_function):
         cache = {}  # mapping of args to results
@@ -149,7 +149,7 @@ def lfu_cache(maxsize=100):
     return decorating_function
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     @lru_cache(maxsize=20)
     def f(x, y):

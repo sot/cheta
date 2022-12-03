@@ -74,11 +74,11 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
         :param reflect: bool, np.ndarray of bool: use reflected value
         """
         np_err_handling = np.geterr()
-        np.seterr(all='raise')
+        np.seterr(all="raise")
         try:
             out = arccos(arg)
         except FloatingPointError:
-            print('Bad argccos arg={}'.format(arg))
+            print("Bad argccos arg={}".format(arg))
             raise
         np.seterr(**np_err_handling)
 
@@ -145,27 +145,27 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
     apogee = a * (1 + e)
 
     return {
-        'semi_major_axis': a,
-        'orbit_period': T,
-        'eccentricity': e,
-        'inclination': i,
-        'ascending_node': aw,
-        'argument_perigee': w,
-        'mean_anomaly': M,
-        'perigee_radius': perigee,
-        'apogee_radius': apogee,
+        "semi_major_axis": a,
+        "orbit_period": T,
+        "eccentricity": e,
+        "inclination": i,
+        "ascending_node": aw,
+        "argument_perigee": w,
+        "mean_anomaly": M,
+        "perigee_radius": perigee,
+        "apogee_radius": apogee,
     }
 
 
 class DerivedParameterOrbit(base.DerivedParameter):
-    content_root = 'orbit'
+    content_root = "orbit"
     rootparams = [
-        'orbitephem0_x',
-        'orbitephem0_y',
-        'orbitephem0_z',
-        'orbitephem0_vx',
-        'orbitephem0_vy',
-        'orbitephem0_vz',
+        "orbitephem0_x",
+        "orbitephem0_y",
+        "orbitephem0_z",
+        "orbitephem0_vx",
+        "orbitephem0_vy",
+        "orbitephem0_vz",
     ]
     time_step = 328.0
     max_gap = 1000.0
@@ -180,12 +180,12 @@ class DerivedParameterOrbit(base.DerivedParameter):
             return ELEMENTS_CACHE[start, stop][param]
 
         # Get values in km and km/sec
-        x = data['orbitephem0_x'].vals
-        y = data['orbitephem0_y'].vals
-        z = data['orbitephem0_z'].vals
-        vx = data['orbitephem0_vx'].vals
-        vy = data['orbitephem0_vy'].vals
-        vz = data['orbitephem0_vz'].vals
+        x = data["orbitephem0_x"].vals
+        y = data["orbitephem0_y"].vals
+        z = data["orbitephem0_z"].vals
+        vx = data["orbitephem0_vx"].vals
+        vy = data["orbitephem0_vy"].vals
+        vz = data["orbitephem0_vz"].vals
 
         elements = calc_orbital_elements(x, y, z, vx, vy, vz)
         ELEMENTS_CACHE[start, stop] = elements

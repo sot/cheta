@@ -69,18 +69,18 @@ def _set_msid_files_basedir(datestart):
         if datestart < fetch.DATE2000_LO:
             # Note: don't use os.path.join because ENG_ARCHIVE and basedir must
             # use linux '/' convention but this might be running on Windows.
-            msid_files.basedir = msid_files.basedir + '/1999'
+            msid_files.basedir = msid_files.basedir + "/1999"
         yield
     finally:
         msid_files.basedir = cache_basedir
 
 
 def get_opt():
-    parser = argparse.ArgumentParser(description='Fix bad values in eng archive')
-    parser.add_argument('--msid', type=str, help='MSID name')
-    parser.add_argument('--start', help='Start time of bad values')
-    parser.add_argument('--stop', help='Stop time of bad values')
-    parser.add_argument('--value', help='Update with <value> instead of setting as bad')
+    parser = argparse.ArgumentParser(description="Fix bad values in eng archive")
+    parser.add_argument("--msid", type=str, help="MSID name")
+    parser.add_argument("--start", help="Start time of bad values")
+    parser.add_argument("--stop", help="Stop time of bad values")
+    parser.add_argument("--value", help="Update with <value> instead of setting as bad")
     parser.add_argument(
         "--run",
         action="store_true",
@@ -98,10 +98,10 @@ def get_opt():
 
 def calc_stats_vals(msid, rows, indexes, interval):
     quantiles = (1, 5, 16, 50, 84, 95, 99)
-    cols_stats = ('index', 'n', 'val')
+    cols_stats = ("index", "n", "val")
     n_out = len(rows) - 1
     msid_dtype = msid.vals.dtype
-    msid_is_numeric = not msid_dtype.name.startswith('string')
+    msid_is_numeric = not msid_dtype.name.startswith("string")
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = dict(
         index=np.ndarray((n_out,), dtype=np.int32),
@@ -109,7 +109,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
         val=np.ndarray((n_out,), dtype=msid_dtype),
     )
     if msid_is_numeric:
-        cols_stats += ('min', 'max', 'mean')
+        cols_stats += ("min", "max", "mean")
         out.update(
             dict(
                 min=np.ndarray((n_out,), dtype=msid_dtype),
@@ -117,11 +117,11 @@ def calc_stats_vals(msid, rows, indexes, interval):
                 mean=np.ndarray((n_out,), dtype=np.float32),
             )
         )
-        if interval == 'daily':
-            cols_stats += ('std',) + tuple('p%02d' % x for x in quantiles)
-            out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
+        if interval == "daily":
+            cols_stats += ("std",) + tuple("p%02d" % x for x in quantiles)
+            out["std"] = np.ndarray((n_out,), dtype=msid_dtype)
             out.update(
-                ('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles
+                ("p%02d" % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles
             )
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
@@ -129,9 +129,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
         times = msid.times[row0:row1]
         n_vals = len(vals)
         if n_vals > 0:
-            out['index'][i] = index
-            out['n'][i] = n_vals
-            out['val'][i] = vals[n_vals // 2]
+            out["index"][i] = index
+            out["n"][i] = n_vals
+            out["val"][i] = vals[n_vals // 2]
             if msid_is_numeric:
                 if n_vals <= 2:
                     dts = np.ones(n_vals, dtype=np.float64)
@@ -149,7 +149,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
                             for t, dt in zip(times[negs], dts[negs])
                         ]
                         logger.warning(
-                            'WARNING - negative dts in {} at {}'.format(
+                            "WARNING - negative dts in {} at {}".format(
                                 msid.MSID, times_dts
                             )
                         )
@@ -162,42 +162,42 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     dts.clip(0.001, 300.0, out=dts)
                 sum_dts = np.sum(dts)
 
-                out['min'][i] = np.min(vals)
-                out['max'][i] = np.max(vals)
-                out['mean'][i] = np.sum(dts * vals) / sum_dts
-                if interval == 'daily':
+                out["min"][i] = np.min(vals)
+                out["max"][i] = np.max(vals)
+                out["mean"][i] = np.sum(dts * vals) / sum_dts
+                if interval == "daily":
                     # biased weighted estimator of variance (N should be big enough)
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
-                    sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
-                    out['std'][i] = np.sqrt(sigma_sq)
+                    sigma_sq = np.sum(dts * (vals - out["mean"][i]) ** 2) / sum_dts
+                    out["std"][i] = np.sqrt(sigma_sq)
                     quant_vals = scipy.stats.mstats.mquantiles(
                         vals, np.array(quantiles) / 100.0
                     )
                     for quant_val, quantile in zip(quant_vals, quantiles):
-                        out['p%02d' % quantile][i] = quant_val
+                        out["p%02d" % quantile][i] = quant_val
             i += 1
 
     return np.rec.fromarrays([out[x][:i] for x in cols_stats], names=cols_stats)
 
 
 def fix_stats_h5(msid, tstart, tstop, interval):
-    dt = {'5min': 328, 'daily': 86400}[interval]
+    dt = {"5min": 328, "daily": 86400}[interval]
 
-    ft['msid'] = msid
-    ft['interval'] = interval
+    ft["msid"] = msid
+    ft["interval"] = interval
     datestart = DateTime(tstart).date
     with _set_msid_files_basedir(datestart):
-        stats_file = msid_files['stats'].abs
-    logger.info('Updating stats file {}'.format(stats_file))
+        stats_file = msid_files["stats"].abs
+    logger.info("Updating stats file {}".format(stats_file))
 
     index0 = int(tstart // dt)
     index1 = int(tstop // dt) + 1
     indexes = np.arange(index0, index1 + 1, dtype=np.int32)
     times = indexes * dt
-    logger.info('Indexes = {}:{}'.format(index0, index1))
+    logger.info("Indexes = {}:{}".format(index0, index1))
 
     logger.info(
-        'Fetching {} data between {} to {}'.format(
+        "Fetching {} data between {} to {}".format(
             msid, DateTime(times[0] - 500).date, DateTime(times[-1] + 500).date
         )
     )
@@ -206,7 +206,7 @@ def fix_stats_h5(msid, tstart, tstop, interval):
     # Check within each stat interval?
     if len(dat.times) == 0:
         logger.info(
-            'Skipping: No values within interval {} to {}'.format(
+            "Skipping: No values within interval {} to {}".format(
                 DateTime(times[0] - 500).date, DateTime(times[-1] + 500).date
             )
         )
@@ -216,34 +216,34 @@ def fix_stats_h5(msid, tstart, tstop, interval):
     vals_stats = calc_stats_vals(dat, rows, indexes, interval)
 
     try:
-        h5 = tables.openFile(stats_file, 'a')
+        h5 = tables.openFile(stats_file, "a")
         table = h5.root.data
-        row0, row1 = np.searchsorted(table.col('index'), [index0, index1])
+        row0, row1 = np.searchsorted(table.col("index"), [index0, index1])
         for row_idx, vals_stat in itertools.izip(range(row0, row1), vals_stats):
             if row1 - row0 < 50 or row_idx == row0 or row_idx == row1 - 1:
-                logger.info('Row index = {}'.format(row_idx))
-                logger.info('  ORIGINAL: %s', table[row_idx])
-                logger.info('  UPDATED : %s', vals_stat)
+                logger.info("Row index = {}".format(row_idx))
+                logger.info("  ORIGINAL: %s", table[row_idx])
+                logger.info("  UPDATED : %s", vals_stat)
             if opt.run:
                 table[row_idx] = tuple(vals_stat)
     finally:
         h5.close()
 
-    logger.info('')
+    logger.info("")
 
 
 def fix_msid_h5(msid, tstart, tstop):
     """
     Fix the msid full-resolution HDF5 data file
     """
-    logger.info('Fixing MSID {} h5 file'.format(msid))
-    row_slice = fetch.get_interval(ft['content'].val, tstart, tstop)
+    logger.info("Fixing MSID {} h5 file".format(msid))
+    row_slice = fetch.get_interval(ft["content"].val, tstart, tstop)
 
     # Load the time values and find indexes corresponding to start / stop times
-    ft['msid'] = 'TIME'
+    ft["msid"] = "TIME"
 
-    filename = msid_files['data'].abs
-    logger.info('Reading TIME file {}'.format(filename))
+    filename = msid_files["data"].abs
+    logger.info("Reading TIME file {}".format(filename))
 
     h5 = tables.openFile(filename)
     times = h5.root.data[row_slice]
@@ -254,16 +254,16 @@ def fix_msid_h5(msid, tstart, tstop):
     fix_idxs = np.flatnonzero((tstart <= times) & (times <= tstop)) + row_slice.start
 
     # Open the msid HDF5 data file and set the corresponding quality flags to True (=> bad)
-    ft['msid'] = msid
-    filename = msid_files['msid'].abs
-    logger.info('Reading msid file {}'.format(filename))
+    ft["msid"] = msid
+    filename = msid_files["msid"].abs
+    logger.info("Reading msid file {}".format(filename))
 
-    h5 = tables.openFile(filename, 'a')
+    h5 = tables.openFile(filename, "a")
     try:
         if opt.value is not None:
             # Set data to <value> over the specified time range
             i0, i1 = fix_idxs[0], fix_idxs[-1] + 1
-            logger.info('Changing {}.data[{}:{}] to {}'.format(msid, i0, i1, opt.value))
+            logger.info("Changing {}.data[{}:{}] to {}".format(msid, i0, i1, opt.value))
             if opt.run:
                 h5.root.data[i0:i1] = opt.value
         else:
@@ -271,13 +271,13 @@ def fix_msid_h5(msid, tstart, tstop):
                 quality = h5.root.quality[idx]
                 if quality:
                     logger.info(
-                        'Skipping idx={} because quality is already True'.format(idx)
+                        "Skipping idx={} because quality is already True".format(idx)
                     )
                     continue
                 if len(fix_idxs) < 100 or idx == fix_idxs[0] or idx == fix_idxs[-1]:
-                    logger.info('{}.data[{}] = {}'.format(msid, idx, h5.root.data[idx]))
+                    logger.info("{}.data[{}] = {}".format(msid, idx, h5.root.data[idx]))
                     logger.info(
-                        'Changing {}.quality[{}] from {} to True'.format(
+                        "Changing {}.quality[{}] from {} to True".format(
                             msid, idx, quality
                         )
                     )
@@ -285,7 +285,7 @@ def fix_msid_h5(msid, tstart, tstop):
                     h5.root.quality[idx] = True
     finally:
         h5.close()
-    logger.info('')
+    logger.info("")
 
 
 def main():
@@ -297,7 +297,7 @@ def main():
 
     # Set up infrastructure to directly access HDF5 files
     msid_files = pyyaks.context.ContextDict(
-        'msid_files', basedir=(opt.data_root or file_defs.msid_root)
+        "msid_files", basedir=(opt.data_root or file_defs.msid_root)
     )
     msid_files.update(file_defs.msid_files)
 
@@ -307,20 +307,20 @@ def main():
     # Set up logging
     loglevel = pyyaks.logger.INFO
     logger = pyyaks.logger.get_logger(
-        name='fix_bad_values', level=loglevel, format="%(message)s"
+        name="fix_bad_values", level=loglevel, format="%(message)s"
     )
 
     logger.info(
-        '** If something gets corrupted then there is the NetApp snapshot for'
-        ' recovery **'
+        "** If something gets corrupted then there is the NetApp snapshot for"
+        " recovery **"
     )
-    logger.info('')
+    logger.info("")
     if not opt.run:
-        logger.info('** DRY RUN **')
-        logger.info('')
+        logger.info("** DRY RUN **")
+        logger.info("")
 
     msid = opt.msid.upper()
-    ft['content'] = fetch.content[msid]
+    ft["content"] = fetch.content[msid]
 
     # Get the relevant row slice covering the requested time span for this content type
     tstart = DateTime(opt.start).secs - 0.001
@@ -333,9 +333,9 @@ def main():
         fix_msid_h5(msid, tstart, tstop)
 
     # Now fix stats files
-    fix_stats_h5(msid, tstart, tstop, '5min')
-    fix_stats_h5(msid, tstart, tstop, 'daily')
+    fix_stats_h5(msid, tstart, tstop, "5min")
+    fix_stats_h5(msid, tstart, tstop, "daily")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

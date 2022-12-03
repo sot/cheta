@@ -19,7 +19,7 @@ from . import base
 
 
 class DerivedParameterPcad(base.DerivedParameter):
-    content_root = 'pcad'
+    content_root = "pcad"
 
 
 # --------------------------------------------
@@ -32,14 +32,14 @@ class DP_CSS1_NPM_SUN(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aocssi1', 'aopcadmd', 'aosaillm']
+    rootparams = ["aocssi1", "aopcadmd", "aosaillm"]
     time_step = 1.025
     max_gap = 10.0
 
     def calc(self, data):
-        npm_sun = (data['aopcadmd'].vals == 'NPNT') & (data['aosaillm'].vals == 'ILLM')
+        npm_sun = (data["aopcadmd"].vals == "NPNT") & (data["aosaillm"].vals == "ILLM")
         data.bads = data.bads | ~npm_sun
-        css1_npm_sun = data['aocssi1'].vals * 4095 / 5.49549
+        css1_npm_sun = data["aocssi1"].vals * 4095 / 5.49549
         return css1_npm_sun
 
 
@@ -53,14 +53,14 @@ class DP_CSS2_NPM_SUN(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aocssi2', 'aopcadmd', 'aosaillm']
+    rootparams = ["aocssi2", "aopcadmd", "aosaillm"]
     time_step = 1.025
     max_gap = 10.0
 
     def calc(self, data):
-        npm_sun = (data['aopcadmd'].vals == 'NPNT') & (data['aosaillm'].vals == 'ILLM')
+        npm_sun = (data["aopcadmd"].vals == "NPNT") & (data["aosaillm"].vals == "ILLM")
         data.bads = data.bads | ~npm_sun
-        css2_npm_sun = data['aocssi2'].vals * 4095 / 5.49549
+        css2_npm_sun = data["aocssi2"].vals * 4095 / 5.49549
         return css2_npm_sun
 
 
@@ -74,14 +74,14 @@ class DP_CSS3_NPM_SUN(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aocssi3', 'aopcadmd', 'aosaillm']
+    rootparams = ["aocssi3", "aopcadmd", "aosaillm"]
     time_step = 1.025
     max_gap = 10.0
 
     def calc(self, data):
-        npm_sun = (data['aopcadmd'].vals == 'NPNT') & (data['aosaillm'].vals == 'ILLM')
+        npm_sun = (data["aopcadmd"].vals == "NPNT") & (data["aosaillm"].vals == "ILLM")
         data.bads = data.bads | ~npm_sun
-        css3_npm_sun = data['aocssi3'].vals * 4095 / 5.49549
+        css3_npm_sun = data["aocssi3"].vals * 4095 / 5.49549
         return css3_npm_sun
 
 
@@ -95,14 +95,14 @@ class DP_CSS4_NPM_SUN(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aocssi4', 'aopcadmd', 'aosaillm']
+    rootparams = ["aocssi4", "aopcadmd", "aosaillm"]
     time_step = 1.025
     max_gap = 10.0
 
     def calc(self, data):
-        npm_sun = (data['aopcadmd'].vals == 'NPNT') & (data['aosaillm'].vals == 'ILLM')
+        npm_sun = (data["aopcadmd"].vals == "NPNT") & (data["aosaillm"].vals == "ILLM")
         data.bads = data.bads | ~npm_sun
-        css4_npm_sun = data['aocssi4'].vals * 4095 / 5.49549
+        css4_npm_sun = data["aocssi4"].vals * 4095 / 5.49549
         return css4_npm_sun
 
 
@@ -119,35 +119,35 @@ class DP_FSS_CSS_ANGLE_DIFF(DerivedParameterPcad):
     """
 
     rootparams = [
-        'aosunsa1',
-        'aosunsa2',
-        'aosunsa3',
-        'aosunac1',
-        'aosunac2',
-        'aosunac3',
-        'aosares1',
-        'aosares2',
-        'aosunprs',
+        "aosunsa1",
+        "aosunsa2",
+        "aosunsa3",
+        "aosunac1",
+        "aosunac2",
+        "aosunac3",
+        "aosares1",
+        "aosares2",
+        "aosunprs",
     ]
     time_step = 1.025
     max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
-        in_fss_fov = data['aosunprs'].vals == 'SUN '
+        in_fss_fov = data["aosunprs"].vals == "SUN "
         data.bads |= ~in_fss_fov
-        sa_ang_avg = (data['aosares1'].vals + data['aosares2'].vals) / 2
+        sa_ang_avg = (data["aosares1"].vals + data["aosares2"].vals) / 2
         sinang = sin(radians(sa_ang_avg))
         cosang = cos(radians(sa_ang_avg))
         fss_aca = np.array(
-            [data['aosunac1'].vals, data['aosunac2'].vals, data['aosunac3'].vals]
+            [data["aosunac1"].vals, data["aosunac2"].vals, data["aosunac3"].vals]
         )
         # Rotate CSS sun vector from SA to ACA frame
         css_aca = np.array(
             [
-                sinang * data['aosunsa1'].vals - cosang * data['aosunsa3'].vals,
-                data['aosunsa2'].vals * 1.0,
-                cosang * data['aosunsa1'].vals + sinang * data['aosunsa3'].vals,
+                sinang * data["aosunsa1"].vals - cosang * data["aosunsa3"].vals,
+                data["aosunsa2"].vals * 1.0,
+                cosang * data["aosunsa1"].vals + sinang * data["aosunsa3"].vals,
             ]
         )
         # Normalize the vectors (again)
@@ -181,38 +181,38 @@ class DP_MAN_ANG(DerivedParameterPcad):
     """
 
     rootparams = [
-        'aoattqt1',
-        'aoattqt2',
-        'aoattqt3',
-        'aoattqt4',
-        'aotarqt1',
-        'aotarqt2',
-        'aotarqt3',
-        'aomanend',
+        "aoattqt1",
+        "aoattqt2",
+        "aoattqt3",
+        "aoattqt4",
+        "aotarqt1",
+        "aotarqt2",
+        "aotarqt3",
+        "aomanend",
     ]
     time_step = 1.025
     dtype = np.float32
 
     def calc(self, data):
         qt4_sqr = 1.0 - (
-            data['aotarqt1'].vals ** 2
-            + data['aotarqt2'].vals ** 2
-            + data['aotarqt3'].vals ** 2
+            data["aotarqt1"].vals ** 2
+            + data["aotarqt2"].vals ** 2
+            + data["aotarqt3"].vals ** 2
         )
         aotarqt4 = sqrt(np.clip(qt4_sqr, 0, 1))
         est_quat_inv = np.array(
             [
-                -1 * data['aoattqt1'].vals,
-                -1 * data['aoattqt2'].vals,
-                -1 * data['aoattqt3'].vals,
-                data['aoattqt4'].vals,
+                -1 * data["aoattqt1"].vals,
+                -1 * data["aoattqt2"].vals,
+                -1 * data["aoattqt3"].vals,
+                data["aoattqt4"].vals,
             ]
         )
         tar_quat = np.array(
             [
-                data['aotarqt1'].vals,
-                data['aotarqt2'].vals,
-                data['aotarqt3'].vals,
+                data["aotarqt1"].vals,
+                data["aotarqt2"].vals,
+                data["aotarqt3"].vals,
                 aotarqt4,
             ]
         )
@@ -224,7 +224,7 @@ class DP_MAN_ANG(DerivedParameterPcad):
         delta_quat3 = np.abs(delta_quat[3, :] / magnitude)
         man_ang = 2.0 * degrees(arccos_clip(delta_quat3))
 
-        man = data['aomanend'].vals == 'NEND'
+        man = data["aomanend"].vals == "NEND"
         man_ang[~man] = 0
         return man_ang
 
@@ -238,17 +238,17 @@ class DP_ONE_SHOT(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aoatter2', 'aoatter3', 'aopcadmd']
+    rootparams = ["aoatter2", "aoatter3", "aopcadmd"]
     time_step = 1.025
     max_gap = 4.0
     dtype = np.float32
 
     def calc(self, data):
         one_shot = (
-            degrees(sqrt(data['aoatter2'].vals ** 2 + data['aoatter3'].vals ** 2))
+            degrees(sqrt(data["aoatter2"].vals ** 2 + data["aoatter3"].vals ** 2))
             * 3600
         )
-        npm = data['aopcadmd'].vals == 'NPNT'
+        npm = data["aopcadmd"].vals == "NPNT"
         one_shot[~npm] = 0.0
         return one_shot
 
@@ -267,20 +267,20 @@ class DP_PITCH(DerivedParameterPcad):
     """
 
     rootparams = [
-        'orbitephem0_x',
-        'orbitephem0_y',
-        'orbitephem0_z',
-        'solarephem0_x',
-        'solarephem0_y',
-        'solarephem0_z',
-        'aoattqt1',
-        'aoattqt2',
-        'aoattqt3',
-        'aoattqt4',
+        "orbitephem0_x",
+        "orbitephem0_y",
+        "orbitephem0_z",
+        "solarephem0_x",
+        "solarephem0_y",
+        "solarephem0_z",
+        "aoattqt1",
+        "aoattqt2",
+        "aoattqt3",
+        "aoattqt4",
     ]
     time_step = 1.025
     max_gap = 4.0
-    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
+    max_gaps = {msid: 602.0 for msid in rootparams if "ephem" in msid}
     dtype = np.float32
 
     def calc(self, data):
@@ -300,21 +300,21 @@ class DP_PITCH_CSS(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aosares1', 'aosares2', 'aosunsa1', 'aosunsa2', 'aosunsa3']
+    rootparams = ["aosares1", "aosares2", "aosunsa1", "aosunsa2", "aosunsa3"]
     time_step = 4.1
     max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
-        sa_ang_avg = (1.0 * data['aosares1'].vals + 1.0 * data['aosares2'].vals) / 2
+        sa_ang_avg = (1.0 * data["aosares1"].vals + 1.0 * data["aosares2"].vals) / 2
         sinang = sin(radians(sa_ang_avg))
         cosang = cos(radians(sa_ang_avg))
         # Rotate CSS sun vector from SA to ACA frame
         css_aca = np.array(
             [
-                sinang * data['aosunsa1'].vals - cosang * data['aosunsa3'].vals,
-                data['aosunsa2'].vals * 1.0,
-                cosang * data['aosunsa1'].vals + sinang * data['aosunsa3'].vals,
+                sinang * data["aosunsa1"].vals - cosang * data["aosunsa3"].vals,
+                data["aosunsa2"].vals * 1.0,
+                cosang * data["aosunsa1"].vals + sinang * data["aosunsa3"].vals,
             ]
         )
         # Normalize sun vec (again) and compute pitch
@@ -337,13 +337,13 @@ class DP_PITCH_CSS_SA(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aosunsa1']
+    rootparams = ["aosunsa1"]
     time_step = 8.2
     max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
-        pitch_css_sa = 90.0 - degrees(arccos_clip(data['aosunsa1'].vals))
+        pitch_css_sa = 90.0 - degrees(arccos_clip(data["aosunsa1"].vals))
         return pitch_css_sa
 
 
@@ -363,13 +363,13 @@ class DP_PITCH_FSS(DerivedParameterPcad):
     <data>.bads = 1
     """
 
-    rootparams = ['aoalpang', 'aobetang', 'aosunprs']
+    rootparams = ["aoalpang", "aobetang", "aosunprs"]
     time_step = 1.025
     max_gap = 10.0
     dtype = np.float32
 
     def calc(self, data):
-        in_fss_fov = data['aosunprs'].vals == 'SUN '
+        in_fss_fov = data["aosunprs"].vals == "SUN "
         data.bads = data.bads | ~in_fss_fov
         # rotation matrix from FSS to ACA frame
         A_AF = np.array(
@@ -380,8 +380,8 @@ class DP_PITCH_FSS(DerivedParameterPcad):
             ]
         )
         # FSS's sun vector in FSS frame
-        alpha = radians(data['aoalpang'].vals)
-        beta = radians(data['aobetang'].vals)
+        alpha = radians(data["aoalpang"].vals)
+        beta = radians(data["aobetang"].vals)
         sun_fss = np.array([tan(beta), tan(alpha), -np.ones(len(alpha))])
         sun_aca = A_AF.dot(sun_fss)
         magnitude = sqrt((sun_aca * sun_aca).sum(axis=0))
@@ -408,20 +408,20 @@ class DP_ROLL(DerivedParameterPcad):
     """
 
     rootparams = [
-        'orbitephem0_x',
-        'orbitephem0_y',
-        'orbitephem0_z',
-        'solarephem0_x',
-        'solarephem0_y',
-        'solarephem0_z',
-        'aoattqt1',
-        'aoattqt2',
-        'aoattqt3',
-        'aoattqt4',
+        "orbitephem0_x",
+        "orbitephem0_y",
+        "orbitephem0_z",
+        "solarephem0_x",
+        "solarephem0_y",
+        "solarephem0_z",
+        "aoattqt1",
+        "aoattqt2",
+        "aoattqt3",
+        "aoattqt4",
     ]
     time_step = 1.025
     max_gap = 4.0
-    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
+    max_gaps = {msid: 602.0 for msid in rootparams if "ephem" in msid}
     dtype = np.float32
 
     def calc(self, data):
@@ -442,21 +442,21 @@ class DP_ROLL_CSS(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aosares1', 'aosares2', 'aosunsa1', 'aosunsa2', 'aosunsa3']
+    rootparams = ["aosares1", "aosares2", "aosunsa1", "aosunsa2", "aosunsa3"]
     time_step = 4.1
     max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
-        sa_ang_avg = (data['aosares1'].vals + data['aosares2'].vals) / 2
+        sa_ang_avg = (data["aosares1"].vals + data["aosares2"].vals) / 2
         sinang = sin(radians(sa_ang_avg))
         cosang = cos(radians(sa_ang_avg))
         # Rotate CSS sun vector from SA to ACA frame
         css_aca = np.array(
             [
-                sinang * data['aosunsa1'].vals - cosang * data['aosunsa3'].vals,
-                data['aosunsa2'].vals,
-                cosang * data['aosunsa1'].vals + sinang * data['aosunsa3'].vals,
+                sinang * data["aosunsa1"].vals - cosang * data["aosunsa3"].vals,
+                data["aosunsa2"].vals,
+                cosang * data["aosunsa1"].vals + sinang * data["aosunsa3"].vals,
             ]
         )
         # Normalize sun vec (again) and compute pitch
@@ -480,13 +480,13 @@ class DP_ROLL_CSS_SA(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aosunsa2', 'aosunsa3']
+    rootparams = ["aosunsa2", "aosunsa3"]
     time_step = 8.2
     max_gap = 18.0
     dtype = np.float32
 
     def calc(self, data):
-        roll_css_sa = degrees(arctan2(-data['aosunsa2'].vals, -data['aosunsa3'].vals))
+        roll_css_sa = degrees(arctan2(-data["aosunsa2"].vals, -data["aosunsa3"].vals))
         return roll_css_sa
 
 
@@ -507,13 +507,13 @@ class DP_ROLL_FSS(DerivedParameterPcad):
     <data>.bads = 1
     """
 
-    rootparams = ['aoalpang', 'aobetang', 'aosunprs']
+    rootparams = ["aoalpang", "aobetang", "aosunprs"]
     time_step = 1.025
     max_gap = 10.0
     dtype = np.float32
 
     def calc(self, data):
-        in_fss_fov = data['aosunprs'].vals == 'SUN '
+        in_fss_fov = data["aosunprs"].vals == "SUN "
         data.bads = data.bads | ~in_fss_fov
         # rotation matrix from FSS to ACA frame
         A_AF = np.array(
@@ -524,8 +524,8 @@ class DP_ROLL_FSS(DerivedParameterPcad):
             ]
         )
         # FSS's sun vector in FSS frame
-        alpha = radians(data['aoalpang'].vals)
-        beta = radians(data['aobetang'].vals)
+        alpha = radians(data["aoalpang"].vals)
+        beta = radians(data["aobetang"].vals)
         sun_fss = np.array([tan(beta), tan(alpha), -np.ones(len(alpha))])
         sun_aca = A_AF.dot(sun_fss)
         magnitude = sqrt((sun_aca * sun_aca).sum(axis=0))
@@ -544,15 +544,15 @@ class DP_RW_MOM_TOT(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aorwmom1', 'aorwmom2', 'aorwmom3']
+    rootparams = ["aorwmom1", "aorwmom2", "aorwmom3"]
     time_step = 8.2
     dtype = np.float32
 
     def calc(self, data):
         rw_mom_tot = sqrt(
-            data['aorwmom1'].vals ** 2
-            + data['aorwmom2'].vals ** 2
-            + data['aorwmom3'].vals ** 2
+            data["aorwmom1"].vals ** 2
+            + data["aorwmom2"].vals ** 2
+            + data["aorwmom3"].vals ** 2
         )
         return rw_mom_tot
 
@@ -566,11 +566,11 @@ class DP_RW1_DELTA_TEMP(DerivedParameterPcad):
 
     """
 
-    rootparams = ['tcyz_rw1', 'arwa1bt']
+    rootparams = ["tcyz_rw1", "arwa1bt"]
     time_step = 0.25625
 
     def calc(self, data):
-        rw1_delta_temp = data['tcyz_rw1'].vals - data['arwa1bt'].vals
+        rw1_delta_temp = data["tcyz_rw1"].vals - data["arwa1bt"].vals
         return rw1_delta_temp
 
 
@@ -583,11 +583,11 @@ class DP_RW2_DELTA_TEMP(DerivedParameterPcad):
 
     """
 
-    rootparams = ['tpcp_rw2', 'arwa2bt']
+    rootparams = ["tpcp_rw2", "arwa2bt"]
     time_step = 0.25625
 
     def calc(self, data):
-        rw2_delta_temp = data['tpcp_rw2'].vals - data['arwa2bt'].vals
+        rw2_delta_temp = data["tpcp_rw2"].vals - data["arwa2bt"].vals
         return rw2_delta_temp
 
 
@@ -600,11 +600,11 @@ class DP_RW3_DELTA_TEMP(DerivedParameterPcad):
 
     """
 
-    rootparams = ['tpcp_rw3', 'arwa3bt']
+    rootparams = ["tpcp_rw3", "arwa3bt"]
     time_step = 0.25625
 
     def calc(self, data):
-        rw3_delta_temp = data['tpcp_rw3'].vals - data['arwa3bt'].vals
+        rw3_delta_temp = data["tpcp_rw3"].vals - data["arwa3bt"].vals
         return rw3_delta_temp
 
 
@@ -617,11 +617,11 @@ class DP_RW4_DELTA_TEMP(DerivedParameterPcad):
 
     """
 
-    rootparams = ['tpcm_rw4', 'arwa4bt']
+    rootparams = ["tpcm_rw4", "arwa4bt"]
     time_step = 0.25625
 
     def calc(self, data):
-        rw4_delta_temp = data['tpcm_rw4'].vals - data['arwa4bt'].vals
+        rw4_delta_temp = data["tpcm_rw4"].vals - data["arwa4bt"].vals
         return rw4_delta_temp
 
 
@@ -634,11 +634,11 @@ class DP_RW5_DELTA_TEMP(DerivedParameterPcad):
 
     """
 
-    rootparams = ['tpcm_rw5', 'arwa5bt']
+    rootparams = ["tpcm_rw5", "arwa5bt"]
     time_step = 0.25625
 
     def calc(self, data):
-        rw5_delta_temp = data['tpcm_rw5'].vals - data['arwa5bt'].vals
+        rw5_delta_temp = data["tpcm_rw5"].vals - data["arwa5bt"].vals
         return rw5_delta_temp
 
 
@@ -651,11 +651,11 @@ class DP_RW6_DELTA_TEMP(DerivedParameterPcad):
 
     """
 
-    rootparams = ['tcyz_rw6', 'arwa6bt']
+    rootparams = ["tcyz_rw6", "arwa6bt"]
     time_step = 0.25625
 
     def calc(self, data):
-        rw6_delta_temp = data['tcyz_rw6'].vals - data['arwa6bt'].vals
+        rw6_delta_temp = data["tcyz_rw6"].vals - data["arwa6bt"].vals
         return rw6_delta_temp
 
 
@@ -667,12 +667,12 @@ class DP_SA_ANG_AVG(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aosares1', 'aosares2']
+    rootparams = ["aosares1", "aosares2"]
     time_step = 4.1
     max_gap = 10.0
 
     def calc(self, data):
-        sa_ang_avg = (1.0 * data['aosares1'].vals + 1.0 * data['aosares2'].vals) / 2
+        sa_ang_avg = (1.0 * data["aosares1"].vals + 1.0 * data["aosares2"].vals) / 2
         return sa_ang_avg
 
 
@@ -691,20 +691,20 @@ class DP_SUN_XZ_ANGLE(DerivedParameterPcad):
     """
 
     rootparams = [
-        'orbitephem0_x',
-        'orbitephem0_y',
-        'orbitephem0_z',
-        'solarephem0_x',
-        'solarephem0_y',
-        'solarephem0_z',
-        'aoattqt1',
-        'aoattqt2',
-        'aoattqt3',
-        'aoattqt4',
+        "orbitephem0_x",
+        "orbitephem0_y",
+        "orbitephem0_z",
+        "solarephem0_x",
+        "solarephem0_y",
+        "solarephem0_z",
+        "aoattqt1",
+        "aoattqt2",
+        "aoattqt3",
+        "aoattqt4",
     ]
     time_step = 1.025
     max_gap = 4.0
-    max_gaps = {msid: 602.0 for msid in rootparams if 'ephem' in msid}
+    max_gaps = {msid: 602.0 for msid in rootparams if "ephem" in msid}
     dtype = np.float32
 
     def calc(self, data):
@@ -726,15 +726,15 @@ class DP_SYS_MOM_TOT(DerivedParameterPcad):
 
     """
 
-    rootparams = ['aosymom1', 'aosymom2', 'aosymom3']
+    rootparams = ["aosymom1", "aosymom2", "aosymom3"]
     time_step = 8.2
     max_gap = 18.0
 
     def calc(self, data):
         sys_mom_tot = sqrt(
-            data['aosymom1'].vals ** 2
-            + data['aosymom2'].vals ** 2
-            + data['aosymom3'].vals ** 2
+            data["aosymom1"].vals ** 2
+            + data["aosymom2"].vals ** 2
+            + data["aosymom3"].vals ** 2
         )
         return sys_mom_tot
 
@@ -750,7 +750,7 @@ def qmult(q1, q2):
     :returns: q1*q2 as an array with same shape as q1 and q2
     """
     if q1.shape != q2.shape:
-        raise ValueError('Shapes must agree')
+        raise ValueError("Shapes must agree")
 
     mult = np.zeros_like(q1)
     mult[0] = q1[3] * q2[0] - q1[2] * q2[1] + q1[1] * q2[2] + q1[0] * q2[3]
@@ -775,9 +775,9 @@ def qrotate(q, r):
     :returns r rotated by q as an array with the same shape as r
     """
     if q.shape[0] != 4:
-        raise ValueError('Input quaternion must have shape (4,) or (4, N, ..)')
+        raise ValueError("Input quaternion must have shape (4,) or (4, N, ..)")
     if r.shape[0] != 3:
-        raise ValueError('Input vector must have shape (3,) or (3, N, ..).')
+        raise ValueError("Input vector must have shape (3,) or (3, N, ..).")
     rot = np.zeros_like(r)
     rot[0] = (
         r[0] * (q[0] ** 2 - q[1] ** 2 - q[2] ** 2 + q[3] ** 2)
@@ -809,22 +809,22 @@ def sun_vector_body(data, predictive=True):
     :param predictive: use predictive ephemeris
     :returns: 3 x N array of vectors
     """
-    orbit = 'orbitephem{}_'.format('0' if predictive else '1')
-    solar = 'solarephem{}_'.format('0' if predictive else '1')
+    orbit = "orbitephem{}_".format("0" if predictive else "1")
+    solar = "solarephem{}_".format("0" if predictive else "1")
 
     chandra_eci = np.array(
-        [data[orbit + 'x'].vals, data[orbit + 'y'].vals, data[orbit + 'z'].vals]
+        [data[orbit + "x"].vals, data[orbit + "y"].vals, data[orbit + "z"].vals]
     )
     sun_eci = np.array(
-        [data[solar + 'x'].vals, data[solar + 'y'].vals, data[solar + 'z'].vals]
+        [data[solar + "x"].vals, data[solar + "y"].vals, data[solar + "z"].vals]
     )
     sun_vec = -chandra_eci + sun_eci
     est_quat = np.array(
         [
-            data['aoattqt1'].vals,
-            data['aoattqt2'].vals,
-            data['aoattqt3'].vals,
-            data['aoattqt4'].vals,
+            data["aoattqt1"].vals,
+            data["aoattqt2"].vals,
+            data["aoattqt3"].vals,
+            data["aoattqt4"].vals,
         ]
     )
 

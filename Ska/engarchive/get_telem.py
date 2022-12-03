@@ -47,58 +47,58 @@ def sanitize_event_expression(expr):
       "events.ltt_bads(pad=800, msid='airu2bt')" for eval in module context.
     """
     # First tokenize
-    seps = '()~|&'
-    expr = re.sub(r'\s+', '', expr)
-    words = [''] + list(shlex.shlex(expr)) + ['']
+    seps = "()~|&"
+    expr = re.sub(r"\s+", "", expr)
+    words = [""] + list(shlex.shlex(expr)) + [""]
 
     tokens = []
     for word in words:
-        if word in seps or word == '':
+        if word in seps or word == "":
             tokens.append("SEP")
-        elif re.match(r'\w+$', word):
+        elif re.match(r"\w+$", word):
             try:
                 ast.literal_eval(word)
                 tokens.append("LITERAL")
             except Exception:
                 tokens.append("SYMBOL")
-        elif word == '=':
+        elif word == "=":
             tokens.append("EQUAL")
-        elif word == '[':
+        elif word == "[":
             tokens.append("LBRACE")
-        elif word == ']':
+        elif word == "]":
             tokens.append("RBRACE")
-        elif word == ',':
+        elif word == ",":
             tokens.append("COMMA")
         else:
             try:
                 ast.literal_eval(word)
                 tokens.append("LITERAL")
             except Exception:
-                raise ValueError('Cannot identify word {!r}'.format(word))
+                raise ValueError("Cannot identify word {!r}".format(word))
 
     # Now check syntax and do substitutions where needed
     in_arg_list = False
     for i, p_token, token, n_token in zip(count(1), tokens, tokens[1:], tokens[2:]):
         if token == "SEP":
-            if words[i] in '|&':
-                words[i] = ' {} '.format(words[i])
+            if words[i] in "|&":
+                words[i] = " {} ".format(words[i])
             continue
 
         if token == "LBRACE":
             if in_arg_list:
                 raise ValueError('"LBRACE" within arg list')
             in_arg_list = True
-            words[i] = '('
+            words[i] = "("
 
         elif token == "RBRACE":
             if not in_arg_list:
                 raise ValueError('"RBRACE" outside arg list')
             in_arg_list = False
-            words[i] = ')'
+            words[i] = ")"
 
         elif token == "SYMBOL":
             if not in_arg_list:
-                words[i] = 'events.' + words[i]
+                words[i] = "events." + words[i]
                 if n_token not in ("SEP", "LBRACE"):
                     raise ValueError('"SYMBOL" not followed by "SEP" or "LBRACE"')
             else:
@@ -107,7 +107,7 @@ def sanitize_event_expression(expr):
 
         elif token == "EQUAL":
             if p_token != "SYMBOL" or n_token != "LITERAL":
-                raise ValueError('SYMBOL = LITERAL syntax not found')
+                raise ValueError("SYMBOL = LITERAL syntax not found")
 
         elif token == "LITERAL":
             if p_token != "EQUAL" or n_token not in ("RBRACE", "COMMA"):
@@ -115,10 +115,10 @@ def sanitize_event_expression(expr):
 
         elif token == "COMMA":
             if n_token != "SYMBOL":
-                raise ValueError('COMMA must be followed by SYMBOL')
-            words[i] = ', '
+                raise ValueError("COMMA must be followed by SYMBOL")
+            words[i] = ", "
 
-    return ''.join(words)
+    return "".join(words)
 
 
 def msidset_resample(msidset, dt):
@@ -158,8 +158,8 @@ def get_telem(
     msids,
     start=None,
     stop=None,
-    sampling='full',
-    unit_system='eng',
+    sampling="full",
+    unit_system="eng",
     interpolate_dt=None,
     remove_events=None,
     select_events=None,
@@ -181,18 +181,18 @@ def get_telem(
     # Set up output logging
     from pyyaks.logger import get_logger
 
-    logger = get_logger(name='Ska.engarchive.get_telem', level=(100 if quiet else -100))
+    logger = get_logger(name="Ska.engarchive.get_telem", level=(100 if quiet else -100))
 
     # Set defaults and translate to fetch keywords
     stop = DateTime(stop)
     start = stop - 30 if start is None else DateTime(start)
-    stat = None if sampling == 'full' else sampling
+    stat = None if sampling == "full" else sampling
     filter_bad = interpolate_dt is None
     if isinstance(msids, six.string_types):
         msids = [msids]
 
     logger.info(
-        'Fetching {}-resolution data for MSIDS={}\n  from {} to {}'.format(
+        "Fetching {}-resolution data for MSIDS={}\n  from {} to {}".format(
             sampling, msids, start.date, stop.date
         )
     )
@@ -206,43 +206,43 @@ def get_telem(
         )
         if max_fetch_Mb is not None and fetch_Mb > max_fetch_Mb:
             raise MemoryError(
-                'Requested fetch requires {:.2f} Mb vs. limit of {:.2f} Mb'.format(
+                "Requested fetch requires {:.2f} Mb vs. limit of {:.2f} Mb".format(
                     fetch_Mb, max_fetch_Mb
                 )
             )
         # If outputting to a file then check output size
         if outfile and max_output_Mb is not None and output_Mb > max_output_Mb:
             raise MemoryError(
-                'Requested fetch (interpolated) requires {:.2f} Mb '
-                'vs. limit of {:.2f} Mb'.format(output_Mb, max_output_Mb)
+                "Requested fetch (interpolated) requires {:.2f} Mb "
+                "vs. limit of {:.2f} Mb".format(output_Mb, max_output_Mb)
             )
 
     dat = fetch.MSIDset(msids, start, stop, stat=stat, filter_bad=filter_bad)
 
     if interpolate_dt is not None:
-        logger.info('Interpolating at {} second intervals'.format(interpolate_dt))
+        logger.info("Interpolating at {} second intervals".format(interpolate_dt))
         msidset_resample(dat, interpolate_dt)
 
     if remove_events is not None:
-        logger.info('Removing events: {}'.format(remove_events))
+        logger.info("Removing events: {}".format(remove_events))
         queryset = get_queryset(remove_events)
         for msid in dat:
             dat[msid].remove_intervals(queryset)
 
     if select_events is not None:
-        logger.info('Selecting events: {}'.format(select_events))
+        logger.info("Selecting events: {}".format(select_events))
         queryset = get_queryset(select_events)
         for msid in dat:
             dat[msid].select_intervals(queryset)
 
-    if time_format not in (None, 'secs'):
+    if time_format not in (None, "secs"):
         for dat_msid in dat.values():
             dat_msid.times = getattr(
-                DateTime(dat_msid.times, format='secs'), time_format
+                DateTime(dat_msid.times, format="secs"), time_format
             )
 
     if outfile:
-        logger.info('Writing data to {}'.format(outfile))
+        logger.info("Writing data to {}".format(outfile))
         dat.write_zip(outfile)
 
     return dat
@@ -253,74 +253,74 @@ def get_opt():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        '--start', type=str, help='Start time for data fetch (default=<stop> - 30 days)'
+        "--start", type=str, help="Start time for data fetch (default=<stop> - 30 days)"
     )
 
     parser.add_argument(
-        '--stop', type=str, help='Stop time for data fetch (default=NOW)'
+        "--stop", type=str, help="Stop time for data fetch (default=NOW)"
     )
 
     parser.add_argument(
-        '--sampling',
+        "--sampling",
         type=str,
-        default='5min',
-        help='Data sampling (full|5min|daily) (default=5min)',
+        default="5min",
+        help="Data sampling (full|5min|daily) (default=5min)",
     )
 
     parser.add_argument(
-        '--unit-system',
+        "--unit-system",
         type=str,
-        default='eng',
-        help='Unit system for data (eng|sci|cxc) (default=eng)',
+        default="eng",
+        help="Unit system for data (eng|sci|cxc) (default=eng)",
     )
 
     parser.add_argument(
-        '--interpolate-dt',
+        "--interpolate-dt",
         type=float,
-        help='Interpolate to uniform time steps (secs, default=None)',
+        help="Interpolate to uniform time steps (secs, default=None)",
     )
 
     parser.add_argument(
-        '--remove-events', type=str, help='Remove kadi events expression (default=None)'
+        "--remove-events", type=str, help="Remove kadi events expression (default=None)"
     )
 
     parser.add_argument(
-        '--select-events', type=str, help='Select kadi events expression (default=None)'
+        "--select-events", type=str, help="Select kadi events expression (default=None)"
     )
 
     parser.add_argument(
-        '--time-format',
+        "--time-format",
         type=str,
-        help='Output time format (secs|date|greta|jd|frac_year|...)',
+        help="Output time format (secs|date|greta|jd|frac_year|...)",
     )
 
     parser.add_argument(
-        '--outfile',
-        default='fetch.zip',
+        "--outfile",
+        default="fetch.zip",
         type=str,
-        help='Output file name (default=fetch.zip)',
+        help="Output file name (default=fetch.zip)",
     )
 
     parser.add_argument(
-        '--quiet', action='store_true', help='Suppress run-time logging output'
+        "--quiet", action="store_true", help="Suppress run-time logging output"
     )
 
     parser.add_argument(
-        '--max-fetch-Mb',
+        "--max-fetch-Mb",
         default=1000.0,
         type=float,
-        help='Max allowed memory (Mb) for fetching (default=1000)',
+        help="Max allowed memory (Mb) for fetching (default=1000)",
     )
 
     parser.add_argument(
-        '--max-output-Mb',
+        "--max-output-Mb",
         default=100.0,
         type=float,
-        help='Max allowed memory (Mb) for file output (default=100)',
+        help="Max allowed memory (Mb) for file output (default=100)",
     )
 
     parser.add_argument(
-        'msids', metavar='MSID', type=str, nargs='+', help='MSID to fetch'
+        "msids", metavar="MSID", type=str, nargs="+", help="MSID to fetch"
     )
 
     opt = parser.parse_args()
@@ -332,18 +332,18 @@ def main():
     try:
         get_telem(**vars(opt))
     except MemoryError as err:
-        print('\n'.join(['', '*' * 80, 'ERROR: {}'.format(err), '*' * 80, '']))
+        print("\n".join(["", "*" * 80, "ERROR: {}".format(err), "*" * 80, ""]))
     except Exception as err:
         print(
-            '\n'.join(
+            "\n".join(
                 [
-                    '',
-                    '*' * 80,
-                    'ERROR: {}'.format(err),
-                    'If necessary report the following traceback to'
-                    ' aca@head.cfa.harvard.edu',
-                    '*' * 80,
-                    '',
+                    "",
+                    "*" * 80,
+                    "ERROR: {}".format(err),
+                    "If necessary report the following traceback to"
+                    " aca@head.cfa.harvard.edu",
+                    "*" * 80,
+                    "",
                 ]
             )
         )

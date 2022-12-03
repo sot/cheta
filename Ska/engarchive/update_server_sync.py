@@ -48,7 +48,7 @@ from Ska.DBI import DBI
 from . import fetch, file_defs
 from .utils import STATS_DT, get_date_id
 
-sync_files = pyyaks.context.ContextDict('update_server_sync.sync_files')
+sync_files = pyyaks.context.ContextDict("update_server_sync.sync_files")
 sync_files.update(file_defs.sync_files)
 
 
@@ -59,7 +59,7 @@ def get_options(args=None):
     )
     parser.add_argument(
         "--content",
-        action='append',
+        action="append",
         help="Content type to process [match regex] (default = all)",
     )
     parser.add_argument(
@@ -98,18 +98,18 @@ def update_msid_contents_pkl(logger):
 
     :return: None
     """
-    filename = Path(sync_files['msid_contents'].abs)
+    filename = Path(sync_files["msid_contents"].abs)
 
     # Check if an existing version of the file is the same and do not overwrite
     # in that case.
     if filename.exists():
-        with gzip.open(filename, 'rb') as fh:
+        with gzip.open(filename, "rb") as fh:
             msid_contents = pickle.load(fh)
         if msid_contents == fetch.content:
             return
 
-    logger.info(f'Writing contents pickle {filename}')
-    with gzip.open(filename, 'wb') as fh:
+    logger.info(f"Writing contents pickle {filename}")
+    with gzip.open(filename, "wb") as fh:
         pickle.dump(fetch.content, fh, protocol=-1)
 
 
@@ -121,7 +121,7 @@ def main(args=None):
     # Set up logging
     loglevel = int(opt.log_level)
     logger = pyyaks.logger.get_logger(
-        name='cheta_update_server_sync',
+        name="cheta_update_server_sync",
         level=loglevel,
         format="%(asctime)s %(message)s",
     )
@@ -160,15 +160,15 @@ def remove_outdated_sync_files(opt, logger, index_tbl, index_file):
 
     # Iterate over rows to be deleted and delete corresponding file directories.
     for row in index_tbl[:idx0]:
-        fetch.ft['date_id'] = row['date_id']
-        data_dir = sync_files['data_dir'].abs
+        fetch.ft["date_id"] = row["date_id"]
+        data_dir = sync_files["data_dir"].abs
         if Path(data_dir).exists():
-            logger.info(f'Removing sync directory {data_dir}')
+            logger.info(f"Removing sync directory {data_dir}")
             shutil.rmtree(data_dir)
 
     index_tbl = index_tbl[idx0:]
-    logger.info(f'Writing {len(index_tbl)} row(s) to index file {index_file}')
-    index_tbl.write(index_file, format='ascii.ecsv', overwrite=True)
+    logger.info(f"Writing {len(index_tbl)} row(s) to index file {index_file}")
+    index_tbl.write(index_file, format="ascii.ecsv", overwrite=True)
 
 
 def update_sync_repo(opt, logger, content):
@@ -181,25 +181,25 @@ def update_sync_repo(opt, logger, content):
     """
     # File types context dict
     ft = fetch.ft
-    ft['content'] = content
+    ft["content"] = content
 
-    index_file = Path(sync_files['index'].abs)
+    index_file = Path(sync_files["index"].abs)
     index_tbl = update_index_file(index_file, opt, logger)
 
     if index_tbl is None:
         # Index table was not created, nothing more to do here
         logger.warning(
-            f'WARNING: No index table for {content} (use --date-start to create)'
+            f"WARNING: No index table for {content} (use --date-start to create)"
         )
         return
 
     for row in index_tbl:
         ft = fetch.ft
-        ft['date_id'] = row['date_id']
+        ft["date_id"] = row["date_id"]
 
         update_sync_data_full(content, logger, row)
-        update_sync_data_stat(content, logger, row, '5min')
-        update_sync_data_stat(content, logger, row, 'daily')
+        update_sync_data_stat(content, logger, row, "5min")
+        update_sync_data_stat(content, logger, row, "daily")
 
     remove_outdated_sync_files(opt, logger, index_tbl, index_file)
 
@@ -208,13 +208,13 @@ def get_row_from_archfiles(archfiles):
     # Make a row that encapsulates info for this setup of data updates. The ``date_id`` key is a
     # date like 2019-02-20T2109z, human-readable and Windows-friendly (no :) for a unique
     # identifier for this set of updates.
-    date_id = get_date_id(DateTime(archfiles[0]['filetime']).fits)
+    date_id = get_date_id(DateTime(archfiles[0]["filetime"]).fits)
     row = {
-        'date_id': date_id,
-        'filetime0': archfiles[0]['filetime'],
-        'filetime1': archfiles[-1]['filetime'],
-        'row0': archfiles[0]['rowstart'],
-        'row1': archfiles[-1]['rowstop'],
+        "date_id": date_id,
+        "filetime0": archfiles[0]["filetime"],
+        "filetime1": archfiles[-1]["filetime"],
+        "row0": archfiles[0]["rowstart"],
+        "row1": archfiles[-1]["rowstop"],
     }
     return row
 
@@ -228,15 +228,15 @@ def check_index_tbl_consistency(index_tbl):
     """
     filetimes = []
     for row in index_tbl:
-        filetimes.append(row['filetime0'])
-        filetimes.append(row['filetime1'])
+        filetimes.append(row["filetime0"])
+        filetimes.append(row["filetime1"])
 
     if np.any(np.diff(filetimes) < 0):
-        msg = 'filetime values not monotonically increasing'
+        msg = "filetime values not monotonically increasing"
         return msg
 
     for idx, row0, row1 in zip(count(), index_tbl[:-1], index_tbl[1:]):
-        if row0['row1'] != row1['row0']:
+        if row0["row1"] != row1["row0"]:
             msg = f'rows not contiguous at table date0={index_tbl["date_id"][idx]}'
             return msg
 
@@ -264,7 +264,7 @@ def update_index_file(index_file, opt, logger):
             # with a length=1 string (date_id) and add_row later will give the wrong result.
             index_tbl = None
         else:
-            filetime0 = max(filetime0, index_tbl['filetime1'][-1])
+            filetime0 = max(filetime0, index_tbl["filetime1"][-1])
     else:
         # For initial index file creation use the --date-start option
         index_tbl = None
@@ -276,30 +276,30 @@ def update_index_file(index_file, opt, logger):
     # Step through the archfile files entries and collect them into groups of up
     # to --max-days based on file time stamp (which is an integer in CXC secs).
     rows = []
-    filename = fetch.msid_files['archfiles'].abs
-    logger.verbose(f'Opening archfiles {filename}')
-    with DBI(dbi='sqlite', server=filename) as dbi:
+    filename = fetch.msid_files["archfiles"].abs
+    logger.verbose(f"Opening archfiles {filename}")
+    with DBI(dbi="sqlite", server=filename) as dbi:
         while True:
             filetime1 = min(filetime0 + max_secs, time_stop)
             logger.verbose(
-                'select from archfiles '
-                f'filetime > {DateTime(filetime0).fits[:-4]} {filetime0} '
-                f'filetime <= {DateTime(filetime1).fits[:-4]} {filetime1} '
+                "select from archfiles "
+                f"filetime > {DateTime(filetime0).fits[:-4]} {filetime0} "
+                f"filetime <= {DateTime(filetime1).fits[:-4]} {filetime1} "
             )
             archfiles = dbi.fetchall(
-                'select * from archfiles '
-                f'where filetime > {filetime0} '
-                f'and filetime <= {filetime1} '
-                'order by filetime '
+                "select * from archfiles "
+                f"where filetime > {filetime0} "
+                f"and filetime <= {filetime1} "
+                "order by filetime "
             )
 
             # Found new archfiles?  If so get a new index table row for them.
             if len(archfiles) > 0:
                 rows.append(get_row_from_archfiles(archfiles))
-                filedates = DateTime(archfiles['filetime']).fits
+                filedates = DateTime(archfiles["filetime"]).fits
                 logger.verbose(
-                    f'Got {len(archfiles)} archfiles rows from '
-                    f'{filedates[0]} to {filedates[-1]}'
+                    f"Got {len(archfiles)} archfiles rows from "
+                    f"{filedates[0]} to {filedates[-1]}"
                 )
 
             filetime0 = filetime1
@@ -321,18 +321,18 @@ def update_index_file(index_file, opt, logger):
             index_tbl.add_row(row)
 
     if not index_file.parent.exists():
-        logger.info(f'Making directory {index_file.parent}')
+        logger.info(f"Making directory {index_file.parent}")
         index_file.parent.mkdir(exist_ok=True, parents=True)
 
     msg = check_index_tbl_consistency(index_tbl)
     if msg:
-        msg += '\n'
-        msg += '\n'.join(index_tbl.pformat(max_lines=-1, max_width=-1))
-        logger.error(f'ERROR: Index table inconsistency: {msg}')
+        msg += "\n"
+        msg += "\n".join(index_tbl.pformat(max_lines=-1, max_width=-1))
+        logger.error(f"ERROR: Index table inconsistency: {msg}")
         return None
 
-    logger.info(f'Writing {len(rows)} row(s) to index file {index_file}')
-    index_tbl.write(index_file, format='ascii.ecsv')
+    logger.info(f"Writing {len(rows)} row(s) to index file {index_file}")
+    index_tbl.write(index_file, format="ascii.ecsv")
 
     return index_tbl
 
@@ -352,56 +352,56 @@ def update_sync_data_full(content, logger, row):
     :return: None
     """
     ft = fetch.ft
-    ft['interval'] = 'full'
+    ft["interval"] = "full"
 
-    outfile = Path(sync_files['data'].abs)
+    outfile = Path(sync_files["data"].abs)
     if outfile.exists():
-        logger.verbose(f'Skipping {outfile}, already exists')
+        logger.verbose(f"Skipping {outfile}, already exists")
         return
 
     out = {}
-    msids = list(fetch.all_colnames[content]) + ['TIME']
+    msids = list(fetch.all_colnames[content]) + ["TIME"]
 
     # row{filetime0} and row{filetime1} are the *inclusive* `filetime` stamps
     # for the archfiles to be included  in this row.  They do not overlap, so
     # the selection below must be equality.
-    with DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
+    with DBI(dbi="sqlite", server=fetch.msid_files["archfiles"].abs) as dbi:
         query = (
-            'select * from archfiles '
+            "select * from archfiles "
             f'where filetime >= {row["filetime0"]} '
             f'and filetime <= {row["filetime1"]} '
-            'order by filetime '
+            "order by filetime "
         )
         archfiles = dbi.fetchall(query)
-        out['archfiles'] = archfiles
+        out["archfiles"] = archfiles
 
     # Row slice indexes into full-resolution MSID h5 files.  All MSIDs share the
     # same row0:row1 range.
-    row0 = row['row0']
-    row1 = row['row1']
+    row0 = row["row0"]
+    row1 = row["row1"]
 
     # Go through each MSID and collect values
     n_msids = 0
     for msid in msids:
-        ft['msid'] = msid
-        filename = fetch.msid_files['msid'].abs
+        ft["msid"] = msid
+        filename = fetch.msid_files["msid"].abs
         if not Path(filename).exists():
-            logger.debug(f'No MSID file for {msid} - skipping')
+            logger.debug(f"No MSID file for {msid} - skipping")
             continue
 
         n_msids += 1
-        with tables.open_file(filename, 'r') as h5:
-            out[f'{msid}.quality'] = h5.root.quality[row0:row1]
-            out[f'{msid}.data'] = h5.root.data[row0:row1]
-            out[f'{msid}.row0'] = row0
-            out[f'{msid}.row1'] = row1
+        with tables.open_file(filename, "r") as h5:
+            out[f"{msid}.quality"] = h5.root.quality[row0:row1]
+            out[f"{msid}.data"] = h5.root.data[row0:row1]
+            out[f"{msid}.row0"] = row0
+            out[f"{msid}.row1"] = row1
 
     n_rows = row1 - row0
-    logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
+    logger.info(f"Writing {outfile} with {n_rows} rows of data and {n_msids} msids")
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
     # TODO: increase compression to max (gzip?)
-    with gzip.open(outfile, 'wb') as fh:
+    with gzip.open(outfile, "wb") as fh:
         pickle.dump(out, fh)
 
 
@@ -422,19 +422,19 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
     dt = STATS_DT[stat]
 
     logger.verbose(
-        f'_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, '
-        f'{DateTime(tstop).fits}, {last_row1})'
+        f"_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, "
+        f"{DateTime(tstop).fits}, {last_row1})"
     )
 
-    with tables.open_file(filename, 'r') as h5:
+    with tables.open_file(filename, "r") as h5:
         # Check if tstart is beyond the end of the table.  If so, return an empty table
         table = h5.root.data
-        last_index = table[-1]['index']
+        last_index = table[-1]["index"]
         last_time = (last_index + 0.5) * dt
         if tstart > last_time:
             logger.verbose(
-                f'No available stats data {DateTime(tstart).fits} > '
-                f'{DateTime(last_time).fits} (returning empty table)'
+                f"No available stats data {DateTime(tstart).fits} > "
+                f"{DateTime(last_time).fits} (returning empty table)"
             )
             row0 = row1 = len(table)
             table_rows = table[row0:row1]
@@ -450,7 +450,7 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
             if delta_rows > len(table):
                 delta_rows = len(table)
 
-            times = (table[-delta_rows:]['index'] + 0.5) * dt
+            times = (table[-delta_rows:]["index"] + 0.5) * dt
 
             # In the worst case of starting to sync a client archive for a rarely-sampled
             # content like cpe1eng or pcad7eng (AOSPASA2CV,) we need to include an extra ``dt``
@@ -487,21 +487,21 @@ def update_sync_data_stat(content, logger, row, stat):
     :return:
     """
     ft = fetch.ft
-    ft['interval'] = stat
+    ft["interval"] = stat
 
-    outfile = Path(sync_files['data'].abs)
+    outfile = Path(sync_files["data"].abs)
     if outfile.exists():
-        logger.verbose(f'Skipping {outfile}, already exists')
+        logger.verbose(f"Skipping {outfile}, already exists")
         return
 
     # First get the times corresponding to row0 and row1 in the full resolution archive
-    ft['msid'] = 'TIME'
-    with tables.open_file(fetch.msid_files['msid'].abs, 'r') as h5:
+    ft["msid"] = "TIME"
+    with tables.open_file(fetch.msid_files["msid"].abs, "r") as h5:
         table = h5.root.data
-        tstart = table[row['row0']]
+        tstart = table[row["row0"]]
         # Ensure that table row1 (for tstop) doesn't fall off the edge since the last
         # index file row will have row1 exactly equal to the table length.
-        row1 = min(row['row1'], len(table) - 1)
+        row1 = min(row["row1"], len(table) - 1)
         tstop = table[row1]
 
     out = {}
@@ -509,10 +509,10 @@ def update_sync_data_stat(content, logger, row, stat):
 
     # Get dict of last sync repo row for each MSID.  This is keyed as {msid: last_row1},
     # where row1 is (as always) the slice row1.
-    last_rows_filename = sync_files['last_rows'].abs
+    last_rows_filename = sync_files["last_rows"].abs
     if Path(last_rows_filename).exists():
-        logger.verbose(f'Reading {last_rows_filename}')
-        last_rows = pickle.load(open(last_rows_filename, 'rb'))
+        logger.verbose(f"Reading {last_rows_filename}")
+        last_rows = pickle.load(open(last_rows_filename, "rb"))
     else:
         last_rows = {}
 
@@ -522,37 +522,37 @@ def update_sync_data_stat(content, logger, row, stat):
     n_msids = 0
     for msid in msids:
         last_row1 = last_rows.get(msid)
-        ft['msid'] = msid
-        filename = fetch.msid_files['stats'].abs
+        ft["msid"] = msid
+        filename = fetch.msid_files["stats"].abs
         if not Path(filename).exists():
-            logger.debug(f'No {stat} stat data for {msid} - skipping')
+            logger.debug(f"No {stat} stat data for {msid} - skipping")
             continue
 
         n_msids += 1
         stat_rows, row0, row1 = _get_stat_data_from_archive(
             filename, stat, tstart, tstop, last_row1, logger
         )
-        logger.verbose(f'Got stat rows {row0} {row1} for stat {stat} {msid}')
+        logger.verbose(f"Got stat rows {row0} {row1} for stat {stat} {msid}")
         n_rows_set.add(row1 - row0)
         if row1 > row0:
-            out[f'{msid}.data'] = stat_rows
-            out[f'{msid}.row0'] = row0
-            out[f'{msid}.row1'] = row1
+            out[f"{msid}.data"] = stat_rows
+            out[f"{msid}.row0"] = row0
+            out[f"{msid}.row1"] = row1
             last_rows[msid] = row1
 
     n_rows = n_rows_set.pop() if len(n_rows_set) == 1 else n_rows_set
 
     outfile.parent.mkdir(exist_ok=True, parents=True)
     # TODO: increase compression to max (gzip?)
-    logger.info(f'Writing {outfile} with {n_rows} rows of data and {n_msids} msids')
-    with gzip.open(outfile, 'wb') as fh:
+    logger.info(f"Writing {outfile} with {n_rows} rows of data and {n_msids} msids")
+    with gzip.open(outfile, "wb") as fh:
         pickle.dump(out, fh)
 
     # Save the row1 value for each MSID to use as row0 for the next update
-    logger.verbose(f'Writing {last_rows_filename}')
-    with open(last_rows_filename, 'wb') as fh:
+    logger.verbose(f"Writing {last_rows_filename}")
+    with open(last_rows_filename, "wb") as fh:
         pickle.dump(last_rows, fh)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -15,7 +15,7 @@ from six.moves import zip
 from . import units
 
 MODULE = sys.modules[__name__]
-logger = logging.getLogger('engarchive')
+logger = logging.getLogger("engarchive")
 
 
 class NoValidDataError(Exception):
@@ -28,7 +28,7 @@ class DataShapeError(Exception):
 
 def quality_index(dat, colname):
     """Return the index for `colname` in `dat`"""
-    colname = colname.split(':')[0]
+    colname = colname.split(":")[0]
     return list(dat.dtype.names).index(colname)
 
 
@@ -65,9 +65,9 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
             # Note to self: never change an enclosed reference, i.e. don't do
             # prefix = prefix.upper() + '_'
             # You will lose an hour again figuring this out if so.
-            PREFIX = prefix.upper() + '_'
+            PREFIX = prefix.upper() + "_"
             colnames_out = [
-                (x if x in ('TIME', 'QUALITY') else PREFIX + x) for x in colnames_out
+                (x if x in ("TIME", "QUALITY") else PREFIX + x) for x in colnames_out
             ]
 
         arrays = [dat.field(x) for x in colnames]
@@ -75,7 +75,7 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
         if add_quality:
             descrs = [(x,) + y[1:] for x, y in zip(colnames_out, dat.dtype.descr)]
             quals = numpy.zeros((len(dat), len(colnames) + 1), dtype=numpy.bool)
-            descrs += [('QUALITY', numpy.bool, (len(colnames) + 1,))]
+            descrs += [("QUALITY", numpy.bool, (len(colnames) + 1,))]
             arrays += [quals]
         else:
             descrs = [
@@ -89,12 +89,12 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
 
 
 def get_bit_array(dat, in_name, out_name, bit_index):
-    bit_indexes = [int(bi) for bi in bit_index.split(',')]
+    bit_indexes = [int(bi) for bi in bit_index.split(",")]
     bit_index = max(bit_indexes)
 
     if dat[in_name].shape[1] < bit_index:
         raise DataShapeError(
-            'column {} has shape {} but need at least {}'.format(
+            "column {} has shape {} but need at least {}".format(
                 in_name, dat[in_name].shape[1], bit_index + 1
             )
         )
@@ -112,15 +112,15 @@ def get_bit_array(dat, in_name, out_name, bit_index):
     else:
         try:
             tscs = Ska.tdb.msids[out_name].Tsc
-            scs = {tsc['LOW_RAW_COUNT']: tsc['STATE_CODE'] for tsc in tscs}
+            scs = {tsc["LOW_RAW_COUNT"]: tsc["STATE_CODE"] for tsc in tscs}
         except (KeyError, AttributeError):
-            scs = ['OFF', 'ON ']
+            scs = ["OFF", "ON "]
 
         # CXC telemetry stores state code vals with trailing spaces so all match
         # in length.  Annoying, but reproduce this here for consistency so
         # fetch Msid.raw_vals does the right thing.
         max_len = max(len(sc) for sc in scs.values())
-        fmtstr = '{:' + str(max_len) + 's}'
+        fmtstr = "{:" + str(max_len) + "s}"
         scs = [fmtstr.format(val) for key, val in scs.items()]
 
         out_array = np.where(dat[in_name][:, bit_index], scs[1], scs[0])
@@ -141,19 +141,19 @@ def generic_converter2(msid_cxc_map, default_dtypes=None):
 
     def _convert(dat):
         # Make quality bool array with entries for TIME, QUALITY, then all other cols
-        out_names = ['TIME', 'QUALITY'] + list(msid_cxc_map.keys())
+        out_names = ["TIME", "QUALITY"] + list(msid_cxc_map.keys())
         out_quality = np.zeros(shape=(len(dat), len(out_names)), dtype=np.bool)
-        out_arrays = {'TIME': dat['TIME'], 'QUALITY': out_quality}
+        out_arrays = {"TIME": dat["TIME"], "QUALITY": out_quality}
 
         for out_name, in_name in msid_cxc_map.items():
-            if ':' in in_name:
-                in_name, bit_index = in_name.split(':')
+            if ":" in in_name:
+                in_name, bit_index = in_name.split(":")
                 out_array = get_bit_array(dat, in_name, out_name, bit_index)
-                quality = dat['QUALITY'][:, quality_index(dat, in_name)]
+                quality = dat["QUALITY"][:, quality_index(dat, in_name)]
             else:
                 if in_name in dat.dtype.names:
                     out_array = dat[in_name]
-                    quality = dat['QUALITY'][:, quality_index(dat, in_name)]
+                    quality = dat["QUALITY"][:, quality_index(dat, in_name)]
                 else:
                     # Handle column that is intermittently available in `dat` by using the
                     # supplied default dtype.  Quality is True (missing) everywhere.
@@ -170,12 +170,12 @@ def generic_converter2(msid_cxc_map, default_dtypes=None):
     return _convert
 
 
-orbitephem0 = generic_converter('orbitephem0', add_quality=True)
-lunarephem0 = generic_converter('lunarephem0', add_quality=True)
-solarephem0 = generic_converter('solarephem0', add_quality=True)
-orbitephem1 = generic_converter('orbitephem1', add_quality=True)
-lunarephem1 = generic_converter('lunarephem1', add_quality=True)
-solarephem1 = generic_converter('solarephem1', add_quality=True)
+orbitephem0 = generic_converter("orbitephem0", add_quality=True)
+lunarephem0 = generic_converter("lunarephem0", add_quality=True)
+solarephem0 = generic_converter("solarephem0", add_quality=True)
+orbitephem1 = generic_converter("orbitephem1", add_quality=True)
+lunarephem1 = generic_converter("lunarephem1", add_quality=True)
+solarephem1 = generic_converter("solarephem1", add_quality=True)
 angleephem = generic_converter(add_quality=True)
 
 
@@ -191,7 +191,7 @@ def parse_alias_str(alias_str, invert=False):
 
 
 ALIASES = {
-    'simdiag': """
+    "simdiag": """
     RAMEXEC          3SDSWELF   SEA CSC Exectuting from RAM
     DSTACKPTR        3SDPSTKP   SEA Data Stack Ptr
     TSCEDGE          3SDTSEDG   TSC Tab Edge Detection Flags
@@ -220,7 +220,7 @@ ALIASES = {
     FAHISTO          3SDFAP     FA Most Recent PWM Histogram
     INVCMDCODE       3SDINCOD   SEA Invalid CommandCode
     """,
-    'sim_mrg': """
+    "sim_mrg": """
     TLMUPDATE    3SEATMUP   "Telemtry Update Flag"
     SEAIDENT     3SEAID     "SEA Identification Flag"
     SEARESET     3SEARSET   "SEA Reset Flag"
@@ -253,7 +253,7 @@ ALIASES = {
     FLEXBTSET    3SFLXBST   "Flexture B Temperature Setpoint"
     FLEXCTSET    3SFLXCST   "Flexture C Temperature Setpoint"
     """,
-    'hrc0ss': """
+    "hrc0ss": """
     TLEVART      2TLEV1RT
     VLEVART      2VLEV1RT
     SHEVART      2SHEV1RT
@@ -261,7 +261,7 @@ ALIASES = {
     VLEVART      2VLEV2RT
     SHEVART      2SHEV2RT
     """,
-    'hrc0hk': """
+    "hrc0hk": """
     SCIDPREN:0,1,2,3,8,9,10 HRC_SS_HK_BAD
     P24CAST:7     224PCAST
     P15CAST:7     215PCAST
@@ -380,50 +380,52 @@ def sim_mrg(dat):
     always "TSC".
     """
     # Start with the generic converter
-    out = generic_converter(aliases=CXC_TO_MSID['sim_mrg'])(dat)
+    out = generic_converter(aliases=CXC_TO_MSID["sim_mrg"])(dat)
 
     # Now do the fixes.  FOT mech has stated that 3LDRTMEK is always 'FA'
     # in practice.
-    bad = out['3LDRTMEK'] == b'FA '
+    bad = out["3LDRTMEK"] == b"FA "
     if np.count_nonzero(bad):
-        out['3LDRTMEK'][bad] = b'TSC'
-        pos_tsc_steps = units.converters['mm', 'FASTEP'](out['3LDRTPOS'][bad])
-        out['3LDRTPOS'][bad] = units.converters['TSCSTEP', 'mm'](pos_tsc_steps)
+        out["3LDRTMEK"][bad] = b"TSC"
+        pos_tsc_steps = units.converters["mm", "FASTEP"](out["3LDRTPOS"][bad])
+        out["3LDRTPOS"][bad] = units.converters["TSCSTEP", "mm"](pos_tsc_steps)
 
     return out
 
 
-simdiag = generic_converter(aliases=CXC_TO_MSID['simdiag'])
-hrc0ss = generic_converter2(MSID_TO_CXC['hrc0ss'])
+simdiag = generic_converter(aliases=CXC_TO_MSID["simdiag"])
+hrc0ss = generic_converter2(MSID_TO_CXC["hrc0ss"])
 
 
 def hrc0hk(dat):
     # Read the data and allow for missing columns in input L0 HK file.
-    default_dtypes = {'2CE00ATM': 'f4', '2CE01ATM': 'f4'}
-    out = generic_converter2(MSID_TO_CXC['hrc0hk'], default_dtypes)(dat)
+    default_dtypes = {"2CE00ATM": "f4", "2CE01ATM": "f4"}
+    out = generic_converter2(MSID_TO_CXC["hrc0hk"], default_dtypes)(dat)
 
     # Set all HRC HK data columns to bad quality where HRC_SS_HK_BAD is not zero
     # First three columns are TIME, QUALITY, and HRC_SS_HK_BAD -- do not filter these.
-    bad = out['HRC_SS_HK_BAD'] > 0
+    bad = out["HRC_SS_HK_BAD"] > 0
     if np.any(bad):
-        out['QUALITY'][bad, 3:] = True
+        out["QUALITY"][bad, 3:] = True
         logger.info(
-            'Setting {} readouts of all HRC HK telem to bad quality (bad SCIDPREN)'
-            .format(np.count_nonzero(bad))
+            "Setting {} readouts of all HRC HK telem to bad quality (bad SCIDPREN)".format(
+                np.count_nonzero(bad)
+            )
         )
 
     # Detect the secondary-science byte-shift anomaly by finding out-of-range 2SMTRATM values.
     # For those bad frames:
     # - Set bit 10 (from LSB) of HRC_SS_HK_BAD
     # - Set all analog MSIDs (2C05PALV and later in the list) to bad quality
-    bad = (out['2SMTRATM'] < -20) | (out['2SMTRATM'] > 50)
+    bad = (out["2SMTRATM"] < -20) | (out["2SMTRATM"] > 50)
     if np.any(bad):
-        out['HRC_SS_HK_BAD'][bad] |= 2**10  # 1024
-        analogs_index0 = list(out.dtype.names).index('2C05PALV')
-        out['QUALITY'][bad, analogs_index0:] = True
+        out["HRC_SS_HK_BAD"][bad] |= 2**10  # 1024
+        analogs_index0 = list(out.dtype.names).index("2C05PALV")
+        out["QUALITY"][bad, analogs_index0:] = True
         logger.info(
-            'Setting {} readouts of analog HRC HK telem to bad quality (bad 2SMTRATM)'
-            .format(np.count_nonzero(bad))
+            "Setting {} readouts of analog HRC HK telem to bad quality (bad 2SMTRATM)".format(
+                np.count_nonzero(bad)
+            )
         )
 
     return out
@@ -440,9 +442,9 @@ def obc4eng(dat):
     # MSIDs OOBTHR<msid_num> that went to _WIDE after the patch, which was done in parts A
     # and B.
     msid_nums = {
-        'a': '08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29'.split(),
-        'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split(),
-        'c': '02 03 04 05 06 07'.split(),
+        "a": "08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29".split(),
+        "b": "30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54".split(),
+        "c": "02 03 04 05 06 07".split(),
     }
 
     # Convert using the baseline converter
@@ -451,24 +453,24 @@ def obc4eng(dat):
     # The patch times below correspond to roughly the middle of the major frame where
     # patches A and B were applied, respectively.
     patch_times = {
-        'a': DateTime('2014:342:16:29:30').secs,
-        'b': DateTime('2014:342:16:32:45').secs,
-        'c': DateTime('2017:312:16:11:16').secs,
+        "a": DateTime("2014:342:16:29:30").secs,
+        "b": DateTime("2014:342:16:32:45").secs,
+        "c": DateTime("2017:312:16:11:16").secs,
     }
 
-    for patch in ('a', 'b', 'c'):
+    for patch in ("a", "b", "c"):
         # Set a mask defining times after the activation of wide-range telemetry in PR-361
-        mask = out['TIME'] > patch_times[patch]
+        mask = out["TIME"] > patch_times[patch]
         if np.any(mask):
             for msid_num in msid_nums[patch]:
-                msid = 'OOBTHR' + msid_num
-                msid_wide = msid + '_WIDE'
-                print('Fixing MSID {}'.format(msid))
+                msid = "OOBTHR" + msid_num
+                msid_wide = msid + "_WIDE"
+                print("Fixing MSID {}".format(msid))
                 out[msid][mask] = out[msid_wide][mask]
 
                 q_index = quality_index(out, msid)
                 q_index_wide = quality_index(out, msid_wide)
-                out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
+                out["QUALITY"][mask, q_index] = out["QUALITY"][mask, q_index_wide]
 
     return out
 
@@ -489,16 +491,16 @@ def tel2eng(dat):
     # 4OAVOBAT is modified by both patches since it is an average of MSIDs in both parts of the
     # patch. Use the second time value as this is when the process is complete. See obc4eng() for
     # both times and further details.
-    patch_time = DateTime('2014:342:16:32:45').secs
+    patch_time = DateTime("2014:342:16:32:45").secs
 
-    mask = out['TIME'] > patch_time
+    mask = out["TIME"] > patch_time
     if np.any(mask):
-        print('Fixing MSID 4OAVOBAT')
-        out['4OAVOBAT'][mask] = out['4OAVOBAT_WIDE'][mask]
+        print("Fixing MSID 4OAVOBAT")
+        out["4OAVOBAT"][mask] = out["4OAVOBAT_WIDE"][mask]
 
-        q_index = quality_index(out, '4OAVOBAT')
-        q_index_wide = quality_index(out, '4OAVOBAT_WIDE')
-        out['QUALITY'][mask, q_index] = out['QUALITY'][mask, q_index_wide]
+        q_index = quality_index(out, "4OAVOBAT")
+        q_index_wide = quality_index(out, "4OAVOBAT_WIDE")
+        out["QUALITY"][mask, q_index] = out["QUALITY"][mask, q_index_wide]
 
     return out
 
@@ -511,15 +513,15 @@ def acisdeahk(dat):
     and put into a single row.  Write out to temp files and modify self->{arch_files}.
     """
 
-    logger.info('Converting acisdeahk data to eng0 format')
+    logger.info("Converting acisdeahk data to eng0 format")
 
     cols = _get_deahk_cols()
-    col_query_ids = tuple(x['query_id'] for x in cols)
-    col_names = tuple(x['name'].upper() for x in cols)
+    col_query_ids = tuple(x["query_id"] for x in cols)
+    col_names = tuple(x["name"].upper() for x in cols)
 
     # Filter only entries with ccd_id >= 10 which indicates data from the I/F control
     dat = pyfits_to_recarray(dat)
-    rows = dat[dat['CCD_ID'] >= 10]
+    rows = dat[dat["CCD_ID"] >= 10]
     if len(rows) == 0:
         raise NoValidDataError()
 
@@ -527,13 +529,13 @@ def acisdeahk(dat):
     # queries into a single row with a column for each query value.
     # Collect each assembled row into %data_out for writing to a FITS bin table
     block_idxs = 1 + numpy.flatnonzero(
-        numpy.abs(rows['TIME'][1:] - rows['TIME'][:-1]) > 0.001
+        numpy.abs(rows["TIME"][1:] - rows["TIME"][:-1]) > 0.001
     )
     block_idxs = numpy.hstack([[0], block_idxs, [len(rows)]])
-    query_val_tus = rows['QUERY_VAL_TU']
-    query_vals = rows['QUERY_VAL']
-    query_ids = rows['QUERY_ID']
-    times = rows['TIME']
+    query_val_tus = rows["QUERY_VAL_TU"]
+    query_vals = rows["QUERY_VAL"]
+    query_ids = rows["QUERY_ID"]
+    times = rows["TIME"]
 
     outs = []
     for i0, i1 in zip(block_idxs[:-1], block_idxs[1:]):
@@ -561,7 +563,7 @@ def acisdeahk(dat):
         quality = (False, False) + bads
         outs.append((times[i0], quality) + vals)
 
-    dtype = [('TIME', numpy.float64), ('QUALITY', numpy.bool, (len(col_names) + 2,))]
+    dtype = [("TIME", numpy.float64), ("QUALITY", numpy.bool, (len(col_names) + 2,))]
     dtype += [(col_name, numpy.float32) for col_name in col_names]
 
     return numpy.rec.fromrecords(outs, dtype=dtype)

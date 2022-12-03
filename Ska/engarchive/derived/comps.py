@@ -16,7 +16,7 @@ from Chandra.Time import DateTime
 
 from ..units import converters as unit_converter_funcs
 
-__all__ = ['ComputedMsid', 'Comp_MUPS_Valve_Temp_Clean', 'Comp_KadiCommandState']
+__all__ = ["ComputedMsid", "Comp_MUPS_Valve_Temp_Clean", "Comp_KadiCommandState"]
 
 
 def calc_stats_vals(msid, rows, indexes, interval):
@@ -50,24 +50,24 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
     # If MSID data is unicode, then for stats purposes cast back to bytes
     # by creating the output array as a like-sized S-type array.
-    if msid_dtype.kind == 'U':
-        msid_dtype = re.sub(r'U', 'S', msid.vals.dtype.str)
+    if msid_dtype.kind == "U":
+        msid_dtype = re.sub(r"U", "S", msid.vals.dtype.str)
 
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = {}
-    out['index'] = np.ndarray((n_out,), dtype=np.int32)
-    out['n'] = np.ndarray((n_out,), dtype=np.int32)
-    out['val'] = np.ndarray((n_out,), dtype=msid_dtype)
+    out["index"] = np.ndarray((n_out,), dtype=np.int32)
+    out["n"] = np.ndarray((n_out,), dtype=np.int32)
+    out["val"] = np.ndarray((n_out,), dtype=msid_dtype)
 
     if msid_is_numeric:
-        out['min'] = np.ndarray((n_out,), dtype=msid_dtype)
-        out['max'] = np.ndarray((n_out,), dtype=msid_dtype)
-        out['mean'] = np.ndarray((n_out,), dtype=np.float32)
+        out["min"] = np.ndarray((n_out,), dtype=msid_dtype)
+        out["max"] = np.ndarray((n_out,), dtype=msid_dtype)
+        out["mean"] = np.ndarray((n_out,), dtype=np.float32)
 
-        if interval == 'daily':
-            out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
+        if interval == "daily":
+            out["std"] = np.ndarray((n_out,), dtype=msid_dtype)
             for quantile in quantiles:
-                out['p{:02d}'.format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
+                out["p{:02d}".format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
 
     i = 0
     for row0, row1, index in zip(rows[:-1], rows[1:], indexes[:-1]):
@@ -76,9 +76,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
         n_vals = len(vals)
         if n_vals > 0:
-            out['index'][i] = index
-            out['n'][i] = n_vals
-            out['val'][i] = vals[n_vals // 2]
+            out["index"][i] = index
+            out["n"][i] = n_vals
+            out["val"][i] = vals[n_vals // 2]
             if msid_is_numeric:
                 if n_vals <= 2:
                     dts = np.ones(n_vals, dtype=np.float64)
@@ -96,7 +96,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
                             for t, dt in zip(times[negs], dts[negs])
                         ]
                         raise ValueError(
-                            'WARNING - negative dts in {} at {}'.format(
+                            "WARNING - negative dts in {} at {}".format(
                                 msid.MSID, times_dts
                             )
                         )
@@ -109,19 +109,19 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     dts.clip(0.001, 300.0, out=dts)
                 sum_dts = np.sum(dts)
 
-                out['min'][i] = np.min(vals)
-                out['max'][i] = np.max(vals)
-                out['mean'][i] = np.sum(dts * vals) / sum_dts
-                if interval == 'daily':
+                out["min"][i] = np.min(vals)
+                out["max"][i] = np.max(vals)
+                out["mean"][i] = np.sum(dts * vals) / sum_dts
+                if interval == "daily":
                     # biased weighted estimator of variance (N should be big enough)
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
-                    sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
-                    out['std'][i] = np.sqrt(sigma_sq)
+                    sigma_sq = np.sum(dts * (vals - out["mean"][i]) ** 2) / sum_dts
+                    out["std"][i] = np.sqrt(sigma_sq)
                     quant_vals = scipy.stats.mstats.mquantiles(
                         vals, np.array(quantiles) / 100.0
                     )
                     for quant_val, quantile in zip(quant_vals, quantiles):
-                        out['p%02d' % quantile][i] = quant_val
+                        out["p%02d" % quantile][i] = quant_val
 
             i += 1
 
@@ -150,15 +150,15 @@ class ComputedMsid:
     # Base units specification (None implies no unit handling)
     units = None
 
-    def __init__(self, unit_system='eng'):
+    def __init__(self, unit_system="eng"):
         self.unit_system = unit_system
 
     def __init_subclass__(cls, **kwargs):
         """Validate and register ComputedMSID subclass."""
         super().__init_subclass__(**kwargs)
 
-        if not hasattr(cls, 'msid_match'):
-            raise ValueError(f'comp {cls.__name__} must define msid_match')
+        if not hasattr(cls, "msid_match"):
+            raise ValueError(f"comp {cls.__name__} must define msid_match")
 
         cls.msid_classes.append(cls)
 
@@ -170,7 +170,7 @@ class ComputedMsid:
         :returns: first ComputedMsid subclass that matches ``msid`` or None
         """
         for comp_cls in ComputedMsid.msid_classes:
-            match = re.match(comp_cls.msid_match + '$', msid, re.IGNORECASE)
+            match = re.match(comp_cls.msid_match + "$", msid, re.IGNORECASE)
             if match:
                 return comp_cls
 
@@ -202,7 +202,7 @@ class ComputedMsid:
     @property
     def fetch_sys(self):
         """Fetch in the unit system specified for the class"""
-        fetch = getattr(self, f'fetch_{self.unit_system}')
+        fetch = getattr(self, f"fetch_{self.unit_system}")
         return fetch
 
     def __call__(self, tstart, tstop, msid, interval=None):
@@ -221,7 +221,7 @@ class ComputedMsid:
         # Parse any arguments from the input `msid`
         match = re.match(self.msid_match, msid, re.IGNORECASE)
         if not match:
-            raise RuntimeError(f'unexpected mismatch of {msid} with {self.msid_match}')
+            raise RuntimeError(f"unexpected mismatch of {msid} with {self.msid_match}")
         match_args = [
             arg.lower() if isinstance(arg, str) else arg for arg in match.groups()
         ]
@@ -230,11 +230,11 @@ class ComputedMsid:
             # Call the actual user-supplied work method to compute the MSID values
             msid_attrs = self.get_msid_attrs(tstart, tstop, msid.lower(), match_args)
 
-            for attr in ('vals', 'bads', 'times', 'unit'):
+            for attr in ("vals", "bads", "times", "unit"):
                 if attr not in msid_attrs:
                     raise ValueError(
-                        f'computed MSID {self.__class__.__name__} failed '
-                        f'to set required attribute {attr}'
+                        f"computed MSID {self.__class__.__name__} failed "
+                        f"to set required attribute {attr}"
                     )
 
             # Presence of a non-None `units` class attribute means that the MSID has
@@ -260,14 +260,14 @@ class ComputedMsid:
 
         :returns: dict, converted MSID attributes
         """
-        unit_current = self.units[self.units['internal_system']]
+        unit_current = self.units[self.units["internal_system"]]
         unit_new = self.units[self.unit_system]
 
         out = msid_attrs.copy()
-        out['unit'] = unit_new
+        out["unit"] = unit_new
 
         if unit_current != unit_new:
-            for attr in self.units['convert_attrs']:
+            for attr in self.units["convert_attrs"]:
                 out[attr] = unit_converter_funcs[unit_current, unit_new](
                     msid_attrs[attr]
                 )
@@ -288,7 +288,7 @@ class ComputedMsid:
         :param msid_args: tuple of regex match groups (msid_name,)
         :returns: dict of MSID attributes
         """
-        raise NotImplementedError('sub-class must implement get_msid_attrs()')
+        raise NotImplementedError("sub-class must implement get_msid_attrs()")
 
     def get_stats_attrs(self, tstart, tstop, msid, match_args, interval):
         """Get 5-min or daily stats attributes.
@@ -306,7 +306,7 @@ class ComputedMsid:
         # Replicate a stripped-down version of processing in update_archive.
         # This produces a recarray with columns that correspond to the raw
         # stats HDF5 files.
-        dt = {'5min': 328, 'daily': 86400}[interval]
+        dt = {"5min": 328, "daily": 86400}[interval]
         index0 = int(np.floor(tstart / dt))
         index1 = int(np.ceil(tstop / dt))
         tstart = (index0 - 1) * dt
@@ -327,13 +327,13 @@ class ComputedMsid:
         # to what is seen in a stats fetch query.
         out = {}
         for key in vals_stats.dtype.names:
-            out_key = _plural(key) if key != 'n' else 'samples'
+            out_key = _plural(key) if key != "n" else "samples"
             out[out_key] = vals_stats[key]
-        out['times'] = (vals_stats['index'] + 0.5) * dt
-        out['bads'] = np.zeros(len(vals_stats), dtype=bool)
-        out['midvals'] = out['vals']
-        out['vals'] = out['means']
-        out['unit'] = msid_obj.unit
+        out["times"] = (vals_stats["index"] + 0.5) * dt
+        out["bads"] = np.zeros(len(vals_stats), dtype=bool)
+        out["midvals"] = out["vals"]
+        out["vals"] = out["means"]
+        out["unit"] = msid_obj.unit
 
         return out
 
@@ -370,19 +370,19 @@ class Comp_Quat(ComputedMsid):
              [193.28908839,  19.16895134,  67.36206404]])
     """
 
-    msid_match = r'quat_(aoattqt|aoatupq|aocmdqt|aotarqt)'
+    msid_match = r"quat_(aoattqt|aoatupq|aocmdqt|aotarqt)"
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         from Quaternion import Quat, normalize
 
-        if 'maude' in self.fetch_sys.data_source.sources():
+        if "maude" in self.fetch_sys.data_source.sources():
             raise ValueError(
-                f'{msid} is not available from MAUDE due to issues aligning telemetry'
+                f"{msid} is not available from MAUDE due to issues aligning telemetry"
             )
 
         msid_root = msid_args[0]
-        n_comp = 4 if msid_root == 'aoattqt' else 3
-        msids = [f'{msid_root}{ii}' for ii in range(1, n_comp + 1)]
+        n_comp = 4 if msid_root == "aoattqt" else 3
+        msids = [f"{msid_root}{ii}" for ii in range(1, n_comp + 1)]
         dat = self.fetch_sys.MSIDset(msids, tstart, tstop)
 
         # Interpolate to a common time base, leaving in flagged bad data and
@@ -404,7 +404,7 @@ class Comp_Quat(ComputedMsid):
         for msid in msids:
             bads |= dat[msid].bads
 
-        out = {'vals': quat, 'bads': bads, 'times': dat.times, 'unit': None}
+        out = {"vals": quat, "bads": bads, "times": dat.times, "unit": None}
         return out
 
 
@@ -425,15 +425,15 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
     from release 3.28 of chandra_models.
     """
 
-    msid_match = r'(pm2thv1t|pm1thv2t)_clean(_[\w\.]+)?'
+    msid_match = r"(pm2thv1t|pm1thv2t)_clean(_[\w\.]+)?"
 
     units = {
-        'internal_system': 'eng',  # Unit system for attrs from get_msid_attrs()
-        'eng': 'DEGF',  # Units for eng, sci, cxc systems
-        'sci': 'DEGC',
-        'cxc': 'K',
+        "internal_system": "eng",  # Unit system for attrs from get_msid_attrs()
+        "eng": "DEGF",  # Units for eng, sci, cxc systems
+        "sci": "DEGC",
+        "cxc": "K",
         # Attributes that need conversion
-        'convert_attrs': ['vals', 'vals_raw', 'vals_nan', 'vals_corr', 'vals_model'],
+        "convert_attrs": ["vals", "vals_raw", "vals_nan", "vals_corr", "vals_model"],
     }
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
@@ -466,17 +466,17 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
         # Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`
         # returns an MSID object with the following attrs.
         attrs = (
-            'vals',
-            'times',
-            'bads',
-            'vals_raw',
-            'vals_nan',
-            'vals_corr',
-            'vals_model',
-            'source',
+            "vals",
+            "times",
+            "bads",
+            "vals_raw",
+            "vals_nan",
+            "vals_corr",
+            "vals_model",
+            "source",
         )
         msid_attrs = {attr: getattr(dat, attr) for attr in attrs}
-        msid_attrs['unit'] = 'DEGF'
+        msid_attrs["unit"] = "DEGF"
 
         return msid_attrs
 
@@ -497,7 +497,7 @@ class Comp_KadiCommandState(ComputedMsid):
       'cmd_state_acisfp_temp_32': sample ``acisfp_temp`` every 32.8 secs
     """
 
-    msid_match = r'cmd_state_(\w+)_(\d+)'
+    msid_match = r"cmd_state_(\w+)_(\d+)"
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         """Get attributes for computed MSID: ``vals``, ``bads``, ``times``
@@ -516,8 +516,8 @@ class Comp_KadiCommandState(ComputedMsid):
         dt = 1.025 * int(msid_args[1])
         states = get_states(tstart, tstop, state_keys=[state_key])
 
-        tstart = date2secs(states['datestart'][0])
-        tstops = date2secs(states['datestop'])
+        tstart = date2secs(states["datestart"][0])
+        tstops = date2secs(states["datestop"])
 
         times = np.arange(tstart, tstops[-1], dt)
         vals = states[state_key].view(np.ndarray)
@@ -525,10 +525,10 @@ class Comp_KadiCommandState(ComputedMsid):
         indexes = np.searchsorted(tstops, times)
 
         out = {
-            'vals': vals[indexes],
-            'times': times,
-            'bads': np.zeros(len(times), dtype=bool),
-            'unit': None,
+            "vals": vals[indexes],
+            "times": times,
+            "bads": np.zeros(len(times), dtype=bool),
+            "unit": None,
         }
 
         return out

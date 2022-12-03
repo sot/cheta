@@ -106,7 +106,7 @@ def get_options(args=None):
     )
     parser.add_argument(
         "--content",
-        action='append',
+        action="append",
         help="Content type to process [match regex] (default = all)",
     )
     parser.add_argument("--log-level", help="Logging level")
@@ -123,11 +123,11 @@ if opt.create:
 
 ft = fetch.ft
 msid_files = pyyaks.context.ContextDict(
-    'update_archive.msid_files', basedir=opt.data_root
+    "update_archive.msid_files", basedir=opt.data_root
 )
 msid_files.update(file_defs.msid_files)
 arch_files = pyyaks.context.ContextDict(
-    'update_archive.arch_files', basedir=opt.data_root
+    "update_archive.arch_files", basedir=opt.data_root
 )
 arch_files.update(file_defs.arch_files)
 
@@ -135,12 +135,12 @@ arch_files.update(file_defs.arch_files)
 # provided as an option and exists, and if not fall back to the default of
 # fetch.ENG_ARCHIVE.  Fetch is a read-only process so this is safe when testing.
 if opt.data_root:
-    fetch.msid_files.basedir = ':'.join([opt.data_root, fetch.ENG_ARCHIVE])
+    fetch.msid_files.basedir = ":".join([opt.data_root, fetch.ENG_ARCHIVE])
 
 # Set up logging
 loglevel = pyyaks.logger.VERBOSE if opt.log_level is None else int(opt.log_level)
 logger = pyyaks.logger.get_logger(
-    name='engarchive', level=loglevel, format="%(asctime)s %(message)s"
+    name="engarchive", level=loglevel, format="%(asctime)s %(message)s"
 )
 
 # Also adjust fetch logging if non-default log-level supplied (mostly for debug)
@@ -148,16 +148,16 @@ if opt.log_level is not None:
     fetch.add_logging_handler(level=int(opt.log_level))
 
 archfiles_hdr_cols = (
-    'tstart',
-    'tstop',
-    'startmjf',
-    'startmnf',
-    'stopmjf',
-    'stopmnf',
-    'tlmver',
-    'ascdsver',
-    'revision',
-    'date',
+    "tstart",
+    "tstop",
+    "startmjf",
+    "startmnf",
+    "stopmjf",
+    "stopmnf",
+    "tlmver",
+    "ascdsver",
+    "revision",
+    "date",
 )
 
 
@@ -165,7 +165,7 @@ def get_colnames():
     """Get column names for the current content type (defined by ft['content'])"""
     colnames = [
         x
-        for x in pickle.load(open(msid_files['colnames'].abs, 'rb'))
+        for x in pickle.load(open(msid_files["colnames"].abs, "rb"))
         if x not in fetch.IGNORE_COLNAMES
     ]
     return colnames
@@ -179,24 +179,24 @@ def create_content_dir():
     This only works within the development (git) directory in conjunction
     with the --create option.
     """
-    dirname = msid_files['contentdir'].abs
+    dirname = msid_files["contentdir"].abs
     if not os.path.exists(dirname):
-        logger.info('Making directory {}'.format(dirname))
+        logger.info("Making directory {}".format(dirname))
         os.makedirs(dirname)
 
     empty = set()
-    if not os.path.exists(msid_files['colnames'].abs):
-        with open(msid_files['colnames'].abs, 'wb') as f:
+    if not os.path.exists(msid_files["colnames"].abs):
+        with open(msid_files["colnames"].abs, "wb") as f:
             pickle.dump(empty, f, protocol=0)
-    if not os.path.exists(msid_files['colnames_all'].abs):
-        with open(msid_files['colnames_all'].abs, 'wb') as f:
+    if not os.path.exists(msid_files["colnames_all"].abs):
+        with open(msid_files["colnames_all"].abs, "wb") as f:
             pickle.dump(empty, f, protocol=0)
 
-    if not os.path.exists(msid_files['archfiles'].abs):
-        archfiles_def = open(Path(__file__).parent / 'archfiles_def.sql').read()
-        filename = msid_files['archfiles'].abs
-        logger.info('Creating db {}'.format(filename))
-        db = Ska.DBI.DBI(dbi='sqlite', server=filename, autocommit=False)
+    if not os.path.exists(msid_files["archfiles"].abs):
+        archfiles_def = open(Path(__file__).parent / "archfiles_def.sql").read()
+        filename = msid_files["archfiles"].abs
+        logger.info("Creating db {}".format(filename))
+        db = Ska.DBI.DBI(dbi="sqlite", server=filename, autocommit=False)
         db.execute(archfiles_def)
         db.commit()
 
@@ -215,10 +215,10 @@ def fix_state_code(state_code):
     except KeyError:
         out = state_code
         for sub_in, sub_out in (
-            (r'\+', 'PLUS_'),
-            (r'\-', 'MINUS_'),
-            (r'>', '_GREATER_'),
-            (r'/', '_DIV_'),
+            (r"\+", "PLUS_"),
+            (r"\-", "MINUS_"),
+            (r">", "_GREATER_"),
+            (r"/", "_DIV_"),
         ):
             out = re.sub(sub_in, sub_out, out)
         _fix_state_code_cache[state_code] = out
@@ -231,10 +231,10 @@ def main_loop():
     Perform one full update of the eng archive based on opt parameters.
     This may be called in a loop by the program-level main().
     """
-    logger.info('Run time options: \n{}'.format(opt))
-    logger.info('Update_archive file: {}'.format(os.path.abspath(__file__)))
-    logger.info('Fetch module file: {}'.format(os.path.abspath(fetch.__file__)))
-    logger.info('')
+    logger.info("Run time options: \n{}".format(opt))
+    logger.info("Update_archive file: {}".format(os.path.abspath(__file__)))
+    logger.info("Fetch module file: {}".format(os.path.abspath(fetch.__file__)))
+    logger.info("")
 
     # Get the archive content filetypes
     filetypes = fetch.filetypes
@@ -246,32 +246,32 @@ def main_loop():
 
     # Update archive currently cannot create derived parameter content types
     if opt.create:
-        filetypes = [x for x in filetypes if not x.content.startswith('DP_')]
+        filetypes = [x for x in filetypes if not x.content.startswith("DP_")]
 
     for filetype in filetypes:
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
-        ft['content'] = filetype.content.lower()
+        ft["content"] = filetype.content.lower()
 
         if opt.create:
             create_content_dir()
 
-        if not os.path.exists(msid_files['colnames'].abs):
+        if not os.path.exists(msid_files["colnames"].abs):
             logger.info(f'No colnames.pickle for {ft["content"]} - skipping')
             continue
 
-        if not os.path.exists(fetch.msid_files['archfiles'].abs):
+        if not os.path.exists(fetch.msid_files["archfiles"].abs):
             logger.info(f'No archfiles.db3 for {ft["content"]} - skipping')
             continue
 
         # Column names for stats updates (without TIME, MJF, MNF, TLM_FMT)
         colnames = [
             x
-            for x in pickle.load(open(msid_files['colnames'].abs, 'rb'))
+            for x in pickle.load(open(msid_files["colnames"].abs, "rb"))
             if x not in fetch.IGNORE_COLNAMES
         ]
 
-        logger.info('Processing %s content type', ft['content'])
+        logger.info("Processing %s content type", ft["content"])
 
         if opt.truncate:
             truncate_archive(filetype, opt.truncate)
@@ -281,12 +281,12 @@ def main_loop():
             misorder_time = fix_misorders(filetype)
             if misorder_time:
                 for colname in colnames:
-                    del_stats(colname, misorder_time, 'daily')
-                    del_stats(colname, misorder_time, '5min')
+                    del_stats(colname, misorder_time, "daily")
+                    del_stats(colname, misorder_time, "5min")
             continue
 
         if opt.update_full:
-            if filetype['instrum'] == 'DERIVED':
+            if filetype["instrum"] == "DERIVED":
                 update_derived(filetype)
             else:
                 update_archive(filetype)
@@ -297,13 +297,13 @@ def main_loop():
                     # Check if colname has a state code in the TDB or if it is in the
                     # special-case fetch.STATE_CODES dict (e.g. simdiag or simmrg telem).
                     try:
-                        Ska.tdb.msids[colname].Tsc['STATE_CODE']
+                        Ska.tdb.msids[colname].Tsc["STATE_CODE"]
                     except Exception:
                         if not colname.upper() in fetch.STATE_CODES:
                             continue
 
-                msid = update_stats(colname, 'daily')
-                update_stats(colname, '5min', msid)
+                msid = update_stats(colname, "daily")
+                update_stats(colname, "5min", msid)
 
 
 def fix_misorders(filetype):
@@ -327,29 +327,29 @@ def fix_misorders(filetype):
     :param filetype: filetype
     :returns: minimum time for all misorders found
     """
-    colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
+    colnames = pickle.load(open(msid_files["colnames"].abs, "rb"))
 
     # Setup db handle with autocommit=False so that error along the way aborts insert transactions
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
+    db = Ska.DBI.DBI(dbi="sqlite", server=msid_files["archfiles"].abs, autocommit=False)
 
     # Get misordered archive files
-    archfiles = db.fetchall('SELECT * FROM archfiles order by filename')
-    bads = archfiles['rowstart'][1:] - archfiles['rowstart'][:-1] < 0
+    archfiles = db.fetchall("SELECT * FROM archfiles order by filename")
+    bads = archfiles["rowstart"][1:] - archfiles["rowstart"][:-1] < 0
 
     if not np.any(bads):
-        logger.info('No misorders')
+        logger.info("No misorders")
         return
 
     for bad in np.flatnonzero(bads):
-        i2_0, i1_0 = archfiles['rowstart'][bad : bad + 2]
-        i2_1, i1_1 = archfiles['rowstop'][bad : bad + 2]
+        i2_0, i1_0 = archfiles["rowstart"][bad : bad + 2]
+        i2_1, i1_1 = archfiles["rowstop"][bad : bad + 2]
 
         # Update hdf5 file for each column (MSIDs + TIME, MJF, etc)
         for colname in colnames:
-            ft['msid'] = colname
-            logger.info('Fixing %s', msid_files['msid'].abs)
+            ft["msid"] = colname
+            logger.info("Fixing %s", msid_files["msid"].abs)
             if not opt.dry_run:
-                h5 = tables_open_file(msid_files['msid'].abs, mode='a')
+                h5 = tables_open_file(msid_files["msid"].abs, mode="a")
                 hrd = h5.root.data
                 hrq = h5.root.quality
 
@@ -366,31 +366,31 @@ def fix_misorders(filetype):
                 h5.close()
 
         # Update the archfiles table
-        cmd = 'UPDATE archfiles SET '
-        cols = ['rowstart', 'rowstop']
-        cmd += ', '.join(['%s=?' % x for x in cols])
-        cmd += ' WHERE filename=?'
+        cmd = "UPDATE archfiles SET "
+        cols = ["rowstart", "rowstop"]
+        cmd += ", ".join(["%s=?" % x for x in cols])
+        cmd += " WHERE filename=?"
         rowstart1 = i1_0
         rowstop1 = rowstart1 + i2_1 - i2_0
         rowstart2 = rowstop1 + 1
         rowstop2 = i2_1
-        vals1 = [rowstart1, rowstop1, archfiles['filename'][bad]]
-        vals2 = [rowstart2, rowstop2, archfiles['filename'][bad + 1]]
-        logger.info('Running %s %s', cmd, vals1)
-        logger.info('Running %s %s', cmd, vals2)
+        vals1 = [rowstart1, rowstop1, archfiles["filename"][bad]]
+        vals2 = [rowstart2, rowstop2, archfiles["filename"][bad + 1]]
+        logger.info("Running %s %s", cmd, vals1)
+        logger.info("Running %s %s", cmd, vals2)
 
         logger.info(
-            'Swapping rows %s for %s', [i1_0, i1_1, i2_0, i2_1], filetype.content
+            "Swapping rows %s for %s", [i1_0, i1_1, i2_0, i2_1], filetype.content
         )
-        logger.info('%s', archfiles[bad - 3 : bad + 5])
-        logger.info('')
+        logger.info("%s", archfiles[bad - 3 : bad + 5])
+        logger.info("")
 
         if not opt.dry_run:
             db.execute(cmd, [x.tolist() for x in vals1])
             db.execute(cmd, [x.tolist() for x in vals2])
             db.commit()
 
-    return np.min(archfiles['tstart'][bads])
+    return np.min(archfiles["tstart"][bads])
 
 
 def del_stats(colname, time0, interval):
@@ -399,21 +399,21 @@ def del_stats(colname, time0, interval):
     that result from a file misorder.  Subsequent runs of update_stats will
     refresh the values correctly.
     """
-    dt = {'5min': 328, 'daily': 86400}[interval]
+    dt = {"5min": 328, "daily": 86400}[interval]
 
-    ft['msid'] = colname
-    ft['interval'] = interval
-    stats_file = msid_files['stats'].abs
+    ft["msid"] = colname
+    ft["interval"] = interval
+    stats_file = msid_files["stats"].abs
     if not os.path.exists(stats_file):
-        raise IOError('Stats file {} not found'.format(stats_file))
+        raise IOError("Stats file {} not found".format(stats_file))
 
-    logger.info('Fixing stats file %s after time %s', stats_file, DateTime(time0).date)
+    logger.info("Fixing stats file %s after time %s", stats_file, DateTime(time0).date)
 
     stats = tables_open_file(
-        stats_file, mode='a', filters=tables.Filters(complevel=5, complib='zlib')
+        stats_file, mode="a", filters=tables.Filters(complevel=5, complib="zlib")
     )
     index0 = time0 // dt - 1
-    indexes = stats.root.data.col('index')[:]
+    indexes = stats.root.data.col("index")[:]
     row0 = np.searchsorted(indexes, [index0])[0]
     len_data = len(stats.root.data)
     if row0 < len_data:
@@ -422,13 +422,13 @@ def del_stats(colname, time0, interval):
         else:
             n_del = stats.root.data.remove_rows(row0, len_data)
         logger.info(
-            'Deleted %d rows from row %s (%s) to end',
+            "Deleted %d rows from row %s (%s) to end",
             n_del,
             row0,
             DateTime(indexes[row0] * dt).date,
         )
     else:
-        logger.info('No rows of stats data to delete - skipping')
+        logger.info("No rows of stats data to delete - skipping")
     stats.close()
 
 
@@ -452,29 +452,29 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
     # If MSID data is unicode, then for stats purposes cast back to bytes
     # by creating the output array as a like-sized S-type array.
-    if msid_dtype.kind == 'U':
-        msid_dtype = re.sub(r'U', 'S', msid.vals.dtype.str)
+    if msid_dtype.kind == "U":
+        msid_dtype = re.sub(r"U", "S", msid.vals.dtype.str)
 
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
     out = OrderedDict()
-    out['index'] = np.ndarray((n_out,), dtype=np.int32)
-    out['n'] = np.ndarray((n_out,), dtype=np.int32)
-    out['val'] = np.ndarray((n_out,), dtype=msid_dtype)
+    out["index"] = np.ndarray((n_out,), dtype=np.int32)
+    out["n"] = np.ndarray((n_out,), dtype=np.int32)
+    out["val"] = np.ndarray((n_out,), dtype=msid_dtype)
 
     if msid_is_numeric:
-        out['min'] = np.ndarray((n_out,), dtype=msid_dtype)
-        out['max'] = np.ndarray((n_out,), dtype=msid_dtype)
-        out['mean'] = np.ndarray((n_out,), dtype=np.float32)
+        out["min"] = np.ndarray((n_out,), dtype=msid_dtype)
+        out["max"] = np.ndarray((n_out,), dtype=msid_dtype)
+        out["mean"] = np.ndarray((n_out,), dtype=np.float32)
 
-        if interval == 'daily':
-            out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
+        if interval == "daily":
+            out["std"] = np.ndarray((n_out,), dtype=msid_dtype)
             for quantile in quantiles:
-                out['p{:02d}'.format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
+                out["p{:02d}".format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
 
     # MSID may have state codes
     if msid.state_codes:
         for raw_count, state_code in msid.state_codes:
-            out['n_' + fix_state_code(state_code)] = np.zeros(n_out, dtype=np.int32)
+            out["n_" + fix_state_code(state_code)] = np.zeros(n_out, dtype=np.int32)
 
     i = 0
     for row0, row1, index in zip(rows[:-1], rows[1:], indexes[:-1]):
@@ -483,9 +483,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
         n_vals = len(vals)
         if n_vals > 0:
-            out['index'][i] = index
-            out['n'][i] = n_vals
-            out['val'][i] = vals[n_vals // 2]
+            out["index"][i] = index
+            out["n"][i] = n_vals
+            out["val"][i] = vals[n_vals // 2]
             if msid_is_numeric:
                 if n_vals <= 2:
                     dts = np.ones(n_vals, dtype=np.float64)
@@ -503,7 +503,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
                             for t, dt in zip(times[negs], dts[negs])
                         ]
                         logger.warning(
-                            'WARNING - negative dts in {} at {}'.format(
+                            "WARNING - negative dts in {} at {}".format(
                                 msid.MSID, times_dts
                             )
                         )
@@ -516,28 +516,28 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     dts.clip(0.001, 300.0, out=dts)
                 sum_dts = np.sum(dts)
 
-                out['min'][i] = np.min(vals)
-                out['max'][i] = np.max(vals)
-                out['mean'][i] = np.sum(dts * vals) / sum_dts
-                if interval == 'daily':
+                out["min"][i] = np.min(vals)
+                out["max"][i] = np.max(vals)
+                out["mean"][i] = np.sum(dts * vals) / sum_dts
+                if interval == "daily":
                     # biased weighted estimator of variance (N should be big enough)
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation.
                     # Note casting of vals to float64 to avoid overflow in square.
-                    vals_minus_mean = vals.astype(np.float64) - out['mean'][i]
+                    vals_minus_mean = vals.astype(np.float64) - out["mean"][i]
                     with warnings.catch_warnings(record=True) as warns:
                         sigma_sq = np.sum(dts * vals_minus_mean**2) / sum_dts
                         if warns:
                             logger.warning(repr(warns[0].message))
-                            logger.warning(f'{msid=}')
-                            logger.warning(f'{np.max(np.abs(vals_minus_mean))=}')
-                            logger.warning(f'{vals_minus_mean.dtype=}')
+                            logger.warning(f"{msid=}")
+                            logger.warning(f"{np.max(np.abs(vals_minus_mean))=}")
+                            logger.warning(f"{vals_minus_mean.dtype=}")
 
-                    out['std'][i] = np.sqrt(sigma_sq)
+                    out["std"][i] = np.sqrt(sigma_sq)
                     quant_vals = scipy.stats.mstats.mquantiles(
                         vals, np.array(quantiles) / 100.0
                     )
                     for quant_val, quantile in zip(quant_vals, quantiles):
-                        out['p%02d' % quantile][i] = quant_val
+                        out["p%02d" % quantile][i] = quant_val
 
             if msid.state_codes:
                 # If MSID has state codes then count the number of values in each state
@@ -546,10 +546,10 @@ def calc_stats_vals(msid, rows, indexes, interval):
                 max_len = max(
                     len(state_code) for raw_count, state_code in msid.state_codes
                 )
-                fmtstr = '{:' + str(max_len) + 's}'
+                fmtstr = "{:" + str(max_len) + "s}"
                 for raw_count, state_code in msid.state_codes:
                     state_count = np.count_nonzero(vals == fmtstr.format(state_code))
-                    out['n_' + fix_state_code(state_code)][i] = state_count
+                    out["n_" + fix_state_code(state_code)][i] = state_count
 
             i += 1
 
@@ -557,23 +557,23 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
 
 def update_stats(colname, interval, msid=None):
-    dt = {'5min': 328, 'daily': 86400}[interval]
+    dt = {"5min": 328, "daily": 86400}[interval]
 
-    ft['msid'] = colname
-    ft['interval'] = interval
-    stats_file = msid_files['stats'].abs
-    logger.info('Updating stats file %s', stats_file)
+    ft["msid"] = colname
+    ft["interval"] = interval
+    stats_file = msid_files["stats"].abs
+    logger.info("Updating stats file %s", stats_file)
 
-    if not os.path.exists(msid_files['statsdir'].abs):
-        logger.info('Making stats dir {}'.format(msid_files['statsdir'].abs))
-        os.makedirs(msid_files['statsdir'].abs)
+    if not os.path.exists(msid_files["statsdir"].abs):
+        logger.info("Making stats dir {}".format(msid_files["statsdir"].abs))
+        os.makedirs(msid_files["statsdir"].abs)
 
     stats = tables_open_file(
-        stats_file, mode='a', filters=tables.Filters(complevel=5, complib='zlib')
+        stats_file, mode="a", filters=tables.Filters(complevel=5, complib="zlib")
     )
 
     # INDEX0 is somewhat before any CXC archive data (which starts around 1999:205)
-    INDEX0 = DateTime('1999:200:00:00:00').secs // dt
+    INDEX0 = DateTime("1999:200:00:00:00").secs // dt
     try:
         index0 = stats.root.data.cols.index[-1] + 1
     except tables.NoSuchNodeError:
@@ -611,26 +611,26 @@ def update_stats(colname, interval, msid=None):
                 if not opt.dry_run:
                     try:
                         stats.root.data.append(vals_stats)
-                        logger.info('  Adding %d records', len(vals_stats))
+                        logger.info("  Adding %d records", len(vals_stats))
                     except tables.NoSuchNodeError:
                         logger.info(
-                            '  Creating table with %d records ...', len(vals_stats)
+                            "  Creating table with %d records ...", len(vals_stats)
                         )
                         stats.create_table(
                             stats.root,
-                            'data',
+                            "data",
                             vals_stats,
                             "{} sampling".format(interval),
                             expectedrows=2e7,
                         )
                     stats.root.data.flush()
             else:
-                logger.info('  No stat records within available fetched values')
+                logger.info("  No stat records within available fetched values")
         else:
-            logger.info('  No full stat intervals within fetched values')
+            logger.info("  No full stat intervals within fetched values")
     else:
         logger.info(
-            '  No MSID data found within {} to {}'.format(msid.datestart, msid.datestop)
+            "  No MSID data found within {} to {}".format(msid.datestart, msid.datestop)
         )
 
     stats.close()
@@ -641,18 +641,18 @@ def update_stats(colname, interval, msid=None):
 def update_derived(filetype):
     """Update full resolution MSID archive files for derived parameters with ``filetype``"""
     # Get the last H5 table row from archfiles table for this content type
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
-    last_row = db.fetchone('SELECT * FROM archfiles ORDER BY filetime DESC')
+    db = Ska.DBI.DBI(dbi="sqlite", server=msid_files["archfiles"].abs)
+    last_row = db.fetchone("SELECT * FROM archfiles ORDER BY filetime DESC")
 
     # Set the starting index from the last row in archfiles.  This
     # uses Python slicing conventions so that the previous "end"
     # value is exactly the next "start" values, e.g. [index0:index1]
     # For derived parameters we have stopmjf <==> index1
-    index0 = last_row['stopmjf']
+    index0 = last_row["stopmjf"]
 
     # Get the full set of rootparams for all colnames
-    colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
-    colnames = [x for x in colnames if x.startswith('DP_')]
+    colnames = pickle.load(open(msid_files["colnames"].abs, "rb"))
+    colnames = [x for x in colnames if x.startswith("DP_")]
     msids = set()
     time_step = None
     for colname in colnames:
@@ -665,16 +665,16 @@ def update_derived(filetype):
     # occuring in the list of rootparam MSIDs.
     # fetch.content is a mapping from MSID to content type
     last_times = {}
-    ft_content = ft['content'].val
+    ft_content = ft["content"].val
     for msid in msids:
-        ft['msid'] = 'TIME'
-        content = ft['content'] = fetch.content[msid]
+        ft["msid"] = "TIME"
+        content = ft["content"] = fetch.content[msid]
         if content not in last_times:
-            h5 = tables_open_file(fetch.msid_files['msid'].abs, mode='r')
+            h5 = tables_open_file(fetch.msid_files["msid"].abs, mode="r")
             last_times[content] = h5.root.data[-1]
             h5.close()
     last_time = min(last_times.values()) - 1000
-    ft['content'] = ft_content
+    ft["content"] = ft_content
 
     # Make a list of indexes that will correspond to the index/time ranges
     # for each pseudo-"archfile".  In this context an archfile just specifies
@@ -694,11 +694,11 @@ def update_derived(filetype):
 
     archfiles = []
     for index0, index1 in zip(indexes[:-1], indexes[1:]):
-        archfiles.append('{}:{}:{}'.format(filetype['content'], index0, index1))
+        archfiles.append("{}:{}:{}".format(filetype["content"], index0, index1))
         if len(archfiles) == max_archfiles or index1 == indexes[-1]:
             update_msid_files(filetype, archfiles)
             logger.verbose(
-                'update_msid_files(filetype={}, archfiles={})'.format(
+                "update_msid_files(filetype={}, archfiles={})".format(
                     str(filetype), archfiles
                 )
             )
@@ -721,35 +721,35 @@ def update_archive(filetype):
 
 def make_h5_col_file(dats, colname):
     """Make a new h5 table to hold column from ``dat``."""
-    filename = msid_files['msid'].abs
+    filename = msid_files["msid"].abs
     filedir = os.path.dirname(filename)
     if not os.path.exists(filedir):
         os.makedirs(filedir)
 
     # Estimate the number of rows for 20 years based on available data
-    times = np.hstack([x['TIME'] for x in dats])
+    times = np.hstack([x["TIME"] for x in dats])
     dt = np.median(times[1:] - times[:-1])
     n_rows = int(86400 * 365 * 20 / dt)
 
-    filters = tables.Filters(complevel=5, complib='zlib')
-    h5 = tables_open_file(filename, mode='w', filters=filters)
+    filters = tables.Filters(complevel=5, complib="zlib")
+    h5 = tables_open_file(filename, mode="w", filters=filters)
 
     col = dats[-1][colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
     h5.create_earray(
-        h5.root, 'data', h5type, h5shape, title=colname, expectedrows=n_rows
+        h5.root, "data", h5type, h5shape, title=colname, expectedrows=n_rows
     )
     h5.create_earray(
         h5.root,
-        'quality',
+        "quality",
         tables.BoolAtom(),
         (0,),
-        title='Quality',
+        title="Quality",
         expectedrows=n_rows,
     )
     logger.verbose(
-        'WARNING: made new file {} for column {!r} shape={} with n_rows(1e6)={}'.format(
+        "WARNING: made new file {} for column {!r} shape={} with n_rows(1e6)={}".format(
             filename, colname, h5shape, n_rows / 1.0e6
         )
     )
@@ -771,14 +771,14 @@ def append_filled_h5_col(dats, colname, data_len):
     stacked_data = np.hstack([x[colname] for x in new_dats])
     fill_len = data_len - len(stacked_data)
     if fill_len < 0:
-        raise ValueError('impossible negative length error {}'.format(fill_len))
+        raise ValueError("impossible negative length error {}".format(fill_len))
 
     zeros = np.zeros(fill_len, dtype=stacked_data.dtype)
     quals = np.zeros(fill_len, dtype=bool)
 
     # Append zeros (for the data type) and quality=True (bad)
-    h5 = tables_open_file(msid_files['msid'].abs, mode='a')
-    logger.verbose('Appending %d zeros to %s' % (len(zeros), msid_files['msid'].abs))
+    h5 = tables_open_file(msid_files["msid"].abs, mode="a")
+    logger.verbose("Appending %d zeros to %s" % (len(zeros), msid_files["msid"].abs))
     if not opt.dry_run:
         h5.root.data.append(zeros)
         h5.root.quality.append(quals)
@@ -799,11 +799,11 @@ def append_h5_col(dats, colname, files_overlaps):
         """Return the index for `colname` in `dat`"""
         return list(dat.dtype.names).index(colname)
 
-    h5 = tables_open_file(msid_files['msid'].abs, mode='a')
+    h5 = tables_open_file(msid_files["msid"].abs, mode="a")
     stacked_data = np.hstack([x[colname] for x in dats])
-    stacked_quality = np.hstack([x['QUALITY'][:, i_colname(x)] for x in dats])
+    stacked_quality = np.hstack([x["QUALITY"][:, i_colname(x)] for x in dats])
     logger.verbose(
-        'Appending %d items to %s' % (len(stacked_data), msid_files['msid'].abs)
+        "Appending %d items to %s" % (len(stacked_data), msid_files["msid"].abs)
     )
 
     if not opt.dry_run:
@@ -814,14 +814,14 @@ def append_h5_col(dats, colname, files_overlaps):
     # Do this by setting the TIME column quality flag for the overlapping rows
     # in file0.  files_overlaps is a list of 2-tuples with consequetive files that
     # overlap.
-    if colname == 'TIME':
+    if colname == "TIME":
         for file0, file1 in files_overlaps:
-            times = h5.root.data[file0['rowstart'] : file0['rowstop']]
-            bad_rowstart = np.searchsorted(times, file1['tstart']) + file0['rowstart']
-            bad_rowstop = file0['rowstop']
+            times = h5.root.data[file0["rowstart"] : file0["rowstop"]]
+            bad_rowstart = np.searchsorted(times, file1["tstart"]) + file0["rowstart"]
+            bad_rowstop = file0["rowstop"]
             if not opt.dry_run:
                 logger.verbose(
-                    'Removing overlapping data in rows {0}:{1}'.format(
+                    "Removing overlapping data in rows {0}:{1}".format(
                         bad_rowstart, bad_rowstop
                     )
                 )
@@ -836,7 +836,7 @@ def append_h5_col(dats, colname, files_overlaps):
                     # but in this case there can a tiny overlap (<< 1 ms) that triggers an
                     # overlap entry.
                     logger.verbose(
-                        'INFO: Unexpected null file overlap file0=%s file1=%s'
+                        "INFO: Unexpected null file overlap file0=%s file1=%s"
                         % (file0, file1)
                     )
 
@@ -851,67 +851,67 @@ def truncate_archive(filetype, date):
     year:doy)
     """
     logger.info(f'Truncating {filetype["content"]} full and stat files after {date}')
-    colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
+    colnames = pickle.load(open(msid_files["colnames"].abs, "rb"))
 
     date = DateTime(date).date
     year, doy = date[0:4], date[5:8]
 
     # Setup db handle with autocommit=False so that error along the way aborts insert transactions
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
+    db = Ska.DBI.DBI(dbi="sqlite", server=msid_files["archfiles"].abs, autocommit=False)
 
     # Get the earliest row number from the archfiles table where year>=year and doy=>doy
     out = db.fetchall(
-        'SELECT rowstart FROM archfiles WHERE year>={0} AND doy>={1}'.format(year, doy)
+        "SELECT rowstart FROM archfiles WHERE year>={0} AND doy>={1}".format(year, doy)
     )
     if len(out) == 0:
-        logger.verbose(f'No rows to delete - skipping')
+        logger.verbose(f"No rows to delete - skipping")
         db.conn.close()
         return
 
-    rowstart = out['rowstart'].min()
+    rowstart = out["rowstart"].min()
     time0 = DateTime("{0}:{1}:00:00:00".format(year, doy)).secs
 
     for colname in colnames:
-        ft['msid'] = colname
-        filename = msid_files['msid'].abs
+        ft["msid"] = colname
+        filename = msid_files["msid"].abs
         if os.path.exists(filename):
             if not opt.dry_run:
-                h5 = tables_open_file(filename, mode='a')
+                h5 = tables_open_file(filename, mode="a")
                 h5.root.data.truncate(rowstart)
                 h5.root.quality.truncate(rowstart)
                 h5.close()
             logger.verbose(
-                'Removed rows from {0} for filetype {1}:{2}'.format(
-                    rowstart, filetype['content'], colname
+                "Removed rows from {0} for filetype {1}:{2}".format(
+                    rowstart, filetype["content"], colname
                 )
             )
         else:
-            logger.debug('MSID file {} not found - skipping'.format(filename))
+            logger.debug("MSID file {} not found - skipping".format(filename))
 
         if colname in fetch.IGNORE_COLNAMES:
             # Colnames like TIME, MNF etc that are not in stats
             continue
 
         # Delete the 5min and daily stats, with a little extra margin
-        for interval in ('5min', 'daily'):
-            ft['interval'] = interval
-            filename = msid_files['stats'].abs
+        for interval in ("5min", "daily"):
+            ft["interval"] = interval
+            filename = msid_files["stats"].abs
             if os.path.exists(filename):
                 if not opt.dry_run:
                     del_stats(colname, time0, interval)
-                logger.verbose(f'Removed {interval} rows from {filename}')
+                logger.verbose(f"Removed {interval} rows from {filename}")
             else:
-                logger.debug(f'Stats file {filename} not found - skipping')
+                logger.debug(f"Stats file {filename} not found - skipping")
 
     # Remove the last_date_id file if it exists
-    for interval in ('5min', 'daily'):
-        ft['interval'] = interval
-        filename = os.path.join(msid_files['statsdir'].abs, 'last_date_id')
+    for interval in ("5min", "daily"):
+        ft["interval"] = interval
+        filename = os.path.join(msid_files["statsdir"].abs, "last_date_id")
         if os.path.exists(filename):
             os.unlink(filename)
-            logger.info(f'Removed {filename}')
+            logger.info(f"Removed {filename}")
 
-    cmd = 'DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}'.format(
+    cmd = "DELETE FROM archfiles WHERE (year>={0} AND doy>={1}) OR year>{0}".format(
         year, doy
     )
     if not opt.dry_run:
@@ -929,30 +929,30 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
     """
     # Check if filename is already in archfiles.  If so then abort further processing.
     filename = os.path.basename(f)
-    if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
-        logger.verbose('File %s already in archfiles - unlinking and skipping' % f)
+    if db.fetchall("SELECT filename FROM archfiles WHERE filename=?", (filename,)):
+        logger.verbose("File %s already in archfiles - unlinking and skipping" % f)
         os.unlink(f)
         return None, None
 
     # Read FITS archive file and accumulate data into dats list and header into headers dict
-    logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
+    logger.info("Reading (%d / %d) %s" % (i, len(archfiles), filename))
     hdus = pyfits.open(f, character_as_bytes=True)
     hdu = hdus[1]
 
     try:
-        dat = converters.convert(hdu.data, filetype['content'])
+        dat = converters.convert(hdu.data, filetype["content"])
 
     except converters.NoValidDataError:
         # When creating files allow NoValidDataError
         hdus.close()
-        logger.warning('WARNING: no valid data in data file {}'.format(filename))
+        logger.warning("WARNING: no valid data in data file {}".format(filename))
         return None, None
 
     except converters.DataShapeError as err:
         hdus.close()
         logger.warning(
-            'WARNING: skipping file {} with bad data shape: ASCDSVER={} {}'.format(
-                filename, hdu.header['ASCDSVER'], err
+            "WARNING: skipping file {} with bad data shape: ASCDSVER={} {}".format(
+                filename, hdu.header["ASCDSVER"], err
             )
         )
         return None, None
@@ -961,17 +961,17 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
     # MSID h5 files.  Commit info before h5 ingest so if there is a failure
     # the needed info will be available to do the repair.
     archfiles_row = dict((x, hdu.header.get(x.upper())) for x in archfiles_hdr_cols)
-    archfiles_row['checksum'] = hdu.header.get('checksum') or hdu._checksum
-    archfiles_row['rowstart'] = row
-    archfiles_row['rowstop'] = row + len(dat)
-    archfiles_row['filename'] = filename
-    archfiles_row['filetime'] = int(
-        re.search(r'(\d+)', archfiles_row['filename']).group(1)
+    archfiles_row["checksum"] = hdu.header.get("checksum") or hdu._checksum
+    archfiles_row["rowstart"] = row
+    archfiles_row["rowstop"] = row + len(dat)
+    archfiles_row["filename"] = filename
+    archfiles_row["filetime"] = int(
+        re.search(r"(\d+)", archfiles_row["filename"]).group(1)
     )
-    filedate = DateTime(archfiles_row['filetime']).date
-    year, doy = (int(x) for x in re.search(r'(\d\d\d\d):(\d\d\d)', filedate).groups())
-    archfiles_row['year'] = year
-    archfiles_row['doy'] = doy
+    filedate = DateTime(archfiles_row["filetime"]).date
+    year, doy = (int(x) for x in re.search(r"(\d\d\d\d):(\d\d\d)", filedate).groups())
+    archfiles_row["year"] = year
+    archfiles_row["doy"] = doy
     hdus.close()
 
     return dat, archfiles_row
@@ -988,24 +988,24 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
     """
     # Check if filename is already in archfiles.  If so then abort further processing.
 
-    if db.fetchall('SELECT filename FROM archfiles WHERE filename=?', (filename,)):
-        logger.verbose('File %s already in archfiles - skipping' % filename)
+    if db.fetchall("SELECT filename FROM archfiles WHERE filename=?", (filename,)):
+        logger.verbose("File %s already in archfiles - skipping" % filename)
         return None, None
 
     # f has format <content>_<index0>_<index1>
     # <content> has format dp_<content><mnf_step> e.g. dp_thermal128
-    content, index0, index1 = filename.split(':')
+    content, index0, index1 = filename.split(":")
     index0 = int(index0)
     index1 = int(index1)
-    mnf_step = int(re.search(r'(\d+)$', content).group(1))
+    mnf_step = int(re.search(r"(\d+)$", content).group(1))
     time_step = mnf_step * derived.MNF_TIME
     times = time_step * np.arange(index0, index1)
 
-    logger.info('Reading (%d / %d) %s' % (i, len(archfiles), filename))
+    logger.info("Reading (%d / %d) %s" % (i, len(archfiles), filename))
     vals = {}
     bads = np.zeros((len(times), len(colnames)), dtype=np.bool)
     for i, colname in enumerate(colnames):
-        if colname == 'TIME':
+        if colname == "TIME":
             vals[colname] = times
             bads[:, i] = False
         else:
@@ -1016,8 +1016,8 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
             vals[colname] = dp.calc(dataset)[ok]
             bads[:, i] = dataset.bads[ok]
 
-    vals['QUALITY'] = bads
-    dat = Ska.Numpy.structured_array(vals, list(colnames) + ['QUALITY'])
+    vals["QUALITY"] = bads
+    dat = Ska.Numpy.structured_array(vals, list(colnames) + ["QUALITY"])
 
     # Accumlate relevant info about archfile that will be ingested into
     # MSID h5 files.  Commit info before h5 ingest so if there is a failure
@@ -1042,24 +1042,24 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
 
 
 def update_msid_files(filetype, archfiles):
-    colnames = pickle.load(open(msid_files['colnames'].abs, 'rb'))
-    colnames_all = pickle.load(open(msid_files['colnames_all'].abs, 'rb'))
+    colnames = pickle.load(open(msid_files["colnames"].abs, "rb"))
+    colnames_all = pickle.load(open(msid_files["colnames_all"].abs, "rb"))
     old_colnames = colnames.copy()
     old_colnames_all = colnames_all.copy()
 
     # Setup db handle with autocommit=False so that error along the way aborts insert transactions
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs, autocommit=False)
+    db = Ska.DBI.DBI(dbi="sqlite", server=msid_files["archfiles"].abs, autocommit=False)
 
     # Get the last row number from the archfiles table
-    out = db.fetchone('SELECT max(rowstop) FROM archfiles')
-    row = out['max(rowstop)'] or 0
-    last_archfile = db.fetchone('SELECT * FROM archfiles where rowstop=?', (row,))
+    out = db.fetchone("SELECT max(rowstop) FROM archfiles")
+    row = out["max(rowstop)"] or 0
+    last_archfile = db.fetchone("SELECT * FROM archfiles where rowstop=?", (row,))
 
     archfiles_overlaps = []
     dats = []
     archfiles_processed = []
 
-    content_is_derived = filetype['instrum'] == 'DERIVED'
+    content_is_derived = filetype["instrum"] == "DERIVED"
 
     for i, f in enumerate(archfiles):
         get_data = read_derived if content_is_derived else read_archfile
@@ -1075,7 +1075,7 @@ def update_msid_files(filetype, archfiles):
             for colname in dat.dtype.names:
                 if len(dat[colname].shape) > 1:
                     logger.info(
-                        'Removing column {} from colnames because shape = {}'.format(
+                        "Removing column {} from colnames because shape = {}".format(
                             colname, dat[colname].shape
                         )
                     )
@@ -1089,14 +1089,14 @@ def update_msid_files(filetype, archfiles):
         if last_archfile is None:
             time_gap = 0
         else:
-            time_gap = archfiles_row['tstart'] - last_archfile['tstop']
+            time_gap = archfiles_row["tstart"] - last_archfile["tstop"]
             # NOTE: tstop is the projected tstop for the next record, it is NOT the
             # actual time of the last record.  This is important for overlaps.
         max_gap = opt.max_gap
         if max_gap is None:
-            if filetype['instrum'] in ['EPHEM', 'DERIVED']:
+            if filetype["instrum"] in ["EPHEM", "DERIVED"]:
                 max_gap = 601
-            elif filetype['content'] == 'ACISDEAHK':
+            elif filetype["content"] == "ACISDEAHK":
                 max_gap = 10000
                 # From P.Plucinsky 2011-09-23
                 # If ACIS is executing an Event Histogram run while in FMT1,
@@ -1106,30 +1106,30 @@ def update_msid_files(filetype, archfiles):
                 # integrate for 5400s and then they are telemetered.  I would
                 # suggest 6000s, but perhaps you would want to double that to
                 # 12000s.
-            elif filetype['content'] in ['CPE1ENG', 'CCDM15ENG']:
+            elif filetype["content"] in ["CPE1ENG", "CCDM15ENG"]:
                 # 100 years => no max gap for safe mode telemetry or dwell mode telemetry
                 max_gap = 100 * 3.1e7
             else:
                 max_gap = 32.9
         if time_gap > max_gap:
             logger.warning(
-                'WARNING: found gap of %.2f secs between archfiles %s and %s',
+                "WARNING: found gap of %.2f secs between archfiles %s and %s",
                 time_gap,
-                last_archfile['filename'],
-                archfiles_row['filename'],
+                last_archfile["filename"],
+                archfiles_row["filename"],
             )
             if opt.create:
-                logger.warning('WARNING: Allowing gap because of opt.create=True')
+                logger.warning("WARNING: Allowing gap because of opt.create=True")
             elif (
-                DateTime() - DateTime(archfiles_row['tstart'])
+                DateTime() - DateTime(archfiles_row["tstart"])
                 > opt.allow_gap_after_days
             ):
                 # After 4 days (by default) just let it go through because this is
                 # likely a real gap and will not be fixed by subsequent processing.
                 # This can happen after normal sun mode to SIM products.
                 logger.warning(
-                    'WARNING: Allowing gap because arch file '
-                    'start is more than {} days old'.format(opt.allow_gap_after_days)
+                    "WARNING: Allowing gap because arch file "
+                    "start is more than {} days old".format(opt.allow_gap_after_days)
                 )
             else:
                 break
@@ -1145,10 +1145,10 @@ def update_msid_files(filetype, archfiles):
         # This breaks things, so in this case just skip the file.  However
         # since last_archfile is set above the gap check considers this file to
         # have been ingested.
-        if not content_is_derived and dat['QUALITY'].shape[1] != len(dat.dtype.names):
+        if not content_is_derived and dat["QUALITY"].shape[1] != len(dat.dtype.names):
             logger.warning(
-                'WARNING: skipping because of quality size mismatch: %d %d'
-                % (dat['QUALITY'].shape[1], len(dat.dtype.names))
+                "WARNING: skipping because of quality size mismatch: %d %d"
+                % (dat["QUALITY"].shape[1], len(dat.dtype.names))
             )
             continue
 
@@ -1158,7 +1158,7 @@ def update_msid_files(filetype, archfiles):
         # leave files in a tmp dir.
         archfiles_processed.append(f)
         if not opt.dry_run:
-            db.insert(archfiles_row, 'archfiles')
+            db.insert(archfiles_row, "archfiles")
 
         # Capture the data for subsequent storage in the hdf5 files
         dats.append(dat)
@@ -1175,12 +1175,12 @@ def update_msid_files(filetype, archfiles):
         row += len(dat)
 
     if dats:
-        logger.verbose('Writing accumulated column data to h5 file at ' + time.ctime())
+        logger.verbose("Writing accumulated column data to h5 file at " + time.ctime())
         data_lens = set()
         processed_cols = set()
         for colname in colnames:
-            ft['msid'] = colname
-            if not os.path.exists(msid_files['msid'].abs):
+            ft["msid"] = colname
+            if not os.path.exists(msid_files["msid"].abs):
                 make_h5_col_file(dats, colname)
                 if not opt.create:
                     # New MSID was found for this content type.  This must be associated with
@@ -1193,13 +1193,13 @@ def update_msid_files(filetype, archfiles):
 
         if len(data_lens) != 1:
             raise ValueError(
-                'h5 data length inconsistency {}, investigate NOW!'.format(data_lens)
+                "h5 data length inconsistency {}, investigate NOW!".format(data_lens)
             )
 
         # Process any new MSIDs (this is extremely rare)
         data_len = data_lens.pop()
         for colname in colnames - processed_cols:
-            ft['msid'] = colname
+            ft["msid"] = colname
             append_filled_h5_col(dats, colname, data_len)
 
     # Assuming everything worked now commit the db inserts that signify the
@@ -1210,30 +1210,30 @@ def update_msid_files(filetype, archfiles):
     # If colnames or colnames_all changed then give warning and update files.
     if colnames != old_colnames:
         logger.warning(
-            'WARNING: updating %s because colnames changed: %s'
-            % (msid_files['colnames'].abs, old_colnames ^ colnames)
+            "WARNING: updating %s because colnames changed: %s"
+            % (msid_files["colnames"].abs, old_colnames ^ colnames)
         )
         if not opt.dry_run:
-            pickle.dump(colnames, open(msid_files['colnames'].abs, 'wb'), protocol=0)
+            pickle.dump(colnames, open(msid_files["colnames"].abs, "wb"), protocol=0)
     if colnames_all != old_colnames_all:
         logger.warning(
-            'WARNING: updating %s because colnames_all changed: %s'
-            % (msid_files['colnames_all'].abs, colnames_all ^ old_colnames_all)
+            "WARNING: updating %s because colnames_all changed: %s"
+            % (msid_files["colnames_all"].abs, colnames_all ^ old_colnames_all)
         )
         if not opt.dry_run:
             pickle.dump(
-                colnames_all, open(msid_files['colnames_all'].abs, 'wb'), protocol=0
+                colnames_all, open(msid_files["colnames_all"].abs, "wb"), protocol=0
             )
 
     return archfiles_processed
 
 
 def unlink_archive_files(filetype, archfiles):
-    ft['content'] = filetype.content.lower()
+    ft["content"] = filetype.content.lower()
 
     for f in archfiles:
         if os.path.exists(f):
-            logger.verbose('Unlinking %s' % os.path.abspath(f))
+            logger.verbose("Unlinking %s" % os.path.abspath(f))
             os.unlink(f)
 
 
@@ -1242,7 +1242,7 @@ def get_archive_files(filetype):
 
     # Files could exist already in testing.
     # Don't allow arbitrary arch files at once because of memory issues.
-    files = sorted(glob.glob(filetype['fileglob']))
+    files = sorted(glob.glob(filetype["fileglob"]))
     if files:
         return sorted(files)[: opt.max_arch_files]
 
@@ -1254,15 +1254,15 @@ def get_archive_files(filetype):
 
     # Get datestart as the most-recent file time from archfiles table.  However,
     # do not look back further than --max-lookback-time
-    db = Ska.DBI.DBI(dbi='sqlite', server=msid_files['archfiles'].abs)
+    db = Ska.DBI.DBI(dbi="sqlite", server=msid_files["archfiles"].abs)
     vals = db.fetchone("select max(filetime) from archfiles")
     datestart = DateTime(
-        max(vals['max(filetime)'] or 0.0, datestop.secs - opt.max_lookback_time * 86400)
+        max(vals["max(filetime)"] or 0.0, datestop.secs - opt.max_lookback_time * 86400)
     )
 
     # For *ephem0 the query needs to extend well into the future
     # to guarantee getting all available files.  This is the archives fault.
-    if filetype['level'] == 'L0' and filetype['instrum'] == 'EPHEM':
+    if filetype["level"] == "L0" and filetype["instrum"] == "EPHEM":
         datestop = datestop + 50
 
     # For instrum==EPHEM break queries into time ranges no longer than
@@ -1270,25 +1270,26 @@ def get_archive_files(filetype):
     # no more often than every ~3 days so this should work.
     n_queries = (
         1
-        if filetype['instrum'] != 'EPHEM'
+        if filetype["instrum"] != "EPHEM"
         else 1 + round((datestop.secs - datestart.secs) / 100000.0)
     )
     times = np.linspace(datestart.secs, datestop.secs, n_queries + 1)
 
-    logger.info('********** %s %s **********' % (ft['content'], time.ctime()))
+    logger.info("********** %s %s **********" % (ft["content"], time.ctime()))
 
     for t0, t1 in zip(times[:-1], times[1:]):
         if t1 > t0:
-            arc5.sendline('tstart=%s' % DateTime(t0).date)
-            arc5.sendline('tstop=%s' % DateTime(t1).date)
-            arc5.sendline('get %s' % filetype['arc5gl_query'].lower())
+            arc5.sendline("tstart=%s" % DateTime(t0).date)
+            arc5.sendline("tstop=%s" % DateTime(t1).date)
+            arc5.sendline("get %s" % filetype["arc5gl_query"].lower())
         else:
             logger.info(
-                'INFO: Skipping archive query because datestop={} < datestart={}'
-                .format(DateTime(t1).date, DateTime(t0).date)
+                "INFO: Skipping archive query because datestop={} < datestart={}".format(
+                    DateTime(t1).date, DateTime(t0).date
+                )
             )
 
-    return sorted(glob.glob(filetype['fileglob']))
+    return sorted(glob.glob(filetype["fileglob"]))
 
 
 def main():
@@ -1323,5 +1324,5 @@ def main():
         main_loop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
