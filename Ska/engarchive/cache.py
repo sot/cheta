@@ -18,6 +18,7 @@ class Counter(dict):
 
 # TODO: replace with std_library version of this in Py3.6 (issue #173)
 
+
 def lru_cache(maxsize=30):
     '''Least-recently-used cache decorator.
 
@@ -29,12 +30,13 @@ def lru_cache(maxsize=30):
     '''
     maxqueue = maxsize * 10
 
-    def decorating_function(user_function,
-                            len=len, iter=iter, tuple=tuple, sorted=sorted, KeyError=KeyError):
-        cache = {}                  # mapping of args to results
+    def decorating_function(
+        user_function, len=len, iter=iter, tuple=tuple, sorted=sorted, KeyError=KeyError
+    ):
+        cache = {}  # mapping of args to results
         queue = collections.deque()  # order that keys have been used
-        refcount = Counter()        # times each key is in the queue
-        sentinel = object()         # marker for looping around the queue
+        refcount = Counter()  # times each key is in the queue
+        sentinel = object()  # marker for looping around the queue
 
         # lookup optimizations (ugly but fast)
         queue_append, queue_popleft = queue.append, queue.popleft
@@ -74,8 +76,9 @@ def lru_cache(maxsize=30):
             if len(queue) > maxqueue:
                 refcount.clear()
                 queue_appendleft(sentinel)
-                for key in filterfalse(refcount.__contains__,
-                                       iter(queue_pop, sentinel)):
+                for key in filterfalse(
+                    refcount.__contains__, iter(queue_pop, sentinel)
+                ):
                     queue_appendleft(key)
                     refcount[key] = 1
 
@@ -90,6 +93,7 @@ def lru_cache(maxsize=30):
         wrapper.hits = wrapper.misses = 0
         wrapper.clear = clear
         return wrapper
+
     return decorating_function
 
 
@@ -102,10 +106,11 @@ def lfu_cache(maxsize=100):
     http://en.wikipedia.org/wiki/Least_Frequently_Used
 
     '''
+
     def decorating_function(user_function):
-        cache = {}                      # mapping of args to results
-        use_count = Counter()           # times each key has been accessed
-        kwd_mark = object()             # separate positional and keyword args
+        cache = {}  # mapping of args to results
+        use_count = Counter()  # times each key has been accessed
+        kwd_mark = object()  # separate positional and keyword args
 
         @functools.wraps(user_function)
         def wrapper(*args, **kwds):
@@ -125,9 +130,9 @@ def lfu_cache(maxsize=100):
 
                 # purge least frequently used cache entry
                 if len(cache) > maxsize:
-                    for key, _ in nsmallest(maxsize // 10,
-                                            six.iteritems(use_count),
-                                            key=itemgetter(1)):
+                    for key, _ in nsmallest(
+                        maxsize // 10, six.iteritems(use_count), key=itemgetter(1)
+                    ):
                         del cache[key], use_count[key]
 
             return result
@@ -140,6 +145,7 @@ def lfu_cache(maxsize=100):
         wrapper.hits = wrapper.misses = 0
         wrapper.clear = clear
         return wrapper
+
     return decorating_function
 
 
@@ -151,6 +157,7 @@ if __name__ == '__main__':
 
     domain = list(range(5))
     from random import choice
+
     for i in range(1000):
         r = f(choice(domain), choice(domain))
 
@@ -162,6 +169,7 @@ if __name__ == '__main__':
 
     domain = list(range(5))
     from random import choice
+
     for i in range(1000):
         r = f(choice(domain), choice(domain))
 

@@ -59,6 +59,7 @@ def get_data_access_info(is_windows=IS_WINDOWS):
     if 'SKA_ACCESS_REMOTELY' in os.environ:
         # User explicitly specified, so that is the end of the story.
         import ast
+
         ska_access_remotely = ast.literal_eval(os.environ['SKA_ACCESS_REMOTELY'])
     else:
         ska_access_remotely = False if has_ska_data else is_windows
@@ -69,9 +70,13 @@ def get_data_access_info(is_windows=IS_WINDOWS):
         else:
             msg = f'no {eng_archive} directory'
         from astropy.utils.exceptions import AstropyUserWarning
-        warnings.warn(f'no local Ska data found and remote access is not selected: {msg}\n'
-                      'You can still access MAUDE data by running '
-                      '`fetch.data_source.set("maude")`', AstropyUserWarning)
+
+        warnings.warn(
+            f'no local Ska data found and remote access is not selected: {msg}\n'
+            'You can still access MAUDE data by running '
+            '`fetch.data_source.set("maude")`',
+            AstropyUserWarning,
+        )
 
     if ska_access_remotely:
         # If accessing remotely, then hardwire eng_archive to the linux path where
@@ -130,25 +135,28 @@ def establish_connection():
             # Deal with an obscure problem in remote access on Windows.
             # See https://github.com/tornadoweb/tornado/issues/2608#issuecomment-491489432
             import asyncio
+
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
         # Get the username and password if not already set
-        hostname = hostname or input('Enter hostname (or IP) of Ska ' +
-                                     'server (enter to cancel):')
+        hostname = hostname or input(
+            'Enter hostname (or IP) of Ska ' + 'server (enter to cancel):'
+        )
         if hostname == "":
             break
         default_username = getpass.getuser()
-        username = username or input('Enter your login username [' +
-                                     default_username + ']:')
+        username = username or input(
+            'Enter your login username [' + default_username + ']:'
+        )
         password = password or getpass.getpass('Enter your password:')
 
         # Open the connection to the server
         print('Establishing connection to ' + hostname + '...')
         sys.stdout.flush()
         try:
-            _remote_client = parallel.Client(client_key_file,
-                                             sshserver=f'{username}@{hostname}',
-                                             password=password)
+            _remote_client = parallel.Client(
+                client_key_file, sshserver=f'{username}@{hostname}', password=password
+            )
         except Exception:
             print('Error connecting to server ', hostname, ': ', sys.exc_info()[0])
             sys.stdout.flush()
@@ -186,9 +194,12 @@ def test_connection():
     Function to perform a quick test of the connection to the
     remote server
     """
+
     def remote_fcn():
         import os
+
         return os.sys.version
+
     return execute_remotely(remote_fcn)
 
 

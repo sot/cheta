@@ -13,21 +13,22 @@ from Chandra.Time import DateTime
 from .. import fetch, update_client_archive, update_server_sync
 from ..utils import STATS_DT, set_fetch_basedir
 
-pytestmark = pytest.mark.skipif(sys.maxsize <= 2 ** 32, reason="tests for 64-bit only")
+pytestmark = pytest.mark.skipif(sys.maxsize <= 2**32, reason="tests for 64-bit only")
 
 # Covers safe mode and IRU swap activities around 2018:283.  This is a time
 # with rarely-seen telemetry.
 START, STOP = '2018:281', '2018:293'
 
 # Content types and associated MSIDs that will be tested
-CONTENTS = {'acis4eng': ['1WRAT'],  # [float]
-            'dp_pcad32': ['DP_SYS_MOM_TOT'],  # Derived parameter [float]
-            'orbitephem0': ['ORBITEPHEM0_X'],  # Heavily overlapped [float]
-            'cpe1eng': ['6GYRCT1', '6RATE1'],  # Safe mode, [int, float]
-            'pcad13eng': ['ASPAGYC2A'],  # PCAD subformat and rarely sampled [int]
-            'sim_mrg': ['3TSCMOVE', '3TSCPOS'],  # [str, float]
-            'simcoor': ['SIM_Z_MOVED'],  # [bool]
-            }
+CONTENTS = {
+    'acis4eng': ['1WRAT'],  # [float]
+    'dp_pcad32': ['DP_SYS_MOM_TOT'],  # Derived parameter [float]
+    'orbitephem0': ['ORBITEPHEM0_X'],  # Heavily overlapped [float]
+    'cpe1eng': ['6GYRCT1', '6RATE1'],  # Safe mode, [int, float]
+    'pcad13eng': ['ASPAGYC2A'],  # PCAD subformat and rarely sampled [int]
+    'sim_mrg': ['3TSCMOVE', '3TSCPOS'],  # [str, float]
+    'simcoor': ['SIM_Z_MOVED'],  # [bool]
+}
 
 LOG_LEVEL = 50  # quiet
 
@@ -56,28 +57,33 @@ def make_linked_local_archive(outdir, content, msids):
     (basedir_out / content / '5min').mkdir()
     (basedir_out / content / 'daily').mkdir()
     for file in 'archfiles.db3', 'colnames.pickle', 'TIME.h5':
-        shutil.copy(basedir_in / content / file,
-                    basedir_out / content / file)
+        shutil.copy(basedir_in / content / file, basedir_out / content / file)
     for msid in msids:
         file = f'{msid}.h5'
         try:
-            os.link(basedir_in / content / file,
-                    basedir_out / content / file)
+            os.link(basedir_in / content / file, basedir_out / content / file)
         except OSError:
-            os.symlink(basedir_in / content / file,
-                       basedir_out / content / file)
+            os.symlink(basedir_in / content / file, basedir_out / content / file)
         try:
-            os.link(basedir_in / content / '5min' / file,
-                    basedir_out / content / '5min' / file)
+            os.link(
+                basedir_in / content / '5min' / file,
+                basedir_out / content / '5min' / file,
+            )
         except OSError:
-            os.symlink(basedir_in / content / '5min' / file,
-                       basedir_out / content / '5min' / file)
+            os.symlink(
+                basedir_in / content / '5min' / file,
+                basedir_out / content / '5min' / file,
+            )
         try:
-            os.link(basedir_in / content / 'daily' / file,
-                    basedir_out / content / 'daily' / file)
+            os.link(
+                basedir_in / content / 'daily' / file,
+                basedir_out / content / 'daily' / file,
+            )
         except OSError:
-            os.symlink(basedir_in / content / 'daily' / file,
-                       basedir_out / content / 'daily' / file)
+            os.symlink(
+                basedir_in / content / 'daily' / file,
+                basedir_out / content / 'daily' / file,
+            )
 
 
 def make_sync_repo(outdir, content):
@@ -91,11 +97,13 @@ def make_sync_repo(outdir, content):
     date_stop = (DateTime(STOP) + 2).date
 
     print(f'Updating server sync for {content}')
-    args = [f'--sync-root={outdir}',
-            f'--date-start={date_start}',
-            f'--date-stop={date_stop}',
-            f'--log-level={LOG_LEVEL}',
-            f'--content={content}']
+    args = [
+        f'--sync-root={outdir}',
+        f'--date-start={date_start}',
+        f'--date-stop={date_stop}',
+        f'--log-level={LOG_LEVEL}',
+        f'--content={content}',
+    ]
 
     update_server_sync.main(args)
 
@@ -109,10 +117,11 @@ def make_stub_archfiles(date, basedir_ref, basedir_stub):
     with Ska.DBI.DBI(dbi='sqlite', server=filename) as db:
         filetime = DateTime(date).secs
         # Last archfile that starts before date.
-        last_row = db.fetchone(f'select * from archfiles '
-                               f'where filetime < {filetime} '
-                               f'order by filetime desc'
-                               )
+        last_row = db.fetchone(
+            'select * from archfiles '
+            f'where filetime < {filetime} '
+            'order by filetime desc'
+        )
 
     with set_fetch_basedir(basedir_stub):
         filename = fetch.msid_files['archfiles'].abs
@@ -172,8 +181,9 @@ def make_stub_stats_col(msid, stat, row1, basedir_ref, basedir_stub, date_stop):
 
     filters = tables.Filters(complevel=5, complib='zlib')
     with tables.open_file(file_stats_stub, mode='a', filters=filters) as stats:
-        stats.create_table(stats.root, 'data', tbl_rows,
-                           f'{stat} sampling', expectedrows=1e5)
+        stats.create_table(
+            stats.root, 'data', tbl_rows, f'{stat} sampling', expectedrows=1e5
+        )
         stats.root.data.flush()
 
 
@@ -204,10 +214,17 @@ def make_stub_h5_col(msid, row0, row1, basedir_ref, basedir_stub):
     with tables.open_file(file_stub, mode='w', filters=filters) as h5:
         h5shape = (0,) + data_stub.shape[1:]
         h5type = tables.Atom.from_dtype(data_stub.dtype)
-        h5.create_earray(h5.root, 'data', h5type, h5shape, title=msid,
-                         expectedrows=n_rows)
-        h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
-                         expectedrows=n_rows)
+        h5.create_earray(
+            h5.root, 'data', h5type, h5shape, title=msid, expectedrows=n_rows
+        )
+        h5.create_earray(
+            h5.root,
+            'quality',
+            tables.BoolAtom(),
+            (0,),
+            title='Quality',
+            expectedrows=n_rows,
+        )
 
     with tables.open_file(file_stub, mode='a') as h5:
         h5.root.data.append(data_fill)
@@ -235,9 +252,15 @@ def make_stub_colnames(basedir_ref, basedir_stub):
     return msids
 
 
-def make_stub_content(content=None, date=None,
-                      basedir_ref=None, basedir_stub=None,
-                      msids=None, msids_5min=None, msids_daily=None):
+def make_stub_content(
+    content=None,
+    date=None,
+    basedir_ref=None,
+    basedir_stub=None,
+    msids=None,
+    msids_5min=None,
+    msids_daily=None,
+):
     # If no content then require msids has been passed
     if content is None:
         content = fetch.content[msids[0].upper()]
@@ -309,21 +332,27 @@ def check_content(outdir, content, msids=None):
 
     # Make stubs of archive content, meaning filled with mostly zeros until about
     # before before test start date, then some real data to get the sync'ing going.
-    make_stub_content(content,
-                      date=DateTime(START) - 2,
-                      basedir_stub=basedir_test,
-                      basedir_ref=basedir_ref,
-                      msids=msids)
+    make_stub_content(
+        content,
+        date=DateTime(START) - 2,
+        basedir_stub=basedir_test,
+        basedir_ref=basedir_ref,
+        msids=msids,
+    )
 
     date_stop = (DateTime(STOP) + 2).date
 
     print(f'Updating client archive {content}')
     with set_fetch_basedir(basedir_test):
-        update_client_archive.main([f'--content={content}',
-                                    f'--log-level={LOG_LEVEL}',
-                                    f'--date-stop={date_stop}',
-                                    f'--data-root={basedir_test}',
-                                    f'--sync-root={basedir_test}'])
+        update_client_archive.main(
+            [
+                f'--content={content}',
+                f'--log-level={LOG_LEVEL}',
+                f'--date-stop={date_stop}',
+                f'--data-root={basedir_test}',
+                f'--sync-root={basedir_test}',
+            ]
+        )
 
     print(f'Checking {content} {msids}')
     for stat in None, '5min', 'daily':

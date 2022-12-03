@@ -66,23 +66,27 @@ units['cxc'] = pickle.load(open(os.path.join(module_dir, 'units_cxc.pkl'), 'rb')
 
 
 # Equivalent unit descriptors used in 'eng' and 'cxc' units
-equiv_units = set([('AMP', 'A'),
-                   ('ASEC', 'arcsec'),
-                   ('DEG', 'deg'),
-                   ('DEGPS', 'deg/s'),
-                   ('KHZ', 'kHz'),
-                   ('KM', 'km'),
-                   ('KMPS', 'km/s'),
-                   ('MAMP', 'mA'),
-                   ('MSEC', 'ms'),
-                   ('RAD', 'rad'),
-                   ('RADPS', 'rad/s'),
-                   ('RADSS', 'rad/s**2'),
-                   ('SEC', 's'),
-                   ('V', 'V'),
-                   ('VDC', 'V'),
-                   ('W', 'W'),
-                   (None, None)])
+equiv_units = set(
+    [
+        ('AMP', 'A'),
+        ('ASEC', 'arcsec'),
+        ('DEG', 'deg'),
+        ('DEGPS', 'deg/s'),
+        ('KHZ', 'kHz'),
+        ('KM', 'km'),
+        ('KMPS', 'km/s'),
+        ('MAMP', 'mA'),
+        ('MSEC', 'ms'),
+        ('RAD', 'rad'),
+        ('RADPS', 'rad/s'),
+        ('RADSS', 'rad/s**2'),
+        ('SEC', 's'),
+        ('V', 'V'),
+        ('VDC', 'V'),
+        ('W', 'W'),
+        (None, None),
+    ]
+)
 equiv_units.update((u2, u1) for u1, u2 in list(equiv_units))
 
 
@@ -132,8 +136,14 @@ def FASTEP_to_mm(vals, delta_val=False):
     """
     Use CXC calibration value to convert from focus assembly steps to mm.
     """
-    fastep = (1.47906994e-3 * vals + 3.5723322e-8 * vals**2 + -1.08492544e-12 * vals**3 +
-              3.9803832e-17 * vals**4 + 5.29336e-21 * vals**5 + 1.020064e-25 * vals**6)
+    fastep = (
+        1.47906994e-3 * vals
+        + 3.5723322e-8 * vals**2
+        + -1.08492544e-12 * vals**3
+        + 3.9803832e-17 * vals**4
+        + 5.29336e-21 * vals**5
+        + 1.020064e-25 * vals**6
+    )
     return fastep
 
 
@@ -146,9 +156,19 @@ def mm_to_FASTEP(vals, delta_val=False):
          3.9803832e-17  *   x**4 +  5.29336e-21  *  x**5 +  1.020064e-25  *   x**6)
     r = np.polyfit(y, x, 8)
     """
-    r = np.array([-1.26507734e-05, -2.02499464e-04, -1.86504522e-03,
-                  -5.25689124e-03, -5.75639912e-02, 5.60935786e-01,
-                  -1.10595209e+01, 6.76094720e+02, -4.34121454e-04])
+    r = np.array(
+        [
+            -1.26507734e-05,
+            -2.02499464e-04,
+            -1.86504522e-03,
+            -5.25689124e-03,
+            -5.75639912e-02,
+            5.60935786e-01,
+            -1.10595209e01,
+            6.76094720e02,
+            -4.34121454e-04,
+        ]
+    )
     x_step = np.round(np.polyval(r, vals), decimals=2)
     return x_step
 
@@ -159,6 +179,7 @@ def mult(scale_factor, decimals=None):
         if decimals is not None:
             result = np.round(result, decimals=decimals)
         return result
+
     return convert
 
 
@@ -179,7 +200,6 @@ converters = {
     ('mm', 'FASTEP'): mm_to_FASTEP,
     ('PWM', 'PWMSTEP'): mult(16),
     ('DEGC', 'DEGF'): C_to_F,
-
     # Eng units to CXC or Sci
     ('DEGC', 'K'): C_to_K,
     ('DEGF', 'K'): F_to_K,
@@ -197,20 +217,17 @@ converters = {
 
 
 def load_units(unit_system):
-    """Load units definitions for unit_system if not already loaded.
-    """
+    """Load units definitions for unit_system if not already loaded."""
     if unit_system not in SYSTEMS:
         raise ValueError('unit_system must be in {}'.format(SYSTEMS))
 
     if unit_system not in units:
-        filename = os.path.join(module_dir,
-                                'units_{0}.pkl'.format(unit_system))
+        filename = os.path.join(module_dir, 'units_{0}.pkl'.format(unit_system))
         units[unit_system] = pickle.load(open(filename, 'rb'))
 
 
 def set_units(unit_system):
-    """Set conversion unit system.  The input ``unit_system`` must be a string.
-    """
+    """Set conversion unit system.  The input ``unit_system`` must be a string."""
     load_units(unit_system)
     units['system'] = unit_system
 
@@ -282,12 +299,15 @@ class Units(dict):
             return vals
 
         if conversion not in converters:
-            warnings.warn('\n\n\n**** WARNING ****\n'
-                          'For MSID {} the requested unit conversion from {} to {}\n'
-                          'does not have a defined transformation function.\n'
-                          'You may be getting incorrect results now.\n\n'
-                          'PLEASE REPORT THIS to the Ska developers!\n'
-                          .format(MSID, conversion[0], conversion[1]))
+            warnings.warn(
+                '\n\n\n**** WARNING ****\n'
+                'For MSID {} the requested unit conversion from {} to {}\n'
+                'does not have a defined transformation function.\n'
+                'You may be getting incorrect results now.\n\n'
+                'PLEASE REPORT THIS to the Ska developers!\n'.format(
+                    MSID, conversion[0], conversion[1]
+                )
+            )
 
         vals = converters[conversion](vals, delta_val)
 

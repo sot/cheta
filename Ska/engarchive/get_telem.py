@@ -154,10 +154,21 @@ def get_queryset(expr):
     return eval(queryset_expr)
 
 
-def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
-              interpolate_dt=None, remove_events=None, select_events=None,
-              time_format=None, outfile=None, quiet=False,
-              max_fetch_Mb=None, max_output_Mb=None):
+def get_telem(
+    msids,
+    start=None,
+    stop=None,
+    sampling='full',
+    unit_system='eng',
+    interpolate_dt=None,
+    remove_events=None,
+    select_events=None,
+    time_format=None,
+    outfile=None,
+    quiet=False,
+    max_fetch_Mb=None,
+    max_output_Mb=None,
+):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
     common post-processing functions.
@@ -169,6 +180,7 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     """
     # Set up output logging
     from pyyaks.logger import get_logger
+
     logger = get_logger(name='Ska.engarchive.get_telem', level=(100 if quiet else -100))
 
     # Set defaults and translate to fetch keywords
@@ -179,23 +191,31 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     if isinstance(msids, six.string_types):
         msids = [msids]
 
-    logger.info('Fetching {}-resolution data for MSIDS={}\n  from {} to {}'
-                .format(sampling, msids, start.date, stop.date))
+    logger.info(
+        'Fetching {}-resolution data for MSIDS={}\n  from {} to {}'.format(
+            sampling, msids, start.date, stop.date
+        )
+    )
 
     fetch.set_units(unit_system)
 
     # Make sure that the dataset being fetched is reasonable (if checking requested)
     if max_fetch_Mb is not None or max_output_Mb is not None:
-        fetch_Mb, output_Mb = utils.get_fetch_size(msids, start, stop, stat=stat,
-                                                   interpolate_dt=interpolate_dt, fast=True)
+        fetch_Mb, output_Mb = utils.get_fetch_size(
+            msids, start, stop, stat=stat, interpolate_dt=interpolate_dt, fast=True
+        )
         if max_fetch_Mb is not None and fetch_Mb > max_fetch_Mb:
-            raise MemoryError('Requested fetch requires {:.2f} Mb vs. limit of {:.2f} Mb'
-                              .format(fetch_Mb, max_fetch_Mb))
+            raise MemoryError(
+                'Requested fetch requires {:.2f} Mb vs. limit of {:.2f} Mb'.format(
+                    fetch_Mb, max_fetch_Mb
+                )
+            )
         # If outputting to a file then check output size
         if outfile and max_output_Mb is not None and output_Mb > max_output_Mb:
-            raise MemoryError('Requested fetch (interpolated) requires {:.2f} Mb '
-                              'vs. limit of {:.2f} Mb'
-                              .format(output_Mb, max_output_Mb))
+            raise MemoryError(
+                'Requested fetch (interpolated) requires {:.2f} Mb '
+                'vs. limit of {:.2f} Mb'.format(output_Mb, max_output_Mb)
+            )
 
     dat = fetch.MSIDset(msids, start, stop, stat=stat, filter_bad=filter_bad)
 
@@ -217,7 +237,9 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
 
     if time_format not in (None, 'secs'):
         for dat_msid in dat.values():
-            dat_msid.times = getattr(DateTime(dat_msid.times, format='secs'), time_format)
+            dat_msid.times = getattr(
+                DateTime(dat_msid.times, format='secs'), time_format
+            )
 
     if outfile:
         logger.info('Writing data to {}'.format(outfile))
@@ -227,66 +249,79 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
 
 
 def get_opt():
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--start',
-                        type=str,
-                        help='Start time for data fetch (default=<stop> - 30 days)')
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        '--start', type=str, help='Start time for data fetch (default=<stop> - 30 days)'
+    )
 
-    parser.add_argument('--stop',
-                        type=str,
-                        help='Stop time for data fetch (default=NOW)')
+    parser.add_argument(
+        '--stop', type=str, help='Stop time for data fetch (default=NOW)'
+    )
 
-    parser.add_argument('--sampling',
-                        type=str,
-                        default='5min',
-                        help='Data sampling (full|5min|daily) (default=5min)')
+    parser.add_argument(
+        '--sampling',
+        type=str,
+        default='5min',
+        help='Data sampling (full|5min|daily) (default=5min)',
+    )
 
-    parser.add_argument('--unit-system',
-                        type=str,
-                        default='eng',
-                        help='Unit system for data (eng|sci|cxc) (default=eng)')
+    parser.add_argument(
+        '--unit-system',
+        type=str,
+        default='eng',
+        help='Unit system for data (eng|sci|cxc) (default=eng)',
+    )
 
-    parser.add_argument('--interpolate-dt',
-                        type=float,
-                        help='Interpolate to uniform time steps (secs, default=None)')
+    parser.add_argument(
+        '--interpolate-dt',
+        type=float,
+        help='Interpolate to uniform time steps (secs, default=None)',
+    )
 
-    parser.add_argument('--remove-events',
-                        type=str,
-                        help='Remove kadi events expression (default=None)')
+    parser.add_argument(
+        '--remove-events', type=str, help='Remove kadi events expression (default=None)'
+    )
 
-    parser.add_argument('--select-events',
-                        type=str,
-                        help='Select kadi events expression (default=None)')
+    parser.add_argument(
+        '--select-events', type=str, help='Select kadi events expression (default=None)'
+    )
 
-    parser.add_argument('--time-format',
-                        type=str,
-                        help='Output time format (secs|date|greta|jd|frac_year|...)')
+    parser.add_argument(
+        '--time-format',
+        type=str,
+        help='Output time format (secs|date|greta|jd|frac_year|...)',
+    )
 
-    parser.add_argument('--outfile',
-                        default='fetch.zip',
-                        type=str,
-                        help='Output file name (default=fetch.zip)')
+    parser.add_argument(
+        '--outfile',
+        default='fetch.zip',
+        type=str,
+        help='Output file name (default=fetch.zip)',
+    )
 
-    parser.add_argument('--quiet',
-                        action='store_true',
-                        help='Suppress run-time logging output')
+    parser.add_argument(
+        '--quiet', action='store_true', help='Suppress run-time logging output'
+    )
 
-    parser.add_argument('--max-fetch-Mb',
-                        default=1000.0,
-                        type=float,
-                        help='Max allowed memory (Mb) for fetching (default=1000)')
+    parser.add_argument(
+        '--max-fetch-Mb',
+        default=1000.0,
+        type=float,
+        help='Max allowed memory (Mb) for fetching (default=1000)',
+    )
 
-    parser.add_argument('--max-output-Mb',
-                        default=100.0,
-                        type=float,
-                        help='Max allowed memory (Mb) for file output (default=100)')
+    parser.add_argument(
+        '--max-output-Mb',
+        default=100.0,
+        type=float,
+        help='Max allowed memory (Mb) for file output (default=100)',
+    )
 
-    parser.add_argument('msids',
-                        metavar='MSID',
-                        type=str,
-                        nargs='+',
-                        help='MSID to fetch')
+    parser.add_argument(
+        'msids', metavar='MSID', type=str, nargs='+', help='MSID to fetch'
+    )
 
     opt = parser.parse_args()
     return opt
@@ -297,14 +332,19 @@ def main():
     try:
         get_telem(**vars(opt))
     except MemoryError as err:
-        print('\n'.join(['',
-                         '*' * 80,
-                         'ERROR: {}'.format(err),
-                         '*' * 80, '']))
+        print('\n'.join(['', '*' * 80, 'ERROR: {}'.format(err), '*' * 80, '']))
     except Exception as err:
-        print('\n'.join(['',
-                         '*' * 80,
-                         'ERROR: {}'.format(err),
-                         'If necessary report the following traceback to aca@head.cfa.harvard.edu',
-                         '*' * 80, '']))
+        print(
+            '\n'.join(
+                [
+                    '',
+                    '*' * 80,
+                    'ERROR: {}'.format(err),
+                    'If necessary report the following traceback to'
+                    ' aca@head.cfa.harvard.edu',
+                    '*' * 80,
+                    '',
+                ]
+            )
+        )
         raise

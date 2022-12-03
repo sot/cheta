@@ -59,7 +59,6 @@ STATE_CODES = {
     '3SDSWELF': [(0, 'F'), (1, 'T')],
     '3SDSYRS': [(0, 'F'), (1, 'T')],
     '3SDWMRS': [(0, 'F'), (1, 'T')],
-
     # SIM_MRG
     '3TSCMOVE': [(0, 'F'), (1, 'T')],
     '3FAMOVE': [(0, 'F'), (1, 'T')],
@@ -86,6 +85,7 @@ class _DataSource(object):
     Context manager and quasi-singleton configuration object for managing the
     data_source(s) used for fetching telemetry.
     """
+
     _data_sources = (DEFAULT_DATA_SOURCE,)
     _allowed = ('cxc', 'maude', 'test-drop-half')
 
@@ -106,13 +106,19 @@ class _DataSource(object):
 
         :param *data_sources: one or more sources (str)
         """
-        if any(data_source.split()[0] not in cls._allowed for data_source in data_sources):
-            raise ValueError('data_sources {} not in allowed set {}'
-                             .format(data_sources, cls._allowed))
+        if any(
+            data_source.split()[0] not in cls._allowed for data_source in data_sources
+        ):
+            raise ValueError(
+                'data_sources {} not in allowed set {}'.format(
+                    data_sources, cls._allowed
+                )
+            )
 
         if len(data_sources) == 0:
-            raise ValueError('must select at least one data source in {}'
-                             .format(cls._allowed))
+            raise ValueError(
+                'must select at least one data source in {}'.format(cls._allowed)
+            )
 
         cls._data_sources = data_sources
 
@@ -145,6 +151,7 @@ class _DataSource(object):
             out = list(content.keys())
         elif source == 'maude':
             import maude
+
             out = list(maude.MSIDS.keys())
         else:
             raise ValueError('source must be "cxc" or "msid"')
@@ -197,6 +204,7 @@ def local_or_remote_function(remote_print_output):
     the resultant path should re-join them with os.path.join. In the
     remote case the join will happen using the remote rules.
     """
+
     def the_decorator(func):
         def wrapper(*args, **kwargs):
             if remote_access.access_remotely:
@@ -206,15 +214,17 @@ def local_or_remote_function(remote_print_output):
                     try:
                         if not remote_access.establish_connection():
                             raise remote_access.RemoteConnectionError(
-                                "Unable to establish connection for remote fetch.")
+                                "Unable to establish connection for remote fetch."
+                            )
                     except EOFError:
                         # An EOF error can be raised if the python interpreter is being
                         # called in such a way that input cannot be received from the
                         # user (e.g. when the python interpreter is called from MATLAB)
                         # If that is the case (and remote access is enabled), then
                         # raise an import error
-                        raise ImportError("Unable to interactively get remote access "
-                                          "info from user.")
+                        raise ImportError(
+                            "Unable to interactively get remote access info from user."
+                        )
                 # Print the output, if specified
                 if remote_access.show_print_output and remote_print_output is not None:
                     print(remote_print_output)
@@ -223,7 +233,9 @@ def local_or_remote_function(remote_print_output):
                 return remote_access.execute_remotely(func, *args, **kwargs)
             else:
                 return func(*args, **kwargs)
+
         return wrapper
+
     return the_decorator
 
 
@@ -244,8 +256,7 @@ def _get_start_stop_dates(times):
     if len(times) == 0:
         return {}
     else:
-        return {'start': DateTime(times[0]).date,
-                'stop': DateTime(times[-1]).date}
+        return {'start': DateTime(times[0]).date, 'stop': DateTime(times[-1]).date}
 
 
 # Context dictionary to provide context for msid_files
@@ -268,14 +279,14 @@ filetypes[()] = filetypes_arr
 all_msid_names_files = dict()
 for filetype in filetypes:
     ft['content'] = filetype['content'].lower()
-    all_msid_names_files[str(ft['content'])] = \
-        _split_path(msid_files['colnames'].abs)
+    all_msid_names_files[str(ft['content'])] = _split_path(msid_files['colnames'].abs)
 
 
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
     import pickle
+
     all_colnames = dict()
     for k, msid_names_file in all_msid_names_files.items():
         try:
@@ -289,8 +300,11 @@ def load_content(all_colnames):
     out = {}
     # Save the names
     for content_type, msid_names in all_colnames.items():
-        out.update((name, content_type) for name in sorted(msid_names)
-                   if name not in IGNORE_COLNAMES)
+        out.update(
+            (name, content_type)
+            for name in sorted(msid_names)
+            if name not in IGNORE_COLNAMES
+        )
     return out
 
 
@@ -319,8 +333,7 @@ logger.propagate = False
 
 
 def get_units():
-    """Get the unit system currently being used for conversions.
-    """
+    """Get the unit system currently being used for conversions."""
     return UNITS['system']
 
 
@@ -353,8 +366,7 @@ def read_bad_times(table):
     ``DateTime`` format.  Blank lines and any line starting with the #
     character are ignored.
     """
-    bad_times = ascii.read(table, format='no_header',
-                           names=['msid', 'start', 'stop'])
+    bad_times = ascii.read(table, format='no_header', names=['msid', 'start', 'stop'])
 
     for msid, start, stop in bad_times:
         msid_bad_times.setdefault(msid.upper(), []).append((start, stop))
@@ -391,8 +403,11 @@ def msid_glob(msid):
         MSIDS.update((m, None) for m in MS)
 
     if not msids:
-        raise ValueError('MSID {!r} is not in {} data source(s)'
-                         .format(msid, ' or '.join(x.upper() for x in sources)))
+        raise ValueError(
+            'MSID {!r} is not in {} data source(s)'.format(
+                msid, ' or '.join(x.upper() for x in sources)
+            )
+        )
 
     return list(msids), list(MSIDS)
 
@@ -442,8 +457,10 @@ def _msid_glob(msid, source):
             if len(matches) > MAX_GLOB_MATCHES:
                 raise ValueError(
                     'MSID spec {} matches more than {} MSIDs.  '
-                    'Refine the spec or increase fetch.MAX_GLOB_MATCHES'
-                    .format(msid, MAX_GLOB_MATCHES))
+                    'Refine the spec or increase fetch.MAX_GLOB_MATCHES'.format(
+                        msid, MAX_GLOB_MATCHES
+                    )
+                )
             return [x.lower() for x in matches], matches
 
     # msid not found for this data source
@@ -466,8 +483,9 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
 
     if isinstance(table, (list, tuple)):
         try:
-            intervals = [(DateTime(row[0]).secs, DateTime(row[1]).secs)
-                         for row in table]
+            intervals = [
+                (DateTime(row[0]).secs, DateTime(row[1]).secs) for row in table
+            ]
         except Exception:
             pass
     else:
@@ -475,8 +493,10 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
             start = prefix + 'start'
             stop = prefix + 'stop'
             try:
-                intervals = [(DateTime(row[start]).secs, DateTime(row[stop]).secs)
-                             for row in table]
+                intervals = [
+                    (DateTime(row[start]).secs, DateTime(row[stop]).secs)
+                    for row in table
+                ]
             except Exception:
                 pass
             else:
@@ -510,14 +530,14 @@ class MSID(object):
 
     :returns: MSID instance
     """
+
     units = UNITS
     fetch = sys.modules[__name__]
 
     def __init__(self, msid, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None):
         msids, MSIDs = msid_glob(msid)
         if len(MSIDs) > 1:
-            raise ValueError('Multiple matches for {} in Eng Archive'
-                             .format(msid))
+            raise ValueError('Multiple matches for {} in Eng Archive'.format(msid))
         else:
             self.msid = msids[0]
             self.MSID = MSIDs[0]
@@ -536,16 +556,16 @@ class MSID(object):
             start, stop = intervals[0][0], intervals[-1][1]
 
         self.tstart = DateTime(start).secs
-        self.tstop = (DateTime(stop).secs if stop else
-                      DateTime(time.time(), format='unix').secs)
+        self.tstop = (
+            DateTime(stop).secs if stop else DateTime(time.time(), format='unix').secs
+        )
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
         self.data_source = {}
         self.content = content.get(self.MSID)
 
         if self.datestart < DATE2000_LO and self.datestop > DATE2000_HI:
-            intervals = [(self.datestart, DATE2000_HI),
-                         (DATE2000_HI, self.datestop)]
+            intervals = [(self.datestart, DATE2000_HI), (DATE2000_HI, self.datestop)]
 
         # Get the times, values, bad values mask from the HDF5 files archive
         if intervals is None:
@@ -566,12 +586,14 @@ class MSID(object):
 
     def __repr__(self):
         attrs = [self.__class__.__name__, self.MSID]
-        for name, val in (('start', self.datestart),
-                          ('stop', self.datestop),
-                          ('len', len(self)),
-                          ('dtype', self.dtype.name),
-                          ('unit', self.unit),
-                          ('stat', self.stat)):
+        for name, val in (
+            ('start', self.datestart),
+            ('stop', self.datestop),
+            ('len', len(self)),
+            ('dtype', self.dtype.name),
+            ('unit', self.unit),
+            ('stat', self.stat),
+        ):
             if val is not None:
                 attrs.append('{}={}'.format(name, val))
 
@@ -583,7 +605,11 @@ class MSID(object):
         """
         msids = []
         for start, stop in intervals:
-            msids.append(self.fetch.MSID(self.msid, start, stop, filter_bad=False, stat=self.stat))
+            msids.append(
+                self.fetch.MSID(
+                    self.msid, start, stop, filter_bad=False, stat=self.stat
+                )
+            )
 
         # No bad values column for stat='5min' or 'daily', but still need this attribute.
         if self.stat:
@@ -596,8 +622,12 @@ class MSID(object):
 
     def _get_data(self):
         """Get data from the Eng archive"""
-        logger.info('Getting data for %s between %s to %s',
-                    self.msid, self.datestart, self.datestop)
+        logger.info(
+            'Getting data for %s between %s to %s',
+            self.msid,
+            self.datestart,
+            self.datestop,
+        )
 
         comp_cls = ComputedMsid.get_matching_comp_cls(self.msid)
         if comp_cls:
@@ -612,24 +642,39 @@ class MSID(object):
             with _set_msid_files_basedir(self.datestart):
                 if self.stat:
                     if 'maude' in data_source.sources():
-                        raise ValueError('MAUDE data source does not support telemetry statistics')
+                        raise ValueError(
+                            'MAUDE data source does not support telemetry statistics'
+                        )
                     ft['interval'] = self.stat
                     self._get_stat_data()
                 else:
                     self.colnames = ['vals', 'times', 'bads']
-                    args = (self.content, self.tstart, self.tstop, self.MSID, self.units['system'])
+                    args = (
+                        self.content,
+                        self.tstart,
+                        self.tstop,
+                        self.MSID,
+                        self.units['system'],
+                    )
 
-                    if ('cxc' in data_source.sources() and
-                            self.MSID in data_source.get_msids('cxc')):
+                    if (
+                        'cxc' in data_source.sources()
+                        and self.MSID in data_source.get_msids('cxc')
+                    ):
                         # CACHE is normally True only when doing ingest processing.  Note
                         # also that to support caching the get_msid_data_from_cxc_cached
                         # method must be static.
-                        get_msid_data = (self._get_msid_data_from_cxc_cached if CACHE
-                                         else self._get_msid_data_from_cxc)
+                        get_msid_data = (
+                            self._get_msid_data_from_cxc_cached
+                            if CACHE
+                            else self._get_msid_data_from_cxc
+                        )
                         self.vals, self.times, self.bads = get_msid_data(*args)
                         self.data_source['cxc'] = _get_start_stop_dates(self.times)
 
-                    if 'test-drop-half' in data_source.sources() and hasattr(self, 'vals'):
+                    if 'test-drop-half' in data_source.sources() and hasattr(
+                        self, 'vals'
+                    ):
                         # For testing purposes drop half the data off the end.  This assumes another
                         # data_source like 'cxc' has been selected.
                         idx = len(self.vals) // 2
@@ -640,8 +685,10 @@ class MSID(object):
                         for source in self.data_source:
                             self.data_source[source] = _get_start_stop_dates(self.times)
 
-                    if ('maude' in data_source.sources() and
-                            self.MSID in data_source.get_msids('maude')):
+                    if (
+                        'maude' in data_source.sources()
+                        and self.MSID in data_source.get_msids('maude')
+                    ):
                         # Update self.vals, times, bads in place.  This might concatenate MAUDE
                         # telemetry to existing CXC values.
                         self._get_msid_data_from_maude(*args)
@@ -650,7 +697,9 @@ class MSID(object):
         logger.info(f'Getting computed values for {self.msid}')
 
         # Do computation.  This returns a dict of MSID attribute values.
-        attrs = comp_cls(self.units['system'])(self.tstart, self.tstop, self.msid, self.stat)
+        attrs = comp_cls(self.units['system'])(
+            self.tstart, self.tstop, self.msid, self.stat
+        )
 
         # Allow upstream class to be a bit sloppy on times and include samples
         # outside the time range.  This can happen with classes that inherit
@@ -660,15 +709,19 @@ class MSID(object):
 
         # List of "colnames", which is the ndarray attributes.  There can be
         # non-ndarray attributes that get returned, including typically 'unit'.
-        self.colnames = [attr for attr, val in attrs.items()
-                         if (isinstance(val, np.ndarray)
-                             and len(val) == len(attrs['times']))]
+        self.colnames = [
+            attr
+            for attr, val in attrs.items()
+            if (isinstance(val, np.ndarray) and len(val) == len(attrs['times']))
+        ]
 
         # Apply attributes to self
         for attr, val in attrs.items():
-            if (not all_ok
-                    and isinstance(val, np.ndarray)
-                    and len(val) == len(attrs['times'])):
+            if (
+                not all_ok
+                and isinstance(val, np.ndarray)
+                and len(val) == len(attrs['times'])
+            ):
                 val = val[ok]
             setattr(self, attr, val)
 
@@ -678,10 +731,12 @@ class MSID(object):
         filename = msid_files['stats'].abs
         logger.info('Opening %s', filename)
 
-        @local_or_remote_function("Getting stat data for " + self.MSID +
-                                  " from Ska eng archive server...")
+        @local_or_remote_function(
+            "Getting stat data for " + self.MSID + " from Ska eng archive server..."
+        )
         def get_stat_data_from_server(filename, dt, tstart, tstop):
             import tables
+
             open_file = getattr(tables, 'open_file', None) or tables.openFile
             h5 = open_file(os.path.join(*filename))
             table = h5.root.data
@@ -690,9 +745,10 @@ class MSID(object):
             table_rows = table[row0:row1]  # returns np.ndarray (structured array)
             h5.close()
             return (times[row0:row1], table_rows, row0, row1)
-        times, table_rows, row0, row1 = \
-            get_stat_data_from_server(_split_path(filename),
-                                      self.dt, self.tstart, self.tstop)
+
+        times, table_rows, row0, row1 = get_stat_data_from_server(
+            _split_path(filename), self.dt, self.tstart, self.tstop
+        )
         logger.info('Closed %s', filename)
 
         self.bads = None
@@ -703,13 +759,24 @@ class MSID(object):
             # Fix that here.
             colname_out = _plural(colname) if colname != 'n' else 'samples'
 
-            if colname_out in ('vals', 'mins', 'maxes', 'means',
-                               'p01s', 'p05s', 'p16s', 'p50s',
-                               'p84s', 'p95s', 'p99s'):
+            if colname_out in (
+                'vals',
+                'mins',
+                'maxes',
+                'means',
+                'p01s',
+                'p05s',
+                'p16s',
+                'p50s',
+                'p84s',
+                'p95s',
+                'p99s',
+            ):
                 vals = self.units.convert(self.MSID, table_rows[colname])
             elif colname_out == 'stds':
-                vals = self.units.convert(self.MSID, table_rows[colname],
-                                          delta_val=True)
+                vals = self.units.convert(
+                    self.MSID, table_rows[colname], delta_val=True
+                )
             else:
                 vals = table_rows[colname]
 
@@ -758,8 +825,7 @@ class MSID(object):
 
         # Read the TIME values either from cache or from disk.
         if times_cache['key'] == cache_key:
-            logger.info('Using times_cache for %s %s to %s',
-                        content, tstart, tstop)
+            logger.info('Using times_cache for %s %s to %s', content, tstart, tstop)
             times = times_cache['val']  # Already filtered on times_ok
             times_ok = times_cache['ok']  # For filtering MSID.val and MSID.bad
             times_all_ok = times_cache['all_ok']
@@ -768,9 +834,12 @@ class MSID(object):
             filename = msid_files['msid'].abs
             logger.info('Reading %s', filename)
 
-            @local_or_remote_function("Getting time data from Ska eng archive server...")
+            @local_or_remote_function(
+                "Getting time data from Ska eng archive server..."
+            )
             def get_time_data_from_server(h5_slice, filename):
                 import tables
+
                 open_file = getattr(tables, 'open_file', None) or tables.openFile
                 h5 = open_file(os.path.join(*filename))
                 times_ok = ~h5.root.quality[h5_slice]
@@ -787,20 +856,21 @@ class MSID(object):
             if not times_all_ok:
                 times = times[times_ok]
 
-            times_cache.update(dict(key=cache_key,
-                                    val=times,
-                                    ok=times_ok,
-                                    all_ok=times_all_ok))
+            times_cache.update(
+                dict(key=cache_key, val=times, ok=times_ok, all_ok=times_all_ok)
+            )
 
         # Extract the actual MSID values and bad values mask
         ft['msid'] = msid
         filename = msid_files['msid'].abs
         logger.info('Reading %s', filename)
 
-        @local_or_remote_function("Getting msid data for " + msid +
-                                  " from Ska eng archive server...")
+        @local_or_remote_function(
+            "Getting msid data for " + msid + " from Ska eng archive server..."
+        )
         def get_msid_data_from_server(h5_slice, filename):
             import tables
+
             open_file = getattr(tables, 'open_file', None) or tables.openFile
             h5 = open_file(os.path.join(*filename))
             vals = h5.root.data[h5_slice]
@@ -872,7 +942,9 @@ class MSID(object):
         # a list of results, so select the first element.
         out = out['data'][0]
 
-        vals = Units(unit_system).convert(msid.upper(), out['values'], from_system='eng')
+        vals = Units(unit_system).convert(
+            msid.upper(), out['values'], from_system='eng'
+        )
         times = out['times']
         bads = np.zeros(len(vals), dtype=bool)  # No 'bad' values from MAUDE
 
@@ -901,19 +973,24 @@ class MSID(object):
 
         if not hasattr(self, '_state_codes'):
             import Ska.tdb
+
             try:
                 states = Ska.tdb.msids[self.MSID].Tsc
             except Exception:
                 self._state_codes = None
             else:
                 if states is None or len(set(states['CALIBRATION_SET_NUM'])) != 1:
-                    warnings.warn('MSID {} has string vals but no state codes '
-                                  'or multiple calibration sets'.format(self.msid))
+                    warnings.warn(
+                        'MSID {} has string vals but no state codes '
+                        'or multiple calibration sets'.format(self.msid)
+                    )
                     self._state_codes = None
                 else:
                     states = np.sort(states.data, order='LOW_RAW_COUNT')
-                    self._state_codes = [(state['LOW_RAW_COUNT'],
-                                          state['STATE_CODE']) for state in states]
+                    self._state_codes = [
+                        (state['LOW_RAW_COUNT'], state['STATE_CODE'])
+                        for state in states
+                    ]
         return self._state_codes
 
     @property
@@ -939,9 +1016,9 @@ class MSID(object):
 
     @property
     def tdb(self):
-        """Access the Telemetry database entries for this MSID
-        """
+        """Access the Telemetry database entries for this MSID"""
         import Ska.tdb
+
         return Ska.tdb.msids[self.MSID]
 
     def interpolate(self, dt=None, start=None, stop=None, times=None):
@@ -969,8 +1046,10 @@ class MSID(object):
 
         if times is not None:
             if any(kwarg is not None for kwarg in (dt, start, stop)):
-                raise ValueError('If "times" keyword is set then "dt", "start", '
-                                 'and "stop" cannot be set')
+                raise ValueError(
+                    'If "times" keyword is set then "dt", "start", '
+                    'and "stop" cannot be set'
+                )
             # Use user-supplied times that are within the range of telemetry.
             ok = (times >= self.times[0]) & (times <= self.times[-1])
             times = times[ok]
@@ -986,9 +1065,9 @@ class MSID(object):
             times = np.arange(tstart, tstop, dt)
 
         logger.info('Interpolating index for %s', self.msid)
-        indexes = Ska.Numpy.interpolate(np.arange(len(self.times)),
-                                        self.times, times,
-                                        method='nearest', sorted=True)
+        indexes = Ska.Numpy.interpolate(
+            np.arange(len(self.times)), self.times, times, method='nearest', sorted=True
+        )
         logger.info('Slicing on indexes')
         for colname in self.colnames:
             colvals = getattr(self, colname)
@@ -1003,6 +1082,7 @@ class MSID(object):
 
     def copy(self):
         from copy import deepcopy
+
         return deepcopy(self)
 
     def filter_bad(self, bads=None, copy=False):
@@ -1064,16 +1144,16 @@ class MSID(object):
         :param copy: return a copy of MSID object with bad times filtered
         """
         if table is not None:
-            bad_times = ascii.read(table, format='no_header',
-                                   names=['start', 'stop'])
+            bad_times = ascii.read(table, format='no_header', names=['start', 'stop'])
         elif start is None and stop is None:
             bad_times = []
             for msid_glob, times in msid_bad_times.items():
                 if fnmatch.fnmatch(self.MSID, msid_glob):
                     bad_times.extend(times)
         elif start is None or stop is None:
-            raise ValueError('filter_times requires either 2 args '
-                             '(start, stop) or no args')
+            raise ValueError(
+                'filter_times requires either 2 args (start, stop) or no args'
+            )
         else:
             bad_times = [(start, stop)]
 
@@ -1184,13 +1264,15 @@ class MSID(object):
         if 'EventQuery' in (cls.__name__ for cls in intervals.__class__.__mro__):
             intervals = intervals.intervals(self.datestart, self.datestop)
 
-        intervals = [(DateTime(start).secs, DateTime(stop).secs)
-                     for start, stop in intervals]
+        intervals = [
+            (DateTime(start).secs, DateTime(stop).secs) for start, stop in intervals
+        ]
 
         for tstart, tstop in intervals:
             if tstart > tstop:
-                raise ValueError("Start time %s must be less than stop time %s"
-                                 % (tstart, tstop))
+                raise ValueError(
+                    "Start time %s must be less than stop time %s" % (tstart, tstop)
+                )
 
             if tstop < self.times[0] or tstart > self.times[-1]:
                 continue
@@ -1233,16 +1315,20 @@ class MSID(object):
         colvals = tuple(getattr(self, x) for x in colnames)
         fmt = ",".join("%s" for x in colnames)
 
-        f = zipfile.ZipFile(filename, ('a' if append
-                                       and os.path.exists(filename)
-                                       else 'w'))
+        f = zipfile.ZipFile(
+            filename, ('a' if append and os.path.exists(filename) else 'w')
+        )
         info = zipfile.ZipInfo(self.msid + '.csv')
         info.external_attr = 0o664 << 16  # Set permissions
         info.date_time = time.localtime()[:7]
         info.compress_type = zipfile.ZIP_DEFLATED
-        f.writestr(info,
-                   ",".join(colnames) + '\n' +
-                   '\n'.join(fmt % x for x in zip(*colvals)) + '\n')
+        f.writestr(
+            info,
+            ",".join(colnames)
+            + '\n'
+            + '\n'.join(fmt % x for x in zip(*colvals))
+            + '\n',
+        )
         f.close()
 
     def logical_intervals(self, op, val, complete_intervals=True, max_gap=None):
@@ -1285,17 +1371,20 @@ class MSID(object):
         """
         from . import utils
 
-        ops = {'==': operator.eq,
-               '!=': operator.ne,
-               '>': operator.gt,
-               '<': operator.lt,
-               '>=': operator.ge,
-               '<=': operator.le}
+        ops = {
+            '==': operator.eq,
+            '!=': operator.ne,
+            '>': operator.gt,
+            '<': operator.lt,
+            '>=': operator.ge,
+            '<=': operator.le,
+        }
         try:
             op = ops[op]
         except KeyError:
-            raise ValueError('op = "{}" is not in allowed values: {}'
-                             .format(op, sorted(ops.keys())))
+            raise ValueError(
+                'op = "{}" is not in allowed values: {}'.format(op, sorted(ops.keys()))
+            )
 
         # Do local version of bad value filtering
         if self.bads is not None and np.any(self.bads):
@@ -1384,6 +1473,7 @@ class MSID(object):
         """
 
         from .plot import MsidPlot
+
         self._iplot = MsidPlot(self, fmt, fmt_minmax, **plot_kwargs)
 
     def plot(self, *args, **kwargs):
@@ -1406,9 +1496,9 @@ class MSID(object):
 
         import matplotlib.pyplot as plt
         from Ska.Matplotlib import plot_cxctime
+
         vals = self.raw_vals if self.state_codes else self.vals
-        plot_cxctime(self.times, vals, *args, state_codes=self.state_codes,
-                     **kwargs)
+        plot_cxctime(self.times, vals, *args, state_codes=self.state_codes, **kwargs)
         plt.margins(0.02, 0.05)
         # Upper-cased version of msid name from user
         title = self.msid.upper()
@@ -1435,9 +1525,12 @@ class MSIDset(collections.OrderedDict):
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
+
     MSID = MSID
 
-    def __init__(self, msids=None, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None):
+    def __init__(
+        self, msids=None, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None
+    ):
         if msids is None:
             msids = []
 
@@ -1448,7 +1541,7 @@ class MSIDset(collections.OrderedDict):
             start, stop = intervals[0][0], intervals[-1][1]
 
         self.tstart = DateTime(start).secs
-        self.tstop = (DateTime(stop).secs if stop else DateTime().secs)
+        self.tstop = DateTime(stop).secs if stop else DateTime().secs
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
 
@@ -1458,8 +1551,9 @@ class MSIDset(collections.OrderedDict):
             new_msids.extend(msid_glob(msid)[0])
         for msid in new_msids:
             if intervals is None:
-                self[msid] = self.MSID(msid, self.tstart, self.tstop,
-                                       filter_bad=False, stat=stat)
+                self[msid] = self.MSID(
+                    msid, self.tstart, self.tstop, filter_bad=False, stat=stat
+                )
             else:
                 self[msid] = self.MSID(msid, intervals, filter_bad=False, stat=stat)
 
@@ -1524,8 +1618,9 @@ class MSIDset(collections.OrderedDict):
         for content in set(x.content for x in obj.values()):
             bads = None
 
-            msids = [x for x in obj.values()
-                     if x.content == content and x.bads is not None]
+            msids = [
+                x for x in obj.values() if x.content == content and x.bads is not None
+            ]
             for msid in msids:
                 if bads is None:
                     bads = msid.bads.copy()
@@ -1574,8 +1669,16 @@ class MSIDset(collections.OrderedDict):
         if copy:
             return obj
 
-    def interpolate(self, dt=None, start=None, stop=None, filter_bad=True, times=None,
-                    bad_union=False, copy=False):
+    def interpolate(
+        self,
+        dt=None,
+        start=None,
+        stop=None,
+        filter_bad=True,
+        times=None,
+        bad_union=False,
+        copy=False,
+    ):
         """
         Perform nearest-neighbor interpolation of all MSID values in the set
         to a common time sequence.  The values are updated in-place.
@@ -1638,8 +1741,10 @@ class MSIDset(collections.OrderedDict):
 
         if times is not None:
             if any(kwarg is not None for kwarg in (dt, start, stop)):
-                raise ValueError('If "times" keyword is set then "dt", "start", '
-                                 'and "stop" cannot be set')
+                raise ValueError(
+                    'If "times" keyword is set then "dt", "start", '
+                    'and "stop" cannot be set'
+                )
             # Use user-supplied times that are within the range of telemetry.
             ok = (times >= max_fetch_tstart) & (times <= min_fetch_tstop)
             obj.times = times[ok]
@@ -1657,9 +1762,13 @@ class MSIDset(collections.OrderedDict):
             if filter_bad and not bad_union:
                 msid.filter_bad()
             logger.info('Interpolating index for %s', msid.msid)
-            indexes = Ska.Numpy.interpolate(np.arange(len(msid.times)),
-                                            msid.times, obj.times,
-                                            method='nearest', sorted=True)
+            indexes = Ska.Numpy.interpolate(
+                np.arange(len(msid.times)),
+                msid.times,
+                obj.times,
+                method='nearest',
+                sorted=True,
+            )
             logger.info('Slicing on indexes')
             for colname in msid.colnames:
                 colvals = getattr(msid, colname)
@@ -1676,9 +1785,11 @@ class MSIDset(collections.OrderedDict):
             common_bads = np.zeros(len(obj.times), dtype=bool)
             for msid in msids:
                 if msid.stat is None and msid.bads is None:
-                    warnings.warn('WARNING: {!r} MSID has bad values already filtered.\n'
-                                  'This prevents `filter_bad_union` from working as expected.\n'
-                                  'Use MSIDset (not Msidset) with filter_bad=False.\n')
+                    warnings.warn(
+                        'WARNING: {!r} MSID has bad values already filtered.\n'
+                        'This prevents `filter_bad_union` from working as expected.\n'
+                        'Use MSIDset (not Msidset) with filter_bad=False.\n'
+                    )
                 if msid.bads is not None:  # 5min and daily stats have no bad values
                     common_bads |= msid.bads
 
@@ -1723,11 +1834,13 @@ class Msid(MSID):
 
     :returns: MSID instance
     """
+
     units = UNITS
 
     def __init__(self, msid, start=LAUNCH_DATE, stop=None, filter_bad=True, stat=None):
-        super(Msid, self).__init__(msid, start=start, stop=stop,
-                                   filter_bad=filter_bad, stat=stat)
+        super(Msid, self).__init__(
+            msid, start=start, stop=stop, filter_bad=filter_bad, stat=stat
+        )
 
 
 class Msidset(MSIDset):
@@ -1743,11 +1856,13 @@ class Msidset(MSIDset):
 
     :returns: Dict-like object containing MSID instances keyed by MSID name
     """
+
     MSID = MSID
 
     def __init__(self, msids, start=LAUNCH_DATE, stop=None, filter_bad=True, stat=None):
-        super(Msidset, self).__init__(msids, start=start, stop=stop,
-                                      filter_bad=filter_bad, stat=stat)
+        super(Msidset, self).__init__(
+            msids, start=start, stop=stop, filter_bad=filter_bad, stat=stat
+        )
 
 
 class HrcSsMsid(Msid):
@@ -1765,13 +1880,15 @@ class HrcSsMsid(Msid):
     :returns: MSID instance
 
     """
+
     units = UNITS
 
     def __new__(self, msid, start=LAUNCH_DATE, stop=None, stat=None):
         ss_msids = '2TLEV1RT 2VLEV1RT 2SHEV1RT 2TLEV2RT 2VLEV2RT 2SHEV2RT'
         if msid.upper() not in ss_msids.split():
-            raise ValueError('MSID {} is not in HRC secondary science ({})'
-                             .format(msid, ss_msids))
+            raise ValueError(
+                'MSID {} is not in HRC secondary science ({})'.format(msid, ss_msids)
+            )
 
         # If this is not full-resolution then add boolean bads mask to individual MSIDs
         msids = [msid, 'HRC_SS_HK_BAD']
@@ -1840,6 +1957,7 @@ def get_time_range(msid, format=None):
         @local_or_remote_function("Getting time range from Ska eng archive server...")
         def get_time_data_from_server(filename):
             import tables
+
             open_file = getattr(tables, 'open_file', None) or tables.openFile
             h5 = open_file(os.path.join(*filename))
             tstart = h5.root.data[0]
@@ -1859,10 +1977,21 @@ def get_time_range(msid, format=None):
     return tstart, tstop
 
 
-def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
-              interpolate_dt=None, remove_events=None, select_events=None,
-              time_format=None, outfile=None, quiet=False,
-              max_fetch_Mb=1000, max_output_Mb=100):
+def get_telem(
+    msids,
+    start=None,
+    stop=None,
+    sampling='full',
+    unit_system='eng',
+    interpolate_dt=None,
+    remove_events=None,
+    select_events=None,
+    time_format=None,
+    outfile=None,
+    quiet=False,
+    max_fetch_Mb=1000,
+    max_output_Mb=100,
+):
     """
     High-level routine to get telemetry for one or more MSIDs and perform
     common processing functions:
@@ -1893,10 +2022,22 @@ def get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng',
     :returns: MSIDset object
     """
     from .get_telem import get_telem
-    return get_telem(msids, start, stop, sampling, unit_system,
-                     interpolate_dt, remove_events, select_events,
-                     time_format, outfile, quiet,
-                     max_fetch_Mb, max_output_Mb)
+
+    return get_telem(
+        msids,
+        start,
+        stop,
+        sampling,
+        unit_system,
+        interpolate_dt,
+        remove_events,
+        select_events,
+        time_format,
+        outfile,
+        quiet,
+        max_fetch_Mb,
+        max_output_Mb,
+    )
 
 
 @lru_cache_timed(maxsize=1000, timeout=600)
@@ -1918,29 +2059,36 @@ def get_interval(content, tstart, tstop):
 
     ft['content'] = content
 
-    @local_or_remote_function("Getting interval data from " +
-                              "DB on Ska eng archive server...")
+    @local_or_remote_function(
+        "Getting interval data from " + "DB on Ska eng archive server..."
+    )
     def get_interval_from_db(tstart, tstop, server):
 
         import Ska.DBI
 
         db = Ska.DBI.DBI(dbi='sqlite', server=os.path.join(*server))
 
-        query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
-                                'WHERE filetime < ? order by filetime desc',
-                                (tstart,))
+        query_row = db.fetchone(
+            'SELECT tstart, rowstart FROM archfiles '
+            'WHERE filetime < ? order by filetime desc',
+            (tstart,),
+        )
         if not query_row:
-            query_row = db.fetchone('SELECT tstart, rowstart FROM archfiles '
-                                    'order by filetime asc')
+            query_row = db.fetchone(
+                'SELECT tstart, rowstart FROM archfiles order by filetime asc'
+            )
 
         rowstart = query_row['rowstart']
 
-        query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
-                                'WHERE filetime > ? order by filetime asc',
-                                (tstop,))
+        query_row = db.fetchone(
+            'SELECT tstop, rowstop FROM archfiles '
+            'WHERE filetime > ? order by filetime asc',
+            (tstop,),
+        )
         if not query_row:
-            query_row = db.fetchone('SELECT tstop, rowstop FROM archfiles '
-                                    'order by filetime desc')
+            query_row = db.fetchone(
+                'SELECT tstop, rowstop FROM archfiles order by filetime desc'
+            )
 
         rowstop = query_row['rowstop']
 
@@ -1992,9 +2140,21 @@ def _fix_ctu_dwell_mode_bads(msid, bads):
     appropriate direction.
     """
     MSID = msid.upper()
-    stepped_on_msids = ('4PRT5BT', '4RT585T', 'AFLCA3BI', 'AIRU1BT', 'CSITB5V',
-                        'CUSOAOVN', 'ECNV3V', 'PLAED4ET', 'PR1TV01T', 'TCYLFMZM',
-                        'TOXTSUPN', 'ES1P5CV', 'ES2P5CV')
+    stepped_on_msids = (
+        '4PRT5BT',
+        '4RT585T',
+        'AFLCA3BI',
+        'AIRU1BT',
+        'CSITB5V',
+        'CUSOAOVN',
+        'ECNV3V',
+        'PLAED4ET',
+        'PR1TV01T',
+        'TCYLFMZM',
+        'TOXTSUPN',
+        'ES1P5CV',
+        'ES2P5CV',
+    )
 
     if MSID in stepped_on_msids or re.match(r'DWELL\d\d', MSID):
         # Find transitions from good value to bad value.  Turn that
@@ -2005,9 +2165,7 @@ def _fix_ctu_dwell_mode_bads(msid, bads):
     return bads
 
 
-def add_logging_handler(level=logging.INFO,
-                        formatter=None,
-                        handler=None):
+def add_logging_handler(level=logging.INFO, formatter=None, handler=None):
     """Configure logging for fetch module.
 
     :param level: logging level (logging.DEBUG, logging.INFO, etc)

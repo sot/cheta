@@ -81,8 +81,9 @@ from Ska.engarchive.remote_access import get_data_access_info
 
 INVALID_DIR = str(Path(__file__).parent / '__non_existent_invalid_directory____')
 
-ORIG_ENV = {name: os.getenv(name)
-            for name in ('SKA', 'ENG_ARCHIVE', 'SKA_ACCESS_REMOTELY')}
+ORIG_ENV = {
+    name: os.getenv(name) for name in ('SKA', 'ENG_ARCHIVE', 'SKA_ACCESS_REMOTELY')
+}
 
 
 def setenv(name, val):
@@ -181,8 +182,10 @@ def test_remote_access_get_data_access_info4(remote_setup_dirs):
     assert ska_access_remotely is True
 
     # Not windows: raises RuntimeError because no local data around found
-    with pytest.warns(AstropyUserWarning,
-                      match='no local Ska data found and remote access is not selected'):
+    with pytest.warns(
+        AstropyUserWarning,
+        match='no local Ska data found and remote access is not selected',
+    ):
         get_data_access_info(is_windows=False)
 
 
@@ -197,8 +200,10 @@ def test_remote_access_get_data_access_info5(remote_setup_dirs):
     setenv('SKA_ACCESS_REMOTELY', False)
 
     for is_windows in True, False:
-        with pytest.warns(AstropyUserWarning,
-                          match='need to define SKA or ENG_ARCHIVE environment variable'):
+        with pytest.warns(
+            AstropyUserWarning,
+            match='need to define SKA or ENG_ARCHIVE environment variable',
+        ):
             out = get_data_access_info(is_windows)
         assert out == (None, False)
 

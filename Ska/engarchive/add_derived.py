@@ -21,18 +21,20 @@ import Ska.engarchive.file_defs as file_defs
 
 def get_options():
     parser = optparse.OptionParser()
-    parser.add_option("--data-root",
-                      default=".",
-                      help="Engineering archive root directory for MSID and arch files")
-    parser.add_option("--start",
-                      default="1999:201",
-                      help="Start for initial data fetch")
-    parser.add_option("--stop",
-                      default="1999:260",
-                      help="Stop for initial data fetch")
-    parser.add_option("--content",
-                      action='append',
-                      help="Content type to process [match regex] (default = all)")
+    parser.add_option(
+        "--data-root",
+        default=".",
+        help="Engineering archive root directory for MSID and arch files",
+    )
+    parser.add_option(
+        "--start", default="1999:201", help="Start for initial data fetch"
+    )
+    parser.add_option("--stop", default="1999:260", help="Stop for initial data fetch")
+    parser.add_option(
+        "--content",
+        action='append',
+        help="Content type to process [match regex] (default = all)",
+    )
     return parser.parse_args()
 
 
@@ -51,17 +53,19 @@ def make_archfiles_db(filename, content_def):
     archfiles_def = open(Path(__file__).parent / 'archfiles_def.sql').read()
     db = Ska.DBI.DBI(dbi='sqlite', server=filename)
     db.execute(archfiles_def)
-    archfiles_row = dict(filename='{}:0:1'.format(content_def['content']),
-                         filetime=0,
-                         year=year,
-                         doy=doy,
-                         tstart=tstart,
-                         tstop=tstop,
-                         rowstart=0,
-                         rowstop=0,
-                         startmjf=indexes[0],  # really index0
-                         stopmjf=indexes[-1],  # really index1
-                         date=datestart.date)
+    archfiles_row = dict(
+        filename='{}:0:1'.format(content_def['content']),
+        filetime=0,
+        year=year,
+        doy=doy,
+        tstart=tstart,
+        tstop=tstop,
+        rowstart=0,
+        rowstop=0,
+        startmjf=indexes[0],  # really index0
+        stopmjf=indexes[-1],  # really index1
+        date=datestart.date,
+    )
     db.insert(archfiles_row, 'archfiles')
 
 
@@ -92,8 +96,9 @@ def make_msid_file(colname, content, content_def):
     logger.info('Making MSID data file %s', filename)
 
     if colname == 'TIME':
-        dp_vals, indexes = derived.times_indexes(opt.start, opt.stop,
-                                                 content_def['time_step'])
+        dp_vals, indexes = derived.times_indexes(
+            opt.start, opt.stop, content_def['time_step']
+        )
     else:
         dp = content_def['classes'][colname]()
         dataset = dp.fetch(opt.start, opt.stop)
@@ -106,12 +111,21 @@ def make_msid_file(colname, content, content_def):
     n_rows = int(20 * 3e7 / content_def['time_step'])
     h5shape = (0,)
     h5type = tables.Atom.from_dtype(dp_vals.dtype)
-    h5.create_earray(h5.root, 'data', h5type, h5shape, title=colname,
-                     expectedrows=n_rows)
-    h5.create_earray(h5.root, 'quality', tables.BoolAtom(), (0,), title='Quality',
-                     expectedrows=n_rows)
+    h5.create_earray(
+        h5.root, 'data', h5type, h5shape, title=colname, expectedrows=n_rows
+    )
+    h5.create_earray(
+        h5.root,
+        'quality',
+        tables.BoolAtom(),
+        (0,),
+        title='Quality',
+        expectedrows=n_rows,
+    )
 
-    logger.info('Made {} shape={} with n_rows(1e6)={}'.format(colname, h5shape, n_rows / 1.0e6))
+    logger.info(
+        'Made {} shape={} with n_rows(1e6)={}'.format(colname, h5shape, n_rows / 1.0e6)
+    )
     h5.close()
 
 
@@ -120,15 +134,21 @@ def main():
 
     opt, args = get_options()
     ft = fetch.ft
-    msid_files = pyyaks.context.ContextDict('add_derived.msid_files', basedir=opt.data_root)
+    msid_files = pyyaks.context.ContextDict(
+        'add_derived.msid_files', basedir=opt.data_root
+    )
     msid_files.update(file_defs.msid_files)
-    logger = pyyaks.logger.get_logger(name='engarchive', level=pyyaks.logger.VERBOSE,
-                                      format="%(asctime)s %(message)s")
+    logger = pyyaks.logger.get_logger(
+        name='engarchive', level=pyyaks.logger.VERBOSE, format="%(asctime)s %(message)s"
+    )
 
     # Get the derived parameter classes
     dp_classes = (getattr(derived, x) for x in dir(derived) if x.startswith('DP_'))
-    dp_classes = [x for x in dp_classes
-                  if hasattr(x, '__base__') and issubclass(x, derived.DerivedParameter)]
+    dp_classes = [
+        x
+        for x in dp_classes
+        if hasattr(x, '__base__') and issubclass(x, derived.DerivedParameter)
+    ]
     content_defs = {}
     for dp_class in dp_classes:
         colname = dp_class.__name__.upper()

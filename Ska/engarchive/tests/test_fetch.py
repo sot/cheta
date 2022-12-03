@@ -11,31 +11,61 @@ from .. import fetch, fetch_eng
 
 print(fetch.__file__)
 
-DATES_EXPECT1 = np.array(['2008:291:23:59:58.987', '2008:291:23:59:59.244',
-                          '2008:291:23:59:59.500', '2008:291:23:59:59.756',
-                          '2008:297:00:00:00.121', '2008:297:00:00:00.378',
-                          '2008:297:00:00:00.634'])
+DATES_EXPECT1 = np.array(
+    [
+        '2008:291:23:59:58.987',
+        '2008:291:23:59:59.244',
+        '2008:291:23:59:59.500',
+        '2008:291:23:59:59.756',
+        '2008:297:00:00:00.121',
+        '2008:297:00:00:00.378',
+        '2008:297:00:00:00.634',
+    ]
+)
 
-DATES_EXPECT2 = np.array(['2008:291:23:59:54.119', '2008:291:23:59:55.144',
-                          '2008:291:23:59:56.169', '2008:291:23:59:57.194',
-                          '2008:291:23:59:58.219', '2008:291:23:59:59.244',
-                          '2008:297:00:00:00.890', '2008:297:00:00:01.915',
-                          '2008:297:00:00:02.940', '2008:297:00:00:03.965'])
+DATES_EXPECT2 = np.array(
+    [
+        '2008:291:23:59:54.119',
+        '2008:291:23:59:55.144',
+        '2008:291:23:59:56.169',
+        '2008:291:23:59:57.194',
+        '2008:291:23:59:58.219',
+        '2008:291:23:59:59.244',
+        '2008:297:00:00:00.890',
+        '2008:297:00:00:01.915',
+        '2008:297:00:00:02.940',
+        '2008:297:00:00:03.965',
+    ]
+)
 
-DATES_EXPECT3 = np.array(['2008:002:21:48:10.000', '2008:002:21:48:20.000',
-                          '2008:002:21:48:30.000', '2008:002:21:48:40.000',
-                          '2008:002:21:48:50.000', '2008:002:21:49:00.000',
-                          '2008:002:21:49:10.000', '2008:002:21:49:20.000',
-                          '2008:002:21:49:30.000', '2008:002:21:49:40.000',
-                          '2008:002:21:49:50.000'])
+DATES_EXPECT3 = np.array(
+    [
+        '2008:002:21:48:10.000',
+        '2008:002:21:48:20.000',
+        '2008:002:21:48:30.000',
+        '2008:002:21:48:40.000',
+        '2008:002:21:48:50.000',
+        '2008:002:21:49:00.000',
+        '2008:002:21:49:10.000',
+        '2008:002:21:49:20.000',
+        '2008:002:21:49:30.000',
+        '2008:002:21:49:40.000',
+        '2008:002:21:49:50.000',
+    ]
+)
 
-BAD_TIMES = ['2008:292:00:00:00 2008:297:00:00:00',
-             '2008:305:00:12:00 2008:305:00:12:03',
-             '2010:101:00:01:12 2010:101:00:01:25']
+BAD_TIMES = [
+    '2008:292:00:00:00 2008:297:00:00:00',
+    '2008:305:00:12:00 2008:305:00:12:03',
+    '2010:101:00:01:12 2010:101:00:01:25',
+]
 
 try:
     import maude
-    maude.get_msids(msids='ccsdsid', start='2016:001:00:00:00.1', stop='2016:001:00:00:02.0')
+
+    maude.get_msids(
+        msids='ccsdsid', start='2016:001:00:00:00.1', stop='2016:001:00:00:02.0'
+    )
 except Exception:
     HAS_MAUDE = False
 else:
@@ -54,8 +84,11 @@ def test_filter_bad_times_overlap():
     fetch.msid_bad_times = msid_bad_times_cache
 
     # Test repr, len, and dtype attribute here where we have an MSID object handy
-    assert repr(dat) == ('<MSID AOGBIAS1 start=2008:290:12:00:00.000 stop=2008:300:12:00:00.000'
-                         ' len=5 dtype=float32 unit=rad/s stat=daily>')
+    assert (
+        repr(dat)
+        == '<MSID AOGBIAS1 start=2008:290:12:00:00.000 stop=2008:300:12:00:00.000'
+        ' len=5 dtype=float32 unit=rad/s stat=daily>'
+    )
     assert dat.dtype.name == 'float32'
     assert len(dat) == 5
 
@@ -63,8 +96,11 @@ def test_filter_bad_times_overlap():
 def test_filter_bad_times_list():
     dat = fetch.MSID('aogyrct1', '2008:291:12:00:00', '2008:298:12:00:00')
     # 2nd test of repr here where we have an MSID object handy
-    assert repr(dat) == ('<MSID AOGYRCT1 start=2008:291:12:00:00.000 '
-                         'stop=2008:298:12:00:00.000 len=2360195 dtype=int16>')
+    assert (
+        repr(dat)
+        == '<MSID AOGYRCT1 start=2008:291:12:00:00.000 '
+        'stop=2008:298:12:00:00.000 len=2360195 dtype=int16>'
+    )
 
     dat.filter_bad_times(table=BAD_TIMES)
     dates = DateTime(dat.times[168581:168588]).date
@@ -165,12 +201,14 @@ def test_filter_bad_times_default_copy():
 def test_fetch_derived_param_aliases(msid, sources):
     cxc_tstop = fetch.get_time_range('dp_pitch_css', 'secs')[1]
     dt = 2000  # seconds
-    msg = (f'{CxoTime(cxc_tstop).date=} {dt=}\n'
-           f'{CxoTime(cxc_tstop - dt).date=}\n'
-           f'{CxoTime(cxc_tstop + dt).date=}\n'
-           f'{CxoTime.now().date=}\n'
-           f'{CxoTime.now().iso=}\n'
-           f'{sources=} {msid=}')
+    msg = (
+        f'{CxoTime(cxc_tstop).date=} {dt=}\n'
+        f'{CxoTime(cxc_tstop - dt).date=}\n'
+        f'{CxoTime(cxc_tstop + dt).date=}\n'
+        f'{CxoTime.now().date=}\n'
+        f'{CxoTime.now().iso=}\n'
+        f'{sources=} {msid=}'
+    )
     print(msg)  # stdout gets reported for test failures
     with fetch.data_source(*sources):
         # Get data within `dt` secs of end of CXC data
@@ -184,25 +222,71 @@ def test_fetch_derived_param_aliases(msid, sources):
 
 
 def test_interpolate():
-    dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
-                        '2008:002:21:48:00', '2008:002:21:50:00')
+    dat = fetch.MSIDset(
+        ['aoattqt1', 'aogyrct1', 'aopcadmd'], '2008:002:21:48:00', '2008:002:21:50:00'
+    )
     dat.interpolate(10.0)
 
-    assert np.allclose(dat['aoattqt1'].vals,
-                       np.array([-0.33072645, -0.33072633, -0.33072634,
-                                 -0.33072632, -0.33072705,
-                                 -0.33073644, -0.33076456, -0.33081424,
-                                 -0.33090285, -0.33088904,
-                                 -0.33099454, -0.33128471]))
+    assert np.allclose(
+        dat['aoattqt1'].vals,
+        np.array(
+            [
+                -0.33072645,
+                -0.33072633,
+                -0.33072634,
+                -0.33072632,
+                -0.33072705,
+                -0.33073644,
+                -0.33076456,
+                -0.33081424,
+                -0.33090285,
+                -0.33088904,
+                -0.33099454,
+                -0.33128471,
+            ]
+        ),
+    )
 
-    assert np.all(dat['aopcadmd'].vals ==
-                  np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN',
-                            'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN']))
+    assert np.all(
+        dat['aopcadmd'].vals
+        == np.array(
+            [
+                'NPNT',
+                'NPNT',
+                'NPNT',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+            ]
+        )
+    )
 
-    assert np.all(dat['aogyrct1'].vals ==
-                  np.array([-23261, -22131, -21000, -19878, -18714, -17301,
-                            -15379, -12674, -8914, -3398, 3514, 11486],
-                           dtype=np.int16))
+    assert np.all(
+        dat['aogyrct1'].vals
+        == np.array(
+            [
+                -23261,
+                -22131,
+                -21000,
+                -19878,
+                -18714,
+                -17301,
+                -15379,
+                -12674,
+                -8914,
+                -3398,
+                3514,
+                11486,
+            ],
+            dtype=np.int16,
+        )
+    )
 
 
 def test_interpolate_msid():
@@ -210,27 +294,70 @@ def test_interpolate_msid():
     stop = '2008:002:21:50:00'
     dat = fetch.MSID('aoattqt1', start, stop)
     dat.interpolate(10.0, start, stop)
-    assert np.allclose(dat.vals,
-                       np.array([-0.33072645, -0.33072633, -0.33072634,
-                                 -0.33072632, -0.33072705,
-                                 -0.33073644, -0.33076456, -0.33081424,
-                                 -0.33090285, -0.33088904,
-                                 -0.33099454, -0.33128471]))
+    assert np.allclose(
+        dat.vals,
+        np.array(
+            [
+                -0.33072645,
+                -0.33072633,
+                -0.33072634,
+                -0.33072632,
+                -0.33072705,
+                -0.33073644,
+                -0.33076456,
+                -0.33081424,
+                -0.33090285,
+                -0.33088904,
+                -0.33099454,
+                -0.33128471,
+            ]
+        ),
+    )
 
     dat = fetch.MSID('aogyrct1', start, stop)
     dat.interpolate(10.0, start, stop)
-    assert np.all(dat.vals ==
-                  np.array([-23349, -22219, -21087, -19960, -18810, -17425,
-                            -15551, -12919,
-                            -9252, -3887, 2943, 10858],
-                           dtype=np.int16))
+    assert np.all(
+        dat.vals
+        == np.array(
+            [
+                -23349,
+                -22219,
+                -21087,
+                -19960,
+                -18810,
+                -17425,
+                -15551,
+                -12919,
+                -9252,
+                -3887,
+                2943,
+                10858,
+            ],
+            dtype=np.int16,
+        )
+    )
 
     dat = fetch.MSID('aopcadmd', start, stop)
     dat.interpolate(10.0, start, stop)
-    assert np.all(dat.vals ==
-                  np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN',
-                            'NMAN', 'NMAN', 'NMAN', 'NMAN',
-                            'NMAN', 'NMAN', 'NMAN', 'NMAN']))
+    assert np.all(
+        dat.vals
+        == np.array(
+            [
+                'NPNT',
+                'NPNT',
+                'NPNT',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+                'NMAN',
+            ]
+        )
+    )
 
 
 def test_interpolate_times_raise():
@@ -242,26 +369,65 @@ def test_interpolate_times_raise():
 
 
 def test_interpolate_times():
-    dat = fetch.MSIDset(['aoattqt1', 'aogyrct1', 'aopcadmd'],
-                        '2008:002:21:48:00', '2008:002:21:50:00')
+    dat = fetch.MSIDset(
+        ['aoattqt1', 'aogyrct1', 'aopcadmd'], '2008:002:21:48:00', '2008:002:21:50:00'
+    )
     dt = 10.0
     times = dat.tstart + np.arange((dat.tstop - dat.tstart) // dt + 3) * dt
     dat.interpolate(times=times)
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
-    assert np.allclose(dat['aoattqt1'].vals,
-                       [-0.33072634, -0.33072637, -0.33072674, -0.33072665, -0.33073477,
-                        -0.330761, -0.33080694, -0.33089434, -0.33089264, -0.33097442,
-                        -0.33123678])
+    assert np.allclose(
+        dat['aoattqt1'].vals,
+        [
+            -0.33072634,
+            -0.33072637,
+            -0.33072674,
+            -0.33072665,
+            -0.33073477,
+            -0.330761,
+            -0.33080694,
+            -0.33089434,
+            -0.33089264,
+            -0.33097442,
+            -0.33123678,
+        ],
+    )
 
-    assert np.all(dat['aopcadmd'].vals ==
-                  ['NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN',
-                   'NMAN', 'NMAN', 'NMAN'])
+    assert np.all(
+        dat['aopcadmd'].vals
+        == [
+            'NPNT',
+            'NPNT',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+        ]
+    )
 
-    assert np.all(dat['aogyrct1'].vals ==
-                  [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
-                   -4052, 2752, 10648])
+    assert np.all(
+        dat['aogyrct1'].vals
+        == [
+            -22247,
+            -21117,
+            -19988,
+            -18839,
+            -17468,
+            -15605,
+            -13000,
+            -9360,
+            -4052,
+            2752,
+            10648,
+        ]
+    )
 
 
 def test_interpolate_msid_times():
@@ -271,26 +437,64 @@ def test_interpolate_msid_times():
     dt = 10.0
     times = dat.tstart + np.arange((dat.tstop - dat.tstart) // dt + 3) * dt
     dat.interpolate(times=times)
-    assert np.allclose(dat.vals,
-                       [-0.33072634, -0.33072637, -0.33072674, -0.33072665, -0.33073477,
-                        -0.330761, -0.33080694, -0.33089434, -0.33089264, -0.33097442,
-                        -0.33123678])
+    assert np.allclose(
+        dat.vals,
+        [
+            -0.33072634,
+            -0.33072637,
+            -0.33072674,
+            -0.33072665,
+            -0.33073477,
+            -0.330761,
+            -0.33080694,
+            -0.33089434,
+            -0.33089264,
+            -0.33097442,
+            -0.33123678,
+        ],
+    )
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
     dat = fetch.MSID('aogyrct1', start, stop)
     dat.interpolate(times=times)
-    assert np.all(dat.vals ==
-                  [-22247, -21117, -19988, -18839, -17468, -15605, -13000, -9360,
-                   -4052, 2752, 10648])
+    assert np.all(
+        dat.vals
+        == [
+            -22247,
+            -21117,
+            -19988,
+            -18839,
+            -17468,
+            -15605,
+            -13000,
+            -9360,
+            -4052,
+            2752,
+            10648,
+        ]
+    )
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
     dat = fetch.MSID('aopcadmd', start, stop)
     dat.interpolate(times=times)
-    assert np.all(dat.vals ==
-                  ['NPNT', 'NPNT', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN', 'NMAN',
-                   'NMAN', 'NMAN', 'NMAN'])
+    assert np.all(
+        dat.vals
+        == [
+            'NPNT',
+            'NPNT',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+            'NMAN',
+        ]
+    )
 
     assert np.all(DateTime(dat.times).date == DATES_EXPECT3)
 
@@ -336,7 +540,9 @@ def test_msid_copy():
 
 def test_msidset_copy():
     for MsidsetClass in (fetch.MSIDset, fetch.Msidset):
-        msidset1 = MsidsetClass(['aogbias1', 'aogbias2'], '2008:291:12:00:00', '2008:298:12:00:00')
+        msidset1 = MsidsetClass(
+            ['aogbias1', 'aogbias2'], '2008:291:12:00:00', '2008:298:12:00:00'
+        )
         msidset2 = msidset1.copy()
 
         for attr in ('tstart', 'tstop', 'datestart', 'datestop'):
@@ -364,7 +570,9 @@ def test_MSIDset_interpolate_filtering():
     Filtering and interpolation
     """
     # Bung up some data same as documentation example
-    dat = fetch.MSIDset(['aosares1', 'pitch_fss'], '2010:001:00:00:00', '2010:001:00:00:20')
+    dat = fetch.MSIDset(
+        ['aosares1', 'pitch_fss'], '2010:001:00:00:00', '2010:001:00:00:20'
+    )
     dat['aosares1'].bads[2] = True
     dat['pitch_fss'].bads[6] = True
 
@@ -415,10 +623,12 @@ def test_MSIDset_interpolate_filtering():
 
 
 def test_1999_fetch():
-    for start, stop in (('1999:363:00:00:00', '2000:005:00:00:00'),  # Covering deadband
-                        ('1999:363:00:00:00', '2000:002:00:00:00'),  # Stop within deadband
-                        ('2000:002:00:00:00', '2000:004:00:00:00'),  # Start within deadband
-                        ('1999:360:00:00:00', '1999:361:00:00:00')):  # 1999 before deadband
+    for start, stop in (
+        ('1999:363:00:00:00', '2000:005:00:00:00'),  # Covering deadband
+        ('1999:363:00:00:00', '2000:002:00:00:00'),  # Stop within deadband
+        ('2000:002:00:00:00', '2000:004:00:00:00'),  # Start within deadband
+        ('1999:360:00:00:00', '1999:361:00:00:00'),
+    ):  # 1999 before deadband
         dat = fetch.MSID('aopcadmd', start, stop)
         assert np.allclose(np.diff(dat.times), 1.025, atol=0.01)
 
@@ -431,18 +641,33 @@ def test_intervals_fetch_unit():
     """
     Test that fetches with multiple intervals get the units right
     """
-    dat = fetch_eng.Msid('tephin', [('1999:350:12:00:00', '1999:355:12:00:00'),
-                                    ('2000:010:12:00:00', '2000:015:12:00:00')])
+    dat = fetch_eng.Msid(
+        'tephin',
+        [
+            ('1999:350:12:00:00', '1999:355:12:00:00'),
+            ('2000:010:12:00:00', '2000:015:12:00:00'),
+        ],
+    )
     assert np.allclose(np.mean(dat.vals), 41.713467)
 
-    dat = fetch_eng.Msid('tephin', [('1999:350:12:00:00', '1999:355:12:00:00'),
-                                    ('2000:010:12:00:00', '2000:015:12:00:00')],
-                         stat='5min')
+    dat = fetch_eng.Msid(
+        'tephin',
+        [
+            ('1999:350:12:00:00', '1999:355:12:00:00'),
+            ('2000:010:12:00:00', '2000:015:12:00:00'),
+        ],
+        stat='5min',
+    )
     assert np.allclose(np.mean(dat.vals), 40.290966)
 
-    dat = fetch_eng.Msid('tephin', [('1999:350:12:00:00', '1999:355:12:00:00'),
-                                    ('2000:010:12:00:00', '2000:015:12:00:00')],
-                         stat='daily')
+    dat = fetch_eng.Msid(
+        'tephin',
+        [
+            ('1999:350:12:00:00', '1999:355:12:00:00'),
+            ('2000:010:12:00:00', '2000:015:12:00:00'),
+        ],
+        stat='daily',
+    )
     assert np.allclose(np.mean(dat.vals), 40.303955)
 
     dat = fetch_eng.Msid('tephin', '1999:350:12:00:00', '2000:010:12:00:00')
@@ -471,10 +696,12 @@ def test_nonexistent_msids():
 
 def test_daily_state_bins():
     dat = fetch.Msid('aoacaseq', '2016:232:12:00:00', '2016:235:12:00:00', stat='daily')
-    for attr, val in (('n_BRITs', [0, 136, 0]),
-                      ('n_KALMs', [83994, 83812, 83996]),
-                      ('n_AQXNs', [159, 240, 113]),
-                      ('n_GUIDs', [140, 104, 184])):
+    for attr, val in (
+        ('n_BRITs', [0, 136, 0]),
+        ('n_KALMs', [83994, 83812, 83996]),
+        ('n_AQXNs', [159, 240, 113]),
+        ('n_GUIDs', [140, 104, 184]),
+    ):
         assert np.all(getattr(dat, attr) == val)
 
     dat = fetch.Msid('aoacaseq', '2016:234:12:00:00', '2016:234:12:30:00', stat='5min')

@@ -54,33 +54,41 @@ sync_files.update(file_defs.sync_files)
 
 def get_options(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--sync-root",
-                        default=".",
-                        help="Root directory for sync files (default='.')")
-    parser.add_argument("--content",
-                        action='append',
-                        help="Content type to process [match regex] (default = all)")
-    parser.add_argument("--max-days",
-                        type=float,
-                        default=1.5,
-                        help="Max number of days of files per sync directory (default=1.5)")
-    parser.add_argument("--max-lookback",
-                        type=float,
-                        default=60,
-                        help="Maximum number of days to look back from --date-stop (default=60)")
-    parser.add_argument("--max-sync-dirs",
-                        type=int,
-                        default=60,
-                        help=("Number of sync directories to keep before "
-                              "removing oldest (default=60)"))
-    parser.add_argument("--log-level",
-                        default=20,
-                        help="Logging level")
-    parser.add_argument("--date-start",
-                        help=("Start process date (default=NOW - max-lookback). "
-                              "Provide this parameter when creating a new sync directory."))
-    parser.add_argument("--date-stop",
-                        help="Stop process date (default=NOW)")
+    parser.add_argument(
+        "--sync-root", default=".", help="Root directory for sync files (default='.')"
+    )
+    parser.add_argument(
+        "--content",
+        action='append',
+        help="Content type to process [match regex] (default = all)",
+    )
+    parser.add_argument(
+        "--max-days",
+        type=float,
+        default=1.5,
+        help="Max number of days of files per sync directory (default=1.5)",
+    )
+    parser.add_argument(
+        "--max-lookback",
+        type=float,
+        default=60,
+        help="Maximum number of days to look back from --date-stop (default=60)",
+    )
+    parser.add_argument(
+        "--max-sync-dirs",
+        type=int,
+        default=60,
+        help="Number of sync directories to keep before removing oldest (default=60)",
+    )
+    parser.add_argument("--log-level", default=20, help="Logging level")
+    parser.add_argument(
+        "--date-start",
+        help=(
+            "Start process date (default=NOW - max-lookback). "
+            "Provide this parameter when creating a new sync directory."
+        ),
+    )
+    parser.add_argument("--date-stop", help="Stop process date (default=NOW)")
     return parser.parse_args(args)
 
 
@@ -112,8 +120,11 @@ def main(args=None):
 
     # Set up logging
     loglevel = int(opt.log_level)
-    logger = pyyaks.logger.get_logger(name='cheta_update_server_sync', level=loglevel,
-                                      format="%(asctime)s %(message)s")
+    logger = pyyaks.logger.get_logger(
+        name='cheta_update_server_sync',
+        level=loglevel,
+        format="%(asctime)s %(message)s",
+    )
 
     if opt.content:
         contents = opt.content
@@ -177,7 +188,9 @@ def update_sync_repo(opt, logger, content):
 
     if index_tbl is None:
         # Index table was not created, nothing more to do here
-        logger.warning(f'WARNING: No index table for {content} (use --date-start to create)')
+        logger.warning(
+            f'WARNING: No index table for {content} (use --date-start to create)'
+        )
         return
 
     for row in index_tbl:
@@ -196,11 +209,13 @@ def get_row_from_archfiles(archfiles):
     # date like 2019-02-20T2109z, human-readable and Windows-friendly (no :) for a unique
     # identifier for this set of updates.
     date_id = get_date_id(DateTime(archfiles[0]['filetime']).fits)
-    row = {'date_id': date_id,
-           'filetime0': archfiles[0]['filetime'],
-           'filetime1': archfiles[-1]['filetime'],
-           'row0': archfiles[0]['rowstart'],
-           'row1': archfiles[-1]['rowstop']}
+    row = {
+        'date_id': date_id,
+        'filetime0': archfiles[0]['filetime'],
+        'filetime1': archfiles[-1]['filetime'],
+        'row0': archfiles[0]['rowstart'],
+        'row1': archfiles[-1]['rowstop'],
+    }
     return row
 
 
@@ -266,21 +281,26 @@ def update_index_file(index_file, opt, logger):
     with DBI(dbi='sqlite', server=filename) as dbi:
         while True:
             filetime1 = min(filetime0 + max_secs, time_stop)
-            logger.verbose(f'select from archfiles '
-                           f'filetime > {DateTime(filetime0).fits[:-4]} {filetime0} '
-                           f'filetime <= {DateTime(filetime1).fits[:-4]} {filetime1} '
-                           )
-            archfiles = dbi.fetchall(f'select * from archfiles '
-                                     f'where filetime > {filetime0} '
-                                     f'and filetime <= {filetime1} '
-                                     f'order by filetime ')
+            logger.verbose(
+                'select from archfiles '
+                f'filetime > {DateTime(filetime0).fits[:-4]} {filetime0} '
+                f'filetime <= {DateTime(filetime1).fits[:-4]} {filetime1} '
+            )
+            archfiles = dbi.fetchall(
+                'select * from archfiles '
+                f'where filetime > {filetime0} '
+                f'and filetime <= {filetime1} '
+                'order by filetime '
+            )
 
             # Found new archfiles?  If so get a new index table row for them.
             if len(archfiles) > 0:
                 rows.append(get_row_from_archfiles(archfiles))
                 filedates = DateTime(archfiles['filetime']).fits
-                logger.verbose(f'Got {len(archfiles)} archfiles rows from '
-                               f'{filedates[0]} to {filedates[-1]}')
+                logger.verbose(
+                    f'Got {len(archfiles)} archfiles rows from '
+                    f'{filedates[0]} to {filedates[-1]}'
+                )
 
             filetime0 = filetime1
 
@@ -346,10 +366,12 @@ def update_sync_data_full(content, logger, row):
     # for the archfiles to be included  in this row.  They do not overlap, so
     # the selection below must be equality.
     with DBI(dbi='sqlite', server=fetch.msid_files['archfiles'].abs) as dbi:
-        query = (f'select * from archfiles '
-                 f'where filetime >= {row["filetime0"]} '
-                 f'and filetime <= {row["filetime1"]} '
-                 f'order by filetime ')
+        query = (
+            'select * from archfiles '
+            f'where filetime >= {row["filetime0"]} '
+            f'and filetime <= {row["filetime1"]} '
+            'order by filetime '
+        )
         archfiles = dbi.fetchall(query)
         out['archfiles'] = archfiles
 
@@ -399,8 +421,10 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
     """
     dt = STATS_DT[stat]
 
-    logger.verbose(f'_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, '
-                   f'{DateTime(tstop).fits}, {last_row1})')
+    logger.verbose(
+        f'_get_stat_data({filename}, {stat}, {DateTime(tstart).fits}, '
+        f'{DateTime(tstop).fits}, {last_row1})'
+    )
 
     with tables.open_file(filename, 'r') as h5:
         # Check if tstart is beyond the end of the table.  If so, return an empty table
@@ -408,8 +432,10 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
         last_index = table[-1]['index']
         last_time = (last_index + 0.5) * dt
         if tstart > last_time:
-            logger.verbose(f'No available stats data {DateTime(tstart).fits} > '
-                           f'{DateTime(last_time).fits} (returning empty table)')
+            logger.verbose(
+                f'No available stats data {DateTime(tstart).fits} > '
+                f'{DateTime(last_time).fits} (returning empty table)'
+            )
             row0 = row1 = len(table)
             table_rows = table[row0:row1]
         else:
@@ -504,7 +530,8 @@ def update_sync_data_stat(content, logger, row, stat):
 
         n_msids += 1
         stat_rows, row0, row1 = _get_stat_data_from_archive(
-            filename, stat, tstart, tstop, last_row1, logger)
+            filename, stat, tstart, tstop, last_row1, logger
+        )
         logger.verbose(f'Got stat rows {row0} {row1} for stat {stat} {msid}')
         n_rows_set.add(row1 - row0)
         if row1 > row0:

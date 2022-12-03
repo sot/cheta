@@ -13,15 +13,31 @@ class DerivedParameterThermal(base.DerivedParameter):
 
     def fix_bus_5_and_bus_6(self, data):
         # These zones cannot be commanded if Bus 5 or Bus 6 is disabled
-        bus_5_and_6_zones = ['4OHTRZ27', '4OHTRZ28', '4OHTRZ43', '4OHTRZ45',
-                             '4OHTRZ47', '4OHTRZ49', '4OHTRZ52', '4OHTRZ53',
-                             '4OHTRZ29', '4OHTRZ35', '4OHTRZ42', '4OHTRZ44',
-                             '4OHTRZ46', '4OHTRZ48', '4OHTRZ50', '4OHTRZ54']
+        bus_5_and_6_zones = [
+            '4OHTRZ27',
+            '4OHTRZ28',
+            '4OHTRZ43',
+            '4OHTRZ45',
+            '4OHTRZ47',
+            '4OHTRZ49',
+            '4OHTRZ52',
+            '4OHTRZ53',
+            '4OHTRZ29',
+            '4OHTRZ35',
+            '4OHTRZ42',
+            '4OHTRZ44',
+            '4OHTRZ46',
+            '4OHTRZ48',
+            '4OHTRZ50',
+            '4OHTRZ54',
+        ]
 
         for msid in bus_5_and_6_zones:
             if msid in data.keys():
                 # Heater must be off if either bus is disabled
-                disa = (data['4S1PWR05'].vals == 'DISA') | (data['4S1PWR06'].vals == 'DISA')
+                disa = (data['4S1PWR05'].vals == 'DISA') | (
+                    data['4S1PWR06'].vals == 'DISA'
+                )
                 data[msid].vals[disa] = 0
 
     def fix_4OHTRZ50(self, data):
@@ -38,18 +54,39 @@ class DerivedParameterThermal(base.DerivedParameter):
 
 
 class DP_EE_AXIAL(DerivedParameterThermal):
-    rootparams = ['OHRTHR58', 'OHRTHR12', 'OHRTHR36', 'OHRTHR56', 'OHRTHR57',
-                  'OHRTHR55', 'OHRTHR35', 'OHRTHR37', 'OHRTHR34', 'OHRTHR13',
-                  'OHRTHR10', 'OHRTHR11']
+    rootparams = [
+        'OHRTHR58',
+        'OHRTHR12',
+        'OHRTHR36',
+        'OHRTHR56',
+        'OHRTHR57',
+        'OHRTHR55',
+        'OHRTHR35',
+        'OHRTHR37',
+        'OHRTHR34',
+        'OHRTHR13',
+        'OHRTHR10',
+        'OHRTHR11',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        HYPAVE = (data['OHRTHR12'].vals + data['OHRTHR13'].vals +
-                  data['OHRTHR36'].vals + data['OHRTHR37'].vals +
-                  data['OHRTHR57'].vals + data['OHRTHR58'].vals) / 6
-        PARAVE = (data['OHRTHR10'].vals + data['OHRTHR11'].vals +
-                  data['OHRTHR34'].vals + data['OHRTHR35'].vals +
-                  data['OHRTHR55'].vals + data['OHRTHR56'].vals) / 6
+        HYPAVE = (
+            data['OHRTHR12'].vals
+            + data['OHRTHR13'].vals
+            + data['OHRTHR36'].vals
+            + data['OHRTHR37'].vals
+            + data['OHRTHR57'].vals
+            + data['OHRTHR58'].vals
+        ) / 6
+        PARAVE = (
+            data['OHRTHR10'].vals
+            + data['OHRTHR11'].vals
+            + data['OHRTHR34'].vals
+            + data['OHRTHR35'].vals
+            + data['OHRTHR55'].vals
+            + data['OHRTHR56'].vals
+        ) / 6
         HAAG = PARAVE - HYPAVE
         DTAXIAL = np.abs(1.0 * HAAG)
         EE_AXIAL = DTAXIAL * 0.0034
@@ -58,23 +95,55 @@ class DP_EE_AXIAL(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_EE_BULK(DerivedParameterThermal):
-    rootparams = ['OHRTHR10', 'OHRTHR58', 'OHRTHR52', 'OHRTHR53', 'OHRTHR56',
-                  'OHRTHR57', 'OHRTHR54', 'OHRTHR55', 'OHRTHR12', 'OHRTHR35',
-                  'OHRTHR11', 'OHRTHR08', 'OHRTHR09', 'OHRTHR31', 'OHRTHR33',
-                  'OHRTHR34', 'OHRTHR13', 'OHRTHR36', 'OHRTHR37']
+    rootparams = [
+        'OHRTHR10',
+        'OHRTHR58',
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR56',
+        'OHRTHR57',
+        'OHRTHR54',
+        'OHRTHR55',
+        'OHRTHR12',
+        'OHRTHR35',
+        'OHRTHR11',
+        'OHRTHR08',
+        'OHRTHR09',
+        'OHRTHR31',
+        'OHRTHR33',
+        'OHRTHR34',
+        'OHRTHR13',
+        'OHRTHR36',
+        'OHRTHR37',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        P_SUM = (data['OHRTHR10'].vals + data['OHRTHR11'].vals +
-                 data['OHRTHR34'].vals + data['OHRTHR35'].vals +
-                 data['OHRTHR55'].vals + data['OHRTHR56'].vals)
-        H_SUM = (data['OHRTHR12'].vals + data['OHRTHR13'].vals +
-                 data['OHRTHR36'].vals + data['OHRTHR37'].vals +
-                 data['OHRTHR57'].vals + data['OHRTHR58'].vals)
-        CAP_SUM = (data['OHRTHR08'].vals + data['OHRTHR09'].vals +
-                   data['OHRTHR31'].vals + data['OHRTHR33'].vals +
-                   data['OHRTHR52'].vals + data['OHRTHR53'].vals +
-                   data['OHRTHR54'].vals)
+        P_SUM = (
+            data['OHRTHR10'].vals
+            + data['OHRTHR11'].vals
+            + data['OHRTHR34'].vals
+            + data['OHRTHR35'].vals
+            + data['OHRTHR55'].vals
+            + data['OHRTHR56'].vals
+        )
+        H_SUM = (
+            data['OHRTHR12'].vals
+            + data['OHRTHR13'].vals
+            + data['OHRTHR36'].vals
+            + data['OHRTHR37'].vals
+            + data['OHRTHR57'].vals
+            + data['OHRTHR58'].vals
+        )
+        CAP_SUM = (
+            data['OHRTHR08'].vals
+            + data['OHRTHR09'].vals
+            + data['OHRTHR31'].vals
+            + data['OHRTHR33'].vals
+            + data['OHRTHR52'].vals
+            + data['OHRTHR53'].vals
+            + data['OHRTHR54'].vals
+        )
         HMCSAVE = (CAP_SUM + P_SUM + H_SUM) / 19.0
         DTBULK = np.abs(1.0 * HMCSAVE - 69.8)
         EE_BULK = DTBULK * 0.0267
@@ -85,6 +154,7 @@ class DP_EE_BULK(DerivedParameterThermal):
 # --------------------------------------------
 class DP_EE_DIAM(DerivedParameterThermal):
     """Kodak diametrical encircled energy"""
+
     rootparams = ['OHRMGRD6', 'OHRMGRD3']
     time_step = 32.8
 
@@ -98,15 +168,27 @@ class DP_EE_DIAM(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_EE_RADIAL(DerivedParameterThermal):
-    rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR54', 'OHRTHR31', 'OHRTHR09',
-                  'OHRTHR08', 'OHRTHR33']
+    rootparams = [
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR54',
+        'OHRTHR31',
+        'OHRTHR09',
+        'OHRTHR08',
+        'OHRTHR33',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        CAPIAVE = (data['OHRTHR09'].vals + data['OHRTHR53'].vals +
-                   data['OHRTHR54'].vals) / 3
-        CAPOAVE = (data['OHRTHR08'].vals + data['OHRTHR31'].vals +
-                   data['OHRTHR33'].vals + data['OHRTHR52'].vals) / 4
+        CAPIAVE = (
+            data['OHRTHR09'].vals + data['OHRTHR53'].vals + data['OHRTHR54'].vals
+        ) / 3
+        CAPOAVE = (
+            data['OHRTHR08'].vals
+            + data['OHRTHR31'].vals
+            + data['OHRTHR33'].vals
+            + data['OHRTHR52'].vals
+        ) / 4
         HARG = CAPOAVE - CAPIAVE
         DTRADIAL = np.abs(1.0 * HARG)
         EE_RADIAL = DTRADIAL * 0.0127
@@ -115,34 +197,82 @@ class DP_EE_RADIAL(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_EE_THERM(DerivedParameterThermal):
-    rootparams = ['OHRTHR37', 'OHRTHR58', 'OHRMGRD6', 'OHRMGRD3', 'OHRTHR35',
-                  'OHRTHR52', 'OHRTHR53', 'OHRTHR56', 'OHRTHR57', 'OHRTHR54',
-                  'OHRTHR55', 'OHRTHR12', 'OHRTHR36', 'OHRTHR08', 'OHRTHR09',
-                  'OHRTHR31', 'OHRTHR33', 'OHRTHR34', 'OHRTHR13', 'OHRTHR10',
-                  'OHRTHR11']
+    rootparams = [
+        'OHRTHR37',
+        'OHRTHR58',
+        'OHRMGRD6',
+        'OHRMGRD3',
+        'OHRTHR35',
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR56',
+        'OHRTHR57',
+        'OHRTHR54',
+        'OHRTHR55',
+        'OHRTHR12',
+        'OHRTHR36',
+        'OHRTHR08',
+        'OHRTHR09',
+        'OHRTHR31',
+        'OHRTHR33',
+        'OHRTHR34',
+        'OHRTHR13',
+        'OHRTHR10',
+        'OHRTHR11',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        CAP_SUM = (data['OHRTHR08'].vals + data['OHRTHR09'].vals +
-                   data['OHRTHR31'].vals + data['OHRTHR33'].vals +
-                   data['OHRTHR52'].vals + data['OHRTHR53'].vals +
-                   data['OHRTHR54'].vals)
-        CAPIAVE = (data['OHRTHR09'].vals + data['OHRTHR53'].vals +
-                   data['OHRTHR54'].vals) / 3
-        P_SUM = (data['OHRTHR10'].vals + data['OHRTHR11'].vals +
-                 data['OHRTHR34'].vals + data['OHRTHR35'].vals +
-                 data['OHRTHR55'].vals + data['OHRTHR56'].vals)
-        CAPOAVE = (data['OHRTHR08'].vals + data['OHRTHR31'].vals +
-                   data['OHRTHR33'].vals + data['OHRTHR52'].vals) / 4
-        H_SUM = (data['OHRTHR12'].vals + data['OHRTHR13'].vals +
-                 data['OHRTHR36'].vals + data['OHRTHR37'].vals +
-                 data['OHRTHR57'].vals + data['OHRTHR58'].vals)
-        PARAVE = (data['OHRTHR10'].vals + data['OHRTHR11'].vals +
-                  data['OHRTHR34'].vals + data['OHRTHR35'].vals +
-                  data['OHRTHR55'].vals + data['OHRTHR56'].vals) / 6
-        HYPAVE = (data['OHRTHR12'].vals + data['OHRTHR13'].vals +
-                  data['OHRTHR36'].vals + data['OHRTHR37'].vals +
-                  data['OHRTHR57'].vals + data['OHRTHR58'].vals) / 6
+        CAP_SUM = (
+            data['OHRTHR08'].vals
+            + data['OHRTHR09'].vals
+            + data['OHRTHR31'].vals
+            + data['OHRTHR33'].vals
+            + data['OHRTHR52'].vals
+            + data['OHRTHR53'].vals
+            + data['OHRTHR54'].vals
+        )
+        CAPIAVE = (
+            data['OHRTHR09'].vals + data['OHRTHR53'].vals + data['OHRTHR54'].vals
+        ) / 3
+        P_SUM = (
+            data['OHRTHR10'].vals
+            + data['OHRTHR11'].vals
+            + data['OHRTHR34'].vals
+            + data['OHRTHR35'].vals
+            + data['OHRTHR55'].vals
+            + data['OHRTHR56'].vals
+        )
+        CAPOAVE = (
+            data['OHRTHR08'].vals
+            + data['OHRTHR31'].vals
+            + data['OHRTHR33'].vals
+            + data['OHRTHR52'].vals
+        ) / 4
+        H_SUM = (
+            data['OHRTHR12'].vals
+            + data['OHRTHR13'].vals
+            + data['OHRTHR36'].vals
+            + data['OHRTHR37'].vals
+            + data['OHRTHR57'].vals
+            + data['OHRTHR58'].vals
+        )
+        PARAVE = (
+            data['OHRTHR10'].vals
+            + data['OHRTHR11'].vals
+            + data['OHRTHR34'].vals
+            + data['OHRTHR35'].vals
+            + data['OHRTHR55'].vals
+            + data['OHRTHR56'].vals
+        ) / 6
+        HYPAVE = (
+            data['OHRTHR12'].vals
+            + data['OHRTHR13'].vals
+            + data['OHRTHR36'].vals
+            + data['OHRTHR37'].vals
+            + data['OHRTHR57'].vals
+            + data['OHRTHR58'].vals
+        ) / 6
         VAL1 = np.abs(1.0 * data['OHRMGRD3'].vals)
         VAL2 = np.abs(1.0 * data['OHRMGRD6'].vals)
 
@@ -159,54 +289,117 @@ class DP_EE_THERM(DerivedParameterThermal):
         EE_AXIAL = DTAXIAL * 0.0034
         EE_BULK = DTBULK * 0.0267
         EE_DIAM = DTDIAM * 0.401
-        EE_THERM = (EE_BULK + EE_AXIAL + EE_RADIAL + EE_DIAM)
+        EE_THERM = EE_BULK + EE_AXIAL + EE_RADIAL + EE_DIAM
 
         return EE_THERM
 
 
 # --------------------------------------------
 class DP_HAAG(DerivedParameterThermal):
-    rootparams = ['OHRTHR58', 'OHRTHR12', 'OHRTHR56', 'OHRTHR57', 'OHRTHR55',
-                  'OHRTHR13', 'OHRTHR36', 'OHRTHR37', 'OHRTHR34', 'OHRTHR35',
-                  'OHRTHR10', 'OHRTHR11']
+    rootparams = [
+        'OHRTHR58',
+        'OHRTHR12',
+        'OHRTHR56',
+        'OHRTHR57',
+        'OHRTHR55',
+        'OHRTHR13',
+        'OHRTHR36',
+        'OHRTHR37',
+        'OHRTHR34',
+        'OHRTHR35',
+        'OHRTHR10',
+        'OHRTHR11',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        HYPAVE = (data['OHRTHR12'].vals + data['OHRTHR13'].vals +
-                  data['OHRTHR36'].vals + data['OHRTHR37'].vals +
-                  data['OHRTHR57'].vals + data['OHRTHR58'].vals) / 6
-        PARAVE = (data['OHRTHR10'].vals + data['OHRTHR11'].vals +
-                  data['OHRTHR34'].vals + data['OHRTHR35'].vals +
-                  data['OHRTHR55'].vals + data['OHRTHR56'].vals) / 6
+        HYPAVE = (
+            data['OHRTHR12'].vals
+            + data['OHRTHR13'].vals
+            + data['OHRTHR36'].vals
+            + data['OHRTHR37'].vals
+            + data['OHRTHR57'].vals
+            + data['OHRTHR58'].vals
+        ) / 6
+        PARAVE = (
+            data['OHRTHR10'].vals
+            + data['OHRTHR11'].vals
+            + data['OHRTHR34'].vals
+            + data['OHRTHR35'].vals
+            + data['OHRTHR55'].vals
+            + data['OHRTHR56'].vals
+        ) / 6
         HAAG = PARAVE - HYPAVE
         return HAAG
 
 
 # --------------------------------------------
 class DP_HARG(DerivedParameterThermal):
-    rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR54', 'OHRTHR31', 'OHRTHR09',
-                  'OHRTHR08', 'OHRTHR33']
+    rootparams = [
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR54',
+        'OHRTHR31',
+        'OHRTHR09',
+        'OHRTHR08',
+        'OHRTHR33',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        CAPIAVE = (data['OHRTHR09'].vals + data['OHRTHR53'].vals +
-                   data['OHRTHR54'].vals) / 3
-        CAPOAVE = (data['OHRTHR08'].vals + data['OHRTHR31'].vals +
-                   data['OHRTHR33'].vals + data['OHRTHR52'].vals) / 4
+        CAPIAVE = (
+            data['OHRTHR09'].vals + data['OHRTHR53'].vals + data['OHRTHR54'].vals
+        ) / 3
+        CAPOAVE = (
+            data['OHRTHR08'].vals
+            + data['OHRTHR31'].vals
+            + data['OHRTHR33'].vals
+            + data['OHRTHR52'].vals
+        ) / 4
         HARG = CAPOAVE - CAPIAVE
         return HARG
 
 
 # --------------------------------------------
 class DP_HMAX35(DerivedParameterThermal):
-    rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
-                  'OHRTHR55', 'OHRTHR23', 'OHRTHR22', 'OHRTHR30', 'OHRTHR33',
-                  'OHRTHR12', 'OHRTHR13', 'OHRTHR10', 'OHRTHR11', 'OHRTHR36',
-                  'OHRTHR37', 'OHRTHR49', 'OHRTHR45', 'OHRTHR44', 'OHRTHR47',
-                  'OHRTHR46', 'OHRTHR42', 'OHRTHR29', 'OHRTHR02', 'OHRTHR05',
-                  'OHRTHR04', 'OHRTHR07', 'OHRTHR06', 'OHRTHR09', 'OHRTHR08',
-                  'OHRTHR21', 'OHRTHR27', 'OHRTHR26', 'OHRTHR25', 'OHRTHR24',
-                  'OHRTHR03']
+    rootparams = [
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR50',
+        'OHRTHR51',
+        'OHRTHR56',
+        'OHRTHR55',
+        'OHRTHR23',
+        'OHRTHR22',
+        'OHRTHR30',
+        'OHRTHR33',
+        'OHRTHR12',
+        'OHRTHR13',
+        'OHRTHR10',
+        'OHRTHR11',
+        'OHRTHR36',
+        'OHRTHR37',
+        'OHRTHR49',
+        'OHRTHR45',
+        'OHRTHR44',
+        'OHRTHR47',
+        'OHRTHR46',
+        'OHRTHR42',
+        'OHRTHR29',
+        'OHRTHR02',
+        'OHRTHR05',
+        'OHRTHR04',
+        'OHRTHR07',
+        'OHRTHR06',
+        'OHRTHR09',
+        'OHRTHR08',
+        'OHRTHR21',
+        'OHRTHR27',
+        'OHRTHR26',
+        'OHRTHR25',
+        'OHRTHR24',
+        'OHRTHR03',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -218,37 +411,99 @@ class DP_HMAX35(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_HMCSAVE(DerivedParameterThermal):
-    rootparams = ['OHRTHR10', 'OHRTHR58', 'OHRTHR52', 'OHRTHR53', 'OHRTHR56',
-                  'OHRTHR57', 'OHRTHR54', 'OHRTHR55', 'OHRTHR12', 'OHRTHR35',
-                  'OHRTHR11', 'OHRTHR08', 'OHRTHR09', 'OHRTHR31', 'OHRTHR33',
-                  'OHRTHR34', 'OHRTHR13', 'OHRTHR36', 'OHRTHR37']
+    rootparams = [
+        'OHRTHR10',
+        'OHRTHR58',
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR56',
+        'OHRTHR57',
+        'OHRTHR54',
+        'OHRTHR55',
+        'OHRTHR12',
+        'OHRTHR35',
+        'OHRTHR11',
+        'OHRTHR08',
+        'OHRTHR09',
+        'OHRTHR31',
+        'OHRTHR33',
+        'OHRTHR34',
+        'OHRTHR13',
+        'OHRTHR36',
+        'OHRTHR37',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        P_SUM = (data['OHRTHR10'].vals + data['OHRTHR11'].vals +
-                 data['OHRTHR34'].vals + data['OHRTHR35'].vals +
-                 data['OHRTHR55'].vals + data['OHRTHR56'].vals)
-        H_SUM = (data['OHRTHR12'].vals + data['OHRTHR13'].vals +
-                 data['OHRTHR36'].vals + data['OHRTHR37'].vals +
-                 data['OHRTHR57'].vals + data['OHRTHR58'].vals)
-        CAP_SUM = (data['OHRTHR08'].vals + data['OHRTHR09'].vals +
-                   data['OHRTHR31'].vals + data['OHRTHR33'].vals +
-                   data['OHRTHR52'].vals + data['OHRTHR53'].vals +
-                   data['OHRTHR54'].vals)
+        P_SUM = (
+            data['OHRTHR10'].vals
+            + data['OHRTHR11'].vals
+            + data['OHRTHR34'].vals
+            + data['OHRTHR35'].vals
+            + data['OHRTHR55'].vals
+            + data['OHRTHR56'].vals
+        )
+        H_SUM = (
+            data['OHRTHR12'].vals
+            + data['OHRTHR13'].vals
+            + data['OHRTHR36'].vals
+            + data['OHRTHR37'].vals
+            + data['OHRTHR57'].vals
+            + data['OHRTHR58'].vals
+        )
+        CAP_SUM = (
+            data['OHRTHR08'].vals
+            + data['OHRTHR09'].vals
+            + data['OHRTHR31'].vals
+            + data['OHRTHR33'].vals
+            + data['OHRTHR52'].vals
+            + data['OHRTHR53'].vals
+            + data['OHRTHR54'].vals
+        )
         HMCSAVE = (CAP_SUM + P_SUM + H_SUM) / 19.0
         return HMCSAVE
 
 
 # --------------------------------------------
 class DP_HMIN35(DerivedParameterThermal):
-    rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
-                  'OHRTHR55', 'OHRTHR23', 'OHRTHR08', 'OHRTHR30', 'OHRTHR33',
-                  'OHRTHR12', 'OHRTHR13', 'OHRTHR36', 'OHRTHR11', 'OHRTHR10',
-                  'OHRTHR37', 'OHRTHR49', 'OHRTHR45', 'OHRTHR44', 'OHRTHR47',
-                  'OHRTHR46', 'OHRTHR42', 'OHRTHR29', 'OHRTHR02', 'OHRTHR05',
-                  'OHRTHR04', 'OHRTHR07', 'OHRTHR06', 'OHRTHR09', 'OHRTHR22',
-                  'OHRTHR21', 'OHRTHR27', 'OHRTHR26', 'OHRTHR25', 'OHRTHR24',
-                  'OHRTHR03']
+    rootparams = [
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR50',
+        'OHRTHR51',
+        'OHRTHR56',
+        'OHRTHR55',
+        'OHRTHR23',
+        'OHRTHR08',
+        'OHRTHR30',
+        'OHRTHR33',
+        'OHRTHR12',
+        'OHRTHR13',
+        'OHRTHR36',
+        'OHRTHR11',
+        'OHRTHR10',
+        'OHRTHR37',
+        'OHRTHR49',
+        'OHRTHR45',
+        'OHRTHR44',
+        'OHRTHR47',
+        'OHRTHR46',
+        'OHRTHR42',
+        'OHRTHR29',
+        'OHRTHR02',
+        'OHRTHR05',
+        'OHRTHR04',
+        'OHRTHR07',
+        'OHRTHR06',
+        'OHRTHR09',
+        'OHRTHR22',
+        'OHRTHR21',
+        'OHRTHR27',
+        'OHRTHR26',
+        'OHRTHR25',
+        'OHRTHR24',
+        'OHRTHR03',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -260,14 +515,44 @@ class DP_HMIN35(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_HRMA_AVE(DerivedParameterThermal):
-    rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
-                  'OHRTHR55', 'OHRTHR09', 'OHRTHR08', 'OHRTHR30', 'OHRTHR33',
-                  'OHRTHR12', 'OHRTHR13', 'OHRTHR10', 'OHRTHR11', 'OHRTHR36',
-                  'OHRTHR37', 'OHRTHR49', 'OHRTHR45', 'OHRTHR44', 'OHRTHR47',
-                  'OHRTHR46', 'OHRTHR42', 'OHRTHR29', 'OHRTHR02', 'OHRTHR05',
-                  'OHRTHR04', 'OHRTHR07', 'OHRTHR06', 'OHRTHR23', 'OHRTHR22',
-                  'OHRTHR21', 'OHRTHR27', 'OHRTHR26', 'OHRTHR25', 'OHRTHR24',
-                  'OHRTHR03']
+    rootparams = [
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR50',
+        'OHRTHR51',
+        'OHRTHR56',
+        'OHRTHR55',
+        'OHRTHR09',
+        'OHRTHR08',
+        'OHRTHR30',
+        'OHRTHR33',
+        'OHRTHR12',
+        'OHRTHR13',
+        'OHRTHR10',
+        'OHRTHR11',
+        'OHRTHR36',
+        'OHRTHR37',
+        'OHRTHR49',
+        'OHRTHR45',
+        'OHRTHR44',
+        'OHRTHR47',
+        'OHRTHR46',
+        'OHRTHR42',
+        'OHRTHR29',
+        'OHRTHR02',
+        'OHRTHR05',
+        'OHRTHR04',
+        'OHRTHR07',
+        'OHRTHR06',
+        'OHRTHR23',
+        'OHRTHR22',
+        'OHRTHR21',
+        'OHRTHR27',
+        'OHRTHR26',
+        'OHRTHR25',
+        'OHRTHR24',
+        'OHRTHR03',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -280,14 +565,44 @@ class DP_HRMA_AVE(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_HRMHCHK(DerivedParameterThermal):
-    rootparams = ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56',
-                  'OHRTHR55', 'OHRTHR09', 'OHRTHR08', 'OHRTHR30', 'OHRTHR33',
-                  'OHRTHR12', 'OHRTHR13', 'OHRTHR10', 'OHRTHR11', 'OHRTHR36',
-                  'OHRTHR37', 'OHRTHR49', 'OHRTHR45', 'OHRTHR44', 'OHRTHR47',
-                  'OHRTHR46', 'OHRTHR42', 'OHRTHR03', 'OHRTHR02', 'OHRTHR05',
-                  'OHRTHR04', 'OHRTHR07', 'OHRTHR06', 'OHRTHR23', 'OHRTHR22',
-                  'OHRTHR21', 'OHRTHR27', 'OHRTHR26', 'OHRTHR25', 'OHRTHR24',
-                  'OHRTHR29']
+    rootparams = [
+        'OHRTHR52',
+        'OHRTHR53',
+        'OHRTHR50',
+        'OHRTHR51',
+        'OHRTHR56',
+        'OHRTHR55',
+        'OHRTHR09',
+        'OHRTHR08',
+        'OHRTHR30',
+        'OHRTHR33',
+        'OHRTHR12',
+        'OHRTHR13',
+        'OHRTHR10',
+        'OHRTHR11',
+        'OHRTHR36',
+        'OHRTHR37',
+        'OHRTHR49',
+        'OHRTHR45',
+        'OHRTHR44',
+        'OHRTHR47',
+        'OHRTHR46',
+        'OHRTHR42',
+        'OHRTHR03',
+        'OHRTHR02',
+        'OHRTHR05',
+        'OHRTHR04',
+        'OHRTHR07',
+        'OHRTHR06',
+        'OHRTHR23',
+        'OHRTHR22',
+        'OHRTHR21',
+        'OHRTHR27',
+        'OHRTHR26',
+        'OHRTHR25',
+        'OHRTHR24',
+        'OHRTHR29',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -303,23 +618,49 @@ class DP_HRMHCHK(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_OBAAG(DerivedParameterThermal):
-    rootparams = ['4RT704T', '4RT705T', '4RT708T', '4RT707T', '4RT709T', '4RT711T',
-                  '4RT700T', '4RT702T', '4RT701T', '4RT703T', 'OOBTHR34',
-                  'OOBTHR33', 'OOBTHR31', 'OOBTHR62', 'OOBTHR63', '4RT706T',
-                  '4RT710T']
+    rootparams = [
+        '4RT704T',
+        '4RT705T',
+        '4RT708T',
+        '4RT707T',
+        '4RT709T',
+        '4RT711T',
+        '4RT700T',
+        '4RT702T',
+        '4RT701T',
+        '4RT703T',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR31',
+        'OOBTHR62',
+        'OOBTHR63',
+        '4RT706T',
+        '4RT710T',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        AVE2 = (data['4RT705T'].vals + data['4RT706T'].vals +
-                data['4RT707T'].vals + data['4RT708T'].vals +
-                data['4RT709T'].vals + data['4RT710T'].vals +
-                data['4RT711T'].vals)
-        AVE1 = (data['OOBTHR62'].vals + data['OOBTHR63'].vals +
-                data['4RT700T'].vals + data['4RT701T'].vals +
-                data['4RT702T'].vals + data['4RT703T'].vals +
-                data['4RT704T'].vals)
-        DIAVE = (data['OOBTHR31'].vals + data['OOBTHR33'].vals +
-                 data['OOBTHR34'].vals) / 3
+        AVE2 = (
+            data['4RT705T'].vals
+            + data['4RT706T'].vals
+            + data['4RT707T'].vals
+            + data['4RT708T'].vals
+            + data['4RT709T'].vals
+            + data['4RT710T'].vals
+            + data['4RT711T'].vals
+        )
+        AVE1 = (
+            data['OOBTHR62'].vals
+            + data['OOBTHR63'].vals
+            + data['4RT700T'].vals
+            + data['4RT701T'].vals
+            + data['4RT702T'].vals
+            + data['4RT703T'].vals
+            + data['4RT704T'].vals
+        )
+        DIAVE = (
+            data['OOBTHR31'].vals + data['OOBTHR33'].vals + data['OOBTHR34'].vals
+        ) / 3
         AXAVE = (AVE1 + AVE2) / 14
         OBAAG = AXAVE - DIAVE
         return OBAAG
@@ -327,134 +668,310 @@ class DP_OBAAG(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_OBAAGW(DerivedParameterThermal):
-    rootparams = ['4RT705T', '4RT707T', '4RT709T', '4RT711T', '4RT701T', '4RT703T',
-                  'OOBTHR34', 'OOBTHR33', 'OOBTHR31']
+    rootparams = [
+        '4RT705T',
+        '4RT707T',
+        '4RT709T',
+        '4RT711T',
+        '4RT701T',
+        '4RT703T',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR31',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        AFT_FIT = (data['OOBTHR31'].vals + data['OOBTHR33'].vals +
-                   data['OOBTHR34'].vals) / 3
-        FWD_FIT = (data['4RT701T'].vals + data['4RT703T'].vals +
-                   data['4RT705T'].vals + data['4RT707T'].vals +
-                   data['4RT709T'].vals + data['4RT711T'].vals) / 6
+        AFT_FIT = (
+            data['OOBTHR31'].vals + data['OOBTHR33'].vals + data['OOBTHR34'].vals
+        ) / 3
+        FWD_FIT = (
+            data['4RT701T'].vals
+            + data['4RT703T'].vals
+            + data['4RT705T'].vals
+            + data['4RT707T'].vals
+            + data['4RT709T'].vals
+            + data['4RT711T'].vals
+        ) / 6
         OBAAGW = FWD_FIT - AFT_FIT
         return OBAAGW
 
 
 # --------------------------------------------
 class DP_OBACAVE(DerivedParameterThermal):
-    rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
-                  'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR30',
-                  'OOBTHR08', 'OOBTHR09', 'OOBTHR24', 'OOBTHR25', 'OOBTHR26',
-                  'OOBTHR27', 'OOBTHR20', 'OOBTHR21', 'OOBTHR22', 'OOBTHR23',
-                  'OOBTHR28', 'OOBTHR29']
+    rootparams = [
+        'OOBTHR19',
+        'OOBTHR18',
+        'OOBTHR15',
+        'OOBTHR14',
+        'OOBTHR17',
+        'OOBTHR11',
+        'OOBTHR10',
+        'OOBTHR13',
+        'OOBTHR12',
+        'OOBTHR30',
+        'OOBTHR08',
+        'OOBTHR09',
+        'OOBTHR24',
+        'OOBTHR25',
+        'OOBTHR26',
+        'OOBTHR27',
+        'OOBTHR20',
+        'OOBTHR21',
+        'OOBTHR22',
+        'OOBTHR23',
+        'OOBTHR28',
+        'OOBTHR29',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        MIDCONE = (data['OOBTHR19'].vals + data['OOBTHR20'].vals +
-                   data['OOBTHR21'].vals + data['OOBTHR22'].vals +
-                   data['OOBTHR23'].vals + data['OOBTHR24'].vals +
-                   data['OOBTHR25'].vals)
-        AFTCONE = (data['OOBTHR26'].vals + data['OOBTHR27'].vals +
-                   data['OOBTHR28'].vals + data['OOBTHR29'].vals +
-                   data['OOBTHR30'].vals)
-        FWDCONE = (data['OOBTHR08'].vals + data['OOBTHR09'].vals +
-                   data['OOBTHR10'].vals + data['OOBTHR11'].vals +
-                   data['OOBTHR12'].vals + data['OOBTHR13'].vals +
-                   data['OOBTHR14'].vals + data['OOBTHR15'].vals +
-                   data['OOBTHR17'].vals + data['OOBTHR18'].vals)
+        MIDCONE = (
+            data['OOBTHR19'].vals
+            + data['OOBTHR20'].vals
+            + data['OOBTHR21'].vals
+            + data['OOBTHR22'].vals
+            + data['OOBTHR23'].vals
+            + data['OOBTHR24'].vals
+            + data['OOBTHR25'].vals
+        )
+        AFTCONE = (
+            data['OOBTHR26'].vals
+            + data['OOBTHR27'].vals
+            + data['OOBTHR28'].vals
+            + data['OOBTHR29'].vals
+            + data['OOBTHR30'].vals
+        )
+        FWDCONE = (
+            data['OOBTHR08'].vals
+            + data['OOBTHR09'].vals
+            + data['OOBTHR10'].vals
+            + data['OOBTHR11'].vals
+            + data['OOBTHR12'].vals
+            + data['OOBTHR13'].vals
+            + data['OOBTHR14'].vals
+            + data['OOBTHR15'].vals
+            + data['OOBTHR17'].vals
+            + data['OOBTHR18'].vals
+        )
         OBACAVE = (FWDCONE + MIDCONE + AFTCONE) / 22
         return OBACAVE
 
 
 # --------------------------------------------
 class DP_OBACAVEW(DerivedParameterThermal):
-    rootparams = ['4RT705T', 'OOBTHR19', '4RT707T', 'OOBTHR15', 'OOBTHR14',
-                  '4RT711T', 'OOBTHR11', 'OOBTHR10', 'OOBTHR13', '4RT701T',
-                  'OOBTHR34', 'OOBTHR33', 'OOBTHR31', 'OOBTHR30', 'OOBTHR18',
-                  '4RT709T', '4RT703T', 'OOBTHR17', 'OOBTHR08', 'OOBTHR09',
-                  'OOBTHR24', 'OOBTHR25', 'OOBTHR26', 'OOBTHR27', 'OOBTHR20',
-                  'OOBTHR21', 'OOBTHR22', 'OOBTHR23', 'OOBTHR12', 'OOBTHR28',
-                  'OOBTHR29']
+    rootparams = [
+        '4RT705T',
+        'OOBTHR19',
+        '4RT707T',
+        'OOBTHR15',
+        'OOBTHR14',
+        '4RT711T',
+        'OOBTHR11',
+        'OOBTHR10',
+        'OOBTHR13',
+        '4RT701T',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR31',
+        'OOBTHR30',
+        'OOBTHR18',
+        '4RT709T',
+        '4RT703T',
+        'OOBTHR17',
+        'OOBTHR08',
+        'OOBTHR09',
+        'OOBTHR24',
+        'OOBTHR25',
+        'OOBTHR26',
+        'OOBTHR27',
+        'OOBTHR20',
+        'OOBTHR21',
+        'OOBTHR22',
+        'OOBTHR23',
+        'OOBTHR12',
+        'OOBTHR28',
+        'OOBTHR29',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        FWD_FIT = (data['4RT701T'].vals + data['4RT703T'].vals +
-                   data['4RT705T'].vals + data['4RT707T'].vals +
-                   data['4RT709T'].vals + data['4RT711T'].vals) / 6
-        AFTCONE = (data['OOBTHR26'].vals + data['OOBTHR27'].vals +
-                   data['OOBTHR28'].vals + data['OOBTHR29'].vals +
-                   data['OOBTHR30'].vals)
-        AFT_FIT = (data['OOBTHR31'].vals + data['OOBTHR33'].vals +
-                   data['OOBTHR34'].vals) / 3
-        MIDCONE = (data['OOBTHR19'].vals + data['OOBTHR20'].vals +
-                   data['OOBTHR21'].vals + data['OOBTHR22'].vals +
-                   data['OOBTHR23'].vals + data['OOBTHR24'].vals +
-                   data['OOBTHR25'].vals)
-        FWDCONE = (data['OOBTHR08'].vals + data['OOBTHR09'].vals +
-                   data['OOBTHR10'].vals + data['OOBTHR11'].vals +
-                   data['OOBTHR12'].vals + data['OOBTHR13'].vals +
-                   data['OOBTHR14'].vals + data['OOBTHR15'].vals +
-                   data['OOBTHR17'].vals + data['OOBTHR18'].vals)
+        FWD_FIT = (
+            data['4RT701T'].vals
+            + data['4RT703T'].vals
+            + data['4RT705T'].vals
+            + data['4RT707T'].vals
+            + data['4RT709T'].vals
+            + data['4RT711T'].vals
+        ) / 6
+        AFTCONE = (
+            data['OOBTHR26'].vals
+            + data['OOBTHR27'].vals
+            + data['OOBTHR28'].vals
+            + data['OOBTHR29'].vals
+            + data['OOBTHR30'].vals
+        )
+        AFT_FIT = (
+            data['OOBTHR31'].vals + data['OOBTHR33'].vals + data['OOBTHR34'].vals
+        ) / 3
+        MIDCONE = (
+            data['OOBTHR19'].vals
+            + data['OOBTHR20'].vals
+            + data['OOBTHR21'].vals
+            + data['OOBTHR22'].vals
+            + data['OOBTHR23'].vals
+            + data['OOBTHR24'].vals
+            + data['OOBTHR25'].vals
+        )
+        FWDCONE = (
+            data['OOBTHR08'].vals
+            + data['OOBTHR09'].vals
+            + data['OOBTHR10'].vals
+            + data['OOBTHR11'].vals
+            + data['OOBTHR12'].vals
+            + data['OOBTHR13'].vals
+            + data['OOBTHR14'].vals
+            + data['OOBTHR15'].vals
+            + data['OOBTHR17'].vals
+            + data['OOBTHR18'].vals
+        )
         OBACAVE = (FWDCONE + MIDCONE + AFTCONE) / 22
-        OBACAVEW = (OBACAVE * 148. - FWD_FIT * 70. - AFT_FIT * 29.) / 49.
+        OBACAVEW = (OBACAVE * 148.0 - FWD_FIT * 70.0 - AFT_FIT * 29.0) / 49.0
         return OBACAVEW
 
 
 # --------------------------------------------
 class DP_OBADIG(DerivedParameterThermal):
-    rootparams = ['OOBTHR08', 'OOBTHR19', 'OOBTHR31', 'OOBTHR13', 'OOBTHR26',
-                  'OOBTHR34', 'OOBTHR33', 'OOBTHR22', 'OOBTHR23', 'OOBTHR60',
-                  'OOBTHR61', 'OOBTHR28', 'OOBTHR29']
+    rootparams = [
+        'OOBTHR08',
+        'OOBTHR19',
+        'OOBTHR31',
+        'OOBTHR13',
+        'OOBTHR26',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR22',
+        'OOBTHR23',
+        'OOBTHR60',
+        'OOBTHR61',
+        'OOBTHR28',
+        'OOBTHR29',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        MZSAVE = (data['OOBTHR08'].vals + data['OOBTHR19'].vals +
-                  data['OOBTHR26'].vals + data['OOBTHR31'].vals +
-                  data['OOBTHR60'].vals) / 5
-        PZSAVE = (data['OOBTHR13'].vals + data['OOBTHR22'].vals +
-                  data['OOBTHR23'].vals + data['OOBTHR28'].vals +
-                  data['OOBTHR29'].vals + data['OOBTHR61'].vals +
-                  data['OOBTHR33'].vals + data['OOBTHR34'].vals) / 8
+        MZSAVE = (
+            data['OOBTHR08'].vals
+            + data['OOBTHR19'].vals
+            + data['OOBTHR26'].vals
+            + data['OOBTHR31'].vals
+            + data['OOBTHR60'].vals
+        ) / 5
+        PZSAVE = (
+            data['OOBTHR13'].vals
+            + data['OOBTHR22'].vals
+            + data['OOBTHR23'].vals
+            + data['OOBTHR28'].vals
+            + data['OOBTHR29'].vals
+            + data['OOBTHR61'].vals
+            + data['OOBTHR33'].vals
+            + data['OOBTHR34'].vals
+        ) / 8
         OBADIG = MZSAVE - PZSAVE
         return OBADIG
 
 
 # --------------------------------------------
 class DP_OBADIGW(DerivedParameterThermal):
-    rootparams = ['OOBTHR08', '4RT705T', 'OOBTHR19', '4RT707T', 'OOBTHR22',
-                  '4RT711T', 'OOBTHR13', '4RT701T', 'OOBTHR26', 'OOBTHR34',
-                  'OOBTHR33', 'OOBTHR31', 'OOBTHR23', 'OOBTHR60', 'OOBTHR61',
-                  'OOBTHR28', 'OOBTHR29']
+    rootparams = [
+        'OOBTHR08',
+        '4RT705T',
+        'OOBTHR19',
+        '4RT707T',
+        'OOBTHR22',
+        '4RT711T',
+        'OOBTHR13',
+        '4RT701T',
+        'OOBTHR26',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR31',
+        'OOBTHR23',
+        'OOBTHR60',
+        'OOBTHR61',
+        'OOBTHR28',
+        'OOBTHR29',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        FWD_FIT_PZ = (data['4RT705T'].vals + data['4RT707T'].vals) / 2. * 70.0
-        AFT_FIT_MZ = data['OOBTHR31'].vals * 29.
-        PZSAVE = (data['OOBTHR13'].vals + data['OOBTHR22'].vals +
-                  data['OOBTHR23'].vals + data['OOBTHR28'].vals +
-                  data['OOBTHR29'].vals + data['OOBTHR61'].vals +
-                  data['OOBTHR33'].vals + data['OOBTHR34'].vals) / 8
-        MZSAVE = (data['OOBTHR08'].vals + data['OOBTHR19'].vals +
-                  data['OOBTHR26'].vals + data['OOBTHR31'].vals +
-                  data['OOBTHR60'].vals) / 5
-        AFT_FIT_PZ = (data['OOBTHR33'].vals + data['OOBTHR34'].vals) / 2 * 29.
-        FWD_FIT_MZ = (data['4RT701T'].vals + data['4RT711T'].vals) / 2. * 70.0
+        FWD_FIT_PZ = (data['4RT705T'].vals + data['4RT707T'].vals) / 2.0 * 70.0
+        AFT_FIT_MZ = data['OOBTHR31'].vals * 29.0
+        PZSAVE = (
+            data['OOBTHR13'].vals
+            + data['OOBTHR22'].vals
+            + data['OOBTHR23'].vals
+            + data['OOBTHR28'].vals
+            + data['OOBTHR29'].vals
+            + data['OOBTHR61'].vals
+            + data['OOBTHR33'].vals
+            + data['OOBTHR34'].vals
+        ) / 8
+        MZSAVE = (
+            data['OOBTHR08'].vals
+            + data['OOBTHR19'].vals
+            + data['OOBTHR26'].vals
+            + data['OOBTHR31'].vals
+            + data['OOBTHR60'].vals
+        ) / 5
+        AFT_FIT_PZ = (data['OOBTHR33'].vals + data['OOBTHR34'].vals) / 2 * 29.0
+        FWD_FIT_MZ = (data['4RT701T'].vals + data['4RT711T'].vals) / 2.0 * 70.0
         OBADIG = MZSAVE - PZSAVE
-        OBADIGW = (OBADIG * 148. - (FWD_FIT_MZ - FWD_FIT_PZ) -
-                   (AFT_FIT_MZ - AFT_FIT_PZ)) / 49.
+        OBADIGW = (
+            OBADIG * 148.0 - (FWD_FIT_MZ - FWD_FIT_PZ) - (AFT_FIT_MZ - AFT_FIT_PZ)
+        ) / 49.0
         return OBADIGW
 
 
 # --------------------------------------------
 class DP_OBA_AVE(DerivedParameterThermal):
-    rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
-                  'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR37',
-                  'OOBTHR36', 'OOBTHR35', 'OOBTHR34', 'OOBTHR33', 'OOBTHR31',
-                  'OOBTHR30', 'OOBTHR39', 'OOBTHR38', 'OOBTHR08', 'OOBTHR09',
-                  'OOBTHR24', 'OOBTHR25', 'OOBTHR26', 'OOBTHR27', 'OOBTHR20',
-                  'OOBTHR21', 'OOBTHR22', 'OOBTHR23', 'OOBTHR46', 'OOBTHR44',
-                  'OOBTHR45', 'OOBTHR28', 'OOBTHR29', 'OOBTHR40', 'OOBTHR41']
+    rootparams = [
+        'OOBTHR19',
+        'OOBTHR18',
+        'OOBTHR15',
+        'OOBTHR14',
+        'OOBTHR17',
+        'OOBTHR11',
+        'OOBTHR10',
+        'OOBTHR13',
+        'OOBTHR12',
+        'OOBTHR37',
+        'OOBTHR36',
+        'OOBTHR35',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR31',
+        'OOBTHR30',
+        'OOBTHR39',
+        'OOBTHR38',
+        'OOBTHR08',
+        'OOBTHR09',
+        'OOBTHR24',
+        'OOBTHR25',
+        'OOBTHR26',
+        'OOBTHR27',
+        'OOBTHR20',
+        'OOBTHR21',
+        'OOBTHR22',
+        'OOBTHR23',
+        'OOBTHR46',
+        'OOBTHR44',
+        'OOBTHR45',
+        'OOBTHR28',
+        'OOBTHR29',
+        'OOBTHR40',
+        'OOBTHR41',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -467,13 +984,43 @@ class DP_OBA_AVE(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_OMAX34(DerivedParameterThermal):
-    rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
-                  'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR37',
-                  'OOBTHR36', 'OOBTHR35', 'OOBTHR34', 'OOBTHR33', 'OOBTHR31',
-                  'OOBTHR30', 'OOBTHR39', 'OOBTHR38', 'OOBTHR28', 'OOBTHR08',
-                  'OOBTHR09', 'OOBTHR24', 'OOBTHR25', 'OOBTHR26', 'OOBTHR27',
-                  'OOBTHR20', 'OOBTHR21', 'OOBTHR22', 'OOBTHR23', 'OOBTHR46',
-                  'OOBTHR45', 'OOBTHR42', 'OOBTHR29', 'OOBTHR40', 'OOBTHR41']
+    rootparams = [
+        'OOBTHR19',
+        'OOBTHR18',
+        'OOBTHR15',
+        'OOBTHR14',
+        'OOBTHR17',
+        'OOBTHR11',
+        'OOBTHR10',
+        'OOBTHR13',
+        'OOBTHR12',
+        'OOBTHR37',
+        'OOBTHR36',
+        'OOBTHR35',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR31',
+        'OOBTHR30',
+        'OOBTHR39',
+        'OOBTHR38',
+        'OOBTHR28',
+        'OOBTHR08',
+        'OOBTHR09',
+        'OOBTHR24',
+        'OOBTHR25',
+        'OOBTHR26',
+        'OOBTHR27',
+        'OOBTHR20',
+        'OOBTHR21',
+        'OOBTHR22',
+        'OOBTHR23',
+        'OOBTHR46',
+        'OOBTHR45',
+        'OOBTHR42',
+        'OOBTHR29',
+        'OOBTHR40',
+        'OOBTHR41',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -485,13 +1032,43 @@ class DP_OMAX34(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_OMIN34(DerivedParameterThermal):
-    rootparams = ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17',
-                  'OOBTHR11', 'OOBTHR10', 'OOBTHR13', 'OOBTHR12', 'OOBTHR37',
-                  'OOBTHR36', 'OOBTHR35', 'OOBTHR34', 'OOBTHR33', 'OOBTHR31',
-                  'OOBTHR30', 'OOBTHR39', 'OOBTHR38', 'OOBTHR28', 'OOBTHR08',
-                  'OOBTHR09', 'OOBTHR24', 'OOBTHR25', 'OOBTHR26', 'OOBTHR27',
-                  'OOBTHR20', 'OOBTHR21', 'OOBTHR22', 'OOBTHR23', 'OOBTHR46',
-                  'OOBTHR45', 'OOBTHR42', 'OOBTHR29', 'OOBTHR40', 'OOBTHR41']
+    rootparams = [
+        'OOBTHR19',
+        'OOBTHR18',
+        'OOBTHR15',
+        'OOBTHR14',
+        'OOBTHR17',
+        'OOBTHR11',
+        'OOBTHR10',
+        'OOBTHR13',
+        'OOBTHR12',
+        'OOBTHR37',
+        'OOBTHR36',
+        'OOBTHR35',
+        'OOBTHR34',
+        'OOBTHR33',
+        'OOBTHR31',
+        'OOBTHR30',
+        'OOBTHR39',
+        'OOBTHR38',
+        'OOBTHR28',
+        'OOBTHR08',
+        'OOBTHR09',
+        'OOBTHR24',
+        'OOBTHR25',
+        'OOBTHR26',
+        'OOBTHR27',
+        'OOBTHR20',
+        'OOBTHR21',
+        'OOBTHR22',
+        'OOBTHR23',
+        'OOBTHR46',
+        'OOBTHR45',
+        'OOBTHR42',
+        'OOBTHR29',
+        'OOBTHR40',
+        'OOBTHR41',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -504,6 +1081,7 @@ class DP_OMIN34(DerivedParameterThermal):
 # --------------------------------------------
 class DP_P01(DerivedParameterThermal):
     """Zone 1 heater power"""
+
     rootparams = ['ELBV', '4OHTRZ01']
     time_step = 0.25625
 
@@ -1313,8 +1891,15 @@ class DP_P80(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PABH(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57',
-                  '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ53',
+        '4OHTRZ54',
+        '4OHTRZ55',
+        '4OHTRZ57',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1330,8 +1915,16 @@ class DP_PABH(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PAFTCONE(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51',
-                  '4OHTRZ52', '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ48',
+        '4OHTRZ49',
+        '4OHTRZ50',
+        '4OHTRZ51',
+        '4OHTRZ52',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1391,8 +1984,16 @@ class DP_PCONE(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PFAP(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ01', '4OHTRZ02', '4OHTRZ03', '4OHTRZ04',
-                  '4OHTRZ05', '4OHTRZ06', '4OHTRZ07']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ01',
+        '4OHTRZ02',
+        '4OHTRZ03',
+        '4OHTRZ04',
+        '4OHTRZ05',
+        '4OHTRZ06',
+        '4OHTRZ07',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1410,9 +2011,21 @@ class DP_PFAP(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PFWDCONE(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ31', '4OHTRZ32', '4OHTRZ33', '4OHTRZ34',
-                  '4OHTRZ35', '4OHTRZ36', '4OHTRZ37', '4OHTRZ38', '4OHTRZ39',
-                  '4OHTRZ40', '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ31',
+        '4OHTRZ32',
+        '4OHTRZ33',
+        '4OHTRZ34',
+        '4OHTRZ35',
+        '4OHTRZ36',
+        '4OHTRZ37',
+        '4OHTRZ38',
+        '4OHTRZ39',
+        '4OHTRZ40',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1428,8 +2041,7 @@ class DP_PFWDCONE(DerivedParameterThermal):
         P38 = data['4OHTRZ38'].vals * VSQUARED / 27.8
         P39 = data['4OHTRZ39'].vals * VSQUARED / 36.8
         P40 = data['4OHTRZ40'].vals * VSQUARED / 28.3
-        PFWDCONE = (P31 + P32 + P33 + P34 + P35 + P36 + P37 + P38 + P39 +
-                    P40)
+        PFWDCONE = P31 + P32 + P33 + P34 + P35 + P36 + P37 + P38 + P39 + P40
         return PFWDCONE
 
 
@@ -1449,11 +2061,31 @@ class DP_PFWDCYL(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PHRMA(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ01', '4OHTRZ02', '4OHTRZ03', '4OHTRZ04',
-                  '4OHTRZ05', '4OHTRZ06', '4OHTRZ07', '4OHTRZ08', '4OHTRZ09',
-                  '4OHTRZ10', '4OHTRZ11', '4OHTRZ12', '4OHTRZ13', '4OHTRZ14',
-                  '4OHTRZ15', '4OHTRZ16', '4OHTRZ17', '4OHTRZ18', '4OHTRZ19',
-                  '4OHTRZ20', '4OHTRZ23', '4OHTRZ24']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ01',
+        '4OHTRZ02',
+        '4OHTRZ03',
+        '4OHTRZ04',
+        '4OHTRZ05',
+        '4OHTRZ06',
+        '4OHTRZ07',
+        '4OHTRZ08',
+        '4OHTRZ09',
+        '4OHTRZ10',
+        '4OHTRZ11',
+        '4OHTRZ12',
+        '4OHTRZ13',
+        '4OHTRZ14',
+        '4OHTRZ15',
+        '4OHTRZ16',
+        '4OHTRZ17',
+        '4OHTRZ18',
+        '4OHTRZ19',
+        '4OHTRZ20',
+        '4OHTRZ23',
+        '4OHTRZ24',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1480,16 +2112,46 @@ class DP_PHRMA(DerivedParameterThermal):
         P20 = data['4OHTRZ20'].vals * VSQUARED / 379.0
         P23 = data['4OHTRZ23'].vals * VSQUARED / 386.0
         P24 = data['4OHTRZ24'].vals * VSQUARED / 385.8
-        PHRMA = (P01 + P02 + P03 + P04 + P05 + P06 + P07 + P08 + P09 + P10 +
-                 P11 + P12 + P13 + P14 + P15 + P16 + P17 + P18 + P19 + P20 +
-                 P23 + P24)
+        PHRMA = (
+            P01
+            + P02
+            + P03
+            + P04
+            + P05
+            + P06
+            + P07
+            + P08
+            + P09
+            + P10
+            + P11
+            + P12
+            + P13
+            + P14
+            + P15
+            + P16
+            + P17
+            + P18
+            + P19
+            + P20
+            + P23
+            + P24
+        )
         return PHRMA
 
 
 # --------------------------------------------
 class DP_PHRMASTRUTS(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ25', '4OHTRZ26', '4OHTRZ27', '4OHTRZ28',
-                  '4OHTRZ29', '4OHTRZ30', '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ25',
+        '4OHTRZ26',
+        '4OHTRZ27',
+        '4OHTRZ28',
+        '4OHTRZ29',
+        '4OHTRZ30',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1520,8 +2182,18 @@ class DP_PIC(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PMIDCONE(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ41', '4OHTRZ42', '4OHTRZ43', '4OHTRZ44',
-                  '4OHTRZ45', '4OHTRZ46', '4OHTRZ47', '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ41',
+        '4OHTRZ42',
+        '4OHTRZ43',
+        '4OHTRZ44',
+        '4OHTRZ45',
+        '4OHTRZ46',
+        '4OHTRZ47',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1554,14 +2226,49 @@ class DP_PMNT(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_POBAT(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ25', '4OHTRZ26', '4OHTRZ27', '4OHTRZ28', '4OHTRZ29',
-                  '4OHTRZ30', '4OHTRZ31', '4OHTRZ32', '4OHTRZ33', '4OHTRZ34',
-                  '4OHTRZ35', '4OHTRZ36', '4OHTRZ37', '4OHTRZ38', '4OHTRZ39',
-                  '4OHTRZ40', '4OHTRZ41', '4OHTRZ42', '4OHTRZ43', '4OHTRZ44',
-                  '4OHTRZ45', '4OHTRZ46', '4OHTRZ47', '4OHTRZ48', '4OHTRZ49',
-                  '4OHTRZ50', '4OHTRZ51', '4OHTRZ52', '4OHTRZ53', '4OHTRZ54',
-                  '4OHTRZ55', '4OHTRZ57', '4OHTRZ75', '4OHTRZ76', '4OHTRZ77',
-                  '4OHTRZ78', '4OHTRZ79', '4OHTRZ80', '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ25',
+        '4OHTRZ26',
+        '4OHTRZ27',
+        '4OHTRZ28',
+        '4OHTRZ29',
+        '4OHTRZ30',
+        '4OHTRZ31',
+        '4OHTRZ32',
+        '4OHTRZ33',
+        '4OHTRZ34',
+        '4OHTRZ35',
+        '4OHTRZ36',
+        '4OHTRZ37',
+        '4OHTRZ38',
+        '4OHTRZ39',
+        '4OHTRZ40',
+        '4OHTRZ41',
+        '4OHTRZ42',
+        '4OHTRZ43',
+        '4OHTRZ44',
+        '4OHTRZ45',
+        '4OHTRZ46',
+        '4OHTRZ47',
+        '4OHTRZ48',
+        '4OHTRZ49',
+        '4OHTRZ50',
+        '4OHTRZ51',
+        '4OHTRZ52',
+        '4OHTRZ53',
+        '4OHTRZ54',
+        '4OHTRZ55',
+        '4OHTRZ57',
+        '4OHTRZ75',
+        '4OHTRZ76',
+        '4OHTRZ77',
+        '4OHTRZ78',
+        '4OHTRZ79',
+        '4OHTRZ80',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1608,11 +2315,35 @@ class DP_POBAT(DerivedParameterThermal):
         P55 = data['4OHTRZ55'].vals * VSQUARED / 126.8
         P57 = data['4OHTRZ57'].vals * VSQUARED / 142.3
 
-        PSTRUTS = (P75 + P76 + P77 + P78 + P79 + P80 + P25 + P26 + P27 + P28 +
-                   P29 + P30)
-        POBACONE = (P31 + P32 + P33 + P34 + P35 + P36 + P37 + P38 + P39 + P40 +
-                    P41 + P42 + P43 + P44 + P45 + P46 + P47 + P48 + P49 + P50 +
-                    P51 + P52 + P53 + P54 + P55 + P57)
+        PSTRUTS = P75 + P76 + P77 + P78 + P79 + P80 + P25 + P26 + P27 + P28 + P29 + P30
+        POBACONE = (
+            P31
+            + P32
+            + P33
+            + P34
+            + P35
+            + P36
+            + P37
+            + P38
+            + P39
+            + P40
+            + P41
+            + P42
+            + P43
+            + P44
+            + P45
+            + P46
+            + P47
+            + P48
+            + P49
+            + P50
+            + P51
+            + P52
+            + P53
+            + P54
+            + P55
+            + P57
+        )
         POBAT = PSTRUTS + POBACONE
         return POBAT
 
@@ -1661,8 +2392,15 @@ class DP_PRADVNT(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PSCSTRUTS(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ75', '4OHTRZ76', '4OHTRZ77',
-                  '4OHTRZ78', '4OHTRZ79', '4OHTRZ80']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ75',
+        '4OHTRZ76',
+        '4OHTRZ77',
+        '4OHTRZ78',
+        '4OHTRZ79',
+        '4OHTRZ80',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1679,9 +2417,21 @@ class DP_PSCSTRUTS(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_PTFTE(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ58', '4OHTRZ59', '4OHTRZ60', '4OHTRZ61',
-                  '4OHTRZ62', '4OHTRZ63', '4OHTRZ64', '4OHTRZ65', '4OHTRZ66',
-                  '4OHTRZ67', '4OHTRZ68', '4OHTRZ69']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ58',
+        '4OHTRZ59',
+        '4OHTRZ60',
+        '4OHTRZ61',
+        '4OHTRZ62',
+        '4OHTRZ63',
+        '4OHTRZ64',
+        '4OHTRZ65',
+        '4OHTRZ66',
+        '4OHTRZ67',
+        '4OHTRZ68',
+        '4OHTRZ69',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1699,28 +2449,89 @@ class DP_PTFTE(DerivedParameterThermal):
         P68 = data['4OHTRZ68'].vals * VSQUARED / 29.0
         P69 = data['4OHTRZ69'].vals * VSQUARED / 37.5
 
-        PTFTE = (P58 + P59 + P60 + P61 + P62 + P63 + P64 + P65 + P66 + P67 +
-                 P68 + P69)
+        PTFTE = P58 + P59 + P60 + P61 + P62 + P63 + P64 + P65 + P66 + P67 + P68 + P69
         return PTFTE
 
 
 # --------------------------------------------
 class DP_PTOTAL(DerivedParameterThermal):
-    rootparams = ['ELBV', '4OHTRZ01', '4OHTRZ02', '4OHTRZ03', '4OHTRZ04',
-                  '4OHTRZ05', '4OHTRZ06', '4OHTRZ07', '4OHTRZ08', '4OHTRZ09',
-                  '4OHTRZ10', '4OHTRZ11', '4OHTRZ12', '4OHTRZ13', '4OHTRZ14',
-                  '4OHTRZ15', '4OHTRZ16', '4OHTRZ17', '4OHTRZ18', '4OHTRZ19',
-                  '4OHTRZ20', '4OHTRZ23', '4OHTRZ24', '4OHTRZ25', '4OHTRZ26',
-                  '4OHTRZ27', '4OHTRZ28', '4OHTRZ29', '4OHTRZ30', '4OHTRZ31',
-                  '4OHTRZ32', '4OHTRZ33', '4OHTRZ34', '4OHTRZ35', '4OHTRZ36',
-                  '4OHTRZ37', '4OHTRZ38', '4OHTRZ39', '4OHTRZ40', '4OHTRZ41',
-                  '4OHTRZ42', '4OHTRZ43', '4OHTRZ44', '4OHTRZ45', '4OHTRZ46',
-                  '4OHTRZ47', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51',
-                  '4OHTRZ52', '4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57',
-                  '4OHTRZ58', '4OHTRZ59', '4OHTRZ60', '4OHTRZ61', '4OHTRZ62',
-                  '4OHTRZ63', '4OHTRZ64', '4OHTRZ65', '4OHTRZ66', '4OHTRZ67',
-                  '4OHTRZ68', '4OHTRZ69', '4OHTRZ75', '4OHTRZ76', '4OHTRZ77',
-                  '4OHTRZ78', '4OHTRZ79', '4OHTRZ80', '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        'ELBV',
+        '4OHTRZ01',
+        '4OHTRZ02',
+        '4OHTRZ03',
+        '4OHTRZ04',
+        '4OHTRZ05',
+        '4OHTRZ06',
+        '4OHTRZ07',
+        '4OHTRZ08',
+        '4OHTRZ09',
+        '4OHTRZ10',
+        '4OHTRZ11',
+        '4OHTRZ12',
+        '4OHTRZ13',
+        '4OHTRZ14',
+        '4OHTRZ15',
+        '4OHTRZ16',
+        '4OHTRZ17',
+        '4OHTRZ18',
+        '4OHTRZ19',
+        '4OHTRZ20',
+        '4OHTRZ23',
+        '4OHTRZ24',
+        '4OHTRZ25',
+        '4OHTRZ26',
+        '4OHTRZ27',
+        '4OHTRZ28',
+        '4OHTRZ29',
+        '4OHTRZ30',
+        '4OHTRZ31',
+        '4OHTRZ32',
+        '4OHTRZ33',
+        '4OHTRZ34',
+        '4OHTRZ35',
+        '4OHTRZ36',
+        '4OHTRZ37',
+        '4OHTRZ38',
+        '4OHTRZ39',
+        '4OHTRZ40',
+        '4OHTRZ41',
+        '4OHTRZ42',
+        '4OHTRZ43',
+        '4OHTRZ44',
+        '4OHTRZ45',
+        '4OHTRZ46',
+        '4OHTRZ47',
+        '4OHTRZ48',
+        '4OHTRZ49',
+        '4OHTRZ50',
+        '4OHTRZ51',
+        '4OHTRZ52',
+        '4OHTRZ53',
+        '4OHTRZ54',
+        '4OHTRZ55',
+        '4OHTRZ57',
+        '4OHTRZ58',
+        '4OHTRZ59',
+        '4OHTRZ60',
+        '4OHTRZ61',
+        '4OHTRZ62',
+        '4OHTRZ63',
+        '4OHTRZ64',
+        '4OHTRZ65',
+        '4OHTRZ66',
+        '4OHTRZ67',
+        '4OHTRZ68',
+        '4OHTRZ69',
+        '4OHTRZ75',
+        '4OHTRZ76',
+        '4OHTRZ77',
+        '4OHTRZ78',
+        '4OHTRZ79',
+        '4OHTRZ80',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 0.25625
 
     def calc(self, data):
@@ -1803,16 +2614,60 @@ class DP_PTOTAL(DerivedParameterThermal):
         P29 = data['4OHTRZ29'].vals * VSQUARED / 384.0
         P30 = data['4OHTRZ30'].vals * VSQUARED / 383.0
 
-        PHRMA = (P01 + P02 + P03 + P04 + P05 + P06 + P07 + P08 + P09 + P10 +
-                 P11 + P12 + P13 + P14 + P15 + P16 + P17 + P18 + P19 + P20 +
-                 P23 + P24)
-        POBACONE = (P31 + P32 + P33 + P34 + P35 + P36 + P37 + P38 + P39 + P40 +
-                    P41 + P42 + P43 + P44 + P45 + P46 + P47 + P48 + P49 + P50 +
-                    P51 + P52 + P53 + P54 + P55 + P57)
-        PTFTE = (P58 + P59 + P60 + P61 + P62 + P63 + P64 + P65 + P66 + P67 +
-                 P68 + P69)
-        PSTRUTS = (P75 + P76 + P77 + P78 + P79 + P80 + P25 + P26 + P27 + P28 +
-                   P29 + P30)
+        PHRMA = (
+            P01
+            + P02
+            + P03
+            + P04
+            + P05
+            + P06
+            + P07
+            + P08
+            + P09
+            + P10
+            + P11
+            + P12
+            + P13
+            + P14
+            + P15
+            + P16
+            + P17
+            + P18
+            + P19
+            + P20
+            + P23
+            + P24
+        )
+        POBACONE = (
+            P31
+            + P32
+            + P33
+            + P34
+            + P35
+            + P36
+            + P37
+            + P38
+            + P39
+            + P40
+            + P41
+            + P42
+            + P43
+            + P44
+            + P45
+            + P46
+            + P47
+            + P48
+            + P49
+            + P50
+            + P51
+            + P52
+            + P53
+            + P54
+            + P55
+            + P57
+        )
+        PTFTE = P58 + P59 + P60 + P61 + P62 + P63 + P64 + P65 + P66 + P67 + P68 + P69
+        PSTRUTS = P75 + P76 + P77 + P78 + P79 + P80 + P25 + P26 + P27 + P28 + P29 + P30
 
         POBAT = PSTRUTS + POBACONE
         PTOTAL = PHRMA + POBAT + PTFTE
@@ -1825,7 +2680,7 @@ class DP_SUNANGLE(DerivedParameterThermal):
     time_step = 0.25625
 
     def calc(self, data):
-        SUNANGLE = (90 - data['AOSARES1'].vals)
+        SUNANGLE = 90 - data['AOSARES1'].vals
         return SUNANGLE
 
 
@@ -1835,8 +2690,10 @@ class DP_TABMAX(DerivedParameterThermal):
     time_step = 32.8
 
     def calc(self, data):
-        TABMAX = np.max([data['OOBTHR42'].vals, data['OOBTHR43'].vals,
-                         data['OOBTHR47'].vals], axis=0)
+        TABMAX = np.max(
+            [data['OOBTHR42'].vals, data['OOBTHR43'].vals, data['OOBTHR47'].vals],
+            axis=0,
+        )
         return TABMAX
 
 
@@ -1846,8 +2703,10 @@ class DP_TABMIN(DerivedParameterThermal):
     time_step = 32.8
 
     def calc(self, data):
-        TABMIN = np.min([data['OOBTHR42'].vals, data['OOBTHR43'].vals,
-                         data['OOBTHR47'].vals], axis=0)
+        TABMIN = np.min(
+            [data['OOBTHR42'].vals, data['OOBTHR43'].vals, data['OOBTHR47'].vals],
+            axis=0,
+        )
         return TABMIN
 
 
@@ -1857,41 +2716,70 @@ class DP_TELAB_AVE(DerivedParameterThermal):
     time_step = 32.8
 
     def calc(self, data):
-        TELAB_AVE = (data['OOBTHR42'].vals + data['OOBTHR43'].vals +
-                     data['OOBTHR47'].vals) / 3
+        TELAB_AVE = (
+            data['OOBTHR42'].vals + data['OOBTHR43'].vals + data['OOBTHR47'].vals
+        ) / 3
         return TELAB_AVE
 
 
 # --------------------------------------------
 class DP_TELHS_AVE(DerivedParameterThermal):
-    rootparams = ['OOBTHR02', 'OOBTHR03', 'OOBTHR06', 'OOBTHR07', 'OOBTHR04',
-                  'OOBTHR05']
+    rootparams = [
+        'OOBTHR02',
+        'OOBTHR03',
+        'OOBTHR06',
+        'OOBTHR07',
+        'OOBTHR04',
+        'OOBTHR05',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        TELHS_AVE = (data['OOBTHR02'].vals + data['OOBTHR03'].vals +
-                     data['OOBTHR04'].vals + data['OOBTHR05'].vals +
-                     data['OOBTHR06'].vals + data['OOBTHR07'].vals) / 6
+        TELHS_AVE = (
+            data['OOBTHR02'].vals
+            + data['OOBTHR03'].vals
+            + data['OOBTHR04'].vals
+            + data['OOBTHR05'].vals
+            + data['OOBTHR06'].vals
+            + data['OOBTHR07'].vals
+        ) / 6
         return TELHS_AVE
 
 
 # --------------------------------------------
 class DP_TELSS_AVE(DerivedParameterThermal):
-    rootparams = ['OOBTHR51', 'OOBTHR50', 'OOBTHR53', 'OOBTHR52', 'OOBTHR54',
-                  'OOBTHR49']
+    rootparams = [
+        'OOBTHR51',
+        'OOBTHR50',
+        'OOBTHR53',
+        'OOBTHR52',
+        'OOBTHR54',
+        'OOBTHR49',
+    ]
     time_step = 32.8
 
     def calc(self, data):
-        TELSS_AVE = (data['OOBTHR49'].vals + data['OOBTHR50'].vals +
-                     data['OOBTHR51'].vals + data['OOBTHR52'].vals +
-                     data['OOBTHR53'].vals + data['OOBTHR54'].vals) / 6
+        TELSS_AVE = (
+            data['OOBTHR49'].vals
+            + data['OOBTHR50'].vals
+            + data['OOBTHR51'].vals
+            + data['OOBTHR52'].vals
+            + data['OOBTHR53'].vals
+            + data['OOBTHR54'].vals
+        ) / 6
         return TELSS_AVE
 
 
 # --------------------------------------------
 class DP_THSMAX(DerivedParameterThermal):
-    rootparams = ['OOBTHR02', 'OOBTHR03', 'OOBTHR06', 'OOBTHR07', 'OOBTHR04',
-                  'OOBTHR05']
+    rootparams = [
+        'OOBTHR02',
+        'OOBTHR03',
+        'OOBTHR06',
+        'OOBTHR07',
+        'OOBTHR04',
+        'OOBTHR05',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -1903,8 +2791,14 @@ class DP_THSMAX(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_THSMIN(DerivedParameterThermal):
-    rootparams = ['OOBTHR02', 'OOBTHR03', 'OOBTHR06', 'OOBTHR07', 'OOBTHR04',
-                  'OOBTHR05']
+    rootparams = [
+        'OOBTHR02',
+        'OOBTHR03',
+        'OOBTHR06',
+        'OOBTHR07',
+        'OOBTHR04',
+        'OOBTHR05',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -1930,8 +2824,10 @@ class DP_TILT_BULK(DerivedParameterThermal):
     time_step = 32.8
 
     def calc(self, data):
-        TILT_BULK = np.abs((data['OHRTHR42'].vals + data['OHRTHR43'].vals)
-                           / 2.0 - 70.0) * 0.0704
+        TILT_BULK = (
+            np.abs((data['OHRTHR42'].vals + data['OHRTHR43'].vals) / 2.0 - 70.0)
+            * 0.0704
+        )
         return TILT_BULK
 
 
@@ -1952,10 +2848,12 @@ class DP_TILT_MAX(DerivedParameterThermal):
 
     def calc(self, data):
         TILT_DIAM = np.abs(1.0 * data['OOBAGRD6'].vals) * 0.3032
-        TILT_BULK = np.abs((data['OHRTHR42'].vals + data['OHRTHR43'].vals)
-                           / 2.0 - 70.0) * 0.0704
+        TILT_BULK = (
+            np.abs((data['OHRTHR42'].vals + data['OHRTHR43'].vals) / 2.0 - 70.0)
+            * 0.0704
+        )
         TILT_AXIAL = np.abs(data['OOBAGRD3'].vals) * 0.1084
-        TILT_MAX = (TILT_BULK + TILT_AXIAL + TILT_DIAM)
+        TILT_MAX = TILT_BULK + TILT_AXIAL + TILT_DIAM
         return TILT_MAX
 
 
@@ -1966,17 +2864,25 @@ class DP_TILT_RSS(DerivedParameterThermal):
 
     def calc(self, data):
         TILT_DIAM = np.abs(1.0 * data['OOBAGRD6'].vals) * 0.3032
-        TILT_BULK = np.abs((data['OHRTHR42'].vals + data['OHRTHR43'].vals)
-                           / 2.0 - 70.0) * 0.0704
+        TILT_BULK = (
+            np.abs((data['OHRTHR42'].vals + data['OHRTHR43'].vals) / 2.0 - 70.0)
+            * 0.0704
+        )
         TILT_AXIAL = np.abs(data['OOBAGRD3'].vals) * 0.1084
-        TILT_RSS = np.sqrt(TILT_BULK ** 2 + TILT_AXIAL ** 2 + TILT_DIAM ** 2)
+        TILT_RSS = np.sqrt(TILT_BULK**2 + TILT_AXIAL**2 + TILT_DIAM**2)
         return TILT_RSS
 
 
 # --------------------------------------------
 class DP_TSSMAX(DerivedParameterThermal):
-    rootparams = ['OOBTHR51', 'OOBTHR50', 'OOBTHR53', 'OOBTHR52', 'OOBTHR54',
-                  'OOBTHR49']
+    rootparams = [
+        'OOBTHR51',
+        'OOBTHR50',
+        'OOBTHR53',
+        'OOBTHR52',
+        'OOBTHR54',
+        'OOBTHR49',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -1988,8 +2894,14 @@ class DP_TSSMAX(DerivedParameterThermal):
 
 # --------------------------------------------
 class DP_TSSMIN(DerivedParameterThermal):
-    rootparams = ['OOBTHR51', 'OOBTHR50', 'OOBTHR53', 'OOBTHR52', 'OOBTHR54',
-                  'OOBTHR49']
+    rootparams = [
+        'OOBTHR51',
+        'OOBTHR50',
+        'OOBTHR53',
+        'OOBTHR52',
+        'OOBTHR54',
+        'OOBTHR49',
+    ]
     time_step = 32.8
 
     def calc(self, data):
@@ -2005,21 +2917,35 @@ class DP_HADG(DerivedParameterThermal):
     time_step = 32.8
 
     def calc(self, data):
-        HADG = np.max((np.abs(data['OHRMGRD3'].vals), np.abs(data['OHRMGRD6'].vals)), axis=0)
+        HADG = np.max(
+            (np.abs(data['OHRMGRD3'].vals), np.abs(data['OHRMGRD6'].vals)), axis=0
+        )
 
         return HADG
 
 
 # --------------------------------------------
 class DP_ABH_DUTYCYCLE(DerivedParameterThermal):
-    rootparams = ['4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57', '4S1PWR05', '4S1PWR06']
+    rootparams = [
+        '4OHTRZ53',
+        '4OHTRZ54',
+        '4OHTRZ55',
+        '4OHTRZ57',
+        '4S1PWR05',
+        '4S1PWR06',
+    ]
     time_step = 32.8
 
     def calc(self, data):
         self.fix_bus_5_and_bus_6(data)
-        RTOTAL = 1. / (1 / 94.1 + 1 / 124.3 + 1 / 126.8 + 1 / 142.3)
-        DC1 = np.abs(data['4OHTRZ53'].vals) / 94.1 + np.abs(data['4OHTRZ54'].vals) / 124.3
-        DC2 = np.abs(data['4OHTRZ55'].vals) / 126.8 + np.abs(data['4OHTRZ57'].vals) / 142.3
+        RTOTAL = 1.0 / (1 / 94.1 + 1 / 124.3 + 1 / 126.8 + 1 / 142.3)
+        DC1 = (
+            np.abs(data['4OHTRZ53'].vals) / 94.1 + np.abs(data['4OHTRZ54'].vals) / 124.3
+        )
+        DC2 = (
+            np.abs(data['4OHTRZ55'].vals) / 126.8
+            + np.abs(data['4OHTRZ57'].vals) / 142.3
+        )
         ABH_DUTYCYCLE = RTOTAL * (DC1 + DC2)
 
         return ABH_DUTYCYCLE

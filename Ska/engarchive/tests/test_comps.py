@@ -13,6 +13,7 @@ from ..derived.comps import ComputedMsid
 
 try:
     import maude
+
     date1 = '2016:001:00:00:00.1'
     date2 = '2016:001:00:00:02.0'
     maude.get_msids(msids='ccsdsid', start=date1, stop=date2)
@@ -24,29 +25,30 @@ else:
 
 class Comp_Passthru(ComputedMsid):
     """Pass MSID through unchanged (for checking that stats work)"""
+
     msid_match = r'passthru_(\w+)'
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         dat = self.fetch_eng.MSID(msid_args[0], tstart, tstop)
 
-        out = {'vals': dat.vals,
-               'bads': dat.bads,
-               'times': dat.times,
-               'unit': dat.unit}
+        out = {'vals': dat.vals, 'bads': dat.bads, 'times': dat.times, 'unit': dat.unit}
         return out
 
 
 class Comp_Val_Plus_Five(ComputedMsid):
     """Silly base comp to add 5 to the value"""
+
     msid_match = r'comp_(\w+)_plus_five'
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
         dat = self.fetch_sys.MSID(msid_args[0], tstart, tstop)
 
-        out = {'vals': dat.vals + 5,
-               'bads': dat.bads,
-               'times': dat.times,
-               'unit': dat.unit}
+        out = {
+            'vals': dat.vals + 5,
+            'bads': dat.bads,
+            'times': dat.times,
+            'unit': dat.unit,
+        }
         return out
 
 
@@ -58,6 +60,7 @@ class Comp_CSS1_NPM_SUN(ComputedMsid, DerivedParameter):
     (AOSAILLM==1).  Otherwise, "Bads" flag is set equal to one.
 
     """
+
     rootparams = ['aocssi1', 'aopcadmd', 'aosaillm']
     time_step = 1.025
     max_gap = 10.0
@@ -68,15 +71,18 @@ class Comp_CSS1_NPM_SUN(ComputedMsid, DerivedParameter):
         msids = self.fetch(tstart, tstop)
 
         # Do the computation and set bad values
-        npm_sun = ((msids['aopcadmd'].vals == 'NPNT') &
-                   (msids['aosaillm'].vals == 'ILLM'))
+        npm_sun = (msids['aopcadmd'].vals == 'NPNT') & (
+            msids['aosaillm'].vals == 'ILLM'
+        )
         msids.bads = msids.bads | ~npm_sun
         css1_npm_sun = msids['aocssi1'].vals * 4095 / 5.49549
 
-        out = {'vals': css1_npm_sun,
-               'times': msids.times,
-               'bads': msids.bads,
-               'unit': None}
+        out = {
+            'vals': css1_npm_sun,
+            'times': msids.times,
+            'bads': msids.bads,
+            'unit': None,
+        }
         return out
 
 
@@ -91,9 +97,9 @@ def test_comp_from_derived_parameter():
         assert np.all(getattr(dat1, attr) == getattr(dat2, attr))
 
 
-@pytest.mark.parametrize('fetch,unit', [(fetch_eng, 'DEGF'),
-                                        (fetch_sci, 'DEGC'),
-                                        (fetch_cxc, 'K')])
+@pytest.mark.parametrize(
+    'fetch,unit', [(fetch_eng, 'DEGF'), (fetch_sci, 'DEGC'), (fetch_cxc, 'K')]
+)
 def test_simple_comp(fetch, unit):
     dat1 = fetch.Msid('tephin', '2020:001', '2020:010')
     dat2 = fetch.Msid('comp_tephin_plus_five', '2020:001', '2020:010')
@@ -105,9 +111,9 @@ def test_simple_comp(fetch, unit):
 
 
 @pytest.mark.skipif("not HAS_MAUDE")
-@pytest.mark.parametrize('fetch,unit', [(fetch_eng, 'DEGF'),
-                                        (fetch_sci, 'DEGC'),
-                                        (fetch_cxc, 'K')])
+@pytest.mark.parametrize(
+    'fetch,unit', [(fetch_eng, 'DEGF'), (fetch_sci, 'DEGC'), (fetch_cxc, 'K')]
+)
 def test_simple_comp_with_maude(fetch, unit):
     with fetch.data_source('maude'):
         dat1 = fetch.Msid('tephin', '2020:001', '2020:003')
@@ -120,14 +126,24 @@ def test_simple_comp_with_maude(fetch, unit):
 
 
 def test_mups_valve():
-    colnames = ['vals', 'times', 'bads', 'vals_raw',
-                'vals_nan', 'vals_corr', 'vals_model', 'source']
+    colnames = [
+        'vals',
+        'times',
+        'bads',
+        'vals_raw',
+        'vals_nan',
+        'vals_corr',
+        'vals_model',
+        'source',
+    ]
 
     # Use the chandra_models 6854df4d commit for testing. This is a commit of
     # chandra_models that has the epoch dates changes to fully-qualified values
     # like 2017:123:12:00:00 (instead of 2017:123). This allows these regression
     # tests to pass with Chandra.Time 3.x or 4.0+.
-    dat = fetch_eng.MSID('PM2THV1T_clean_6854df4d', '2020:001:12:00:00', '2020:010:12:00:00')
+    dat = fetch_eng.MSID(
+        'PM2THV1T_clean_6854df4d', '2020:001:12:00:00', '2020:010:12:00:00'
+    )
     assert dat.unit == 'DEGF'
     assert len(dat.vals) == 36661
     ok = dat.source != 0
@@ -138,7 +154,9 @@ def test_mups_valve():
     for attr in colnames:
         assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch_sci.Msid('PM2THV1T_clean_6854df4d', '2020:001:12:00:00', '2020:010:12:00:00')
+    dat = fetch_sci.Msid(
+        'PM2THV1T_clean_6854df4d', '2020:001:12:00:00', '2020:010:12:00:00'
+    )
     assert dat.unit == 'DEGC'
     ok = dat.source != 0
     # Temps are reasonable for degC
@@ -149,7 +167,9 @@ def test_mups_valve():
         if attr != 'bads':
             assert len(dat.vals) == len(getattr(dat, attr))
 
-    dat = fetch_cxc.MSID('PM1THV2T_clean_6854df4d', '2020:001:12:00:00', '2020:010:12:00:00')
+    dat = fetch_cxc.MSID(
+        'PM1THV2T_clean_6854df4d', '2020:001:12:00:00', '2020:010:12:00:00'
+    )
     ok = dat.source != 0
     # Temps are reasonable for K
     assert np.all((dat.vals[ok] > 280) & (dat.vals[ok] < 380))
@@ -171,8 +191,18 @@ def test_mups_valve():
 def test_cmd_states():
     start, stop = '2020:002:08:00:00', '2020:002:10:00:00'
     dat = fetch_eng.Msid('cmd_state_pitch_1000', start, stop)
-    exp_vals = np.array([55.99128956, 55.8747053, 55.8747053, 90.66266599,
-                         159.06945155, 173.11528258, 173.11528258, 173.11528258])
+    exp_vals = np.array(
+        [
+            55.99128956,
+            55.8747053,
+            55.8747053,
+            90.66266599,
+            159.06945155,
+            173.11528258,
+            173.11528258,
+            173.11528258,
+        ]
+    )
     assert np.allclose(dat.vals, exp_vals)
     assert type(dat.vals) is np.ndarray
     assert np.allclose(np.diff(dat.times), 1025.0)
@@ -180,7 +210,9 @@ def test_cmd_states():
     assert dat.unit is None
 
     dat = fetch_eng.Msid('cmd_state_pcad_mode_1000', start, stop)
-    exp_vals = np.array(['NPNT', 'NPNT', 'NPNT', 'NMAN', 'NMAN', 'NPNT', 'NPNT', 'NPNT'])
+    exp_vals = np.array(
+        ['NPNT', 'NPNT', 'NPNT', 'NMAN', 'NMAN', 'NPNT', 'NPNT', 'NPNT']
+    )
     assert np.all(dat.vals == exp_vals)
     assert type(dat.vals) is np.ndarray
     assert np.allclose(np.diff(dat.times), 1025.0)

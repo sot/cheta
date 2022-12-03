@@ -77,21 +77,20 @@ def _set_msid_files_basedir(datestart):
 
 def get_opt():
     parser = argparse.ArgumentParser(description='Fix bad values in eng archive')
-    parser.add_argument('--msid',
-                        type=str,
-                        help='MSID name')
-    parser.add_argument('--start',
-                        help='Start time of bad values')
-    parser.add_argument('--stop',
-                        help='Stop time of bad values')
-    parser.add_argument('--value',
-                        help='Update with <value> instead of setting as bad')
-    parser.add_argument("--run",
-                        action="store_true",
-                        help="Actually modify files (dry run is the default)")
-    parser.add_argument("--data-root",
-                        default=".",
-                        help="Engineering archive root directory for MSID and arch files")
+    parser.add_argument('--msid', type=str, help='MSID name')
+    parser.add_argument('--start', help='Start time of bad values')
+    parser.add_argument('--stop', help='Stop time of bad values')
+    parser.add_argument('--value', help='Update with <value> instead of setting as bad')
+    parser.add_argument(
+        "--run",
+        action="store_true",
+        help="Actually modify files (dry run is the default)",
+    )
+    parser.add_argument(
+        "--data-root",
+        default=".",
+        help="Engineering archive root directory for MSID and arch files",
+    )
 
     args = parser.parse_args()
     return args
@@ -104,19 +103,26 @@ def calc_stats_vals(msid, rows, indexes, interval):
     msid_dtype = msid.vals.dtype
     msid_is_numeric = not msid_dtype.name.startswith('string')
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
-    out = dict(index=np.ndarray((n_out,), dtype=np.int32),
-               n=np.ndarray((n_out,), dtype=np.int32),
-               val=np.ndarray((n_out,), dtype=msid_dtype),
-               )
+    out = dict(
+        index=np.ndarray((n_out,), dtype=np.int32),
+        n=np.ndarray((n_out,), dtype=np.int32),
+        val=np.ndarray((n_out,), dtype=msid_dtype),
+    )
     if msid_is_numeric:
         cols_stats += ('min', 'max', 'mean')
-        out.update(dict(min=np.ndarray((n_out,), dtype=msid_dtype),
-                        max=np.ndarray((n_out,), dtype=msid_dtype),
-                        mean=np.ndarray((n_out,), dtype=np.float32),))
+        out.update(
+            dict(
+                min=np.ndarray((n_out,), dtype=msid_dtype),
+                max=np.ndarray((n_out,), dtype=msid_dtype),
+                mean=np.ndarray((n_out,), dtype=np.float32),
+            )
+        )
         if interval == 'daily':
             cols_stats += ('std',) + tuple('p%02d' % x for x in quantiles)
             out['std'] = np.ndarray((n_out,), dtype=msid_dtype)
-            out.update(('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles)
+            out.update(
+                ('p%02d' % x, np.ndarray((n_out,), dtype=msid_dtype)) for x in quantiles
+            )
     i = 0
     for row0, row1, index in itertools.izip(rows[:-1], rows[1:], indexes[:-1]):
         vals = msid.vals[row0:row1]
@@ -133,14 +139,20 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     dts = np.empty(n_vals, dtype=np.float64)
                     dts[0] = times[1] - times[0]
                     dts[-1] = times[-1] - times[-2]
-                    dts[1:-1] = ((times[1:-1] - times[:-2])
-                                 + (times[2:] - times[1:-1])) / 2.0
+                    dts[1:-1] = (
+                        (times[1:-1] - times[:-2]) + (times[2:] - times[1:-1])
+                    ) / 2.0
                     negs = dts < 0.0
                     if np.any(negs):
-                        times_dts = [(DateTime(t).date, dt)
-                                     for t, dt in zip(times[negs], dts[negs])]
-                        logger.warning('WARNING - negative dts in {} at {}'
-                                       .format(msid.MSID, times_dts))
+                        times_dts = [
+                            (DateTime(t).date, dt)
+                            for t, dt in zip(times[negs], dts[negs])
+                        ]
+                        logger.warning(
+                            'WARNING - negative dts in {} at {}'.format(
+                                msid.MSID, times_dts
+                            )
+                        )
 
                     # Clip to range 0.001 to 300.0.  The low bound is just there
                     # for data with identical time stamps.  This shouldn't happen
@@ -158,7 +170,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
                     sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
                     out['std'][i] = np.sqrt(sigma_sq)
-                    quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
+                    quant_vals = scipy.stats.mstats.mquantiles(
+                        vals, np.array(quantiles) / 100.0
+                    )
                     for quant_val, quantile in zip(quant_vals, quantiles):
                         out['p%02d' % quantile][i] = quant_val
             i += 1
@@ -167,8 +181,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
 
 def fix_stats_h5(msid, tstart, tstop, interval):
-    dt = {'5min': 328,
-          'daily': 86400}[interval]
+    dt = {'5min': 328, 'daily': 86400}[interval]
 
     ft['msid'] = msid
     ft['interval'] = interval
@@ -183,15 +196,20 @@ def fix_stats_h5(msid, tstart, tstop, interval):
     times = indexes * dt
     logger.info('Indexes = {}:{}'.format(index0, index1))
 
-    logger.info('Fetching {} data between {} to {}'.format(msid, DateTime(times[0] - 500).date,
-                                                           DateTime(times[-1] + 500).date))
+    logger.info(
+        'Fetching {} data between {} to {}'.format(
+            msid, DateTime(times[0] - 500).date, DateTime(times[-1] + 500).date
+        )
+    )
     dat = fetch.Msid(msid, times[0] - 500, times[-1] + 500)
 
     # Check within each stat interval?
     if len(dat.times) == 0:
-        logger.info('Skipping: No values within interval {} to {}'
-                    .format(DateTime(times[0] - 500).date,
-                            DateTime(times[-1] + 500).date))
+        logger.info(
+            'Skipping: No values within interval {} to {}'.format(
+                DateTime(times[0] - 500).date, DateTime(times[-1] + 500).date
+            )
+        )
         return
 
     rows = np.searchsorted(dat.times, times)
@@ -245,20 +263,24 @@ def fix_msid_h5(msid, tstart, tstop):
         if opt.value is not None:
             # Set data to <value> over the specified time range
             i0, i1 = fix_idxs[0], fix_idxs[-1] + 1
-            logger.info('Changing {}.data[{}:{}] to {}'
-                        .format(msid, i0, i1, opt.value))
+            logger.info('Changing {}.data[{}:{}] to {}'.format(msid, i0, i1, opt.value))
             if opt.run:
                 h5.root.data[i0:i1] = opt.value
         else:
             for idx in fix_idxs:
                 quality = h5.root.quality[idx]
                 if quality:
-                    logger.info('Skipping idx={} because quality is already True'.format(idx))
+                    logger.info(
+                        'Skipping idx={} because quality is already True'.format(idx)
+                    )
                     continue
                 if len(fix_idxs) < 100 or idx == fix_idxs[0] or idx == fix_idxs[-1]:
                     logger.info('{}.data[{}] = {}'.format(msid, idx, h5.root.data[idx]))
-                    logger.info('Changing {}.quality[{}] from {} to True'
-                                .format(msid, idx, quality))
+                    logger.info(
+                        'Changing {}.quality[{}] from {} to True'.format(
+                            msid, idx, quality
+                        )
+                    )
                 if opt.run:
                     h5.root.quality[idx] = True
     finally:
@@ -274,8 +296,9 @@ def main():
     opt = get_opt()
 
     # Set up infrastructure to directly access HDF5 files
-    msid_files = pyyaks.context.ContextDict('msid_files',
-                                            basedir=(opt.data_root or file_defs.msid_root))
+    msid_files = pyyaks.context.ContextDict(
+        'msid_files', basedir=(opt.data_root or file_defs.msid_root)
+    )
     msid_files.update(file_defs.msid_files)
 
     # Set up fetch so it reads from opt.data_root
@@ -283,10 +306,14 @@ def main():
 
     # Set up logging
     loglevel = pyyaks.logger.INFO
-    logger = pyyaks.logger.get_logger(name='fix_bad_values', level=loglevel,
-                                      format="%(message)s")
+    logger = pyyaks.logger.get_logger(
+        name='fix_bad_values', level=loglevel, format="%(message)s"
+    )
 
-    logger.info('** If something gets corrupted then there is the NetApp snapshot for recovery **')
+    logger.info(
+        '** If something gets corrupted then there is the NetApp snapshot for'
+        ' recovery **'
+    )
     logger.info('')
     if not opt.run:
         logger.info('** DRY RUN **')

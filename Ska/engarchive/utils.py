@@ -13,8 +13,7 @@ from Chandra.Time import DateTime
 FETCH_SIZES = {}
 
 # Standard intervals for 5min and daily telemetry
-STATS_DT = {'5min': 328,
-            'daily': 86400}
+STATS_DT = {'5min': 328, 'daily': 86400}
 
 
 def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True):
@@ -75,8 +74,10 @@ def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True
         out_bytes = fetch_bytes
     else:
         n_rows_out = (stop - start) / (interpolate_dt / 86400)
-        out_bytes = sum(FETCH_SIZES[msid, stat][0] * n_rows_out / FETCH_SIZES[msid, stat][1]
-                        for msid in msids)
+        out_bytes = sum(
+            FETCH_SIZES[msid, stat][0] * n_rows_out / FETCH_SIZES[msid, stat][1]
+            for msid in msids
+        )
 
     return round(fetch_bytes / 1e6, 2), round(out_bytes / 1e6, 2)
 
@@ -136,8 +137,7 @@ def ss_vector(start, stop=None, obj='Earth'):
     sign = dict(earth=-1, sun=1, moon=1)
     obj = obj.lower()
     if obj not in sign:
-        raise ValueError('obj parameter must be one of {0}'
-                         .format(list(sign.keys())))
+        raise ValueError('obj parameter must be one of {0}'.format(list(sign.keys())))
 
     tstart = DateTime(start).secs
     tstop = DateTime(stop).secs
@@ -149,9 +149,7 @@ def ss_vector(start, stop=None, obj='Earth'):
         raise ValueError('Inconsistency in sampling for aoattqt<N>')
 
     axes = ['x', 'y', 'z']
-    prefixes = {'earth': 'orbitephem1',
-                'sun': 'solarephem1',
-                'moon': 'lunarephem1'}
+    prefixes = {'earth': 'orbitephem1', 'sun': 'solarephem1', 'moon': 'lunarephem1'}
     objs = set(['earth', obj])
     msids = ['{0}_{1}'.format(prefixes[y], x) for x in axes for y in objs]
 
@@ -163,8 +161,9 @@ def ss_vector(start, stop=None, obj='Earth'):
     for i, axis in enumerate(axes):
         for obj in objs:
             msid = '{0}_{1}'.format(prefixes[obj], axis)
-            ephem_interp = interp1d(ephem[msid].times - tstart,
-                                    ephem[msid].vals, kind='linear')
+            ephem_interp = interp1d(
+                ephem[msid].times - tstart, ephem[msid].vals, kind='linear'
+            )
             obj_ecis[:, i] += sign[obj] * ephem_interp(times0)
 
     distances = np.sqrt(np.sum(obj_ecis * obj_ecis, 1))
@@ -172,9 +171,15 @@ def ss_vector(start, stop=None, obj='Earth'):
     bad_q_atts = []  # List of inconsistent quaternion values in telemetry
     p_obj_body = np.ndarray((len(times0), 3), dtype=float)
     for i, obj_eci, distance, time, q1, q2, q3, q4 in zip(
-            count(), obj_ecis, distances, times0, q_atts['aoattqt1'].midvals,
-            q_atts['aoattqt2'].midvals, q_atts['aoattqt3'].midvals,
-            q_atts['aoattqt4'].midvals):
+        count(),
+        obj_ecis,
+        distances,
+        times0,
+        q_atts['aoattqt1'].midvals,
+        q_atts['aoattqt2'].midvals,
+        q_atts['aoattqt3'].midvals,
+        q_atts['aoattqt4'].midvals,
+    ):
         try:
             q_att = Quat([q1, q2, q3, q4])
         except ValueError:
@@ -183,22 +188,36 @@ def ss_vector(start, stop=None, obj='Earth'):
         p_obj_eci = obj_eci / distance
         p_obj_body[i, :] = np.dot(q_att.transform.transpose(), p_obj_eci)
 
-    out = np.rec.fromarrays([times,
-                             distances / 1000.0,
-                             p_obj_body[:, 0],
-                             p_obj_body[:, 1],
-                             p_obj_body[:, 2],
-                             obj_ecis[:, 0] / distances,
-                             obj_ecis[:, 1] / distances,
-                             obj_ecis[:, 2] / distances,
-                             q_atts['aoattqt1'].midvals,
-                             q_atts['aoattqt2'].midvals,
-                             q_atts['aoattqt3'].midvals,
-                             q_atts['aoattqt4'].midvals],
-                            names=['times', 'distance',
-                                   'body_x', 'body_y', 'body_z',
-                                   'eci_x', 'eci_y', 'eci_z',
-                                   'q1', 'q2', 'q3', 'q4'])
+    out = np.rec.fromarrays(
+        [
+            times,
+            distances / 1000.0,
+            p_obj_body[:, 0],
+            p_obj_body[:, 1],
+            p_obj_body[:, 2],
+            obj_ecis[:, 0] / distances,
+            obj_ecis[:, 1] / distances,
+            obj_ecis[:, 2] / distances,
+            q_atts['aoattqt1'].midvals,
+            q_atts['aoattqt2'].midvals,
+            q_atts['aoattqt3'].midvals,
+            q_atts['aoattqt4'].midvals,
+        ],
+        names=[
+            'times',
+            'distance',
+            'body_x',
+            'body_y',
+            'body_z',
+            'eci_x',
+            'eci_y',
+            'eci_z',
+            'q1',
+            'q2',
+            'q3',
+            'q4',
+        ],
+    )
     if bad_q_atts:
         ok = np.ones(len(out), dtype=bool)
         ok[bad_q_atts] = False
@@ -212,12 +231,14 @@ def _pad_long_gaps(times, bools, max_gap):
     i_long_gaps = np.flatnonzero(dts > max_gap)
     if len(i_long_gaps) > 0:
         for i in i_long_gaps[::-1]:
-            times = np.concatenate([times[:i + 1],
-                                    [times[i] + max_gap / 2.0, times[i + 1] - max_gap / 2.0],
-                                    times[i + 1:]])
-            bools = np.concatenate([bools[:i + 1],
-                                    [False, False],
-                                    bools[i + 1:]])
+            times = np.concatenate(
+                [
+                    times[: i + 1],
+                    [times[i] + max_gap / 2.0, times[i + 1] - max_gap / 2.0],
+                    times[i + 1 :],
+                ]
+            )
+            bools = np.concatenate([bools[: i + 1], [False, False], bools[i + 1 :]])
     return times, bools
 
 
@@ -320,12 +341,14 @@ def state_intervals(times, vals):
     state_vals = vals[transitions[1:]]
     state_times = midtimes[transitions]
 
-    intervals = {'datestart': DateTime(state_times[:-1]).date,
-                 'datestop': DateTime(state_times[1:]).date,
-                 'tstart': state_times[:-1],
-                 'tstop': state_times[1:],
-                 'duration': state_times[1:] - state_times[:-1],
-                 'val': state_vals}
+    intervals = {
+        'datestart': DateTime(state_times[:-1]).date,
+        'datestop': DateTime(state_times[1:]).date,
+        'tstart': state_times[:-1],
+        'tstop': state_times[1:],
+        'duration': state_times[1:] - state_times[:-1],
+        'val': state_vals,
+    }
 
     return Table(intervals, names=sorted(intervals))
 
@@ -355,6 +378,7 @@ def set_fetch_basedir(basedir):
     :param basedir: str or os.PathLike, base directory for cheta data
     """
     from . import fetch
+
     orig_basedir = fetch.msid_files.basedir
     fetch.msid_files.basedir = str(basedir)
     try:

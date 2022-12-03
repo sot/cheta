@@ -17,6 +17,7 @@ date4 = '2016:001:00:00:35.0'
 
 try:
     import maude
+
     maude.get_msids(msids='ccsdsid', start=date1, stop=date2)
 except Exception:
     HAS_MAUDE = False
@@ -34,7 +35,10 @@ def test_data_source():
     assert fetch.data_source.sources() == ('cxc',)
 
     with fetch.data_source('cxc', 'maude'):
-        assert fetch.data_source.sources() == ('cxc', 'maude',)
+        assert fetch.data_source.sources() == (
+            'cxc',
+            'maude',
+        )
     assert fetch.data_source.sources() == ('cxc',)
 
     fetch.data_source.set('maude')
@@ -54,10 +58,10 @@ def test_data_source():
 
 def test_options():
     with fetch.data_source('cxc', 'maude allow_subset=False param=1'):
-        assert fetch.data_source.options() == {'cxc': {},
-                                               'maude': {'allow_subset': False,
-                                                         'param': 1}
-                                               }
+        assert fetch.data_source.options() == {
+            'cxc': {},
+            'maude': {'allow_subset': False, 'param': 1},
+        }
         assert fetch.data_source.sources() == ('cxc', 'maude')
 
 
@@ -67,40 +71,40 @@ def test_maude_data_source():
     with fetch.data_source('cxc'):
         datc = fetch.Msid('aogyrct1', date1, date3)
         assert len(datc.vals) == 19
-        assert datc.data_source == {'cxc': {'start': '2016:001:00:00:00.287',
-                                            'stop': '2016:001:00:00:04.900'}}
+        assert datc.data_source == {
+            'cxc': {'start': '2016:001:00:00:00.287', 'stop': '2016:001:00:00:04.900'}
+        }
 
     with fetch.data_source('maude'):
         datm = fetch.Msid('aogyrct1', date1, date3)
         assert np.all(datm.vals == datc.vals)
         assert not np.all(datm.times == datc.times)
-        assert datm.data_source == {'maude': {
-            'start': '2016:001:00:00:00.287',
-            'stop': '2016:001:00:00:04.900',
-            'flags': {
-                'allpoints_incomplete': False,
-                'tolerance': False,
-                'subset': False
+        assert datm.data_source == {
+            'maude': {
+                'start': '2016:001:00:00:00.287',
+                'stop': '2016:001:00:00:04.900',
+                'flags': {
+                    'allpoints_incomplete': False,
+                    'tolerance': False,
+                    'subset': False,
+                },
             }
-        }}
+        }
 
     with fetch.data_source('cxc', 'maude', 'test-drop-half'):
         datcm = fetch.Msid('aogyrct1', date1, date3)
         assert np.all(datcm.vals == datc.vals)
         assert datcm.data_source == {
-            'cxc': {
-                'start': '2016:001:00:00:00.287',
-                'stop': '2016:001:00:00:02.337'
-            },
+            'cxc': {'start': '2016:001:00:00:00.287', 'stop': '2016:001:00:00:02.337'},
             'maude': {
                 'start': '2016:001:00:00:02.593',
                 'stop': '2016:001:00:00:04.900',
                 'flags': {
                     'allpoints_incomplete': False,
                     'tolerance': False,
-                    'subset': False
-                }
-            }
+                    'subset': False,
+                },
+            },
         }
 
 
@@ -186,6 +190,10 @@ def test_zero_length_fetch_maude():
         dat = fetch.Msid('tephin', '2015:001', '2015:001')
     assert dat.data_source == {
         'maude': {
-            'flags': {'allpoints_incomplete': False, 'tolerance': False, 'subset': False}
+            'flags': {
+                'allpoints_incomplete': False,
+                'tolerance': False,
+                'subset': False,
+            }
         }
     }

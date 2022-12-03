@@ -94,17 +94,17 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
         return out
 
     # Semi major axis
-    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-    v2 = vx ** 2 + vy ** 2 + vz ** 2
+    r = np.sqrt(x**2 + y**2 + z**2)
+    v2 = vx**2 + vy**2 + vz**2
     a = 1 / (2 / r - v2 / M_G)
     # a_alt = a - R_E
 
     # Period
-    T = 2 * pi * sqrt(a ** 3 / M_G)
+    T = 2 * pi * sqrt(a**3 / M_G)
     # n = 1 / T
 
     # Eccentricity
-    f1 = (1 / r - 1 / a)
+    f1 = 1 / r - 1 / a
     f2 = (x * vx + y * vy + z * vz) / M_G
     ei = f1 * x - f2 * vx
     ej = f1 * y - f2 * vy
@@ -115,13 +115,13 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
     hi = y * vz - z * vy
     hj = z * vx - x * vz
     hk = x * vy - y * vx
-    h = sqrt(hi ** 2 + hj ** 2 + hk ** 2)
+    h = sqrt(hi**2 + hj**2 + hk**2)
     i = arccos(hk / h)  # radians
 
     # Ascending node
     Wi = -hj
     Wj = hi
-    W = sqrt(Wi ** 2 + Wj ** 2)
+    W = sqrt(Wi**2 + Wj**2)
     aw = arccos_2pi(Wi / W, Wj < 0)
 
     # Argument of perigee
@@ -144,21 +144,29 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
     perigee = a * (1 - e)
     apogee = a * (1 + e)
 
-    return {'semi_major_axis': a,
-            'orbit_period': T,
-            'eccentricity': e,
-            'inclination': i,
-            'ascending_node': aw,
-            'argument_perigee': w,
-            'mean_anomaly': M,
-            'perigee_radius': perigee,
-            'apogee_radius': apogee}
+    return {
+        'semi_major_axis': a,
+        'orbit_period': T,
+        'eccentricity': e,
+        'inclination': i,
+        'ascending_node': aw,
+        'argument_perigee': w,
+        'mean_anomaly': M,
+        'perigee_radius': perigee,
+        'apogee_radius': apogee,
+    }
 
 
 class DerivedParameterOrbit(base.DerivedParameter):
     content_root = 'orbit'
-    rootparams = ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z',
-                  'orbitephem0_vx', 'orbitephem0_vy', 'orbitephem0_vz']
+    rootparams = [
+        'orbitephem0_x',
+        'orbitephem0_y',
+        'orbitephem0_z',
+        'orbitephem0_vx',
+        'orbitephem0_vy',
+        'orbitephem0_vz',
+    ]
     time_step = 328.0
     max_gap = 1000.0
 

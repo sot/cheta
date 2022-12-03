@@ -7,7 +7,7 @@ Support computed MSIDs in the cheta archive.
 - Commanded states 'cmd_state_<key>_<dt>' for any kadi commanded state value.
 
 See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
-""" # noqa
+"""  # noqa
 
 import re
 
@@ -86,14 +86,20 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     dts = np.empty(n_vals, dtype=np.float64)
                     dts[0] = times[1] - times[0]
                     dts[-1] = times[-1] - times[-2]
-                    dts[1:-1] = ((times[1:-1] - times[:-2]) +
-                                 (times[2:] - times[1:-1])) / 2.0
+                    dts[1:-1] = (
+                        (times[1:-1] - times[:-2]) + (times[2:] - times[1:-1])
+                    ) / 2.0
                     negs = dts < 0.0
                     if np.any(negs):
-                        times_dts = [(DateTime(t).date, dt)
-                                     for t, dt in zip(times[negs], dts[negs])]
-                        raise ValueError('WARNING - negative dts in {} at {}'
-                                         .format(msid.MSID, times_dts))
+                        times_dts = [
+                            (DateTime(t).date, dt)
+                            for t, dt in zip(times[negs], dts[negs])
+                        ]
+                        raise ValueError(
+                            'WARNING - negative dts in {} at {}'.format(
+                                msid.MSID, times_dts
+                            )
+                        )
 
                     # Clip to range 0.001 to 300.0.  The low bound is just there
                     # for data with identical time stamps.  This shouldn't happen
@@ -111,7 +117,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation
                     sigma_sq = np.sum(dts * (vals - out['mean'][i]) ** 2) / sum_dts
                     out['std'][i] = np.sqrt(sigma_sq)
-                    quant_vals = scipy.stats.mstats.mquantiles(vals, np.array(quantiles) / 100.0)
+                    quant_vals = scipy.stats.mstats.mquantiles(
+                        vals, np.array(quantiles) / 100.0
+                    )
                     for quant_val, quantile in zip(quant_vals, quantiles):
                         out['p%02d' % quantile][i] = quant_val
 
@@ -135,6 +143,7 @@ class ComputedMsid:
 
     See the fetch tutorial Computed MSIDs section for details.
     """
+
     # Global dict of registered computed MSIDs
     msid_classes = []
 
@@ -173,18 +182,21 @@ class ComputedMsid:
     def fetch_eng(self):
         """Fetch in TDB engineering units like DEGF"""
         from .. import fetch_eng
+
         return fetch_eng
 
     @property
     def fetch_sci(self):
         """Fetch in scientific units like DEGC"""
         from .. import fetch_sci
+
         return fetch_sci
 
     @property
     def fetch_cxc(self):
         """Fetch in CXC (FITS standard) units like K"""
         from .. import fetch
+
         return fetch
 
     @property
@@ -210,7 +222,9 @@ class ComputedMsid:
         match = re.match(self.msid_match, msid, re.IGNORECASE)
         if not match:
             raise RuntimeError(f'unexpected mismatch of {msid} with {self.msid_match}')
-        match_args = [arg.lower() if isinstance(arg, str) else arg for arg in match.groups()]
+        match_args = [
+            arg.lower() if isinstance(arg, str) else arg for arg in match.groups()
+        ]
 
         if interval is None:
             # Call the actual user-supplied work method to compute the MSID values
@@ -218,8 +232,10 @@ class ComputedMsid:
 
             for attr in ('vals', 'bads', 'times', 'unit'):
                 if attr not in msid_attrs:
-                    raise ValueError(f'computed MSID {self.__class__.__name__} failed '
-                                     f'to set required attribute {attr}')
+                    raise ValueError(
+                        f'computed MSID {self.__class__.__name__} failed '
+                        f'to set required attribute {attr}'
+                    )
 
             # Presence of a non-None `units` class attribute means that the MSID has
             # units that should be converted to `self.unit_system` if required, where
@@ -227,8 +243,9 @@ class ComputedMsid:
             if self.units is not None:
                 msid_attrs = self.convert_units(msid_attrs)
         else:
-            msid_attrs = self.get_stats_attrs(tstart, tstop, msid.lower(), match_args,
-                                              interval)
+            msid_attrs = self.get_stats_attrs(
+                tstart, tstop, msid.lower(), match_args, interval
+            )
 
         return msid_attrs
 
@@ -251,7 +268,9 @@ class ComputedMsid:
 
         if unit_current != unit_new:
             for attr in self.units['convert_attrs']:
-                out[attr] = unit_converter_funcs[unit_current, unit_new](msid_attrs[attr])
+                out[attr] = unit_converter_funcs[unit_current, unit_new](
+                    msid_attrs[attr]
+                )
 
         return out
 
@@ -287,8 +306,7 @@ class ComputedMsid:
         # Replicate a stripped-down version of processing in update_archive.
         # This produces a recarray with columns that correspond to the raw
         # stats HDF5 files.
-        dt = {'5min': 328,
-              'daily': 86400}[interval]
+        dt = {'5min': 328, 'daily': 86400}[interval]
         index0 = int(np.floor(tstart / dt))
         index1 = int(np.ceil(tstop / dt))
         tstart = (index0 - 1) * dt
@@ -318,6 +336,7 @@ class ComputedMsid:
         out['unit'] = msid_obj.unit
 
         return out
+
 
 ############################################################################
 #  Built-in computed MSIDs
@@ -350,6 +369,7 @@ class Comp_Quat(ComputedMsid):
              [193.28906329,  19.16893787,  67.36207699],
              [193.28908839,  19.16895134,  67.36206404]])
     """
+
     msid_match = r'quat_(aoattqt|aoatupq|aocmdqt|aotarqt)'
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
@@ -357,7 +377,8 @@ class Comp_Quat(ComputedMsid):
 
         if 'maude' in self.fetch_sys.data_source.sources():
             raise ValueError(
-                f'{msid} is not available from MAUDE due to issues aligning telemetry')
+                f'{msid} is not available from MAUDE due to issues aligning telemetry'
+            )
 
         msid_root = msid_args[0]
         n_comp = 4 if msid_root == 'aoattqt' else 3
@@ -367,10 +388,7 @@ class Comp_Quat(ComputedMsid):
         # Interpolate to a common time base, leaving in flagged bad data and
         # marking data bad if any of the set at each time are bad. See:
         # https://sot.github.io/eng_archive/fetch_tutorial.html#filtering-and-bad-values
-        dat.interpolate(
-            times=dat[msids[0]].times,
-            filter_bad=False,
-            bad_union=True)
+        dat.interpolate(times=dat[msids[0]].times, filter_bad=False, bad_union=True)
 
         q1 = dat[msids[0]].vals.astype(np.float64)
         q2 = dat[msids[1]].vals.astype(np.float64)
@@ -386,10 +404,7 @@ class Comp_Quat(ComputedMsid):
         for msid in msids:
             bads |= dat[msid].bads
 
-        out = {'vals': quat,
-               'bads': bads,
-               'times': dat.times,
-               'unit': None}
+        out = {'vals': quat, 'bads': bads, 'times': dat.times, 'unit': None}
         return out
 
 
@@ -409,6 +424,7 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
     specifications. For example you can use 'pm1thv2t_clean_3.28' to get the model
     from release 3.28 of chandra_models.
     """
+
     msid_match = r'(pm2thv1t|pm1thv2t)_clean(_[\w\.]+)?'
 
     units = {
@@ -417,7 +433,7 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
         'sci': 'DEGC',
         'cxc': 'K',
         # Attributes that need conversion
-        'convert_attrs': ['vals', 'vals_raw', 'vals_nan', 'vals_corr', 'vals_model']
+        'convert_attrs': ['vals', 'vals_raw', 'vals_nan', 'vals_corr', 'vals_model'],
     }
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
@@ -437,13 +453,28 @@ class Comp_MUPS_Valve_Temp_Clean(ComputedMsid):
         version = None if msid_args[1] is None else msid_args[1][1:]
 
         # Get cleaned MUPS valve temperature data as an MSID object
-        dat = fetch_clean_msid(msid_args[0], tstart, tstop,
-                               dt_thresh=5.0, median=7, model_spec=None, version=version)
+        dat = fetch_clean_msid(
+            msid_args[0],
+            tstart,
+            tstop,
+            dt_thresh=5.0,
+            median=7,
+            model_spec=None,
+            version=version,
+        )
 
         # Convert to dict as required by the get_msids_attrs API.  `fetch_clean_msid`
         # returns an MSID object with the following attrs.
-        attrs = ('vals', 'times', 'bads', 'vals_raw', 'vals_nan',
-                 'vals_corr', 'vals_model', 'source')
+        attrs = (
+            'vals',
+            'times',
+            'bads',
+            'vals_raw',
+            'vals_nan',
+            'vals_corr',
+            'vals_model',
+            'source',
+        )
         msid_attrs = {attr: getattr(dat, attr) for attr in attrs}
         msid_attrs['unit'] = 'DEGF'
 
@@ -465,6 +496,7 @@ class Comp_KadiCommandState(ComputedMsid):
       'cmd_state_pcad_mode_1': sample ``pcad_mode`` every 1.025 secs
       'cmd_state_acisfp_temp_32': sample ``acisfp_temp`` every 32.8 secs
     """
+
     msid_match = r'cmd_state_(\w+)_(\d+)'
 
     def get_msid_attrs(self, tstart, tstop, msid, msid_args):
@@ -492,9 +524,11 @@ class Comp_KadiCommandState(ComputedMsid):
 
         indexes = np.searchsorted(tstops, times)
 
-        out = {'vals': vals[indexes],
-               'times': times,
-               'bads': np.zeros(len(times), dtype=bool),
-               'unit': None}
+        out = {
+            'vals': vals[indexes],
+            'times': times,
+            'bads': np.zeros(len(times), dtype=bool),
+            'unit': None,
+        }
 
         return out

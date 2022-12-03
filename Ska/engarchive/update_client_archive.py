@@ -47,31 +47,50 @@ process_errors = []
 
 def get_options(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--sync-root",
-                        default='https://icxc.cfa.harvard.edu/aspect/cheta/',
-                        help=("URL or file dir for sync files to read from "
-                              "(default=https://icxc.cfa.harvard.edu/aspect/cheta/)"))
-    parser.add_argument("--data-root",
-                        help=("Data directory of eng archive data files to update "
-                              "(default=usual fetch default)"))
-    parser.add_argument("--content",
-                        action='append',
-                        help="Content type to process [match regex] (default=all)")
-    parser.add_argument("--log-level",
-                        default=20,
-                        help="Logging level (default=20 (info))")
-    parser.add_argument("--date-stop",
-                        help="Stop process date (default=NOW)")
-    parser.add_argument("--dry-run",
-                        action="store_true",
-                        help="Dry run (no actual file or database updates)")
-    parser.add_argument('--add-msids',
-                        help='Add MSIDs specified in <file> to eng archive data files"')
-    parser.add_argument('--server-data-root',
-                        help=('Add MSID data from root (/path/to/data, user@remote, '
-                              'or user@remote:/path/to/data'))
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s {version}'.format(version=__version__))
+    parser.add_argument(
+        "--sync-root",
+        default='https://icxc.cfa.harvard.edu/aspect/cheta/',
+        help=(
+            "URL or file dir for sync files to read from "
+            "(default=https://icxc.cfa.harvard.edu/aspect/cheta/)"
+        ),
+    )
+    parser.add_argument(
+        "--data-root",
+        help=(
+            "Data directory of eng archive data files to update "
+            "(default=usual fetch default)"
+        ),
+    )
+    parser.add_argument(
+        "--content",
+        action='append',
+        help="Content type to process [match regex] (default=all)",
+    )
+    parser.add_argument(
+        "--log-level", default=20, help="Logging level (default=20 (info))"
+    )
+    parser.add_argument("--date-stop", help="Stop process date (default=NOW)")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Dry run (no actual file or database updates)",
+    )
+    parser.add_argument(
+        '--add-msids', help='Add MSIDs specified in <file> to eng archive data files"'
+    )
+    parser.add_argument(
+        '--server-data-root',
+        help=(
+            'Add MSID data from root (/path/to/data, user@remote, '
+            'or user@remote:/path/to/data'
+        ),
+    )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='%(prog)s {version}'.format(version=__version__),
+    )
 
     opt = parser.parse_args(args)
     opt.is_url = re.match(r'http[s]?://', opt.sync_root)
@@ -82,6 +101,7 @@ def get_options(args=None):
 
 class RowMismatchError(ValueError):
     """Exception for row mismatch between existing archive and available sync update"""
+
     pass
 
 
@@ -112,10 +132,13 @@ def get_readable(sync_root, is_url, filename, timeout=30):
     if is_url:
         uri = sync_root.rstrip('/') + '/' + Path(filename).as_posix()
         try:
-            filename = download_file(uri, show_progress=False, cache=False, timeout=timeout)
+            filename = download_file(
+                uri, show_progress=False, cache=False, timeout=timeout
+            )
         except urllib.error.URLError as err:
             raise urllib.error.URLError(
-                f'unable to load {uri}. Are you on a network with icxc access?') from err
+                f'unable to load {uri}. Are you on a network with icxc access?'
+            ) from err
 
     else:
         uri = Path(sync_root, filename)
@@ -137,6 +160,7 @@ class DelayedKeyboardInterrupt(object):
     Taken from https://stackoverflow.com/questions/842557/
     how-to-prevent-a-block-of-code-from-being-interrupted-by-keyboardinterrupt-in-py/21919644
     """
+
     def __init__(self, logger):
         self.logger = logger
         self.signal_received = False
@@ -146,8 +170,10 @@ class DelayedKeyboardInterrupt(object):
 
     def handler(self, sig, frame):
         self.signal_received = (sig, frame)
-        self.logger.info('KEYBOARD INTERRUPT RECEIVED. Please hold tight for moment while we '
-                         'finish up cleanly, otherwise the archive may get corrupted.')
+        self.logger.info(
+            'KEYBOARD INTERRUPT RECEIVED. Please hold tight for moment while we '
+            'finish up cleanly, otherwise the archive may get corrupted.'
+        )
 
     def __exit__(self, typ, value, traceback):
         signal.signal(signal.SIGINT, self.old_handler)
@@ -173,7 +199,9 @@ def add_msids(opt, logger):
     if '@' in opt.server_data_root:
         copy_server_files_ssh(opt, logger, copy_files)
     else:
-        copy_server_files(opt, logger, copy_files, opt.server_data_root, copy_func=shutil.copyfile)
+        copy_server_files(
+            opt, logger, copy_files, opt.server_data_root, copy_func=shutil.copyfile
+        )
 
 
 def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=False):
@@ -192,7 +220,10 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=
     """
     from astropy.utils.console import ProgressBar
 
-    logger.info(f'Copying {len(copy_files)} files from {opt.server_data_root} to {opt.data_root}')
+    logger.info(
+        f'Copying {len(copy_files)} files from {opt.server_data_root} to'
+        f' {opt.data_root}'
+    )
     if opt.dry_run:
         logger.info('DRY RUN')
 
@@ -217,8 +248,10 @@ def copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=
                 total_size += local_file.stat().st_size / 1e6
     total_time = time.time() - tstart
     xfer_rate = total_size / total_time
-    logger.info(f'Data transfer rate = {xfer_rate:.2f} Mb/s : '
-                f'{total_size:.2f} Mb in {total_time:.2f} s')
+    logger.info(
+        f'Data transfer rate = {xfer_rate:.2f} Mb/s : '
+        f'{total_size:.2f} Mb in {total_time:.2f} s'
+    )
 
 
 def copy_server_files_ssh(opt, logger, copy_files):
@@ -245,9 +278,7 @@ def copy_server_files_ssh(opt, logger, copy_files):
     for attempt in range(3):
         try:
             password = getpass.getpass(f'Password for {username}@{hostname}: ')
-            ssh_client.connect(hostname=hostname,
-                               username=username,
-                               password=password)
+            ssh_client.connect(hostname=hostname, username=username, password=password)
         except paramiko.ssh_exception.AuthenticationException:
             if attempt == 2:
                 print('Authentication failed', file=sys.stderr)
@@ -258,8 +289,9 @@ def copy_server_files_ssh(opt, logger, copy_files):
             break
 
     sftp_client = ssh_client.open_sftp()
-    copy_server_files(opt, logger, copy_files, server_path, copy_func=sftp_client.get,
-                      as_posix=True)
+    copy_server_files(
+        opt, logger, copy_files, server_path, copy_func=sftp_client.get, as_posix=True
+    )
     sftp_client.close()
     ssh_client.close()
 
@@ -267,9 +299,7 @@ def copy_server_files_ssh(opt, logger, copy_files):
 def parse_server_data_root(server_data_root):
     match = re.match(r"([a-zA-Z][-.\w]*)@([\w.]+)(:.+)?", server_data_root)
     if not match:
-        raise ValueError(
-            f"could not parse {server_data_root} into username@host:path"
-        )
+        raise ValueError(f"could not parse {server_data_root} into username@host:path")
     username, hostname, server_path = match.groups()
     return username, hostname, server_path
 
@@ -293,12 +323,14 @@ def get_copy_files(logger, msids, msids_content):
     copy_files = set()
     for msid in msids:
         ft['content'] = msids_content[msid]
-        copy_specs = [(msid, None, 'msid'),
-                      (msid, None, 'archfiles'),
-                      (msid, None, 'colnames'),
-                      (msid, '5min', 'stats'),
-                      (msid, 'daily', 'stats'),
-                      ('TIME', None, 'msid')]
+        copy_specs = [
+            (msid, None, 'msid'),
+            (msid, None, 'archfiles'),
+            (msid, None, 'colnames'),
+            (msid, '5min', 'stats'),
+            (msid, 'daily', 'stats'),
+            ('TIME', None, 'msid'),
+        ]
         for ft_msid, interval, filetype in copy_specs:
             ft['msid'] = ft_msid
             ft['interval'] = interval
@@ -308,8 +340,10 @@ def get_copy_files(logger, msids, msids_content):
             if not pth.exists() or filetype == 'colnames':
                 copy_files.add(str(pth.relative_to(basedir)))
 
-    logger.info(f'Found {len(copy_files)} local archive files that are '
-                f'missing and need to be copied')
+    logger.info(
+        f'Found {len(copy_files)} local archive files that are '
+        'missing and need to be copied'
+    )
     logger.debug(f'Copy_files:')
     for copy_file in sorted(copy_files):
         logger.debug(copy_file)
@@ -342,7 +376,10 @@ def get_msids_for_add_msids(opt, logger):
     :return: msids_out, msids_content (mapping of MSID to content type)
     """
     logger.info(f'Reading available cheta archive MSIDs from {opt.sync_root}')
-    with get_readable(opt.sync_root, opt.is_url, sync_files['msid_contents']) as (tmpfile, uri):
+    with get_readable(opt.sync_root, opt.is_url, sync_files['msid_contents']) as (
+        tmpfile,
+        uri,
+    ):
         if tmpfile is None:
             # If index_file is not found then get_readable returns None
             logger.info(f'No cheta MSIDs list file found at{uri}')
@@ -368,23 +405,28 @@ def get_msids_for_add_msids(opt, logger):
             subsys = re.match(r'([^\d]+)', content).group(1)
             for content, msids in content_msids.items():
                 if content.startswith(subsys):
-                    logger.info(f'  Found {len(msids)} MSIDs for **/{msid_spec} with '
-                                f'content = {content}')
+                    logger.info(
+                        f'  Found {len(msids)} MSIDs for **/{msid_spec} with '
+                        f'content = {content}'
+                    )
                     msids_out.extend(msids)
 
         elif msid_spec.startswith('*/'):
             msid_spec = msid_spec[2:]
             content = msids_content[msid_spec]
             msids = content_msids[content]
-            logger.info(f'  Found {len(msids)} MSIDs for */{msid_spec} with '
-                        f'content = {content}')
+            logger.info(
+                f'  Found {len(msids)} MSIDs for */{msid_spec} with content = {content}'
+            )
             msids_out.extend(msids)
 
         else:
             msids = [msid for msid in msids_content if fnmatch(msid, msid_spec)]
             if not msids:
-                raise ValueError(f'no MSID matching {msid} (remember derived params like PITCH '
-                                 'must be written as"dp_<MSID>"')
+                raise ValueError(
+                    f'no MSID matching {msid} (remember derived params like PITCH '
+                    'must be written as"dp_<MSID>"'
+                )
             logger.info(f'  Found {len(msids)} MSIDs for {msid_spec}')
             msids_out.extend(msids)
     logger.info(f'  Found {len(msids_out)} matching MSIDs total')
@@ -466,24 +508,31 @@ def update_full_archfiles_db3(dat, logger, msid_files, opt):
     with timing_logger(logger, f'Updating {server_file}', 'info', 'info'):
         with DBI(dbi='sqlite', server=server_file) as db:
             for archfile in dat['archfiles']:
-                vals = {name: as_python(archfile[name]) for name in archfile.dtype.names}
+                vals = {
+                    name: as_python(archfile[name]) for name in archfile.dtype.names
+                }
                 logger.debug(f'Inserting {vals["filename"]}')
                 if not opt.dry_run:
                     try:
                         db.insert(vals, 'archfiles')
                     except sqlite3.IntegrityError as err:
                         # Expected exception for archfiles already in the table
-                        assert 'UNIQUE constraint failed: archfiles.filename' in str(err)
+                        assert 'UNIQUE constraint failed: archfiles.filename' in str(
+                            err
+                        )
 
             if not opt.dry_run:
                 db.commit()
 
 
 def update_full_h5_files(dat, logger, msid_files, msids, opt):
-    with timing_logger(logger, f'Applying updates to {len(msids)} h5 files',
-                       'info', 'info'):
+    with timing_logger(
+        logger, f'Applying updates to {len(msids)} h5 files', 'info', 'info'
+    ):
         for msid in msids:
-            vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')}
+            vals = {
+                key: dat[f'{msid}.{key}'] for key in ('data', 'quality', 'row0', 'row1')
+            }
             append_h5_col(opt, msid, vals, logger, msid_files)
 
 
@@ -502,7 +551,10 @@ def get_full_data_sets(ft, index_tbl, logger, opt):
         # Read the file with all the MSID data as a hash with keys like {msid}.data
         # {msid}.quality etc, plus an `archive` key with the table of corresponding
         # archfiles rows.
-        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
+        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (
+            data_input,
+            uri,
+        ):
             with timing_logger(logger, f'Reading update date file {uri}'):
                 with gzip.open(data_input, 'rb') as fh:
                     dats.append(pickle.load(fh))
@@ -529,13 +581,20 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     except RowMismatchError as err:
         pth = Path(fetch.msid_files['last_date_id'].abs)
         if pth.exists():
-            msg = f'File {pth} was out of sync with stats archive, generating exception: {err}'
+            msg = (
+                f'File {pth} was out of sync with stats archive, generating exception:'
+                f' {err}'
+            )
             logger.warn(msg)
-            logger.warn(f'Attempting to fix by removing that file and trying to sync again.')
+            logger.warn(
+                f'Attempting to fix by removing that file and trying to sync again.'
+            )
             pth.unlink()
             _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl)
             process_errors.append(
-                f'WARNING: file {pth} was out of sync with stats archive, fixed by deleting it')
+                f'WARNING: file {pth} was out of sync with stats archive, fixed by'
+                ' deleting it'
+            )
 
 
 def _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
@@ -563,8 +622,7 @@ def _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
     else:
         logger.debug(f'Stat msids are {msids}')
 
-    last_date_id, last_date_id_file = get_last_date_id(
-        msid_files, msids, stat, logger)
+    last_date_id, last_date_id_file = get_last_date_id(msid_files, msids, stat, logger)
     logger.verbose(f'Got {last_date_id} as last date_id that was applied to archive')
 
     # Get list of applicable dat objects (new data, before opt.date_stop).  Also
@@ -621,7 +679,10 @@ def get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt):
 
         # Read the file with all the MSID data as a hash with keys {msid}.data
         # {msid}.row0, {msid}.row1
-        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (data_input, uri):
+        with get_readable(opt.sync_root, opt.is_url, sync_files['data']) as (
+            data_input,
+            uri,
+        ):
             with timing_logger(logger, f'Reading update date file {uri}'):
                 with gzip.open(data_input, 'rb') as fh:
                     dat = pickle.load(fh)
@@ -662,8 +723,9 @@ def concat_data_sets(dats, data_keys):
         if len(lens) != 1:
             raise ValueError('inconsistency in lengths of data file inputs')
 
-        for row1, next_row0 in zip(dat_lists[f'{msid}.row1'][:-1],
-                                   dat_lists[f'{msid}.row0'][1:]):
+        for row1, next_row0 in zip(
+            dat_lists[f'{msid}.row1'][:-1], dat_lists[f'{msid}.row0'][1:]
+        ):
             if row1 != next_row0:
                 raise ValueError('unexpected discontinuity in rows in data files')
 
@@ -673,8 +735,9 @@ def concat_data_sets(dats, data_keys):
             dat[f'{msid}.{key}'] = np.concatenate(dat_lists[f'{msid}.{key}'])
 
     if 'archfiles' in dats[0]:
-        dat['archfiles'] = list(itertools.chain.from_iterable(
-            dat['archfiles'] for dat in dats))
+        dat['archfiles'] = list(
+            itertools.chain.from_iterable(dat['archfiles'] for dat in dats)
+        )
 
     return dat, msids
 
@@ -692,8 +755,10 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
     :return: None
     """
     vals = {key: dat[f'{msid}.{key}'] for key in ('data', 'row0', 'row1')}
-    logger.debug(f'append_stat_col msid={msid} date_id={date_id}, '
-                 f'row0,1 = {vals["row0"]} {vals["row1"]}')
+    logger.debug(
+        f'append_stat_col msid={msid} date_id={date_id}, '
+        f'row0,1 = {vals["row0"]} {vals["row1"]}'
+    )
 
     mode = 'r' if opt.dry_run else 'a'
     with tables.open_file(stat_file, mode=mode) as h5:
@@ -701,8 +766,10 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
 
         # Check if there is any new data in this chunk
         if vals['row1'] - 1 <= last_row_idx:
-            logger.debug(f'Skipping {date_id} for {msid}: no new data '
-                         f'row1={vals["row1"]} last_row_idx={last_row_idx}')
+            logger.debug(
+                f'Skipping {date_id} for {msid}: no new data '
+                f'row1={vals["row1"]} last_row_idx={last_row_idx}'
+            )
             return
 
         # If this row begins before then end of current data then chop the
@@ -717,10 +784,11 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
             raise RowMismatchError(
                 f'ERROR: unexpected discontinuity for stat msid={msid} '
                 f'content={fetch.ft["content"]}\n'
-                f'Looks like your archive is in a bad state, CONTACT '
-                f'your local Ska expert with this info:\n'
+                'Looks like your archive is in a bad state, CONTACT '
+                'your local Ska expert with this info:\n'
                 f'  First row0 in new data {vals["row0"]} != '
-                f'length of existing data {len(h5.root.data)}')
+                f'length of existing data {len(h5.root.data)}'
+            )
 
         logger.debug(f'Appending {len(vals["data"])} rows to {stat_file}')
         if not opt.dry_run:
@@ -809,10 +877,11 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
             raise RowMismatchError(
                 f'ERROR: unexpected discontinuity for full msid={msid} '
                 f'content={fetch.ft["content"]}\n'
-                f'Looks like your archive is in a bad state, CONTACT '
-                f'your local Ska expert with this info:\n'
+                'Looks like your archive is in a bad state, CONTACT '
+                'your local Ska expert with this info:\n'
                 f'  First row0 in new data {vals["row0"]} != '
-                f'length of existing data {len(h5.root.data)}')
+                f'length of existing data {len(h5.root.data)}'
+            )
 
         # For the TIME column include special processing to effectively remove
         # existing rows that are superceded by new rows in time.  This is done by
@@ -838,7 +907,10 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
 
 def get_index_tbl(content, logger, opt):
     # Read the index file to know what is available for new data
-    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (index_input, uri):
+    with get_readable(opt.sync_root, opt.is_url, sync_files['index']) as (
+        index_input,
+        uri,
+    ):
         if index_input is None:
             # If index_file is not found then get_readable returns None
             logger.info(f'No new sync data for {content}: {uri} not found')
@@ -856,8 +928,11 @@ def main(args=None):
 
     # Set up logging
     loglevel = int(opt.log_level)
-    logger = pyyaks.logger.get_logger(name='cheta_update_client_archive', level=loglevel,
-                                      format="%(asctime)s %(message)s")
+    logger = pyyaks.logger.get_logger(
+        name='cheta_update_client_archive',
+        level=loglevel,
+        format="%(asctime)s %(message)s",
+    )
 
     # If --data-root is supplied then set the fetch msid_files basedir via ENG_ARCHIVE
     # prior to importing fetch.  This ensures that ``content`` is consistent with
@@ -865,7 +940,9 @@ def main(args=None):
     if opt.data_root is not None:
         if not Path(opt.data_root).exists():
             raise FileNotFoundError(
-                f'local cheta archive directory {Path(opt.data_root).absolute()} not found')
+                f'local cheta archive directory {Path(opt.data_root).absolute()} not'
+                ' found'
+            )
         os.environ['ENG_ARCHIVE'] = opt.data_root
 
     fetch = importlib.import_module('.fetch', __package__)
@@ -898,7 +975,9 @@ def main(args=None):
         if index_tbl is not None:
             sync_full_archive(opt, fetch.msid_files, logger, content, index_tbl)
             for stat in STATS_DT:
-                sync_stat_archive(opt, fetch.msid_files, logger, content, stat, index_tbl)
+                sync_stat_archive(
+                    opt, fetch.msid_files, logger, content, stat, index_tbl
+                )
 
     if process_errors:
         logger.error('')

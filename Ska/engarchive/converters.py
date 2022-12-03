@@ -55,6 +55,7 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
     to the data column names.  If ``add_quality`` is set then add a QUALITY
     column with all values False.
     """
+
     def _convert(dat):
         colnames = dat.dtype.names
         colnames_out = [x.upper() for x in colnames]
@@ -65,8 +66,9 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
             # prefix = prefix.upper() + '_'
             # You will lose an hour again figuring this out if so.
             PREFIX = prefix.upper() + '_'
-            colnames_out = [(x if x in ('TIME', 'QUALITY') else PREFIX + x)
-                            for x in colnames_out]
+            colnames_out = [
+                (x if x in ('TIME', 'QUALITY') else PREFIX + x) for x in colnames_out
+            ]
 
         arrays = [dat.field(x) for x in colnames]
 
@@ -76,8 +78,10 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
             descrs += [('QUALITY', numpy.bool, (len(colnames) + 1,))]
             arrays += [quals]
         else:
-            descrs = [(name, array.dtype.str, array.shape[1:])
-                      for name, array in zip(colnames_out, arrays)]
+            descrs = [
+                (name, array.dtype.str, array.shape[1:])
+                for name, array in zip(colnames_out, arrays)
+            ]
 
         return numpy.rec.fromarrays(arrays, dtype=descrs)
 
@@ -89,8 +93,11 @@ def get_bit_array(dat, in_name, out_name, bit_index):
     bit_index = max(bit_indexes)
 
     if dat[in_name].shape[1] < bit_index:
-        raise DataShapeError('column {} has shape {} but need at least {}'
-                             .format(in_name, dat[in_name].shape[1], bit_index + 1))
+        raise DataShapeError(
+            'column {} has shape {} but need at least {}'.format(
+                in_name, dat[in_name].shape[1], bit_index + 1
+            )
+        )
 
     if len(bit_indexes) > 1:
         mult = 1
@@ -98,7 +105,9 @@ def get_bit_array(dat, in_name, out_name, bit_index):
         for bit_index in reversed(bit_indexes):
             # Note: require casting mult and 0 to uint32 because recent versions of numpy
             # disallow in-place adding of int64 to uint32.
-            out_array += np.where(dat[in_name][:, bit_index], np.uint32(mult), np.uint32(0))
+            out_array += np.where(
+                dat[in_name][:, bit_index], np.uint32(mult), np.uint32(0)
+            )
             mult *= 2
     else:
         try:
@@ -129,12 +138,12 @@ def generic_converter2(msid_cxc_map, default_dtypes=None):
 
     :param msid_cxc_map: dict of out_name => in_name mapping
     """
+
     def _convert(dat):
         # Make quality bool array with entries for TIME, QUALITY, then all other cols
         out_names = ['TIME', 'QUALITY'] + list(msid_cxc_map.keys())
         out_quality = np.zeros(shape=(len(dat), len(out_names)), dtype=np.bool)
-        out_arrays = {'TIME': dat['TIME'],
-                      'QUALITY': out_quality}
+        out_arrays = {'TIME': dat['TIME'], 'QUALITY': out_quality}
 
         for out_name, in_name in msid_cxc_map.items():
             if ':' in in_name:
@@ -181,7 +190,8 @@ def parse_alias_str(alias_str, invert=False):
     return aliases
 
 
-ALIASES = {'simdiag': """
+ALIASES = {
+    'simdiag': """
     RAMEXEC          3SDSWELF   SEA CSC Exectuting from RAM
     DSTACKPTR        3SDPSTKP   SEA Data Stack Ptr
     TSCEDGE          3SDTSEDG   TSC Tab Edge Detection Flags
@@ -210,7 +220,7 @@ ALIASES = {'simdiag': """
     FAHISTO          3SDFAP     FA Most Recent PWM Histogram
     INVCMDCODE       3SDINCOD   SEA Invalid CommandCode
     """,
-           'sim_mrg': """
+    'sim_mrg': """
     TLMUPDATE    3SEATMUP   "Telemtry Update Flag"
     SEAIDENT     3SEAID     "SEA Identification Flag"
     SEARESET     3SEARSET   "SEA Reset Flag"
@@ -243,7 +253,7 @@ ALIASES = {'simdiag': """
     FLEXBTSET    3SFLXBST   "Flexture B Temperature Setpoint"
     FLEXCTSET    3SFLXCST   "Flexture C Temperature Setpoint"
     """,
-           'hrc0ss': """
+    'hrc0ss': """
     TLEVART      2TLEV1RT
     VLEVART      2VLEV1RT
     SHEVART      2SHEV1RT
@@ -251,7 +261,7 @@ ALIASES = {'simdiag': """
     VLEVART      2VLEV2RT
     SHEVART      2SHEV2RT
     """,
-           'hrc0hk': """
+    'hrc0hk': """
     SCIDPREN:0,1,2,3,8,9,10 HRC_SS_HK_BAD
     P24CAST:7     224PCAST
     P15CAST:7     215PCAST
@@ -348,7 +358,7 @@ ALIASES = {'simdiag': """
     CE00ATM       2CE00ATM
     CE01ATM       2CE01ATM
     """,
-           }
+}
 
 
 CXC_TO_MSID = {key: parse_alias_str(val) for key, val in ALIASES.items()}
@@ -389,8 +399,7 @@ hrc0ss = generic_converter2(MSID_TO_CXC['hrc0ss'])
 
 def hrc0hk(dat):
     # Read the data and allow for missing columns in input L0 HK file.
-    default_dtypes = {'2CE00ATM': 'f4',
-                      '2CE01ATM': 'f4'}
+    default_dtypes = {'2CE00ATM': 'f4', '2CE01ATM': 'f4'}
     out = generic_converter2(MSID_TO_CXC['hrc0hk'], default_dtypes)(dat)
 
     # Set all HRC HK data columns to bad quality where HRC_SS_HK_BAD is not zero
@@ -398,8 +407,10 @@ def hrc0hk(dat):
     bad = out['HRC_SS_HK_BAD'] > 0
     if np.any(bad):
         out['QUALITY'][bad, 3:] = True
-        logger.info('Setting {} readouts of all HRC HK telem to bad quality (bad SCIDPREN)'
-                    .format(np.count_nonzero(bad)))
+        logger.info(
+            'Setting {} readouts of all HRC HK telem to bad quality (bad SCIDPREN)'
+            .format(np.count_nonzero(bad))
+        )
 
     # Detect the secondary-science byte-shift anomaly by finding out-of-range 2SMTRATM values.
     # For those bad frames:
@@ -407,11 +418,13 @@ def hrc0hk(dat):
     # - Set all analog MSIDs (2C05PALV and later in the list) to bad quality
     bad = (out['2SMTRATM'] < -20) | (out['2SMTRATM'] > 50)
     if np.any(bad):
-        out['HRC_SS_HK_BAD'][bad] |= 2 ** 10  # 1024
+        out['HRC_SS_HK_BAD'][bad] |= 2**10  # 1024
         analogs_index0 = list(out.dtype.names).index('2C05PALV')
         out['QUALITY'][bad, analogs_index0:] = True
-        logger.info('Setting {} readouts of analog HRC HK telem to bad quality (bad 2SMTRATM)'
-                    .format(np.count_nonzero(bad)))
+        logger.info(
+            'Setting {} readouts of analog HRC HK telem to bad quality (bad 2SMTRATM)'
+            .format(np.count_nonzero(bad))
+        )
 
     return out
 
@@ -426,19 +439,22 @@ def obc4eng(dat):
     """
     # MSIDs OOBTHR<msid_num> that went to _WIDE after the patch, which was done in parts A
     # and B.
-    msid_nums = {'a': '08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29'.split(),
-                 'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split(),
-                 'c': '02 03 04 05 06 07'.split()
-                 }
+    msid_nums = {
+        'a': '08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29'.split(),
+        'b': '30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54'.split(),
+        'c': '02 03 04 05 06 07'.split(),
+    }
 
     # Convert using the baseline converter
     out = numpy_converter(dat)
 
     # The patch times below correspond to roughly the middle of the major frame where
     # patches A and B were applied, respectively.
-    patch_times = {'a': DateTime('2014:342:16:29:30').secs,
-                   'b': DateTime('2014:342:16:32:45').secs,
-                   'c': DateTime('2017:312:16:11:16').secs}
+    patch_times = {
+        'a': DateTime('2014:342:16:29:30').secs,
+        'b': DateTime('2014:342:16:32:45').secs,
+        'c': DateTime('2017:312:16:11:16').secs,
+    }
 
     for patch in ('a', 'b', 'c'):
         # Set a mask defining times after the activation of wide-range telemetry in PR-361
@@ -510,7 +526,9 @@ def acisdeahk(dat):
     # Go through input data one row (query) at a time and assemble contemporaneous
     # queries into a single row with a column for each query value.
     # Collect each assembled row into %data_out for writing to a FITS bin table
-    block_idxs = 1 + numpy.flatnonzero(numpy.abs(rows['TIME'][1:] - rows['TIME'][:-1]) > 0.001)
+    block_idxs = 1 + numpy.flatnonzero(
+        numpy.abs(rows['TIME'][1:] - rows['TIME'][:-1]) > 0.001
+    )
     block_idxs = numpy.hstack([[0], block_idxs, [len(rows)]])
     query_val_tus = rows['QUERY_VAL_TU']
     query_vals = rows['QUERY_VAL']
@@ -524,21 +542,26 @@ def acisdeahk(dat):
 
         # Make tuples of the values and qual flags corresponding to each DEAHK_COLUMN
         bads = tuple(query_id not in id_idxs for query_id in col_query_ids)
-        vals = tuple((0.0 if bad else query_vals[id_idxs[query_id]])
-                     for bad, query_id in zip(bads, col_query_ids))
-        val_tus = tuple((0 if bad else query_val_tus[id_idxs[query_id]])
-                        for bad, query_id in zip(bads, col_query_ids))
+        vals = tuple(
+            (0.0 if bad else query_vals[id_idxs[query_id]])
+            for bad, query_id in zip(bads, col_query_ids)
+        )
+        val_tus = tuple(
+            (0 if bad else query_val_tus[id_idxs[query_id]])
+            for bad, query_id in zip(bads, col_query_ids)
+        )
 
         # Now have another pass at finding bad values.  Take these out now so the
         # 5min and daily stats are not frequently corrupted.
-        bads = tuple(True if (val_tu == 65535 or numpy.isnan(val)) else bad
-                     for bad, val, val_tu in zip(bads, vals, val_tus))
+        bads = tuple(
+            True if (val_tu == 65535 or numpy.isnan(val)) else bad
+            for bad, val, val_tu in zip(bads, vals, val_tus)
+        )
 
         quality = (False, False) + bads
         outs.append((times[i0], quality) + vals)
 
-    dtype = [('TIME', numpy.float64),
-             ('QUALITY', numpy.bool, (len(col_names) + 2,))]
+    dtype = [('TIME', numpy.float64), ('QUALITY', numpy.bool, (len(col_names) + 2,))]
     dtype += [(col_name, numpy.float32) for col_name in col_names]
 
     return numpy.rec.fromrecords(outs, dtype=dtype)
@@ -550,204 +573,199 @@ def _get_deahk_cols():
             "query_id": 1,
             "name": "tmp_bep_pcb",
             "unit": "K",
-            "descr": "DPA Thermistor 1 - BEP PC Board"
+            "descr": "DPA Thermistor 1 - BEP PC Board",
         },
         {
             "query_id": 2,
             "name": "tmp_bep_osc",
             "unit": "K",
-            "descr": "DPA Thermistor 2 - BEP Oscillator"
+            "descr": "DPA Thermistor 2 - BEP Oscillator",
         },
         {
             "query_id": 3,
             "name": "tmp_fep0_mong",
             "unit": "K",
-            "descr": "DPA Thermistor 3 - FEP 0 Mongoose"
+            "descr": "DPA Thermistor 3 - FEP 0 Mongoose",
         },
         {
             "query_id": 4,
             "name": "tmp_fep0_pcb",
             "unit": "K",
-            "descr": "DPA Thermistor 4 - FEP 0 PC Board"
+            "descr": "DPA Thermistor 4 - FEP 0 PC Board",
         },
         {
             "query_id": 5,
             "name": "tmp_fep0_actel",
             "unit": "K",
-            "descr": "DPA Thermistor 5 - FEP 0 ACTEL"
+            "descr": "DPA Thermistor 5 - FEP 0 ACTEL",
         },
         {
             "query_id": 6,
             "name": "tmp_fep0_ram",
             "unit": "K",
-            "descr": "DPA Thermistor 6 - FEP 0 RAM"
+            "descr": "DPA Thermistor 6 - FEP 0 RAM",
         },
         {
             "query_id": 7,
             "name": "tmp_fep0_fb",
             "unit": "K",
-            "descr": "DPA Thermistor 7 - FEP 0 Frame Buf"
+            "descr": "DPA Thermistor 7 - FEP 0 Frame Buf",
         },
         {
             "query_id": 8,
             "name": "tmp_fep1_mong",
             "unit": "K",
-            "descr": "DPA Thermistor 8 - FEP 1 Mongoose"
+            "descr": "DPA Thermistor 8 - FEP 1 Mongoose",
         },
         {
             "query_id": 9,
             "name": "tmp_fep1_pcb",
             "unit": "K",
-            "descr": "DPA Thermistor 9 - FEP 1 PC Board"
+            "descr": "DPA Thermistor 9 - FEP 1 PC Board",
         },
         {
             "query_id": 10,
             "name": "tmp_fep1_actel",
             "unit": "K",
-            "descr": "DPA Thermistor 10 - FEP 1 ACTEL"
+            "descr": "DPA Thermistor 10 - FEP 1 ACTEL",
         },
         {
             "query_id": 11,
             "name": "tmp_fep1_ram",
             "unit": "K",
-            "descr": "DPA Thermistor 11 - FEP 1 RAM"
+            "descr": "DPA Thermistor 11 - FEP 1 RAM",
         },
         {
             "query_id": 12,
             "name": "tmp_fep1_fb",
             "unit": "K",
-            "descr": "DPA Thermistor 12 - FEP 1 Frame Buf"
+            "descr": "DPA Thermistor 12 - FEP 1 Frame Buf",
         },
         {
             "query_id": 15,
             "name": "fptemp_12",
             "unit": "K",
-            "descr": "Focal Plane Temp. Board 12"
+            "descr": "Focal Plane Temp. Board 12",
         },
         {
             "query_id": 16,
             "name": "fptemp_11",
             "unit": "K",
-            "descr": "Focal Plane Temp. Board 11"
+            "descr": "Focal Plane Temp. Board 11",
         },
         {
             "query_id": 17,
             "name": "dpagndref1",
             "unit": "V",
-            "descr": "DPA Ground Reference 1"
+            "descr": "DPA Ground Reference 1",
         },
         {
             "query_id": 18,
             "name": "dpa5vhka",
             "unit": "V",
-            "descr": "DPA 5V Housekeeping A"
+            "descr": "DPA 5V Housekeeping A",
         },
         {
             "query_id": 19,
             "name": "dpagndref2",
             "unit": "V",
-            "descr": "DPA Ground Reference 2"
+            "descr": "DPA Ground Reference 2",
         },
         {
             "query_id": 20,
             "name": "dpa5vhkb",
             "unit": "V",
-            "descr": "DPA 5V Housekeeping B"
+            "descr": "DPA 5V Housekeeping B",
         },
         {
             "query_id": 25,
             "name": "dea28volta",
             "unit": "V",
-            "descr": "Primary Raw DEA 28V DC"
+            "descr": "Primary Raw DEA 28V DC",
         },
         {
             "query_id": 26,
             "name": "dea24volta",
             "unit": "V",
-            "descr": "Primary Raw DEA 24V DC"
+            "descr": "Primary Raw DEA 24V DC",
         },
         {
             "query_id": 27,
             "name": "deam15volta",
             "unit": "V",
-            "descr": "Primary Raw DEA -15.5V"
+            "descr": "Primary Raw DEA -15.5V",
         },
         {
             "query_id": 28,
             "name": "deap15volta",
             "unit": "V",
-            "descr": "Primary Raw DEA +15.5V"
+            "descr": "Primary Raw DEA +15.5V",
         },
         {
             "query_id": 29,
             "name": "deam6volta",
             "unit": "V",
-            "descr": "Primary Raw DEA -6V DC"
+            "descr": "Primary Raw DEA -6V DC",
         },
         {
             "query_id": 30,
             "name": "deap6volta",
             "unit": "V",
-            "descr": "Primary Raw DEA +6V DC"
+            "descr": "Primary Raw DEA +6V DC",
         },
         {
             "query_id": 31,
             "name": "rad_pcb_a",
-            "descr": "Relative Dose Rad. Monitor Side A"
+            "descr": "Relative Dose Rad. Monitor Side A",
         },
         {
             "query_id": 32,
             "name": "gnd_1",
             "unit": "V",
-            "descr": "Interface Ground Reference"
+            "descr": "Interface Ground Reference",
         },
         {
             "query_id": 33,
             "name": "dea28voltb",
             "unit": "V",
-            "descr": "Backup Raw DEA 28V DC"
+            "descr": "Backup Raw DEA 28V DC",
         },
         {
             "query_id": 34,
             "name": "dea24voltb",
             "unit": "V",
-            "descr": "Backup DEA 24V DC"
+            "descr": "Backup DEA 24V DC",
         },
         {
             "query_id": 35,
             "name": "deam15voltb",
             "unit": "V",
-            "descr": "Backup DEA -15.5V DC"
+            "descr": "Backup DEA -15.5V DC",
         },
         {
             "query_id": 36,
             "name": "deap15voltb",
             "unit": "V",
-            "descr": "Backup DEA +15.5V DC"
+            "descr": "Backup DEA +15.5V DC",
         },
         {
             "query_id": 37,
             "name": "deam6voltb",
             "unit": "V",
-            "descr": "Backup DEA -6V DC"
+            "descr": "Backup DEA -6V DC",
         },
         {
             "query_id": 38,
             "name": "deap6voltb",
             "unit": "V",
-            "descr": "Backup DEA +6V DC"
+            "descr": "Backup DEA +6V DC",
         },
         {
             "query_id": 39,
             "name": "rad_pcb_b",
-            "descr": "Relative Dose Rad. Monitor Side B"
+            "descr": "Relative Dose Rad. Monitor Side B",
         },
-        {
-            "query_id": 40,
-            "name": "gnd_2",
-            "unit": "V",
-            "descr": "Ground"
-        }
+        {"query_id": 40, "name": "gnd_2", "unit": "V", "descr": "Ground"},
     ]
     return out
 

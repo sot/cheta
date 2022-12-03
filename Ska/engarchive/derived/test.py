@@ -5,6 +5,7 @@ from . import base
 class DerivedParameterTest(base.DerivedParameter):
     content_root = 'test'
 
+
 # --------------------------------------------
 
 

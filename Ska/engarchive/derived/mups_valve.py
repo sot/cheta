@@ -84,10 +84,29 @@ def c2f(degc):
 
 
 # Define MUPS valve thermistor point pair calibration table (from TDB).
-pp_counts = np.array([0, 27, 36, 44, 55, 70, 90, 118, 175, 195, 210, 219, 226, 231, 235, 255])
-pp_temps = np.array([369.5305, 263.32577, 239.03652, 222.30608, 203.6944, 183.2642, 161.0796,
-                     134.93818, 85.65725, 65.6537, 47.3176, 33.50622, 19.9373, 7.42435, -5.79635,
-                     -111.77265])
+pp_counts = np.array(
+    [0, 27, 36, 44, 55, 70, 90, 118, 175, 195, 210, 219, 226, 231, 235, 255]
+)
+pp_temps = np.array(
+    [
+        369.5305,
+        263.32577,
+        239.03652,
+        222.30608,
+        203.6944,
+        183.2642,
+        161.0796,
+        134.93818,
+        85.65725,
+        65.6537,
+        47.3176,
+        33.50622,
+        19.9373,
+        7.42435,
+        -5.79635,
+        -111.77265,
+    ]
+)
 
 count_to_degf = interp1d(pp_counts, pp_temps)
 degf_to_counts = interp1d(pp_temps, pp_counts)
@@ -104,16 +123,39 @@ def volts_to_counts(volts):
 
 # Voltage and Temperature, with and without resistor (see flight note 447 for
 # the source of these numbers).
-volt_with_resistor = [4.153325779, 3.676396578, 3.175100371, 2.587948965, 2.435, 2.025223702,
-                      1.538506813, 1.148359251, 0.63128179, 0.354868907, 0.208375569]
-volt_without_resistor = [28.223, 15, 9.1231, 5.5228, 4.87, 3.467, 2.249,
-                         1.5027, 0.7253, 0.38276, 0.21769]
-volt_without_resistor_to_volt_with_resistor = interp1d(volt_without_resistor,
-                                                       volt_with_resistor)
+volt_with_resistor = [
+    4.153325779,
+    3.676396578,
+    3.175100371,
+    2.587948965,
+    2.435,
+    2.025223702,
+    1.538506813,
+    1.148359251,
+    0.63128179,
+    0.354868907,
+    0.208375569,
+]
+volt_without_resistor = [
+    28.223,
+    15,
+    9.1231,
+    5.5228,
+    4.87,
+    3.467,
+    2.249,
+    1.5027,
+    0.7253,
+    0.38276,
+    0.21769,
+]
+volt_without_resistor_to_volt_with_resistor = interp1d(
+    volt_without_resistor, volt_with_resistor
+)
 
 
 def get_corr_mups_temp(temp):
-    """ Calculate a MUPS valve thermistor corrected temperature.
+    """Calculate a MUPS valve thermistor corrected temperature.
     Args:
         temp (float, int): Temperature in Fahrenheit to which a correction will be applied.
 
@@ -162,7 +204,7 @@ def select_using_model(data1, data2, model, dt_thresh, out, source):
             model_prop_ii = model[0]
         else:
             # Propagate model using last point + delta-model
-            model_prop_ii = out[ii-1] + (model[ii] - model[ii-1])  # noqa
+            model_prop_ii = out[ii - 1] + (model[ii] - model[ii - 1])  # noqa
 
         if abs(data1[ii] - model_prop_ii) < dt_thresh:
             out[ii] = data1[ii]
@@ -176,8 +218,9 @@ def select_using_model(data1, data2, model, dt_thresh, out, source):
             source[ii] = 0
 
 
-def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
-                     version=None):
+def fetch_clean_msid(
+    msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None, version=None
+):
     """Fetch a cleaned version of telemetry for ``msid``.
 
      If not supplied the model spec will come from
@@ -221,9 +264,9 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
     t_corr = get_corr_mups_temp(t_obs)
 
     # Model is computed in degC
-    mdl = XijaModel(model_spec=model_spec,
-                    start=dat.times[0] - 400000,
-                    stop=dat.times[-1])
+    mdl = XijaModel(
+        model_spec=model_spec, start=dat.times[0] - 400000, stop=dat.times[-1]
+    )
     mdl.comp['mups0'].set_data(75)  # degC
     mdl.make()
     mdl.calc()
@@ -240,14 +283,16 @@ def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec
         out[ok] = data[ok]
         source[ok] = source_id
 
-    select_using_model(t_obs, t_corr, t_model, dt_thresh=dt_thresh, out=out, source=source)
+    select_using_model(
+        t_obs, t_corr, t_model, dt_thresh=dt_thresh, out=out, source=source
+    )
 
     dat.vals_raw = dat.vals
 
     dat.vals = out
     dat.vals_nan = out.copy()
 
-    dat.bads = (source == 0)
+    dat.bads = source == 0
     dat.vals_nan[dat.bads] = np.nan
 
     dat.source = source

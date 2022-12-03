@@ -7,6 +7,7 @@ from .. import fetch, utils
 
 try:
     import kadi.events
+
     HAS_EVENTS = True
 except ImportError:
     HAS_EVENTS = False
@@ -43,8 +44,12 @@ def test_fetch_MSID_intervals():
             dat = fetch.MSID('tephin', start, stop, filter_bad=filter_bad, stat=stat)
             dat.select_intervals(kadi.events.dwells)
 
-            dat2 = fetch.MSID('tephin', kadi.events.dwells.intervals(start, stop),
-                              filter_bad=filter_bad, stat=stat)
+            dat2 = fetch.MSID(
+                'tephin',
+                kadi.events.dwells.intervals(start, stop),
+                filter_bad=filter_bad,
+                stat=stat,
+            )
 
             assert np.all(dat.bads == dat2.bads)
             assert dat.colnames == dat2.colnames
@@ -67,8 +72,12 @@ def test_fetch_MSIDset_intervals():
             for msid in msids:
                 dat[msid].select_intervals(kadi.events.dwells)
 
-            dat2 = fetch.MSIDset(msids, kadi.events.dwells.intervals(start, stop),
-                                 filter_bad=filter_bad, stat=stat)
+            dat2 = fetch.MSIDset(
+                msids,
+                kadi.events.dwells.intervals(start, stop),
+                filter_bad=filter_bad,
+                stat=stat,
+            )
 
             for msid in msids:
                 dm = dat[msid]
@@ -98,10 +107,14 @@ def test_select_remove_interval():
         assert len(dat_r) == 51
         assert len(dat_s) == 168
         dates_r = DateTime(dat_r.times).date
-        assert dates_r[0] == '2012:002:02:49:39.317'  # First after '2012:002:02:49:27.017'
+        assert (
+            dates_r[0] == '2012:002:02:49:39.317'
+        )  # First after '2012:002:02:49:27.017'
         assert dates_r[15] == '2012:002:02:57:51.317'  # Gap '2012:002:02:58:11.817'
         assert dates_r[16] == '2012:002:03:04:57.717'  # to '2012:002:03:04:39.267'
-        assert dates_r[50] == '2012:002:03:23:32.917'  # last before '2012:002:03:23:45.217'
+        assert (
+            dates_r[50] == '2012:002:03:23:32.917'
+        )  # last before '2012:002:03:23:45.217'
         assert set(dat_r.times).isdisjoint(dat_s.times)
 
 
@@ -126,10 +139,24 @@ def test_remove_intervals_stat():
         for filt in (kadi.events.dwells, intervals):
             dat = fetch.MSID('tephin', start, stop)
             dat.remove_intervals(filt)
-            attrs = [attr for attr in ('vals', 'mins', 'maxes', 'means',
-                                       'p01s', 'p05s', 'p16s', 'p50s',
-                                       'p84s', 'p95s', 'p99s', 'midvals')
-                     if hasattr(dat, attr)]
+            attrs = [
+                attr
+                for attr in (
+                    'vals',
+                    'mins',
+                    'maxes',
+                    'means',
+                    'p01s',
+                    'p05s',
+                    'p16s',
+                    'p50s',
+                    'p84s',
+                    'p95s',
+                    'p99s',
+                    'midvals',
+                )
+                if hasattr(dat, attr)
+            ]
 
         for attr in attrs:
             assert len(dat) == len(getattr(dat, attr))
@@ -163,32 +190,38 @@ def test_msid_logical_intervals():
     # Now with incomplete intervals on each end
     intervals = dat.logical_intervals('==', 'NPNT', complete_intervals=False)
     assert len(intervals) == 3
-    assert np.all(intervals['datestart'] == ['2012:366:23:59:59.932',
-                                             '2013:001:01:03:37.032',
-                                             '2013:001:01:59:06.233'])
-    assert np.all(intervals['datestop'] == ['2013:001:00:56:07.057',
-                                            '2013:001:01:26:13.107',
-                                            '2013:001:01:59:59.533'])
+    assert np.all(
+        intervals['datestart']
+        == ['2012:366:23:59:59.932', '2013:001:01:03:37.032', '2013:001:01:59:06.233']
+    )
+    assert np.all(
+        intervals['datestop']
+        == ['2013:001:00:56:07.057', '2013:001:01:26:13.107', '2013:001:01:59:59.533']
+    )
 
 
 def test_util_logical_intervals():
     """
     Test utils.logical_intervals()
     """
-    dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'],
-                        '2012:190:12:00:00', '2012:205:12:00:00')
+    dat = fetch.Msidset(
+        ['3tscmove', 'aorwbias', 'coradmen'], '2012:190:12:00:00', '2012:205:12:00:00'
+    )
     dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)
-    scs107 = ((dat['3tscmove'].vals == 'T')
-              & (dat['aorwbias'].vals == 'DISA')
-              & (dat['coradmen'].vals == 'DISA'))
+    scs107 = (
+        (dat['3tscmove'].vals == 'T')
+        & (dat['aorwbias'].vals == 'DISA')
+        & (dat['coradmen'].vals == 'DISA')
+    )
     scs107s = utils.logical_intervals(dat.times, scs107)
     scs107s['duration'].format = '{:.1f}'
-    assert (scs107s['datestart', 'datestop', 'duration'].pformat() ==
-            ['      datestart              datestop       duration',
-             '--------------------- --------------------- --------',
-             '2012:194:20:00:48.052 2012:194:20:04:37.652    229.6',
-             '2012:196:21:07:52.852 2012:196:21:11:42.452    229.6',
-             '2012:201:11:46:03.252 2012:201:11:49:52.852    229.6'])
+    assert scs107s['datestart', 'datestop', 'duration'].pformat() == [
+        '      datestart              datestop       duration',
+        '--------------------- --------------------- --------',
+        '2012:194:20:00:48.052 2012:194:20:04:37.652    229.6',
+        '2012:196:21:07:52.852 2012:196:21:11:42.452    229.6',
+        '2012:201:11:46:03.252 2012:201:11:49:52.852    229.6',
+    ]
 
 
 def test_util_logical_intervals_gap():
@@ -210,17 +243,21 @@ def test_msid_state_intervals():
     """
     Test MSID.state_intervals() - basic aliveness and regression test
     """
-    expected = ['      datestart              datestop       val ',
-                '--------------------- --------------------- ----',
-                '2012:366:23:59:59.932 2013:001:00:56:07.057 NPNT',
-                '2013:001:00:56:07.057 2013:001:01:03:37.032 NMAN',
-                '2013:001:01:03:37.032 2013:001:01:26:13.107 NPNT',
-                '2013:001:01:26:13.107 2013:001:01:59:06.233 NMAN',
-                '2013:001:01:59:06.233 2013:001:01:59:59.533 NPNT']
+    expected = [
+        '      datestart              datestop       val ',
+        '--------------------- --------------------- ----',
+        '2012:366:23:59:59.932 2013:001:00:56:07.057 NPNT',
+        '2013:001:00:56:07.057 2013:001:01:03:37.032 NMAN',
+        '2013:001:01:03:37.032 2013:001:01:26:13.107 NPNT',
+        '2013:001:01:26:13.107 2013:001:01:59:06.233 NMAN',
+        '2013:001:01:59:06.233 2013:001:01:59:59.533 NPNT',
+    ]
 
     dat = fetch.Msid('aopcadmd', '2013:001:00:00:00', '2013:001:02:00:00')
     intervals = dat.state_intervals()['datestart', 'datestop', 'val']
     assert intervals.pformat() == expected
 
-    intervals = utils.state_intervals(dat.times, dat.vals)['datestart', 'datestop', 'val']
+    intervals = utils.state_intervals(dat.times, dat.vals)[
+        'datestart', 'datestop', 'val'
+    ]
     assert intervals.pformat() == expected
