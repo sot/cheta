@@ -1,13 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from Chandra.Time import DateTime
-import Ska.Numpy
 import numpy as np
+import Ska.Numpy
+from Chandra.Time import DateTime
+
 from .. import cache
 
-__all__ = ['MNF_TIME', 'times_indexes', 'DerivedParameter']
+__all__ = ["MNF_TIME", "times_indexes", "DerivedParameter"]
 
-MNF_TIME = 0.25625              # Minor Frame duration (seconds)
+MNF_TIME = 0.25625  # Minor Frame duration (seconds)
 
 
 def times_indexes(start, stop, dt):
@@ -20,14 +21,15 @@ def times_indexes(start, stop, dt):
 
 @cache.lru_cache(20)
 def interpolate_times(keyvals, len_data_times, data_times=None, times=None):
-    return Ska.Numpy.interpolate(np.arange(len_data_times),
-                                 data_times, times, method='nearest')
+    return Ska.Numpy.interpolate(
+        np.arange(len_data_times), data_times, times, method="nearest"
+    )
 
 
 class DerivedParameter(object):
-    max_gap = 66.0              # Max allowed data gap (seconds)
+    max_gap = 66.0  # Max allowed data gap (seconds)
     max_gaps = {}
-    unit_system = 'eng'
+    unit_system = "eng"
     dtype = None  # If not None then cast to this dtype
 
     def calc(self, data):
@@ -43,9 +45,10 @@ class DerivedParameter(object):
 
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
         for data in dataset.values():
-            if (data.vals.dtype.name == 'str96'
-                    and set(data.vals).issubset(set(['ON ', 'OFF']))):
-                data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
+            if data.vals.dtype.name == "str96" and set(data.vals).issubset(
+                set(["ON ", "OFF"])
+            ):
+                data.vals = np.where(data.vals == "OFF", np.int8(0), np.int8(1))
 
         times, indexes = times_indexes(start, stop, self.time_step)
         bads = np.zeros(len(times), dtype=np.bool_)  # All data OK (false)
@@ -58,12 +61,22 @@ class DerivedParameter(object):
                 data.vals = np.zeros(2, dtype=data.vals.dtype)  # two null points
                 data.bads = np.ones(2, dtype=np.bool_)  # all points bad
                 data.times = np.array([times[0], times[-1]])
-                print('No data in {} between {} and {} (setting all bad)'
-                      .format(msidname, DateTime(start).date, DateTime(stop).date))
-            keyvals = (data.content, data.times[0], data.times[-1],
-                       len(times), times[0], times[-1])
-            idxs = interpolate_times(keyvals, len(data.times),
-                                     data_times=data.times, times=times)
+                print(
+                    "No data in {} between {} and {} (setting all bad)".format(
+                        msidname, DateTime(start).date, DateTime(stop).date
+                    )
+                )
+            keyvals = (
+                data.content,
+                data.times[0],
+                data.times[-1],
+                len(times),
+                times[0],
+                times[-1],
+            )
+            idxs = interpolate_times(
+                keyvals, len(data.times), data_times=data.times, times=times
+            )
 
             # Loop over data attributes like "bads", "times", "vals" etc and
             # perform near-neighbor interpolation by indexing
@@ -77,10 +90,13 @@ class DerivedParameter(object):
             max_gap = self.max_gaps.get(msidname, self.max_gap)
             gap_bads = abs(data.times - times) > max_gap
             if np.any(gap_bads):
-                print("Setting bads because of gaps in {} between {} to {}"
-                      .format(msidname,
-                              DateTime(times[gap_bads][0]).date,
-                              DateTime(times[gap_bads][-1]).date))
+                print(
+                    "Setting bads because of gaps in {} between {} to {}".format(
+                        msidname,
+                        DateTime(times[gap_bads][0]).date,
+                        DateTime(times[gap_bads][-1]).date,
+                    )
+                )
             bads = bads | gap_bads
 
         dataset.times = times
@@ -91,13 +107,15 @@ class DerivedParameter(object):
 
     def __call__(self, start, stop):
         from .. import fetch_eng
+
         dataset = fetch_eng.MSIDset(self.rootparams, start, stop, filter_bad=True)
 
         # Translate state codes "ON" and "OFF" to 1 and 0, respectively.
         for data in dataset.values():
-            if (data.vals.dtype.name == 'string24'
-                    and set(data.vals) == set(('ON ', 'OFF'))):
-                data.vals = np.where(data.vals == 'OFF', np.int8(0), np.int8(1))
+            if data.vals.dtype.name == "string24" and set(data.vals) == set(
+                ("ON ", "OFF")
+            ):
+                data.vals = np.where(data.vals == "OFF", np.int8(0), np.int8(1))
 
         dataset.interpolate(dt=self.time_step)
 
@@ -113,4 +131,4 @@ class DerivedParameter(object):
 
     @property
     def content(self):
-        return 'dp_{}{}'.format(self.content_root.lower(), self.mnf_step)
+        return "dp_{}{}".format(self.content_root.lower(), self.mnf_step)

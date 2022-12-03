@@ -1,16 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import sys
 
-from .fetch import *  # noqa
-from . import fetch
 from . import __version__  # noqa
+from . import fetch
+from .fetch import *  # noqa
 
 # Module-level units, defaults to CXC units (e.g. Kelvins etc)
-UNITS = fetch.Units('sci')
+UNITS = fetch.Units("sci")
 
 
 def get_units():
-    return UNITS['system']
+    return UNITS["system"]
 
 
 get_units.__doc__ = fetch.get_units.__doc__

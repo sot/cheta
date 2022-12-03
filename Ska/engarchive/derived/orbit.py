@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 """
 Orbital elements based on the position and velocity of Chandra at each 5 minute predictive
@@ -33,10 +33,9 @@ Example::
 The relevant equations were taken from http://www.castor2.ca/05_OD/01_Gauss/14_Kepler/index.html.
 """
 import numpy as np
+from Chandra.Time import DateTime
 
 from . import base
-
-from Chandra.Time import DateTime
 
 ELEMENTS_CACHE = {}
 R_E = 6378.137e3  # Earth Equatorial Radius (m)
@@ -65,7 +64,7 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
       perigee_radius      m
       ================ ====
     """
-    from numpy import sin, cos, arccos, sqrt, degrees, pi
+    from numpy import arccos, cos, degrees, pi, sin, sqrt
 
     def arccos_2pi(arg, reflect):
         """
@@ -75,11 +74,11 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
         :param reflect: bool, np.ndarray of bool: use reflected value
         """
         np_err_handling = np.geterr()
-        np.seterr(all='raise')
+        np.seterr(all="raise")
         try:
             out = arccos(arg)
         except FloatingPointError:
-            print('Bad argccos arg={}'.format(arg))
+            print("Bad argccos arg={}".format(arg))
             raise
         np.seterr(**np_err_handling)
 
@@ -95,17 +94,17 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
         return out
 
     # Semi major axis
-    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-    v2 = vx ** 2 + vy ** 2 + vz ** 2
+    r = np.sqrt(x**2 + y**2 + z**2)
+    v2 = vx**2 + vy**2 + vz**2
     a = 1 / (2 / r - v2 / M_G)
     # a_alt = a - R_E
 
     # Period
-    T = 2 * pi * sqrt(a ** 3 / M_G)
+    T = 2 * pi * sqrt(a**3 / M_G)
     # n = 1 / T
 
     # Eccentricity
-    f1 = (1 / r - 1 / a)
+    f1 = 1 / r - 1 / a
     f2 = (x * vx + y * vy + z * vz) / M_G
     ei = f1 * x - f2 * vx
     ej = f1 * y - f2 * vy
@@ -116,13 +115,13 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
     hi = y * vz - z * vy
     hj = z * vx - x * vz
     hk = x * vy - y * vx
-    h = sqrt(hi ** 2 + hj ** 2 + hk ** 2)
+    h = sqrt(hi**2 + hj**2 + hk**2)
     i = arccos(hk / h)  # radians
 
     # Ascending node
     Wi = -hj
     Wj = hi
-    W = sqrt(Wi ** 2 + Wj ** 2)
+    W = sqrt(Wi**2 + Wj**2)
     aw = arccos_2pi(Wi / W, Wj < 0)
 
     # Argument of perigee
@@ -145,21 +144,29 @@ def calc_orbital_elements(x, y, z, vx, vy, vz):
     perigee = a * (1 - e)
     apogee = a * (1 + e)
 
-    return {'semi_major_axis': a,
-            'orbit_period': T,
-            'eccentricity': e,
-            'inclination': i,
-            'ascending_node': aw,
-            'argument_perigee': w,
-            'mean_anomaly': M,
-            'perigee_radius': perigee,
-            'apogee_radius': apogee}
+    return {
+        "semi_major_axis": a,
+        "orbit_period": T,
+        "eccentricity": e,
+        "inclination": i,
+        "ascending_node": aw,
+        "argument_perigee": w,
+        "mean_anomaly": M,
+        "perigee_radius": perigee,
+        "apogee_radius": apogee,
+    }
 
 
 class DerivedParameterOrbit(base.DerivedParameter):
-    content_root = 'orbit'
-    rootparams = ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z',
-                  'orbitephem0_vx', 'orbitephem0_vy', 'orbitephem0_vz']
+    content_root = "orbit"
+    rootparams = [
+        "orbitephem0_x",
+        "orbitephem0_y",
+        "orbitephem0_z",
+        "orbitephem0_vx",
+        "orbitephem0_vy",
+        "orbitephem0_vz",
+    ]
     time_step = 328.0
     max_gap = 1000.0
 
@@ -173,12 +180,12 @@ class DerivedParameterOrbit(base.DerivedParameter):
             return ELEMENTS_CACHE[start, stop][param]
 
         # Get values in km and km/sec
-        x = data['orbitephem0_x'].vals
-        y = data['orbitephem0_y'].vals
-        z = data['orbitephem0_z'].vals
-        vx = data['orbitephem0_vx'].vals
-        vy = data['orbitephem0_vy'].vals
-        vz = data['orbitephem0_vz'].vals
+        x = data["orbitephem0_x"].vals
+        y = data["orbitephem0_y"].vals
+        z = data["orbitephem0_z"].vals
+        vx = data["orbitephem0_vx"].vals
+        vy = data["orbitephem0_vy"].vals
+        vz = data["orbitephem0_vz"].vals
 
         elements = calc_orbital_elements(x, y, z, vx, vy, vz)
         ELEMENTS_CACHE[start, stop] = elements

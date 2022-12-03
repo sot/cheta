@@ -1,16 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.dates import num2epoch, epoch2num
-
-from Ska.Matplotlib import plot_cxctime
+import numpy as np
 from Chandra.Time import DateTime
+from matplotlib.dates import epoch2num, num2epoch
+from Ska.Matplotlib import plot_cxctime
 
 from . import __version__  # noqa
 
-MIN_TSTART_UNIX = DateTime('1999:100').unix
+MIN_TSTART_UNIX = DateTime("1999:100").unix
 MAX_TSTOP_UNIX = DateTime().unix + 1e7
 
 
@@ -20,9 +19,9 @@ def get_stat(t0, t1, npix):
     dt_days = t1 - t0
 
     if dt_days > npix:
-        stat = 'daily'
+        stat = "daily"
     elif dt_days * (24 * 60 / 5) > npix:
-        stat = '5min'
+        stat = "5min"
     else:
         stat = None
     return stat
@@ -67,7 +66,7 @@ class MsidPlot(object):
 
     """
 
-    def __init__(self, msid, fmt='-b', fmt_minmax='-c', **plot_kwargs):
+    def __init__(self, msid, fmt="-b", fmt_minmax="-c", **plot_kwargs):
         self.fig = plt.gcf()
         self.fig.clf()
         self.ax = self.fig.gca()
@@ -86,14 +85,15 @@ class MsidPlot(object):
         # Make sure MSID is sampled at the correct density for initial plot
         stat = get_stat(self.tstart, self.tstop, self.npix)
         if stat != self.msid.stat:
-            self.msid = self.fetch.Msid(self.msidname, self.tstart, self.tstop,
-                                        stat=stat)
+            self.msid = self.fetch.Msid(
+                self.msidname, self.tstart, self.tstop, stat=stat
+            )
 
         self.ax.set_autoscale_on(True)
         self.draw_plot()
         self.ax.set_autoscale_on(False)
         plt.grid()
-        self.fig.canvas.mpl_connect('key_press_event', self.key_press)
+        self.fig.canvas.mpl_connect("key_press_event", self.key_press)
 
     @property
     def npix(self):
@@ -101,11 +101,11 @@ class MsidPlot(object):
         return int(dims[2] + 0.5)
 
     def key_press(self, event):
-        if event.key in ['z', 'p'] and event.inaxes:
+        if event.key in ["z", "p"] and event.inaxes:
             x0, x1 = self.ax.get_xlim()
             dx = x1 - x0
             xc = event.xdata
-            zoom = self.zoom if event.key == 'p' else 1.0 / self.zoom
+            zoom = self.zoom if event.key == "p" else 1.0 / self.zoom
             new_x1 = zoom * (x1 - xc) + xc
             new_x0 = new_x1 - zoom * dx
             tstart = max(num2epoch(new_x0), MIN_TSTART_UNIX)
@@ -115,27 +115,34 @@ class MsidPlot(object):
 
             self.ax.set_xlim(new_x0, new_x1)
             self.ax.figure.canvas.draw_idle()
-        elif event.key == 'm':
+        elif event.key == "m":
             for _ in range(len(self.ax.lines)):
                 self.ax.lines.pop()
             self.plot_mins = not self.plot_mins
-            print('\nPlotting mins and maxes is {}'.format(
-                'enabled' if self.plot_mins else 'disabled'))
+            print(
+                "\nPlotting mins and maxes is {}".format(
+                    "enabled" if self.plot_mins else "disabled"
+                )
+            )
             self.draw_plot()
-        elif event.key == 'a':
+        elif event.key == "a":
             # self.fig.clf()
             # self.ax = self.fig.gca()
             self.ax.set_autoscale_on(True)
             self.draw_plot()
             self.ax.set_autoscale_on(False)
             self.xlim_changed(None)
-        elif event.key == 'y':
+        elif event.key == "y":
             self.scaley = not self.scaley
-            print('Autoscaling y axis is {}'.format(
-                'enabled' if self.scaley else 'disabled'))
+            print(
+                "Autoscaling y axis is {}".format(
+                    "enabled" if self.scaley else "disabled"
+                )
+            )
             self.draw_plot()
-        elif event.key == '?':
-            print("""
+        elif event.key == "?":
+            print(
+                """
 Interactive MSID plot keys:
 
   a: autoscale for full data range in x and y
@@ -144,22 +151,26 @@ Interactive MSID plot keys:
   y: toggle autoscaling of y-axis
   z: zoom at cursor x
   ?: print help
-""")
+"""
+            )
 
     def xlim_changed(self, event):
         x0, x1 = self.ax.get_xlim()
-        self.tstart = DateTime(num2epoch(x0), format='unix').secs
-        self.tstop = DateTime(num2epoch(x1), format='unix').secs
+        self.tstart = DateTime(num2epoch(x0), format="unix").secs
+        self.tstop = DateTime(num2epoch(x1), format="unix").secs
         stat = get_stat(self.tstart, self.tstop, self.npix)
 
-        if (self.tstart < self.msid.tstart or
-            self.tstop > self.msid.tstop or
-                stat != self.msid.stat):
+        if (
+            self.tstart < self.msid.tstart
+            or self.tstop > self.msid.tstop
+            or stat != self.msid.stat
+        ):
             dt = self.tstop - self.tstart
             self.tstart -= dt / 4
             self.tstop += dt / 4
-            self.msid = self.fetch.Msid(self.msidname, self.tstart, self.tstop,
-                                        stat=stat)
+            self.msid = self.fetch.Msid(
+                self.msidname, self.tstart, self.tstop, stat=stat
+            )
         self.draw_plot()
 
     def draw_plot(self):
@@ -173,27 +184,44 @@ Interactive MSID plot keys:
         if scaley:
             ymin = None
             ymax = None
-            ok = ((msid.times >= self.tstart) &
-                  (msid.times <= self.tstop))
+            ok = (msid.times >= self.tstart) & (msid.times <= self.tstop)
 
         try:
             self.ax.callbacks.disconnect(self.xlim_callback)
         except AttributeError:
             pass
 
-        if self.plot_mins and hasattr(self.msid, 'mins'):
-            plot_cxctime(msid.times, msid.mins, self.fmt_minmax,
-                         ax=self.ax, fig=self.fig, **self.plot_kwargs)
-            plot_cxctime(msid.times, msid.maxes, self.fmt_minmax,
-                         ax=self.ax, fig=self.fig, **self.plot_kwargs)
+        if self.plot_mins and hasattr(self.msid, "mins"):
+            plot_cxctime(
+                msid.times,
+                msid.mins,
+                self.fmt_minmax,
+                ax=self.ax,
+                fig=self.fig,
+                **self.plot_kwargs,
+            )
+            plot_cxctime(
+                msid.times,
+                msid.maxes,
+                self.fmt_minmax,
+                ax=self.ax,
+                fig=self.fig,
+                **self.plot_kwargs,
+            )
             if scaley:
                 ymin = np.min(msid.mins[ok])
                 ymax = np.max(msid.maxes[ok])
 
         vals = msid.raw_vals if msid.state_codes else msid.vals
-        plot_cxctime(msid.times, vals, self.fmt,
-                     ax=self.ax, fig=self.fig,
-                     state_codes=msid.state_codes, **self.plot_kwargs)
+        plot_cxctime(
+            msid.times,
+            vals,
+            self.fmt,
+            ax=self.ax,
+            fig=self.fig,
+            state_codes=msid.state_codes,
+            **self.plot_kwargs,
+        )
 
         if scaley:
             plotvals = vals[ok]
@@ -208,7 +236,7 @@ Interactive MSID plot keys:
 
         title = msid.msid.upper()
         if msid.stat:
-            title = f'{title} ({msid.stat})'
+            title = f"{title} ({msid.stat})"
         self.ax.set_title(title)
         if msid.unit:
             self.ax.set_ylabel(msid.unit)
@@ -216,5 +244,6 @@ Interactive MSID plot keys:
         # Update the image object with our new data and extent
         self.ax.figure.canvas.draw_idle()
 
-        self.xlim_callback = self.ax.callbacks.connect('xlim_changed',
-                                                       self.xlim_changed)
+        self.xlim_callback = self.ax.callbacks.connect(
+            "xlim_changed", self.xlim_changed
+        )

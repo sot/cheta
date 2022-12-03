@@ -3,30 +3,31 @@ from . import base
 
 
 class DerivedParameterTest(base.DerivedParameter):
-    content_root = 'test'
+    content_root = "test"
+
 
 # --------------------------------------------
 
 
 class DP_TEST1(DerivedParameterTest):
-    rootparams = ['TEPHIN']
+    rootparams = ["TEPHIN"]
     time_step = 32.8
 
     def calc(self, dataset):
-        return dataset['TEPHIN'].vals
+        return dataset["TEPHIN"].vals
 
 
 class DP_TEST2(DerivedParameterTest):
-    rootparams = ['TEPHIN']
+    rootparams = ["TEPHIN"]
     time_step = 65.6
 
     def calc(self, dataset):
-        return dataset['TEPHIN'].vals * 1.5
+        return dataset["TEPHIN"].vals * 1.5
 
 
 class DP_TEST3(DerivedParameterTest):
-    rootparams = ['TEPHIN']
+    rootparams = ["TEPHIN"]
     time_step = 65.6
 
     def calc(self, dataset):
-        return dataset['TEPHIN'].vals * 2.0
+        return dataset["TEPHIN"].vals * 2.0
