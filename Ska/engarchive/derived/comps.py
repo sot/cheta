@@ -647,7 +647,7 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
 
     """
 
-    msid_match = r"(roll|pitch)_obc_safe"
+    msid_match = r"(roll|pitch)_comp"
 
     # `msid_match` is a class attribute that defines a regular expresion to
     # match for this computed MSID.  This must be defined and it must be
