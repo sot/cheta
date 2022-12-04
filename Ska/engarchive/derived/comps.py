@@ -691,7 +691,7 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
                 # Get states of either NPNT / NMAN or NSUN
                 vals = np.isin(dat.vals, ["NPNT", "NMAN"])
                 states_npnt_nman = logical_intervals(
-                    dat.times, vals, complete_intervals=False
+                    dat.times, vals, complete_intervals=False, max_gap=2.1
                 )
                 states_npnt_nman["val"] = np.repeat("NPNT_NMAN", len(states_npnt_nman))
                 # Require at least 10 minutes => 2 samples of the ephem data. This is
@@ -699,7 +699,9 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
                 ok = states_npnt_nman["duration"] > 10 * 60 + 1
                 states_npnt_nman = states_npnt_nman[ok]
 
-                states_nsun = logical_intervals(dat.times, dat.vals == "NSUN")
+                states_nsun = logical_intervals(
+                    dat.times, dat.vals == "NSUN", max_gap=2.1, complete_intervals=False
+                )
                 states_nsun["val"] = np.repeat("NSUN", len(states_nsun))
                 states = tbl.vstack([states_npnt_nman, states_nsun])
                 states.sort("tstart")
@@ -717,7 +719,7 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
                         tlms.append((tlm.times, tlm.vals))
 
             elif ofp_state["val"] == "SAFE":
-                calc_func = globals()[f"calc_css_{msid_args[0]}_safe"]
+                calc_func = globals()[f"calc_css_{pitch_roll}_safe"]
                 tlm = calc_func(ofp_state["datestart"], ofp_state["datestop"])
                 tlms.append(tlm)
 
