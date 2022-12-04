@@ -2296,6 +2296,10 @@ def create_msid_data_gap(msid_obj: MSID, data_gap_spec: str):
     if msid_matches_data_gap_spec(msid_obj.MSID, args.include, args.exclude):
         tstart = as_abs_time(args.start)
         tstop = as_abs_time(args.stop)
+        logger.info(
+            f"Creating data gap for {msid_obj.MSID} "
+            f"from {CxoTime(tstart).date} to {CxoTime(tstop).date}"
+        )
         i0, i1 = np.searchsorted(msid_obj.times, [tstart, tstop])
         for attr in msid_obj.colnames:
             val = getattr(msid_obj, attr)
