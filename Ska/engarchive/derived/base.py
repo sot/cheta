@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import logging
+
 import numpy as np
 import Ska.Numpy
 from Chandra.Time import DateTime
@@ -9,6 +11,8 @@ from .. import cache
 __all__ = ["MNF_TIME", "times_indexes", "DerivedParameter"]
 
 MNF_TIME = 0.25625  # Minor Frame duration (seconds)
+
+logger = logging.getLogger("Ska.engarchive.fetch")
 
 
 def times_indexes(start, stop, dt):
@@ -90,7 +94,7 @@ class DerivedParameter(object):
             max_gap = self.max_gaps.get(msidname, self.max_gap)
             gap_bads = abs(data.times - times) > max_gap
             if np.any(gap_bads):
-                print(
+                logger.info(
                     "Setting bads because of gaps in {} between {} to {}".format(
                         msidname,
                         DateTime(times[gap_bads][0]).date,
