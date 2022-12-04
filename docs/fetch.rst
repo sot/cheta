@@ -26,6 +26,8 @@ Classes
 
 Functions
 -----------
+.. autofunction:: create_msid_data_gap
+
 .. autofunction:: get_telem
 
 .. autofunction:: get_time_range
