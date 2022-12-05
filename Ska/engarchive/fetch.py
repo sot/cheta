@@ -1331,16 +1331,16 @@ class MSID(object):
         )
         f.close()
 
-    def logical_intervals(self, op, val, complete_intervals=True, max_gap=None):
+    def logical_intervals(self, op, val, complete_intervals=False, max_gap=None):
         """Determine contiguous intervals during which the logical comparison
         expression "MSID.vals op val" is True.  Allowed values for ``op``
         are::
 
           ==  !=  >  <  >=  <=
 
-        If ``complete_intervals`` is True (default) then the intervals are guaranteed to
-        be complete so that the all reported intervals had a transition before and after
-        within the telemetry interval.
+        If ``complete_intervals`` is True (default is False) then the intervals
+        are guaranteed to be complete so that the all reported intervals had a
+        transition before and after within the telemetry interval.
 
         If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
         filled with a fictitious False value to create an artificial interval
@@ -1358,10 +1358,10 @@ class MSID(object):
         Examples::
 
           >>> dat = fetch.MSID('aomanend', '2010:001', '2010:005')
-          >>> manvs = dat.logical_intervals('==', 'NEND')
+          >>> manvs = dat.logical_intervals('==', 'NEND', complete_intervals=True)
 
           >>> dat = fetch.MSID('61PSTS02', '1999:200', '2000:001')
-          >>> safe_suns = dat.logical_intervals('==', 'SSM', complete_intervals=False, max_gap=66)
+          >>> safe_suns = dat.logical_intervals('==', 'SSM', max_gap=66)
 
         :param op: logical operator, one of ==  !=  >  <  >=  <=
         :param val: comparison value
