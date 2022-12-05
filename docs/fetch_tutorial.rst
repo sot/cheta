@@ -700,7 +700,7 @@ content type as follows::
 
   msids = fetch.MSIDset(['aorate1', 'aorate2', 'aogyrct1', 'aogyrct2'], '2009:001', '2009:002')
   for msid in msids.values():
-      print msid.msid, msid.content
+      print(msid.msid, msid.content)
 
 In this case if we apply the ``filter_bad()`` method then ``aorate1`` and
 ``aorate2`` will be grouped separately from ``aogyrct1`` and ``aogyrct2``.  In
@@ -865,13 +865,13 @@ Example::
   import Ska.engarchive.fetch_sci as fetch_sci
 
   t1 = fetch_cxc.MSID('tephin', '2010:001', '2010:002')
-  print t1.unit  # prints "K"
+  print(t1.unit  # prints "K")
 
   t2 = fetch_eng.MSID('tephin', '2010:001', '2010:002')
-  print t2.unit  # prints "DEGF"
+  print(t2.unit  # prints "DEGF")
 
   t3 = fetch_sci.MSID('tephin', '2010:001', '2010:002')
-  print t3.unit  # prints "DEGC"
+  print(t3.unit  # prints "DEGC")
 
 MSID globs
 =============================
