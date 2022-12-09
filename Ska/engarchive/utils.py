@@ -242,12 +242,12 @@ def _pad_long_gaps(times, bools, max_gap):
     return times, bools
 
 
-def logical_intervals(times, bools, complete_intervals=True, max_gap=None):
+def logical_intervals(times, bools, complete_intervals=False, max_gap=None):
     """Determine contiguous intervals during which `bools` is True.
 
-    If ``complete_intervals`` is True (default) then the intervals are guaranteed to
-    be complete so that the all reported intervals had a transition before and after
-    within the telemetry interval.
+    If ``complete_intervals`` is True (default is False) then the intervals are
+    guaranteed to be complete so that the all reported intervals had a
+    transition before and after within the telemetry interval.
 
     If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
     filled with a fictitious False value to create an artificial interval
@@ -270,7 +270,7 @@ def logical_intervals(times, bools, complete_intervals=True, max_gap=None):
                     & (dat['aorwbias'].vals == 'DISA')
                     & (dat['coradmen'].vals == 'DISA'))
       >>> scs107s = utils.logical_intervals(dat.times, scs107)
-      >>> print scs107s['datestart', 'datestop', 'duration']
+      >>> print(scs107s['datestart', 'datestop', 'duration'])
             datestart              datestop          duration
       --------------------- --------------------- -------------
       2012:194:20:00:31.652 2012:194:20:04:21.252 229.600000083
@@ -315,9 +315,9 @@ def state_intervals(times, vals):
     Example::
 
       >>> from Ska.engarchive import fetch, utils
-      >>> dat = fetch.Msid('cobsrqid', '2010:003', '2010:004')
+      >>> dat = fetch.Msid('cobsrqid', '2010:003:12:00:00', '2010:004:12:00:00')
       >>> obsids = utils.state_intervals(dat.times, dat.vals)
-      >>> print obsids['datestart', 'datestop', 'val']
+      >>> print(obsids['datestart', 'datestop', 'val'])
             datestart              datestop         val
       --------------------- --------------------- -------
       2010:003:12:00:00.976 2010:004:09:07:44.180 11011.0

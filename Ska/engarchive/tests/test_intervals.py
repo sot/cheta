@@ -181,14 +181,14 @@ def test_msid_logical_intervals():
     """
     dat = fetch.Msid("aopcadmd", "2013:001:00:00:00", "2013:001:02:00:00")
 
-    # default complete_intervals=True
-    intervals = dat.logical_intervals("==", "NPNT")
+    intervals = dat.logical_intervals("==", "NPNT", complete_intervals=True)
     assert len(intervals) == 1
     assert np.all(intervals["datestart"] == ["2013:001:01:03:37.032"])
     assert np.all(intervals["datestop"] == ["2013:001:01:26:13.107"])
 
+    # default complete_intervals=False
     # Now with incomplete intervals on each end
-    intervals = dat.logical_intervals("==", "NPNT", complete_intervals=False)
+    intervals = dat.logical_intervals("==", "NPNT")
     assert len(intervals) == 3
     assert np.all(
         intervals["datestart"]
@@ -230,11 +230,11 @@ def test_util_logical_intervals_gap():
     """
     times = np.array([1, 2, 3, 200, 201, 202])
     bools = np.ones(len(times), dtype=bool)
-    out = utils.logical_intervals(times, bools, complete_intervals=False, max_gap=10)
+    out = utils.logical_intervals(times, bools, max_gap=10)
     assert np.allclose(out["tstart"], [0.5, 197.5])
     assert np.allclose(out["tstop"], [5.5, 202.5])
 
-    out = utils.logical_intervals(times, bools, complete_intervals=False)
+    out = utils.logical_intervals(times, bools)
     assert np.allclose(out["tstart"], [0.5])
     assert np.allclose(out["tstop"], [202.5])
 
