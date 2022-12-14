@@ -681,7 +681,7 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
         # Whether we are computing "pitch" or "roll", parsed from MSID name
         pitch_roll: str = msid_args[0]
 
-        ofp_states = get_ofp_states(stop, days=(stop - start).jd)
+        ofp_states = get_ofp_states(stop.date, days=(stop - start).jd)
 
         tlms = []
         for ofp_state in ofp_states:
