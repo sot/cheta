@@ -2,9 +2,20 @@
 """
 Support computed MSIDs in the cheta archive.
 
-- Base class ComputedMsid for user-generated comps.
-- Cleaned MUPS valve temperatures MSIDs: '(pm2thv1t|pm1thv2t)_clean'.
-- Commanded states 'cmd_state_<key>_<dt>' for any kadi commanded state value.
+- :class:`~cheta.derived.comps.ComputedMsid`: base class for user-generated comps.
+- :class:`~cheta.derived.comps.Comp_MUPS_Valve_Temp_Clean`:
+  Cleaned MUPS valve temperatures MSIDs ``(pm2thv1t|pm1thv2t)_clean``.
+- :class:`~cheta.derived.comps.Comp_KadiCommandState`:
+  Commanded states ``cmd_state_<key>_<dt>`` for any kadi commanded state value.
+- :class:`~cheta.derived.comps.Comp_Quat`:
+  Quaternions
+    - ``quat_aoattqt`` = ``AOATTQT[1-4]``
+    - ``quat_aoatupq`` = ``AOATUPQ[1-3]``
+    - ``quat_aocmdqt`` = ``AOCMDQT[1-3]``
+    - ``quat_aotarqt`` = ``AOTARQT[1-3]``
+- :class:`~cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe`:
+  Sun Pitch ``pitch_comp`` and off-nominal roll ``roll_comp`` which are valid in NPNT,
+  NMAN, NSUN and safe mode.
 
 See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
 """  # noqa
@@ -18,7 +29,13 @@ from cxotime import CxoTime
 
 from ..units import converters as unit_converter_funcs
 
-__all__ = ["ComputedMsid", "Comp_MUPS_Valve_Temp_Clean", "Comp_KadiCommandState"]
+__all__ = [
+    "ComputedMsid",
+    "Comp_MUPS_Valve_Temp_Clean",
+    "Comp_KadiCommandState",
+    "Comp_Pitch_Roll_OBC_Safe",
+    "Comp_Quat",
+]
 
 
 def calc_stats_vals(msid, rows, indexes, interval):
@@ -351,10 +368,10 @@ class Comp_Quat(ComputedMsid):
     This defines the following computed MSIDs based on the corresponding
     TDB MSIDs:
 
-    - quat_aoattqt = AOATTQT[1-4]
-    - quat_aoatupq = AOATUPQ[1-3]
-    - quat_aocmdqt = AOCMDQT[1-3]
-    - quat_aotarqt = AOTARQT[1-3]
+    - ``quat_aoattqt`` = ``AOATTQT[1-4]``
+    - ``quat_aoatupq`` = ``AOATUPQ[1-3]``
+    - ``quat_aocmdqt`` = ``AOCMDQT[1-3]``
+    - ``quat_aotarqt`` = ``AOTARQT[1-3]``
 
     Example::
 
@@ -635,15 +652,21 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
     Computed MSID to return pitch or off-nominal roll angle which is valid in NPNT,
     NMAN, NSUN, and Safe Mode.
 
-    Logic is:
-    - Get logical intervals:
-      - CONLOFP == "NRML":
-        - AOPCADMD in ["NPNT", "NMAN"] => compute pitch/roll from AOATTQT1/2/3/4
+    MSID names are ``pitch_comp`` and ``roll_comp``.
+
+    The computation logic is shown below::
+
+      On OBC control (CONLOFP == "NRML"):
+        - AOPCADMD in ["NPNT", "NMAN"] => compute pitch/roll from AOATTQT[1234]
+          (MAUDE or CXC) and predictive ephemeris ORBITEPHEM0_[XYZ] and
+          SOLAREPHEM0_[XYZ] (CXC only but always available)
         - AOPCADMD == "NSUN" => get pitch/roll from PITCH/ROLL_CSS derived params.
           These are also in MAUDE.
-      - CONLOFP == "SAFE":
-        - Compute pitch/roll from PITCH/ROLL_CSS_SAFE via calc_pitch/roll_css_safe()
-      - Intervals for other CONLOFP values are ignored.
+
+      On CPE control (CONLOFP == "SAFE"):
+        - Compute pitch/roll from 6SUNSA[123] + 6SARES[12] via calc_pitch/roll_css_safe()
+
+      Intervals for other CONLOFP values are ignored.
 
     """
 
