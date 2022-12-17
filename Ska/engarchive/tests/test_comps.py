@@ -299,3 +299,56 @@ def test_roll_comp():
     )
     # fmt: on
     assert np.allclose(dat.vals, exp, rtol=0, atol=2e-2)
+
+
+def test_dp_pitch_css():
+    """Test dp_roll_css_derived during a time with NPNT, NMAN, NSUN"""
+    from cheta.derived import pcad
+
+    start = "2022:292"
+    stop = "2022:294"
+    dp = pcad.DP_PITCH_CSS()
+    tlm = dp.fetch(start, stop)
+    vals = dp.calc(tlm)
+    vals = np.round(vals[::1000], 4)
+    # fmt: off
+    exp = np.array(
+        [
+           125.1838, 125.1838, 125.1811, 125.2076,  47.6423,  48.248 ,  # noqa
+           100.2035, 100.0847, 112.813 , 171.7346, 171.697 ,  52.9446,  # noqa
+            48.1135,  50.0441, 167.0614, 167.0853, 167.0853, 167.1091,  # noqa
+            61.0159,  61.0188,  60.9992,  61.0245, 150.7093, 167.196 ,  # noqa
+           167.2436, 167.2436, 148.7973,  61.0963,  61.1217,  61.0996,  # noqa
+            61.1278,  92.0449, 167.3727, 167.4203, 167.8648, 171.0578,  # noqa
+            90.8391,  90.122 ,  90.0533,  90.122 ,  90.0744,  90.0506,  # noqa
+            90.0506  # noqa
+        ]
+    )
+    # fmt: on
+    assert np.allclose(vals, exp, rtol=0, atol=2e-4)
+
+
+def test_dp_roll_css():
+    """Test dp_roll_css_derived during a time with NPNT, NMAN, NSUN"""
+    from cheta.derived import pcad
+
+    start = "2022:292"
+    stop = "2022:294"
+    dp = pcad.DP_ROLL_CSS()
+    tlm = dp.fetch(start, stop)
+    vals = dp.calc(tlm)
+    vals = np.round(vals[::1000], 4)
+    # fmt: off
+    exp = np.array(
+        [
+            -0.1177, -0.1177, -0.0841, -0.1009, -0.1116, -0.1474, -0.0838,  # noqa
+             1.5221, -0.7457, -1.9128, -1.2376, -0.1206, -0.1477, -0.1614,  # noqa
+            -0.2456, -0.1845, -0.1845, -0.    ,  4.0894,  4.1838,  4.2319,  # noqa
+             4.2781,  3.4863,  0.1241,  0.1245,  0.1245,  3.9834,  4.5902,  # noqa
+             4.6363,  4.6845,  4.7305,  6.936 ,  0.6917,  0.6943, -0.1962,  # noqa
+            -0.6191, -0.1237, -0.0962, -0.0825, -0.0962, -0.0962, -0.0825,  # noqa
+            -0.0825  # noqa
+        ]
+    )
+    # fmt: on
+    assert np.allclose(vals, exp, rtol=0, atol=2e-4)

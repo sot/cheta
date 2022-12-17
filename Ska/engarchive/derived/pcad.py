@@ -306,22 +306,8 @@ class DP_PITCH_CSS(DerivedParameterPcad):
     dtype = np.float32
 
     def calc(self, data):
-        sa_ang_avg = (1.0 * data["aosares1"].vals + 1.0 * data["aosares2"].vals) / 2
-        sinang = sin(radians(sa_ang_avg))
-        cosang = cos(radians(sa_ang_avg))
-        # Rotate CSS sun vector from SA to ACA frame
-        css_aca = np.array(
-            [
-                sinang * data["aosunsa1"].vals - cosang * data["aosunsa3"].vals,
-                data["aosunsa2"].vals * 1.0,
-                cosang * data["aosunsa1"].vals + sinang * data["aosunsa3"].vals,
-            ]
-        )
-        # Normalize sun vec (again) and compute pitch
-        magnitude = sqrt((css_aca * css_aca).sum(axis=0))
-        data.bads |= magnitude == 0.0
-        magnitude[data.bads] = 1.0
-        sun_vec_norm = css_aca / magnitude
+        sun_vec_norm, bads = calc_sun_vec_body_css(data)
+        data.bads |= bads
         pitch_css = degrees(arccos_clip(sun_vec_norm[0]))
         return pitch_css
 
@@ -448,22 +434,8 @@ class DP_ROLL_CSS(DerivedParameterPcad):
     dtype = np.float32
 
     def calc(self, data):
-        sa_ang_avg = (data["aosares1"].vals + data["aosares2"].vals) / 2
-        sinang = sin(radians(sa_ang_avg))
-        cosang = cos(radians(sa_ang_avg))
-        # Rotate CSS sun vector from SA to ACA frame
-        css_aca = np.array(
-            [
-                sinang * data["aosunsa1"].vals - cosang * data["aosunsa3"].vals,
-                data["aosunsa2"].vals,
-                cosang * data["aosunsa1"].vals + sinang * data["aosunsa3"].vals,
-            ]
-        )
-        # Normalize sun vec (again) and compute pitch
-        magnitude = sqrt((css_aca * css_aca).sum(axis=0))
-        data.bads |= magnitude == 0.0
-        magnitude[data.bads] = 1.0
-        sun_vec_norm = css_aca / magnitude
+        sun_vec_norm, bads = calc_sun_vec_body_css(data)
+        data.bads |= bads
         roll_css = degrees(arctan2(-sun_vec_norm[1, :], -sun_vec_norm[2, :]))
         return roll_css
 
@@ -835,3 +807,36 @@ def sun_vector_body(data, predictive=True):
     sun_vec_b = sun_vec_b / magnitude  # Normalize
 
     return sun_vec_b
+
+
+def calc_sun_vec_body_css(data, safe_mode=False):
+    """Calculate the normalized sun vector in body coordinates using CSS data.
+
+    This relies on the on-board computation of the sun vector in the solar array frame
+    along with the solar array resolver angle.
+
+    :param data: MSIDset with appropriate MSIDs
+    :param safe_mode: use safe mode telemetry MSIDs (6* vs AO*)
+    :returns (sun_vec_norm, bads): 3 x N array of vectors, bads mask
+    """
+    # Telemetry like 6SARES1 in safe mode or AOSARES1 in normal mode
+    pre = "6" if safe_mode else "ao"
+
+    sa_ang_avg = (data[f"{pre}sares1"].vals + data[f"{pre}sares2"].vals) / 2
+    sinang = sin(radians(sa_ang_avg))
+    cosang = cos(radians(sa_ang_avg))
+    # Rotate CSS sun vector from SA to ACA frame
+    css_aca = np.array(
+        [
+            sinang * data[f"{pre}sunsa1"].vals - cosang * data[f"{pre}sunsa3"].vals,
+            data[f"{pre}sunsa2"].vals,
+            cosang * data[f"{pre}sunsa1"].vals + sinang * data[f"{pre}sunsa3"].vals,
+        ]
+    )
+    # Normalize sun vec (again) and compute pitch
+    magnitude = sqrt((css_aca * css_aca).sum(axis=0))
+    bads = magnitude == 0.0
+    magnitude[bads] = 1.0
+    sun_vec_norm = css_aca / magnitude
+
+    return sun_vec_norm, bads

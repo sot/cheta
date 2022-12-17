@@ -573,29 +573,18 @@ def get_roll_pitch_tlm(start, stop):
 
 
 def calc_css_pitch_safe(start, stop):
-    from .pcad import arccos_clip
+    from .pcad import arccos_clip, calc_sun_vec_body_css
 
     # Get the raw telemetry value in user-requested unit system
     dat = get_roll_pitch_tlm(start, stop)
 
-    sa_ang_avg = (1.0 * dat["6sares1"].vals + 1.0 * dat["6sares2"].vals) / 2
-    sinang = np.sin(np.radians(sa_ang_avg))
-    cosang = np.cos(np.radians(sa_ang_avg))
-    # Rotate CSS sun vector from SA to ACA frame
-    css_aca = np.array(
-        [
-            sinang * dat["6sunsa1"].vals - cosang * dat["6sunsa3"].vals,
-            dat["6sunsa2"].vals * 1.0,
-            cosang * dat["6sunsa1"].vals + sinang * dat["6sunsa3"].vals,
-        ]
-    )
-    # Normalize sun vec (again) and compute pitch
-    magnitude = np.sqrt((css_aca * css_aca).sum(axis=0))
-    magnitude[magnitude == 0.0] = 1.0
-    sun_vec_norm = css_aca / magnitude
+    sun_vec_norm, bads = calc_sun_vec_body_css(dat, safe_mode=True)
     vals = np.degrees(arccos_clip(sun_vec_norm[0]))
+    ok = ~bads
+    vals = vals[ok]
+    times = dat.times[ok]
 
-    return dat.times, vals
+    return times, vals
 
 
 def calc_css_roll_safe(start, stop):
@@ -608,29 +597,16 @@ def calc_css_roll_safe(start, stop):
     based on the solar array angles 6SARES1 and 6SARES2.
 
     """
+    from .pcad import calc_sun_vec_body_css
+
     # Get the raw telemetry value in user-requested unit system
-    dat = get_roll_pitch_tlm(start, stop)
+    data = get_roll_pitch_tlm(start, stop)
 
-    sa_ang_avg = (dat["6sares1"].vals + dat["6sares2"].vals) / 2
-    sinang = np.sin(np.radians(sa_ang_avg))
-    cosang = np.cos(np.radians(sa_ang_avg))
-    # Rotate CSS sun vector from SA to ACA frame
-    css_aca = np.array(
-        [
-            sinang * dat["6sunsa1"].vals - cosang * dat["6sunsa3"].vals,
-            dat["6sunsa2"].vals,
-            cosang * dat["6sunsa1"].vals + sinang * dat["6sunsa3"].vals,
-        ]
-    )
-    # Normalize sun vec (again) and compute pitch
-    magnitude = np.sqrt((css_aca * css_aca).sum(axis=0))
-    # Don't exactly know why zero values can happen, but it does, so just drop those.
-    ok = magnitude > 0
-    magnitude = magnitude[ok]
-    times = dat.times[ok]
-
-    sun_vec_norm = css_aca / magnitude
+    sun_vec_norm, bads = calc_sun_vec_body_css(data, safe_mode=True)
     vals = np.degrees(np.arctan2(-sun_vec_norm[1, :], -sun_vec_norm[2, :]))
+    ok = ~bads
+    vals = vals[ok]
+    times = data.times[ok]
 
     return times, vals
 
