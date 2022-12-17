@@ -260,3 +260,42 @@ def test_quat_comp_exception(msid):
     with pytest.raises(ValueError, match=f"quat_{msid} is not available from MAUDE"):
         with fetch_eng.data_source("maude"):
             fetch_eng.MSID(f"quat_{msid}", start, stop)
+
+
+def test_pitch_comp():
+    """Test pitch_comp during a time with NPNT, NMAN, NSUN and Safe Sun"""
+    start = "2022:293"
+    stop = "2022:297"
+    dat = fetch_eng.Msid("pitch_comp", start, stop)
+    dat.interpolate(dt=10000)
+    # fmt: off
+    exp = np.array(
+        [
+            60.8, 167.26, 159.54, 60.84, 60.86, 167.38, 144., 90.1 ,
+            90.12, 90.12, 90.05, 90.12, 90.1 , 90.1 , 90.12, 90.09,
+            90.07, 90.14, 90.02, 90.04, 90.02, 90.02, 90.02, 90.02,
+            90.15, 90.23, 90.18, 90.18, 90.18, 90.21, 90.21, 90.21,
+            90.21, 89.94, 153.9
+        ]
+    )
+    # fmt: on
+    assert np.allclose(dat.vals, exp, rtol=0, atol=2e-2)
+
+
+def test_roll_comp():
+    """Test roll_comp during a time with NPNT, NMAN, NSUN and Safe Sun"""
+    start = "2022:293"
+    stop = "2022:297"
+    dat = fetch_eng.Msid("roll_comp", start, stop)
+    dat.interpolate(dt=10000)
+    # fmt: off
+    exp = np.array(
+        [
+            7.32, 4.61, 7.51, 7.7, 7.84, 6.61, 0.02, -0.08, -0.1, -0.1, -0.08, -0.1,
+            -0.11, -0.11, -0.1, -0.41, -0.37, -0.41, -0.19, -0.32, -0.32, -0.34, -0.34,
+            -0.34, -0.08, -0.1, -0.07, -0.04, -0.1, -0.08, -0.08, -0.08, -0.08, 0.03,
+            0.11
+        ]
+    )
+    # fmt: on
+    assert np.allclose(dat.vals, exp, rtol=0, atol=2e-2)
