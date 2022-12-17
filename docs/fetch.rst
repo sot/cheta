@@ -4,7 +4,7 @@
 Fetch API documentation
 ====================================
 
-.. automodule:: Ska.engarchive.fetch
+.. automodule:: cheta.fetch
 
 Classes
 --------

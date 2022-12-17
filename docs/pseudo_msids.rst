@@ -151,7 +151,7 @@ The first two of these are detected by looking at "spare" bits in the MSID ``SCI
 ``HRC_SS_HK_BAD`` contain a copy of the 7 bits in ``SCIDPREN`` which must be 0 for good
 data.  The following code illustrates detecting conditions (1) or (2)::
 
-  >>> from Ska.engarchive import fetch
+  >>> from cheta import fetch
   >>> from Chandra.Time import DateTime
   >>> dat = fetch.Msid('HRC_SS_HK_BAD', '1999:300', '1999:310')
   >>> bad = (dat.vals & 0x7f) > 0
@@ -180,7 +180,7 @@ stat data as well.  For instance::
 
 .. plot::
 
-   from Ska.engarchive import fetch
+   from cheta import fetch
    import matplotlib.pyplot as plt
    plt.figure(figsize=(6, 4), dpi=75)
    dat = fetch.Msid('2S2ONST', '2002:200', '2002:250', stat='5min')
@@ -199,7 +199,7 @@ instance to get 5-minute telemetry for ``2SHEV1RT`` use::
 
 .. plot::
 
-   from Ska.engarchive import fetch
+   from cheta import fetch
    import matplotlib.pyplot as plt
    plt.figure(figsize=(6, 4), dpi=75)
    dat = fetch.HrcSsMsid('2SHEV1RT', '2002:200', '2002:250', stat='5min')
@@ -655,29 +655,29 @@ sequence with step size ``time_step``.
 
 ACIS Power
 ^^^^^^^^^^^
-.. automodule:: Ska.engarchive.derived.acispow
+.. automodule:: cheta.derived.acispow
    :members:
 
 EPS
 ^^^^^^^^^^^^^^^^^
-.. automodule:: Ska.engarchive.derived.eps
+.. automodule:: cheta.derived.eps
    :members:
    :undoc-members:
 
 Orbital elements
 ^^^^^^^^^^^^^^^^^
-.. automodule:: Ska.engarchive.derived.orbit
+.. automodule:: cheta.derived.orbit
    :members:
    :undoc-members:
 
 PCAD
 ^^^^^
-.. automodule:: Ska.engarchive.derived.pcad
+.. automodule:: cheta.derived.pcad
    :members:
 
 Thermal
 ^^^^^^^^^
-.. automodule:: Ska.engarchive.derived.thermal
+.. automodule:: cheta.derived.thermal
    :members:
    :undoc-members:
 
@@ -692,6 +692,9 @@ Cheta provides support for on-the-fly computed MSIDs with the following features
 * Computed MSIDs can included embedded parameters to allow further customization
   or application of a function to any other MSID.
 * Support for 5-minute and daily stats also included.
+
+See the `Built-in computed MSIDs and API`_ section for a list of the available
+computed MSIDs.
 
 See the `DAWG computed MSIDs notebook
 <https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-cheta-computed-msids.ipynb>`_
@@ -787,7 +790,7 @@ in the user-requested system.  In other words, if the user did a call
 In some cases the unit handling may require additional specification. This
 can happen if the computation needs to be done in a particular unit, as is
 the case for the built-in
-:class:`~Ska.engarchive.derived.comps.Comp_MUPS_Valve_Temp_Clean` class.
+:class:`~cheta.derived.comps.Comp_MUPS_Valve_Temp_Clean` class.
 Here the class must define an additional ``units`` attribute with the
 following structure::
 
@@ -805,11 +808,10 @@ following structure::
     }
 
 The specified units must all be convertable using functions defined in the
-``converters`` dict in the ``Ska.engarchive.units`` module.
+``converters`` dict in the ``cheta.units`` module.
 
 Built-in computed MSIDs and API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  .. automodule:: Ska.engarchive.derived.comps
-   :members:
-   :undoc-members:
+  .. automodule:: cheta.derived.comps
+    :members:
