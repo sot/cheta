@@ -2258,51 +2258,35 @@ def create_msid_data_gap(msid_obj: MSID, data_gap_spec: str):
 
         --include INCLUDE  Include MSIDs matching glob (default="*", can be repeated)
         --exclude EXCLUDE  Exclude MSIDs matching glob (default=None, can be repeated)
-        --start START      Gap start (relative seconds or abs time)
-        --stop STOP        Gap stop (relative seconds or abs time)
+        --start START      Gap start (CxoTimeLike)
+        --stop STOP        Gap stop (CxoTimeLike)
 
     For example::
 
-        >>> dat1 = fetch.MSID('aopcadmd', '2010:001', '2010:002')
-        >>> fetch.create_msid_data_gap(dat1, "--start=-25000 --stop=-2000")
-
-        >>> dat2 = fetch.MSID('aopcadmd', '2010:001', '2010:002')
+        >>> dat = fetch.MSID('aopcadmd', '2010:001', '2010:002')
         >>> gap_spec = "--start=-2010:001:12:00:00 --stop=2010:001:12:30:00"
-        >>> fetch.create_msid_data_gap(dat2, gap_spec)
-
+        >>> fetch.create_msid_data_gap(dat, gap_spec)
 
     :param msid_obj: MSID object
     :param data_gap_spec: data gap specification
     """
     import shlex
-    from typing import Union
 
     from cxotime import CxoTime
-
-    def as_abs_time(delta_time_or_date: Union[float, str]) -> float:
-        """Convert a relative time (from MSID stop time) or absolute date to an
-        absolute time (CXC secs)."""
-        try:
-            dt = float(delta_time_or_date)
-        except Exception:
-            abs_time = CxoTime(delta_time_or_date).secs
-        else:
-            abs_time = msid_obj.tstop + dt
-        return abs_time
 
     parser = get_data_gap_spec_parser()
     args = parser.parse_args(shlex.split(data_gap_spec))
 
     if msid_matches_data_gap_spec(msid_obj.MSID, args.include, args.exclude):
-        tstart = as_abs_time(args.start)
-        tstop = as_abs_time(args.stop)
+        start = CxoTime(args.start)
+        stop = CxoTime(args.stop)
         logger.info(
             f"Creating data gap for {msid_obj.MSID} "
-            f"from {CxoTime(tstart).date} to {CxoTime(tstop).date}"
+            f"from {start.date} to {stop.date}"
         )
-        i0, i1 = np.searchsorted(msid_obj.times, [tstart, tstop])
+        i0, i1 = np.searchsorted(msid_obj.times, [start.secs, stop.secs])
         for attr in msid_obj.colnames:
             val = getattr(msid_obj, attr)
             if val is not None:
-                val = np.concatenate([val[:i0], val[i1:]])
-                setattr(msid_obj, attr, val)
+                val_new = np.concatenate([val[:i0], val[i1:]])
+                setattr(msid_obj, attr, val_new)
