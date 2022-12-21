@@ -327,7 +327,7 @@ class NullHandler(logging.Handler):
         pass
 
 
-logger = logging.getLogger("Ska.engarchive.fetch")
+logger = logging.getLogger("cheta.fetch")
 logger.addHandler(NullHandler())
 logger.propagate = False
 

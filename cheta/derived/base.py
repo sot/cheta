@@ -12,7 +12,7 @@ __all__ = ["MNF_TIME", "times_indexes", "DerivedParameter"]
 
 MNF_TIME = 0.25625  # Minor Frame duration (seconds)
 
-logger = logging.getLogger("Ska.engarchive.fetch")
+logger = logging.getLogger("cheta.fetch")
 
 
 def times_indexes(start, stop, dt):

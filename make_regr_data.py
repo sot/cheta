@@ -12,7 +12,7 @@ import cPickle as pickle
 
 import asciitable
 from Chandra.Time import DateTime
-import Ska.engarchive.file_defs as file_defs
+import cheta.file_defs as file_defs
 import Ska.DBI
 import pyyaks.context
 import pyyaks.logger

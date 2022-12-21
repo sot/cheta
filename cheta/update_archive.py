@@ -25,10 +25,10 @@ import tables
 from Chandra.Time import DateTime
 from ska_helpers.retry import tables_open_file
 
-import Ska.engarchive.converters as converters
-import Ska.engarchive.derived as derived
-import Ska.engarchive.fetch as fetch
-import Ska.engarchive.file_defs as file_defs
+import cheta.converters as converters
+import cheta.derived as derived
+import cheta.fetch as fetch
+import cheta.file_defs as file_defs
 
 
 def get_options(args=None):
@@ -1009,7 +1009,7 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
             vals[colname] = times
             bads[:, i] = False
         else:
-            dp_class = getattr(Ska.engarchive.derived, colname.upper())
+            dp_class = getattr(cheta.derived, colname.upper())
             dp = dp_class()
             dataset = dp.fetch(times[0] - 1000, times[-1] + 1000)
             ok = (index0 <= dataset.indexes) & (dataset.indexes < index1)

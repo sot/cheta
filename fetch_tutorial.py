@@ -3,12 +3,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 print "Welcome to the fetch module!"
-import Ska.engarchive.fetch as fetch
+import cheta.fetch as fetch
 
 # <demo> --- stop ---
-## The ``as fetch`` part of the ``import`` statement just creates an short alias 
-## to avoid always typing the somewhat lengthy ``Ska.engarchive.fetch.MSID(..)``.  
-## Fetching and plotting full time-resolution data for a single MSID is then quite 
+## The ``as fetch`` part of the ``import`` statement just creates an short alias
+## to avoid always typing the somewhat lengthy ``cheta.fetch.MSID(..)``.
+## Fetching and plotting full time-resolution data for a single MSID is then quite
 ## easy::
 
 tephin = fetch.MSID('tephin', '2009:001', '2009:007') # (MSID, start, stop)
@@ -103,8 +103,8 @@ biases.write_zip('biases.zip')
 
 ## Even though seconds since 1998.0 is convenient for computations it isn't so
 ## natural for humans.  As mentioned the ``Chandra.Time`` module can help with
-## converting between formats but for making plots we use the 
-## `plot_cxctime() <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.Matplotlib.html#Ska.Matplotlib.plot_cxctime>`_ 
+## converting between formats but for making plots we use the
+## `plot_cxctime() <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.Matplotlib.html#Ska.Matplotlib.plot_cxctime>`_
 ## function of the ``Ska.Matplotlib`` module::
 
 from Ska.Matplotlib import plot_cxctime
@@ -115,11 +115,11 @@ out = plot_cxctime(tephin.times, tephin.vals)
 
 ## **Bad data**
 
-## At this point we've glossed over the important point of possible bad data.  For 
-## various reasons (typically a VCDU drop) the data value associated with a particular 
-## readout may be bad.  To handle this the engineering archive provides a boolean array 
-## called ``bads`` that is ``True`` for bad samples.  This array corresponds to the 
-## respective ``times`` and ``vals`` arrays.  To remove the bad values one can use numpy 
+## At this point we've glossed over the important point of possible bad data.  For
+## various reasons (typically a VCDU drop) the data value associated with a particular
+## readout may be bad.  To handle this the engineering archive provides a boolean array
+## called ``bads`` that is ``True`` for bad samples.  This array corresponds to the
+## respective ``times`` and ``vals`` arrays.  To remove the bad values one can use numpy
 ## boolean masking::
 
 ok = ~tephin.bads  # numpy mask requires the "good" values to be True
@@ -171,8 +171,8 @@ print aorate1.vals[bad_vals_mask]
 ## The engineering telemetry archive also hosts tables of telemetry statistics
 ## computed over 5 minute and daily intervals.  To be more precise, the intervals
 ## are 328 seconds (10 major frames) and 86400 seconds.  The daily intervals are
-## not *exactly* lined up with the midnight boundary but are within a couple of minutes.  
-## These data are accessed by specifying 
+## not *exactly* lined up with the midnight boundary but are within a couple of minutes.
+## These data are accessed by specifying
 ## ``stat=<interval>`` in the ``fetch.MSID()`` call::
 
 tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
@@ -184,13 +184,13 @@ out = plot_cxctime(tephin_daily.times, tephin_daily.maxes, '-r')
 figure(2)
 clf()
 out = plot_cxctime(tephin_5min.times, tephin_5min.means, '-b')
-  
+
 ## Notice that we did not supply a stop time which means to return values up to the last
-## available data in the archive.  The start time, however, is always required.  
+## available data in the archive.  The start time, however, is always required.
 
 # <demo> --- stop ---
 
-## The MSID object returned for a telemetry statistics query has a number of array 
+## The MSID object returned for a telemetry statistics query has a number of array
 ## attributes, depending on the statistic and the MSID data type.
 
 ## ==========  =====  =====  ================= ================  ===================
@@ -253,19 +253,19 @@ out = plot_cxctime(rates['aorate1'].times, rates['aorate1'].vals)
 
 ##   for msid in msids:
 ##       self[msid] = MSID(msid, self.tstart, self.tstop, filter_bad=False, stat=stat)
-  
+
 ##   if filter_bad:
 ##       self.filter_bad()
 
 ## The answer lies in the additional methods that let you manipulate the MSIDs as a set and
-## enforce concordance between the MSIDs in the face of different bad values and/or 
-## different sampling.  
+## enforce concordance between the MSIDs in the face of different bad values and/or
+## different sampling.
 
 # <demo> --- stop ---
 
 ## Say you want to calculate the spacecraft rates directly from telemetered gyro
 ## count values instead of relying on OBC rates.  To do this you need to have
-## valid data for all 4 gyro channels at identical times.  In this case we know that 
+## valid data for all 4 gyro channels at identical times.  In this case we know that
 ## the gyro count MSIDs AOGYRCT<N> all come at the same rate so the only issue is with
 ## bad values.
 ## ::
@@ -290,7 +290,7 @@ cts = fetch.MSIDset(gyro_msids, '2009:001', '2009:002', filter_bad=True)
 ## How do you know if your favorite MSIDs are always sampled at the same rate in
 ## the Ska engineering archive?  Apart from certain sets of MSIDs that are obvious
 ## (like the gyro counts), here is where things get a little complicated and a
-## digression is needed.  
+## digression is needed.
 
 ## The engineering archive is derived from CXC level-0 engineering telemetry
 ## decom.  This processing divides the all the engineering MSIDs into groups based
@@ -347,7 +347,7 @@ plot(aca_rate, gyr_rate, '.')
 ## to tell it to order by memory usage.  Now go back to your main window and get
 ## all the ``TEIO`` data for the mission::
 
-import Ska.engarchive.fetch as fetch
+import cheta.fetch as fetch
 from Ska.Matplotlib import plot_cxctime
 time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
 
@@ -379,8 +379,8 @@ time aorate3 = fetch.MSID('aorate3', '2000:001', '2010:001', filter_bad=True)
 
 ##   Cpu(s):  0.0%us,  0.1%sy,  0.0%ni, 99.7%id,  0.2%wa,  0.1%hi,  0.0%si,  0.0%st
 
-##     PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND           
-##   14243 aca       15   0 6866m 6.4g  11m S  0.0 40.9   3:08.70 ipython            
+##     PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+##   14243 aca       15   0 6866m 6.4g  11m S  0.0 40.9   3:08.70 ipython
 
 ## If you try to make a simple scatter plot with 300 million points you will
 ## make the machine very unhappy.  But we can do computations or make a histogram of
@@ -391,7 +391,7 @@ hist(log10(abs(aorate3.vals)+1e-15), log=True, bins=100)
 
 # <demo> --- stop ---
 
-## Rules of thumb: 
+## Rules of thumb:
 
 ## * 1 million is fast for plotting and analysis.
 ## * 10 million is OK for plotting and fast for analysis.
@@ -407,7 +407,7 @@ hist(log10(abs(aorate3.vals)+1e-15), log=True, bins=100)
 ## rates to those derived on the ground using raw gyro data.
 ## ::
 
-import Ska.engarchive.fetch as fetch
+import cheta.fetch as fetch
 from Ska.Matplotlib import plot_cxctime
 import Ska.Numpy
 

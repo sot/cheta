@@ -22,7 +22,7 @@ perigee and apogee are available:
 
 Example::
 
-  >>> from Ska.engarchive import fetch_eng as fetch
+  >>> from cheta import fetch_eng as fetch
 
   >>> dat = fetch.Msidset(['inclination', 'perigee_radius'], '1999:200', stat='daily')
   >>> subplot(2, 1, 1)

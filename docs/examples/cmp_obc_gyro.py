@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import Ska.engarchive.fetch as fetch
+import cheta.fetch as fetch
 from Ska.Matplotlib import plot_cxctime
 import Ska.Numpy
 

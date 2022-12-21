@@ -14,7 +14,7 @@ import Ska.Table
 import pyyaks.logger
 import pyyaks.context
 
-import Ska.engarchive.file_defs as file_defs
+import cheta.file_defs as file_defs
 
 arch_files = pyyaks.context.ContextDict('arch_files', basedir=file_defs.arch_root)
 arch_files.update(file_defs.arch_files)
@@ -49,7 +49,7 @@ def main():
             if not os.path.exists(archdir):
                 print 'Making dir', archdir
                 os.makedirs(archdir)
-                
+
             if not os.path.exists(archfile):
                 # logger.info('mv %s %s' % (f, archfile))
                 shutil.move(f, archfile)

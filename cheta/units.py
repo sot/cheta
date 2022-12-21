@@ -52,7 +52,7 @@ class NullHandler(logging.Handler):
         pass
 
 
-logger = logging.getLogger("Ska.engarchive.units")
+logger = logging.getLogger("cheta.units")
 logger.addHandler(NullHandler())
 logger.propagate = False
 
@@ -250,7 +250,7 @@ def convert(msid, vals, delta_val=False):
 class Units(dict):
     """
     Provide access to units via object-oriented replacement for
-    Ska.engarchive.units module.
+    cheta.units module.
 
     This class is weird because it was designed to conform to the
     existing API where units.units was a module dict that had keys

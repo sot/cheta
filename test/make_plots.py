@@ -8,7 +8,7 @@ import os
 import sys
 from matplotlib.pyplot import *
 
-import Ska.engarchive.fetch_sci as fetch
+import cheta.fetch_sci as fetch
 from Ska.Matplotlib import plot_cxctime
 
 print 'Fetch file is', fetch.__file__

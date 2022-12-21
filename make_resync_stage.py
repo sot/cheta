@@ -10,8 +10,8 @@ import shutil
 import glob
 import Ska.Table
 from Chandra.Time import DateTime
-import Ska.engarchive.fetch as fetch
-import Ska.engarchive.file_defs as file_defs
+import cheta.fetch as fetch
+import cheta.file_defs as file_defs
 import optparse
 import pyyaks.context
 

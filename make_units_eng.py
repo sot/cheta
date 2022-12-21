@@ -6,7 +6,7 @@ Make a unit_system consistent with usual OCC/FOT engineering units via P009.
 import pickle
 from copy import copy
 
-import Ska.engarchive.converters
+import cheta.converters
 import Ska.tdb
 
 units_cxc = pickle.load(open('units_cxc.pkl', 'rb'))
@@ -24,7 +24,7 @@ units_eng.update({msid: 'DEGC' for msid, unit in units_eng.items()
                   if unit in ['K', 'deltaK']})
 
 # Use info about DEA HK telemetry from converters to add units
-for col in Ska.engarchive.converters._get_deahk_cols():
+for col in cheta.converters._get_deahk_cols():
     if 'unit' in col and col['unit'] == 'K':
         units_eng[col['name'].upper()] = 'DEGC'
 

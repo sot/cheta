@@ -14,9 +14,9 @@ import tables
 from Chandra.Time import DateTime
 from six.moves import cPickle as pickle
 
-import Ska.engarchive.derived as derived
-import Ska.engarchive.fetch as fetch
-import Ska.engarchive.file_defs as file_defs
+import cheta.derived as derived
+import cheta.fetch as fetch
+import cheta.file_defs as file_defs
 
 
 def get_options():

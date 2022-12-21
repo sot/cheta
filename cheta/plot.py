@@ -53,7 +53,7 @@ class MsidPlot(object):
     Example::
 
       dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
-      iplot = Ska.engarchive.MsidPlot(dat)
+      iplot = cheta.MsidPlot(dat)
 
     Caveat: the ``MsidPlot()`` class is not meant for use within scripts, and
     may give unexpected results if used in combination with other plotting

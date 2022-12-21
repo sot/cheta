@@ -12,9 +12,9 @@ import cPickle as pickle
 import pyfits
 import pyyaks
 
-from Ska.engarchive.converters import _get_deahk_cols, CXC_TO_MSID
-from Ska.engarchive import file_defs
-from Ska.engarchive import fetch
+from cheta.converters import _get_deahk_cols, CXC_TO_MSID
+from cheta import file_defs
+from cheta import fetch
 
 
 def get_options(args=None):

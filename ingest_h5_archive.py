@@ -11,7 +11,7 @@ import sys
 import glob
 import cPickle as pickle
 
-import Ska.engarchive.converters as converters
+import cheta.converters as converters
 
 def make_h5_col_file(dat, content, colname, n_rows):
     """Make a new h5 table to hold column from ``dat``."""
@@ -21,10 +21,10 @@ def make_h5_col_file(dat, content, colname, n_rows):
     filedir = os.path.dirname(filename)
     if not os.path.exists(filedir):
         os.makedirs(filedir)
-    
+
     filters = tables.Filters(complevel=5, complib='zlib')
     h5 = tables.openFile(filename, mode='w', filters=filters)
-    
+
     col = dat[colname]
     h5shape = (0,) + col.shape[1:]
     h5type = tables.Atom.from_dtype(col.dtype)
