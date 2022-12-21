@@ -4,7 +4,7 @@
 Fetch API documentation
 ====================================
 
-.. automodule:: Ska.engarchive.fetch
+.. automodule:: cheta.fetch
 
 Classes
 --------
@@ -26,6 +26,8 @@ Classes
 
 Functions
 -----------
+.. autofunction:: create_msid_data_gap
+
 .. autofunction:: get_telem
 
 .. autofunction:: get_time_range

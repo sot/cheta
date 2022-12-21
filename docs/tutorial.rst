@@ -58,7 +58,7 @@ You should see something that looks like::
 
 Now read some data and make a simple plot by copying the following lines in ``ipython``::
 
-  import Ska.engarchive.fetch as fetch
+  import cheta.fetch as fetch
   import matplotlib.pyplot as plt
   tephin = fetch.MSID('tephin', '2009:001', '2009:002')
   plt.plot(tephin.times, tephin.vals)
@@ -72,12 +72,12 @@ Tools overview
 There are four key elements that are the basis for doing plotting and analysis
 with the engineering archive.
 
-* Ska.engarchive.fetch: module to read and manipulate telemetry data
+* cheta.fetch: module to read and manipulate telemetry data
 * `IPython`_: interactive python interpreter
 * `matplotlib`_: python plotting package with an interface similar to Matlab
 * `NumPy`_: python numerical package for fast vector and array math
 
-Ska.engarchive.fetch
+cheta.fetch
 ~~~~~~~~~~~~~~~~~~~~~~
 The tools to access and manipulate telemetry with the Ska engineering archive
 are described in the :doc:`fetch_tutorial`.

@@ -577,6 +577,9 @@ class MSID(object):
         if filter_bad:
             self.filter_bad()
 
+        if "CHETA_FETCH_DATA_GAP" in os.environ:
+            create_msid_data_gap(self, os.environ["CHETA_FETCH_DATA_GAP"])
+
     def __len__(self):
         return len(self.vals)
 
@@ -2189,3 +2192,101 @@ def _plural(x):
     known small set of cases within fetch where it will get applied.
     """
     return x + "es" if (x.endswith("x") or x.endswith("s")) else x + "s"
+
+
+def get_data_gap_spec_parser():
+    """
+    Get parser for fetch data gap specification.
+
+    This env var is in the form of a command line argument string with the following
+    command line options::
+
+        --include INCLUDE  Include MSIDs matching glob (default="*", can be repeated)
+        --exclude EXCLUDE  Exclude MSIDs matching glob (default=None, can be repeated)
+        --start START      Gap start (relative seconds or abs time)
+        --stop STOP        Gap stop (relative seconds or abs time)
+
+    For example::
+
+        "--exclude=*EPHEM* --start=-25000 --stop=-2000"
+
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--include",
+        default=[],
+        action="append",
+        help="Include MSIDs matching glob (default='*', can be repeated)",
+    )
+    parser.add_argument(
+        "--exclude",
+        default=[],
+        action="append",
+        help="Exclude MSIDs matching glob (default=None, can be repeated)",
+    )
+    parser.add_argument(
+        "--start", default=-30000, help="Gap start (relative seconds or abs time)"
+    )
+    parser.add_argument(
+        "--stop", default=-3000, help="Gap stop (relative seconds or abs time)"
+    )
+    return parser
+
+
+def msid_matches_data_gap_spec(msid, includes, excludes):
+    from fnmatch import fnmatch
+
+    msid = msid.upper()
+    includes = includes or ["*"]
+    match = any(fnmatch(msid, include.upper()) for include in includes) and not any(
+        fnmatch(msid, exclude.upper()) for exclude in excludes
+    )
+    return match
+
+
+def create_msid_data_gap(msid_obj: MSID, data_gap_spec: str):
+    """
+    Make a data gap in the ``msid_obj`` (in-place) by removing data points.
+
+    This is mostly useful for testing via setting the ``CHETA_FETCH_DATA_GAP``
+    environment variable.
+
+    The ``data_gap_spec`` string corresponds to a command line argument string with the
+    following options::
+
+        --include INCLUDE  Include MSIDs matching glob (default="*", can be repeated)
+        --exclude EXCLUDE  Exclude MSIDs matching glob (default=None, can be repeated)
+        --start START      Gap start (CxoTimeLike)
+        --stop STOP        Gap stop (CxoTimeLike)
+
+    For example::
+
+        >>> dat = fetch.MSID('aopcadmd', '2010:001', '2010:002')
+        >>> gap_spec = "--start=-2010:001:12:00:00 --stop=2010:001:12:30:00"
+        >>> fetch.create_msid_data_gap(dat, gap_spec)
+
+    :param msid_obj: MSID object
+    :param data_gap_spec: data gap specification
+    """
+    import shlex
+
+    from cxotime import CxoTime
+
+    parser = get_data_gap_spec_parser()
+    args = parser.parse_args(shlex.split(data_gap_spec))
+
+    if msid_matches_data_gap_spec(msid_obj.MSID, args.include, args.exclude):
+        start = CxoTime(args.start)
+        stop = CxoTime(args.stop)
+        logger.info(
+            f"Creating data gap for {msid_obj.MSID} "
+            f"from {start.date} to {stop.date}"
+        )
+        i0, i1 = np.searchsorted(msid_obj.times, [start.secs, stop.secs])
+        for attr in msid_obj.colnames:
+            val = getattr(msid_obj, attr)
+            if val is not None:
+                val_new = np.concatenate([val[:i0], val[i1:]])
+                setattr(msid_obj, attr, val_new)

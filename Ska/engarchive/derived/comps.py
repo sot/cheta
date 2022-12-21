@@ -2,21 +2,40 @@
 """
 Support computed MSIDs in the cheta archive.
 
-- Base class ComputedMsid for user-generated comps.
-- Cleaned MUPS valve temperatures MSIDs: '(pm2thv1t|pm1thv2t)_clean'.
-- Commanded states 'cmd_state_<key>_<dt>' for any kadi commanded state value.
+- :class:`~cheta.derived.comps.ComputedMsid`: base class for user-generated comps.
+- :class:`~cheta.derived.comps.Comp_MUPS_Valve_Temp_Clean`:
+  Cleaned MUPS valve temperatures MSIDs ``(pm2thv1t|pm1thv2t)_clean``.
+- :class:`~cheta.derived.comps.Comp_KadiCommandState`:
+  Commanded states ``cmd_state_<key>_<dt>`` for any kadi commanded state value.
+- :class:`~cheta.derived.comps.Comp_Quat`:
+  Quaternions
+    - ``quat_aoattqt`` = ``AOATTQT[1-4]``
+    - ``quat_aoatupq`` = ``AOATUPQ[1-3]``
+    - ``quat_aocmdqt`` = ``AOCMDQT[1-3]``
+    - ``quat_aotarqt`` = ``AOTARQT[1-3]``
+- :class:`~cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe`:
+  Sun Pitch ``pitch_comp`` and off-nominal roll ``roll_comp`` which are valid in NPNT,
+  NMAN, NSUN and safe mode.
 
 See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
 """  # noqa
 
+import functools
 import re
 
+import astropy.table as tbl
 import numpy as np
-from Chandra.Time import DateTime
+from cxotime import CxoTime
 
 from ..units import converters as unit_converter_funcs
 
-__all__ = ["ComputedMsid", "Comp_MUPS_Valve_Temp_Clean", "Comp_KadiCommandState"]
+__all__ = [
+    "ComputedMsid",
+    "Comp_MUPS_Valve_Temp_Clean",
+    "Comp_KadiCommandState",
+    "Comp_Pitch_Roll_OBC_Safe",
+    "Comp_Quat",
+]
 
 
 def calc_stats_vals(msid, rows, indexes, interval):
@@ -92,7 +111,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
                     negs = dts < 0.0
                     if np.any(negs):
                         times_dts = [
-                            (DateTime(t).date, dt)
+                            (CxoTime(t).date, dt)
                             for t, dt in zip(times[negs], dts[negs])
                         ]
                         raise ValueError(
@@ -349,10 +368,10 @@ class Comp_Quat(ComputedMsid):
     This defines the following computed MSIDs based on the corresponding
     TDB MSIDs:
 
-    - quat_aoattqt = AOATTQT[1-4]
-    - quat_aoatupq = AOATUPQ[1-3]
-    - quat_aocmdqt = AOCMDQT[1-3]
-    - quat_aotarqt = AOTARQT[1-3]
+    - ``quat_aoattqt`` = ``AOATTQT[1-4]``
+    - ``quat_aoatupq`` = ``AOATUPQ[1-3]``
+    - ``quat_aocmdqt`` = ``AOCMDQT[1-3]``
+    - ``quat_aotarqt`` = ``AOTARQT[1-3]``
 
     Example::
 
@@ -531,4 +550,188 @@ class Comp_KadiCommandState(ComputedMsid):
             "unit": None,
         }
 
+        return out
+
+
+@functools.lru_cache(maxsize=1)
+def get_roll_pitch_tlm(start, stop):
+    from .. import fetch
+
+    msids = ["6sares1", "6sares2", "6sunsa1", "6sunsa2", "6sunsa3"]
+    dat = fetch.MSIDset(msids, start, stop)
+
+    # Filter out of range values. This happens just at the beginning of safe mode.
+    for msid in msids:
+        if "6sares" in msid:
+            x0, x1 = 0, 180
+        else:
+            x0, x1 = -1, 1
+        dat[msid].bads |= (dat[msid].vals < x0) | (dat[msid].vals > x1)
+
+    dat.interpolate(times=dat[msids[0]].times, bad_union=True)
+    return dat
+
+
+def calc_css_pitch_safe(start, stop):
+    from .pcad import arccos_clip, calc_sun_vec_body_css
+
+    # Get the raw telemetry value in user-requested unit system
+    dat = get_roll_pitch_tlm(start, stop)
+
+    sun_vec_norm, bads = calc_sun_vec_body_css(dat, safe_mode=True)
+    vals = np.degrees(arccos_clip(sun_vec_norm[0]))
+    ok = ~bads
+    vals = vals[ok]
+    times = dat.times[ok]
+
+    return times, vals
+
+
+def calc_css_roll_safe(start, stop):
+    """Off-Nominal Roll Angle from CSS Data in ACA Frame [Deg]
+
+    Defined as the rotation about the ACA X-axis required to align the sun
+    vector with the ACA X/Z plane.
+
+    Calculated by rotating the CSS sun vector from the SA-1 frame to ACA frame
+    based on the solar array angles 6SARES1 and 6SARES2.
+
+    """
+    from .pcad import calc_sun_vec_body_css
+
+    # Get the raw telemetry value in user-requested unit system
+    data = get_roll_pitch_tlm(start, stop)
+
+    sun_vec_norm, bads = calc_sun_vec_body_css(data, safe_mode=True)
+    vals = np.degrees(np.arctan2(-sun_vec_norm[1, :], -sun_vec_norm[2, :]))
+    ok = ~bads
+    vals = vals[ok]
+    times = data.times[ok]
+
+    return times, vals
+
+
+def calc_pitch_roll_obc(start, stop, pitch_roll):
+    """Use the code in the PCAD derived parameter classes to get the pitch and off
+    nominal roll from OBC quaternion data."""
+    from .pcad import DP_PITCH, DP_ROLL
+
+    dp = DP_PITCH() if pitch_roll == "pitch" else DP_ROLL()
+    tlm = dp.fetch(start, stop)
+    vals = dp.calc(tlm)
+    return tlm.times, vals
+
+
+# Class name is arbitrary, but by convention start with `Comp_`
+class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
+    """
+    Computed MSID to return pitch or off-nominal roll angle which is valid in NPNT,
+    NMAN, NSUN, and Safe Mode.
+
+    MSID names are ``pitch_comp`` and ``roll_comp``.
+
+    The computation logic is shown below::
+
+      On OBC control (CONLOFP == "NRML"):
+        - AOPCADMD in ["NPNT", "NMAN"] => compute pitch/roll from AOATTQT[1234]
+          (MAUDE or CXC) and predictive ephemeris ORBITEPHEM0_[XYZ] and
+          SOLAREPHEM0_[XYZ] (CXC only but always available)
+        - AOPCADMD == "NSUN" => get pitch/roll from PITCH/ROLL_CSS derived params.
+          These are also in MAUDE.
+
+      On CPE control (CONLOFP == "SAFE"):
+        - Compute pitch/roll from 6SUNSA[123] + 6SARES[12] via calc_pitch/roll_css_safe()
+
+      Intervals for other CONLOFP values are ignored.
+
+    """
+
+    msid_match = r"(roll|pitch)_comp"
+
+    # `msid_match` is a class attribute that defines a regular expresion to
+    # match for this computed MSID.  This must be defined and it must be
+    # unambiguous (not matching an existing MSID or other computed MSID).
+    #
+    # The two groups in parentheses specify the arguments <MSID> and <offset>.
+    # These are passed to `get_msid_attrs` as msid_args[0] and msid_args[1].
+    # The \w symbol means to match a-z, A-Z, 0-9 and underscore (_).
+    # The \d symbol means to match digits 0-9.
+
+    def get_msid_attrs(self, tstart, tstop, msid, msid_args):
+        """
+        Get attributes for computed MSID: ``vals``, ``bads``, ``times``,
+        ``unit``, ``raw_vals``, and ``offset``.  The first four must always
+        be provided.
+
+        :param tstart: start time (CXC secs)
+        :param tstop: stop time (CXC secs)
+        :param msid: full MSID name e.g. tephin_plus_5
+        :param msid_args: tuple of regex match groups (msid_name,)
+        :returns: dict of MSID attributes
+        """
+        from kadi.commands.utils import get_ofp_states
+
+        from .. import fetch
+        from ..utils import logical_intervals
+
+        start = CxoTime(tstart)
+        stop = CxoTime(tstop)
+
+        # Whether we are computing "pitch" or "roll", parsed from MSID name
+        pitch_roll: str = msid_args[0]
+
+        ofp_states = get_ofp_states(stop.date, days=(stop - start).jd)
+
+        tlms = []
+        for ofp_state in ofp_states:
+            if ofp_state["val"] == "NRML":
+                dat = fetch.Msid("aopcadmd", ofp_state["tstart"], ofp_state["tstop"])
+
+                # Get states of either NPNT / NMAN or NSUN
+                vals = np.isin(dat.vals, ["NPNT", "NMAN"])
+                states_npnt_nman = logical_intervals(
+                    dat.times, vals, complete_intervals=False, max_gap=2.1
+                )
+                states_npnt_nman["val"] = np.repeat("NPNT_NMAN", len(states_npnt_nman))
+                # Require at least 10 minutes => 2 samples of the ephem data. This is
+                # needed for the built-in derived parameter calculation to work.
+                ok = states_npnt_nman["duration"] > 10 * 60 + 1
+                states_npnt_nman = states_npnt_nman[ok]
+
+                states_nsun = logical_intervals(
+                    dat.times, dat.vals == "NSUN", max_gap=2.1, complete_intervals=False
+                )
+                states_nsun["val"] = np.repeat("NSUN", len(states_nsun))
+                states = tbl.vstack([states_npnt_nman, states_nsun])
+                states.sort("tstart")
+
+                for state in states:
+                    if state["val"] == "NPNT_NMAN":
+                        tlm = calc_pitch_roll_obc(
+                            state["tstart"], state["tstop"], pitch_roll
+                        )
+                        tlms.append(tlm)
+                    elif state["val"] == "NSUN":
+                        tlm = fetch.Msid(
+                            f"{pitch_roll}_css", state["tstart"], state["tstop"]
+                        )
+                        tlms.append((tlm.times, tlm.vals))
+
+            elif ofp_state["val"] == "SAFE":
+                calc_func = globals()[f"calc_css_{pitch_roll}_safe"]
+                tlm = calc_func(ofp_state["datestart"], ofp_state["datestop"])
+                tlms.append(tlm)
+
+        times = np.concatenate([tlm[0] for tlm in tlms])
+        vals = np.concatenate([tlm[1] for tlm in tlms])
+
+        # Return a dict with at least `vals`, `times`, `bads`, and `unit`.
+        # Additional attributes are allowed and will be set on the
+        # final MSID object.
+        out = {
+            "vals": vals,
+            "bads": np.zeros(len(vals), dtype=bool),
+            "times": times,
+            "unit": "DEG",
+        }
         return out
