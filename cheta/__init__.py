@@ -2,7 +2,7 @@
 
 import ska_helpers
 
-__version__ = ska_helpers.get_version("cheta")
+__version__ = ska_helpers.get_version(__package__, distribution="cheta")
 
 
 def test(*args, **kwargs):
