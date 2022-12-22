@@ -39,7 +39,7 @@ from Ska.DBI import DBI
 from . import __version__, file_defs
 from .utils import STATS_DT, get_date_id
 
-sync_files = pyyaks.context.ContextDict("update_client_archive.sync_files")
+sync_files = pyyaks.context.ContextDict(f"{__name__}.sync_files")
 sync_files.update(file_defs.sync_files)
 
 process_errors = []
