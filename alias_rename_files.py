@@ -11,9 +11,9 @@ import pickle
 
 import pyyaks.context
 
-import Ska.engarchive.fetch as fetch
-from Ska.engarchive.converters import ALIASES
-import Ska.engarchive.file_defs as file_defs
+import cheta.fetch as fetch
+from cheta.converters import ALIASES
+import cheta.file_defs as file_defs
 
 
 def get_options(args=None):

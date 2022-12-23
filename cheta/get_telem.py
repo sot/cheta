@@ -181,7 +181,7 @@ def get_telem(
     # Set up output logging
     from pyyaks.logger import get_logger
 
-    logger = get_logger(name="Ska.engarchive.get_telem", level=(100 if quiet else -100))
+    logger = get_logger(name="cheta.get_telem", level=(100 if quiet else -100))
 
     # Set defaults and translate to fetch keywords
     stop = DateTime(stop)

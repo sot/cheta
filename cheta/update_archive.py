@@ -25,10 +25,10 @@ import tables
 from Chandra.Time import DateTime
 from ska_helpers.retry import tables_open_file
 
-import Ska.engarchive.converters as converters
-import Ska.engarchive.derived as derived
-import Ska.engarchive.fetch as fetch
-import Ska.engarchive.file_defs as file_defs
+import cheta.converters as converters
+import cheta.derived
+import cheta.fetch as fetch
+import cheta.file_defs as file_defs
 
 
 def get_options(args=None):
@@ -656,7 +656,7 @@ def update_derived(filetype):
     msids = set()
     time_step = None
     for colname in colnames:
-        dp_class = getattr(derived, colname)
+        dp_class = getattr(cheta.derived, colname)
         dp = dp_class()
         msids = msids.union([x.upper() for x in dp.rootparams])
         time_step = dp.time_step  # will be the same for every DP
@@ -998,7 +998,7 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
     index0 = int(index0)
     index1 = int(index1)
     mnf_step = int(re.search(r"(\d+)$", content).group(1))
-    time_step = mnf_step * derived.MNF_TIME
+    time_step = mnf_step * cheta.derived.MNF_TIME
     times = time_step * np.arange(index0, index1)
 
     logger.info("Reading (%d / %d) %s" % (i, len(archfiles), filename))
@@ -1009,7 +1009,7 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
             vals[colname] = times
             bads[:, i] = False
         else:
-            dp_class = getattr(Ska.engarchive.derived, colname.upper())
+            dp_class = getattr(cheta.derived, colname.upper())
             dp = dp_class()
             dataset = dp.fetch(times[0] - 1000, times[-1] + 1000)
             ok = (index0 <= dataset.indexes) & (dataset.indexes < index1)

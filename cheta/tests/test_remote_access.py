@@ -16,7 +16,7 @@ Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
     >>> import os os.environ.pop('SKA', None)
     >>> os.environ.pop('ENG_ARCHIVE', None)
     >>> os.environ.pop('SKA_ACCESS_REMOTELY', None)
-    >>> from Ska.engarchive import fetch, remote_access
+    >>> from cheta import fetch, remote_access
     >>> fetch.add_logging_handler()
     >>> assert remote_access.access_remotely is True
     >>> dat = fetch.Msid('tephin', '2018:001', '2018:010')
@@ -30,7 +30,7 @@ Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
     >>> os.environ['SKA'] = <path_to_ska_root>
     >>> os.environ.pop('ENG_ARCHIVE', None)
     >>> os.environ.pop('SKA_ACCESS_REMOTELY', None)
-    >>> from Ska.engarchive import fetch, remote_access
+    >>> from cheta import fetch, remote_access
     >>> fetch.add_logging_handler()
     >>> assert remote_access.access_remotely is False
     >>> dat = fetch.Msid('1wrat', '2018:001', '2018:010')
@@ -41,7 +41,7 @@ Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
 
     >>> import os
     >>> os.environ['SKA_ACCESS_REMOTELY'] = 'True'
-    >>> from Ska.engarchive
+    >>> from cheta
     >>> import fetch, remote_access
     >>> fetch.add_logging_handler()
     >>> assert remote_access.access_remotely is True
@@ -77,7 +77,7 @@ from pathlib import Path
 import pytest
 from astropy.utils.exceptions import AstropyUserWarning
 
-from Ska.engarchive.remote_access import get_data_access_info
+from cheta.remote_access import get_data_access_info
 
 INVALID_DIR = str(Path(__file__).parent / "__non_existent_invalid_directory____")
 

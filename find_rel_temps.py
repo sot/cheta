@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pickle
-from Ska.engarchive import fetch
+from cheta import fetch
 
 dat = asciitable.read('/proj/sot/ska/ops/TDB/tmsrment.txt',
                       Reader=asciitable.NoHeader, delimiter=",",
@@ -24,4 +24,4 @@ for msid in sorted(temp_msids):
     if dat.means[0] < 100:
         print msid, dat.means[0], descrs[msid]
         reltemps.append(msid)
-    
+

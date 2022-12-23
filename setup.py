@@ -1,14 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import glob
-import os
-import sys
-
 from setuptools import setup
-
-try:
-    from testr.setup_helper import cmdclass
-except ImportError:
-    cmdclass = {}
+from ska_helpers.setup_helper import duplicate_package_info
 
 console_scripts = [
     "ska_fetch = cheta.get_telem:main",
@@ -20,40 +12,32 @@ console_scripts = [
     "cheta_add_derived = cheta.add_derived:main",
 ]
 
-# Install following into sys.prefix/share/eng_archive/ via the data_files directive.
-if "--user" not in sys.argv:
-    share_path = os.path.join("share", "eng_archive")
-    task_files = glob.glob("task_schedule*.cfg")
-    data_files = [(share_path, task_files)]
-else:
-    data_files = None
 
-# Duplicate Ska.engarchive packages and package_data to cheta
-packages = ["Ska", "Ska.engarchive", "Ska.engarchive.derived", "Ska.engarchive.tests"]
-for package in list(packages)[1:]:
-    packages.append(package.replace("Ska.engarchive", "cheta"))
+name = "cheta"
+namespace = "Ska.engarchive"
 
+package_dir = {name: name}
+packages = ["cheta", "cheta.derived", "cheta.tests"]
 package_data = {
-    "Ska.engarchive": ["*.dat", "units_*.pkl", "archfiles_def.sql"],
-    "Ska.engarchive.tests": ["*.dat"],
+    "cheta": ["task_schedule.cfg", "*.dat", "units_*.pkl", "archfiles_def.sql"],
+    "cheta.tests": ["*.dat"],
 }
-for key in list(package_data):
-    cheta_key = key.replace("Ska.engarchive", "cheta")
-    package_data[cheta_key] = package_data[key]
+
+# Duplicate cheta packages and package_data to cheta
+duplicate_package_info(packages, name, namespace)
+duplicate_package_info(package_dir, name, namespace)
+duplicate_package_info(package_data, name, namespace)
 
 setup(
-    name="Ska.engarchive",
+    name=name,
     author="Tom Aldcroft",
-    description="Modules supporting Ska engineering telemetry archive",
+    description="Modules supporting cheta telemetry archive",
     author_email="taldcroft@cfa.harvard.edu",
     entry_points={"console_scripts": console_scripts},
     use_scm_version=True,
     setup_requires=["setuptools_scm", "setuptools_scm_git_archive"],
     zip_safe=False,
-    package_dir={"Ska": "Ska", "cheta": "Ska/engarchive"},
+    package_dir=package_dir,
     packages=packages,
     package_data=package_data,
-    data_files=data_files,
-    tests_require=["pytest"],
-    cmdclass=cmdclass,
 )

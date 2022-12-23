@@ -48,7 +48,7 @@ from Ska.DBI import DBI
 from . import fetch, file_defs
 from .utils import STATS_DT, get_date_id
 
-sync_files = pyyaks.context.ContextDict("update_server_sync.sync_files")
+sync_files = pyyaks.context.ContextDict(f"{__name__}.sync_files")
 sync_files.update(file_defs.sync_files)
 
 

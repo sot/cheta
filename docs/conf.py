@@ -54,7 +54,7 @@ project = u'Eng archive'
 copyright = u'2011, Tom Aldcroft'
 
 # The full version, including alpha/beta/rc tags.  Already defined above.
-from Ska.engarchive import __version__ as release
+from cheta import __version__ as release
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.

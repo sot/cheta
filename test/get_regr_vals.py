@@ -31,7 +31,7 @@ if opt.test:
 else:
     outfile = opt.out + '.flight'
 
-import Ska.engarchive.fetch as fetch
+import cheta.fetch as fetch
 print 'Fetch file is', fetch.__file__
 print 'ENG_ARCHIVE is', os.environ.get('ENG_ARCHIVE')
 
@@ -53,4 +53,4 @@ out['file'] = fetch.__file__
 pickle.dump(out, open(outfile, 'w'), protocol=-1)
 
 
-                     
+

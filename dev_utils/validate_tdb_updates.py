@@ -4,7 +4,7 @@ from __future__ import print_function
 import pickle
 import os
 import Ska.tdb
-from Ska.engarchive import fetch_eng as fetch
+from cheta import fetch_eng as fetch
 from matplotlib import pyplot as plt
 
 for content in os.listdir('data'):

@@ -50,8 +50,8 @@ import scipy.stats.mstats
 import tables
 from Chandra.Time import DateTime
 
-import Ska.engarchive.file_defs as file_defs
-from Ska.engarchive import fetch
+import cheta.file_defs as file_defs
+from cheta import fetch
 
 ft = fetch.ft
 opt = None

@@ -16,6 +16,6 @@ jobs:
     - name: Lint with flake8
       run: |
         pip install flake8
-        # Note: only check files in Ska.engarchive package.  Many other files in
+        # Note: only check files in cheta package.  Many other files in
         # the repo are not maintained as PEP8 compliant.
-        flake8 Ska --count --ignore=W503,W504,F541,E203 --max-line-length=100 --show-source --statistics
+        flake8 cheta --count --ignore=W503,W504,F541,E203 --max-line-length=100 --show-source --statistics

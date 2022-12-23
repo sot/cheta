@@ -11,7 +11,7 @@ import Ska.DBI
 import tables
 from six.moves import cPickle as pickle
 
-import Ska.engarchive.fetch as fetch
+import cheta.fetch as fetch
 
 opt = None
 ft = fetch.ft

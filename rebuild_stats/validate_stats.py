@@ -9,7 +9,7 @@ import os
 import numpy as np
 import tables
 import matplotlib.pyplot as plt
-from Ska.engarchive import fetch
+from cheta import fetch
 from Chandra.Time import DateTime
 
 if ('ENG_ARCHIVE' in os.environ
@@ -154,4 +154,4 @@ def plot_stats(msid,
 
     plt.tight_layout()
     plt.savefig('stats_plots/{}.png'.format(msid))
-    
+

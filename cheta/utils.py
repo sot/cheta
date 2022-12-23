@@ -109,7 +109,7 @@ def ss_vector(start, stop=None, obj="Earth"):
 
     Example::
 
-      from Ska.engarchive.utils import ss_vector
+      from cheta.utils import ss_vector
       from Ska.Matplotlib import plot_cxctime
       vec = ss_vector('2010:001', '2010:030', obj='Sun')
       figure(1)
@@ -263,7 +263,7 @@ def logical_intervals(times, bools, complete_intervals=False, max_gap=None):
 
     Example (find SCS107 runs via telemetry)::
 
-      >>> from Ska.engarchive import utils, fetch
+      >>> from cheta import utils, fetch
       >>> dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'], '2012:190', '2012:205')
       >>> dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)
       >>> scs107 = ((dat['3tscmove'].vals == 'T')
@@ -314,7 +314,7 @@ def state_intervals(times, vals):
 
     Example::
 
-      >>> from Ska.engarchive import fetch, utils
+      >>> from cheta import fetch, utils
       >>> dat = fetch.Msid('cobsrqid', '2010:003:12:00:00', '2010:004:12:00:00')
       >>> obsids = utils.state_intervals(dat.times, dat.vals)
       >>> print(obsids['datestart', 'datestop', 'val'])

@@ -12,7 +12,7 @@ $ ipython --classic
 import numpy as np
 
 from Ska.Matplotlib import plot_cxctime
-from Ska.engarchive import fetch_eng as fetch
+from cheta import fetch_eng as fetch
 import matplotlib.pyplot as plt
 
 
