@@ -1,5 +1,5 @@
-from Ska.engarchive import fetch_eng as fetch
-from Ska.engarchive.utils import logical_intervals
+from cheta import fetch_eng as fetch
+from cheta.utils import logical_intervals
 import matplotlib.pyplot as plt
 sa_temps = fetch.Msid('TSAPYT','2010:001',stat='5min')
 roll = fetch.Msid('ROLL','2010:001',stat='5min')

@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cheta.derived.eps &#8212; Eng archive 4.58.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">Cheta</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">Eng archive 4.58.0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cheta.derived.eps</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Derived parameter MSIDs related to EPS subsystem.</span>
+
+<span class="sd">Author: B. Bissell</span>
+
+<span class="sd">Revision History::</span>
+
+<span class="sd">     Jul 2014 Initial Version</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">base</span>
+
+
+<div class="viewcode-block" id="DerivedParameterEps"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DerivedParameterEps">[docs]</a><span class="k">class</span> <span class="nc">DerivedParameterEps</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
+    <span class="n">content_root</span> <span class="o">=</span> <span class="s2">&quot;eps&quot;</span></div>
+
+
+<span class="c1"># --------------------------------------------</span>
+<div class="viewcode-block" id="DP_BATT1_TAVE"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_BATT1_TAVE">[docs]</a><span class="k">class</span> <span class="nc">DP_BATT1_TAVE</span><span class="p">(</span><span class="n">DerivedParameterEps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Battery 1 Average Temperature. Derived from average of all three battery temperature sensors.</span>
+<span class="sd">    Telemetry 16x / MF</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TB1T1&quot;</span><span class="p">,</span> <span class="s2">&quot;TB1T2&quot;</span><span class="p">,</span> <span class="s2">&quot;TB1T3&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">2.05</span>
+
+<div class="viewcode-block" id="DP_BATT1_TAVE.calc"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_BATT1_TAVE.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">BATT1_TAVE</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB1T1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB1T2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB1T3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="k">return</span> <span class="n">BATT1_TAVE</span></div></div>
+
+
+<span class="c1"># --------------------------------------------</span>
+<div class="viewcode-block" id="DP_BATT2_TAVE"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_BATT2_TAVE">[docs]</a><span class="k">class</span> <span class="nc">DP_BATT2_TAVE</span><span class="p">(</span><span class="n">DerivedParameterEps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Battery 2 Average Temperature. Derived from average of all three battery temperature sensors.</span>
+<span class="sd">    Telemetry 16x / MF</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TB2T1&quot;</span><span class="p">,</span> <span class="s2">&quot;TB2T2&quot;</span><span class="p">,</span> <span class="s2">&quot;TB2T3&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">2.05</span>
+
+<div class="viewcode-block" id="DP_BATT2_TAVE.calc"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_BATT2_TAVE.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">BATT2_TAVE</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB2T1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB2T2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB2T3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="k">return</span> <span class="n">BATT2_TAVE</span></div></div>
+
+
+<span class="c1"># --------------------------------------------</span>
+<div class="viewcode-block" id="DP_BATT3_TAVE"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_BATT3_TAVE">[docs]</a><span class="k">class</span> <span class="nc">DP_BATT3_TAVE</span><span class="p">(</span><span class="n">DerivedParameterEps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Battery 3 Average Temperature. Derived from average of all three battery temperature sensors.</span>
+<span class="sd">    Telemetry 16x / MF</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TB3T1&quot;</span><span class="p">,</span> <span class="s2">&quot;TB3T2&quot;</span><span class="p">,</span> <span class="s2">&quot;TB3T3&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">2.05</span>
+
+<div class="viewcode-block" id="DP_BATT3_TAVE.calc"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_BATT3_TAVE.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">BATT3_TAVE</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB3T1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB3T2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;TB3T3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="k">return</span> <span class="n">BATT3_TAVE</span></div></div>
+
+
+<span class="c1"># --------------------------------------------</span>
+<div class="viewcode-block" id="DP_EPOWER1"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_EPOWER1">[docs]</a><span class="k">class</span> <span class="nc">DP_EPOWER1</span><span class="p">(</span><span class="n">DerivedParameterEps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Bus Power = ELBI_LOW * ELBV</span>
+<span class="sd">    Telemetry 8x / MF</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ELBI_LOW&quot;</span><span class="p">,</span> <span class="s2">&quot;ELBV&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">4.1</span>
+
+<div class="viewcode-block" id="DP_EPOWER1.calc"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_EPOWER1.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">EPOWER1</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ELBI_LOW&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ELBV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="k">return</span> <span class="n">EPOWER1</span></div></div>
+
+
+<span class="c1"># --------------------------------------------</span>
+<div class="viewcode-block" id="DP_MYSAPOW"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_MYSAPOW">[docs]</a><span class="k">class</span> <span class="nc">DP_MYSAPOW</span><span class="p">(</span><span class="n">DerivedParameterEps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;-Y Solar Array Power = ESAMYI * ELBV</span>
+<span class="sd">    Telemetry 8x / MF</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ESAMYI&quot;</span><span class="p">,</span> <span class="s2">&quot;ELBV&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">4.1</span>
+
+<div class="viewcode-block" id="DP_MYSAPOW.calc"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_MYSAPOW.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">MYSAPOW</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ESAMYI&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ELBV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="k">return</span> <span class="n">MYSAPOW</span></div></div>
+
+
+<span class="c1"># --------------------------------------------</span>
+<div class="viewcode-block" id="DP_PYSAPOW"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_PYSAPOW">[docs]</a><span class="k">class</span> <span class="nc">DP_PYSAPOW</span><span class="p">(</span><span class="n">DerivedParameterEps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;+Y Solar Array Power = ESAPYI * ELBV</span>
+<span class="sd">    Telemetry 8x / MF</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ESAPYI&quot;</span><span class="p">,</span> <span class="s2">&quot;ELBV&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">4.1</span>
+
+<div class="viewcode-block" id="DP_PYSAPOW.calc"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.eps.DP_PYSAPOW.calc">[docs]</a>    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">PYSAPOW</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ESAPYI&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ELBV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="k">return</span> <span class="n">PYSAPOW</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+
+
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

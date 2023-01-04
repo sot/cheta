@@ -87,7 +87,7 @@ For a more concrete example, say you want to fetch some daily telemetry values
 but forgot exactly how to do the query and what are the available columns.  Use
 help and TAB completion to remind yourself::
 
-  import Ska.engarchive.fetch as fetch
+  import cheta.fetch as fetch
   help fetch
   tephin = fetch.MSID('tephin', '2009:001', '2009:002', stat='daily')
   tephin.<TAB>

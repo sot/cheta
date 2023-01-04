@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cheta.derived.acispow &#8212; Eng archive 4.58.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">Cheta</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">Eng archive 4.58.0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cheta.derived.acispow</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Derived parameter MSIDs related to ACIS power.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">base</span>
+
+
+<div class="viewcode-block" id="DP_DPA_POWER"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.acispow.DP_DPA_POWER">[docs]</a><span class="k">class</span> <span class="nc">DP_DPA_POWER</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;ACIS total DPA-A and DPA-B power&quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1dp28avo&quot;</span><span class="p">,</span> <span class="s2">&quot;1dpicacu&quot;</span><span class="p">,</span> <span class="s2">&quot;1dp28bvo&quot;</span><span class="p">,</span> <span class="s2">&quot;1dpicbcu&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">32.8</span>
+    <span class="n">content_root</span> <span class="o">=</span> <span class="s2">&quot;acispow&quot;</span>
+
+    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dp28avo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dpicacu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dp28bvo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dpicbcu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">power</span></div>
+
+
+<div class="viewcode-block" id="DP_DEA_POWER"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.acispow.DP_DEA_POWER">[docs]</a><span class="k">class</span> <span class="nc">DP_DEA_POWER</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;ACIS DEA power&quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1de28avo&quot;</span><span class="p">,</span> <span class="s2">&quot;1deicacu&quot;</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">32.8</span>
+    <span class="n">content_root</span> <span class="o">=</span> <span class="s2">&quot;acispow&quot;</span>
+
+    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1de28avo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1deicacu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="k">return</span> <span class="n">power</span></div>
+
+
+<div class="viewcode-block" id="DP_PSMC_POWER"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.acispow.DP_PSMC_POWER">[docs]</a><span class="k">class</span> <span class="nc">DP_PSMC_POWER</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;ACIS PSMC power&quot;&quot;&quot;</span>
+
+    <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;1dp28avo&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1dpicacu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1dp28bvo&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1dpicbcu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1de28avo&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1deicacu&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">32.8</span>
+    <span class="n">content_root</span> <span class="o">=</span> <span class="s2">&quot;acispow&quot;</span>
+
+    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dp28avo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dpicacu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dp28bvo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1dpicbcu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1de28avo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;1deicacu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">power</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ska.png" alt="Logo"/>
+            </a></p><h3>Page Contents</h3>
+
+
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2011, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

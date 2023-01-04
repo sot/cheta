@@ -1,15 +1,15 @@
 :tocdepth: 3
 
-.. |fetch_MSID| replace:: :func:`~Ska.engarchive.fetch.MSID`
-.. |fetch_MSIDset| replace:: :func:`~Ska.engarchive.fetch.MSIDset`
-.. |fetch_MSIDset_interpolate| replace:: :func:`~Ska.engarchive.fetch.MSIDset.interpolate`
-.. |get_telem| replace:: :func:`~Ska.engarchive.fetch.get_telem`
+.. |fetch_MSID| replace:: :func:`~cheta.fetch.MSID`
+.. |fetch_MSIDset| replace:: :func:`~cheta.fetch.MSIDset`
+.. |fetch_MSIDset_interpolate| replace:: :func:`~cheta.fetch.MSIDset.interpolate`
+.. |get_telem| replace:: :func:`~cheta.fetch.get_telem`
 
 ================================
 Fetch Tutorial
 ================================
 
-The python module ``Ska.engarchive.fetch`` provides a simple interface to the
+The python module ``cheta.fetch`` provides a simple interface to the
 engineering archive data files.  Using the module functions it is easy to
 retrieve data over a time range for a single MSID or a related set of MSIDs.
 The data are return as MSID objects that contain not only the telemetry timestamps
@@ -23,10 +23,10 @@ Getting started
 The basic process of fetching data always starts with importing the module
 into the python session::
 
-  import Ska.engarchive.fetch as fetch
+  import cheta.fetch as fetch
 
 The ``as fetch`` part of the ``import`` statement just creates an short alias
-to avoid always typing the somewhat lengthy ``Ska.engarchive.fetch.MSID(..)``.
+to avoid always typing the somewhat lengthy ``cheta.fetch.MSID(..)``.
 Fetching and plotting full time-resolution data for a single MSID is then quite
 easy::
 
@@ -86,7 +86,7 @@ listings of available MSIDs.
 **Other details**
 
 If you are wondering what time range of data is available for a particular MSID
-use the :func:`~Ska.engarchive.fetch.get_time_range` function::
+use the :func:`~cheta.fetch.get_time_range` function::
 
   fetch.get_time_range('tephin', format='date')
   ('1999:365:22:40:33.076', '2013:276:12:04:39.361')
@@ -173,7 +173,7 @@ function of the ``Ska.Matplotlib`` module::
   plot_cxctime(tephin.times, tephin.vals)
 
 An even simpler way to make the same plot is with the
-:func:`~Ska.engarchive.fetch.MSID.plot` function::
+:func:`~cheta.fetch.MSID.plot` function::
 
   tephin.plot()
 
@@ -183,7 +183,7 @@ That looks better:
 
 .. tip::
 
-   The :func:`~Ska.engarchive.fetch.MSID.plot` method accepts any arguments
+   The :func:`~cheta.fetch.MSID.plot` method accepts any arguments
    work with the Matplotlib `plot_date()
    <http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.plot_date>`_
    function
@@ -191,7 +191,7 @@ That looks better:
 Interactive plotting
 =====================
 
-The :func:`~Ska.engarchive.fetch.MSID.iplot` function is a handy way to quickly
+The :func:`~cheta.fetch.MSID.iplot` function is a handy way to quickly
 explore MSID data over a wide range of time scales, from seconds to the entire
 mission in a few key presses.  The function automatically fetches data from
 the archive as needed.
@@ -219,8 +219,8 @@ Example::
   dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
   dat.iplot()
 
-The :func:`~Ska.engarchive.fetch.MSID.iplot` and
-:func:`~Ska.engarchive.fetch.MSID.plot` functions support plotting
+The :func:`~cheta.fetch.MSID.iplot` and
+:func:`~cheta.fetch.MSID.plot` functions support plotting
 state-valued MSIDs such as ``AOPCADMD`` or ``AOUNLOAD``::
 
   dat = fetch.Msid('aopcadmd', '2011:185', '2011:195')
@@ -231,10 +231,10 @@ state-valued MSIDs such as ``AOPCADMD`` or ``AOUNLOAD``::
 
 .. Note::
 
-   The :func:`~Ska.engarchive.fetch.MSID.iplot` method is not meant for use
+   The :func:`~cheta.fetch.MSID.iplot` method is not meant for use
    within scripts, and may give unexpected results if used in combination with
    other plotting commands directed at the same plot figure.  Instead one
-   should use the MSID :func:`~Ska.engarchive.fetch.MSID.plot` method in this
+   should use the MSID :func:`~cheta.fetch.MSID.plot` method in this
    case.
 
 
@@ -260,8 +260,8 @@ unreliable.
 Using Kadi
 ^^^^^^^^^^^
 
-Frequently one can handle this with the :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
-:func:`~Ska.engarchive.fetch.MSID.select_intervals` methods in conjunction with the `kadi event
+Frequently one can handle this with the :func:`~cheta.fetch.MSID.remove_intervals`
+:func:`~cheta.fetch.MSID.select_intervals` methods in conjunction with the `kadi event
 intervals <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-intervals>`_
 mechanism.
 
@@ -278,7 +278,7 @@ highlights the large rates during maneuvers::
 
 .. plot::
 
-   from Ska.engarchive import fetch
+   from cheta import fetch
    import matplotlib.pyplot as plt
    plt.figure(figsize=(6, 4), dpi=75)
 
@@ -290,7 +290,7 @@ highlights the large rates during maneuvers::
    aorate2.plot('.r')
    plt.tight_layout()
 
-The following code illustrates use of the :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
+The following code illustrates use of the :func:`~cheta.fetch.MSID.remove_intervals`
 method to select all all time intervals when the spacecraft is *not* maneuvering.  In this
 case we include a pad time of 600 seconds before the start of a maneuver and 300 seconds
 after the end of each maneuver.
@@ -302,7 +302,7 @@ after the end of each maneuver.
 
 .. plot::
 
-   from Ska.engarchive import fetch
+   from cheta import fetch
    import matplotlib.pyplot as plt
    from kadi import events
 
@@ -319,15 +319,15 @@ Using logical intervals
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 For cases where the intervals to be filtered cannot be expressed as Kadi events,
-the approach is to use the :func:`~Ska.engarchive.utils.logical_intervals` function
-located in the ``Ska.engarchive.utils`` module.  This function creates an intervals
+the approach is to use the :func:`~cheta.utils.logical_intervals` function
+located in the ``cheta.utils`` module.  This function creates an intervals
 table where each row represents a desired interval and includes a ``datestart`` and
 ``datestop`` column.
 
 For example to extract solar array temperatures when the off-nominal roll
 angle is between 5 and 10 degrees you would do::
 
-  >>> from Ska.engarchive.utils import logical_intervals
+  >>> from cheta.utils import logical_intervals
 
   >>> sa_temps = fetch.Msid('TSAPYT','2010:001',stat='5min')
   >>> roll = fetch.Msid('ROLL','2010:001',stat='5min')
@@ -342,8 +342,8 @@ angle is between 5 and 10 degrees you would do::
 
 .. plot::
 
-   from Ska.engarchive import fetch_eng as fetch
-   from Ska.engarchive.utils import logical_intervals
+   from cheta import fetch_eng as fetch
+   from cheta.utils import logical_intervals
    import matplotlib.pyplot as plt
    sa_temps = fetch.Msid('TSAPYT','2010:001',stat='5min')
    roll = fetch.Msid('ROLL','2010:001',stat='5min')
@@ -361,8 +361,8 @@ Notice that we created a new version of the solar array temperatures MSID object
 ``sa_temps_off_nom`` (using ``copy=True``) instead of filtering in place.  Sometimes it is
 convenient to have both the original and filtered data, e.g. when you want to plot both.
 
-Note also that :func:`~Ska.engarchive.fetch.MSID.remove_intervals`
-:func:`~Ska.engarchive.fetch.MSID.select_intervals` will accept *any* table
+Note also that :func:`~cheta.fetch.MSID.remove_intervals`
+:func:`~cheta.fetch.MSID.select_intervals` will accept *any* table
 with columns ``datestart`` / ``datestop`` or ``tstart`` / ``tstop`` as input.
 
 Fetching only small intervals
@@ -376,7 +376,7 @@ and then selecting intervals is prohibitively expensive in memory and time.
 
 There is a different mechanism that can work in these situations.  The ``start``
 argument to a ``fetch.MSID`` or ``fetch.MSIDset`` query can be an interval
-specifier.  This might be the output of :func:`~Ska.engarchive.utils.logical_intervals`
+specifier.  This might be the output of :func:`~cheta.utils.logical_intervals`
 or it might just be a list of ``(start, stop)`` tuples.  If that is the
 case then fetch will iterate through those start / stop pairs, do the
 fetch individually, and then stitch the whole thing back together into
@@ -700,7 +700,7 @@ content type as follows::
 
   msids = fetch.MSIDset(['aorate1', 'aorate2', 'aogyrct1', 'aogyrct2'], '2009:001', '2009:002')
   for msid in msids.values():
-      print msid.msid, msid.content
+      print(msid.msid, msid.content)
 
 In this case if we apply the ``filter_bad()`` method then ``aorate1`` and
 ``aorate2`` will be grouped separately from ``aogyrct1`` and ``aogyrct2``.  In
@@ -842,14 +842,14 @@ The simplest way to select a different unit system is to alter the
 canonical command for importing the ``fetch`` module.  To always use OCC
 engineering units use the following command::
 
-  from Ska.engarchive import fetch_eng as fetch
+  from cheta import fetch_eng as fetch
 
 This uses a special Python syntax to import the ``fetch_eng`` module
 but then refer to it as ``fetch``.  In this way there is no need to
 change existing codes (except one line) or habits.  To always use "science"
 units use the command::
 
-  from Ska.engarchive import fetch_sci as fetch
+  from cheta import fetch_sci as fetch
 
 Mixing units
 ---------------
@@ -860,18 +860,18 @@ same script or Python process.
 
 Example::
 
-  import Ska.engarchive.fetch as fetch_cxc  # CXC units
-  import Ska.engarchive.fetch_eng as fetch_eng
-  import Ska.engarchive.fetch_sci as fetch_sci
+  import cheta.fetch as fetch_cxc  # CXC units
+  import cheta.fetch_eng as fetch_eng
+  import cheta.fetch_sci as fetch_sci
 
   t1 = fetch_cxc.MSID('tephin', '2010:001', '2010:002')
-  print t1.unit  # prints "K"
+  print(t1.unit  # prints "K")
 
   t2 = fetch_eng.MSID('tephin', '2010:001', '2010:002')
-  print t2.unit  # prints "DEGF"
+  print(t2.unit  # prints "DEGF")
 
   t3 = fetch_sci.MSID('tephin', '2010:001', '2010:002')
-  print t3.unit  # prints "DEGC"
+  print(t3.unit  # prints "DEGC")
 
 MSID globs
 =============================
@@ -898,7 +898,7 @@ choose a few related MSIDs::
 
     dat = fetch.MSIDset(['orb*1*_[xyz]', 'aoattqt*'], ...)
 
-The :func:`~Ska.engarchive.fetch.msid_glob()` method will show you exactly what
+The :func:`~cheta.fetch.msid_glob()` method will show you exactly what
 matches a given ``msid``::
 
     >>> fetch.msid_glob('orb*1*_?')
@@ -976,7 +976,7 @@ the duty cycle for an ON/OFF bi-level for mission trending::
 .. image:: fetchplots/state_bins_4ohtrz10.png
 
 .. # Could use a plot directive here
-   from Ska.engarchive import fetch
+   from cheta import fetch
    from Ska.Matplotlib import plot_cxctime
    import matplotlib.pyplot as plt
    plt.figure(figsize=(6, 4), dpi=75)
@@ -1253,7 +1253,7 @@ to tell it to order by memory usage.  Now go back to your main window and get
 all the ``TEIO`` data for the mission::
 
   ipython --matplotlib
-  import Ska.engarchive.fetch as fetch
+  import cheta.fetch as fetch
   import matplotlib.pyplot as plt
   from Ska.Matplotlib import plot_cxctime
   time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
@@ -1314,7 +1314,7 @@ Estimating fetch size
 -----------------------
 
 You can do a better than the above rules of thumb using the
-:func:`~Ska.engarchive.utils.get_fetch_size` function in the ``Ska.engarchive.utils``
+:func:`~cheta.utils.get_fetch_size` function in the ``cheta.utils``
 module to estimate the size of a fetch request prior to making the call.  This is
 especially useful for applications that want to avoid unreasonably large data requests.
 
@@ -1322,7 +1322,7 @@ As an example, compute the estimated size in Megabytes for fetching full-resolut
 for TEPHIN and AOPCADMD for a period of 3 years, both of which are then interpolated at a
 time sampling of 32.8 seconds::
 
-  >>> from Ska.engarchive.utils import get_fetch_size
+  >>> from cheta.utils import get_fetch_size
   >>> get_fetch_size(['TEPHIN', 'AOPCADMD'], '2011:001', '2014:001', interpolate_dt=32.8)
   (1248.19, 75.06)
 
@@ -1386,7 +1386,7 @@ Example::
 
   % ska
   % ipython --pylab
-  >>> from Ska.engarchive.fetch import get_telem
+  >>> from cheta.fetch import get_telem
   >>> dat = get_telem(['tephin', 'tcylaft6'], '2010:001', '2010:030', sampling='5min')
   >>> clf()
   >>> dat['tephin'].plot(label='TEPHIN', color='r')
@@ -1494,7 +1494,7 @@ As a final example here is a real-world problem of wanting to compare OBC
 rates to those derived on the ground using raw gyro data.
 ::
 
-  import Ska.engarchive.fetch as fetch
+  import cheta.fetch as fetch
   from Ska.Matplotlib import plot_cxctime
   import Ska.Numpy
 

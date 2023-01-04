@@ -4,10 +4,10 @@
 Plotting API documentation
 =============================
 
-.. automodule:: Ska.engarchive.plot
+.. automodule:: cheta.plot
 
 Classes
 -----------
-.. autoclass:: Ska.engarchive.plot.MsidPlot
+.. autoclass:: cheta.plot.MsidPlot
    :show-inheritance:
    :members:

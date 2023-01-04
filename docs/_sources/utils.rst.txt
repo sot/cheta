@@ -4,5 +4,5 @@
 Utilities API documentation
 ================================================
 
-.. automodule:: Ska.engarchive.utils
+.. automodule:: cheta.utils
    :members:

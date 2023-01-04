@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Ska Analysis Tutorial &#8212; Eng archive 4.57.0 documentation</title>
+    <title>Ska Analysis Tutorial &#8212; Eng archive 4.58.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -61,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.57.0 documentation</a>
+	<a href="index.html">Eng archive 4.58.0 documentation</a>
 	 &#187;
       </li>
       
@@ -126,7 +126,7 @@ not include the “% ” when copying the examples.:</p>
 </pre></div>
 </div>
 <p>Now read some data and make a simple plot by copying the following lines in <code class="docutils literal notranslate"><span class="pre">ipython</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">Ska.engarchive.fetch</span> <span class="k">as</span> <span class="nn">fetch</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cheta.fetch</span> <span class="k">as</span> <span class="nn">fetch</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="n">tephin</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;tephin&#39;</span><span class="p">,</span> <span class="s1">&#39;2009:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2009:002&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tephin</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">tephin</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
@@ -140,13 +140,13 @@ not include the “% ” when copying the examples.:</p>
 <p>There are four key elements that are the basis for doing plotting and analysis
 with the engineering archive.</p>
 <ul class="simple">
-<li><p>Ska.engarchive.fetch: module to read and manipulate telemetry data</p></li>
+<li><p>cheta.fetch: module to read and manipulate telemetry data</p></li>
 <li><p><a class="reference external" href="http://ipython.scipy.org/moin/">IPython</a>: interactive python interpreter</p></li>
 <li><p><a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>: python plotting package with an interface similar to Matlab</p></li>
 <li><p><a class="reference external" href="http://numpy.scipy.org/">NumPy</a>: python numerical package for fast vector and array math</p></li>
 </ul>
-<section id="ska-engarchive-fetch">
-<h3>Ska.engarchive.fetch<a class="headerlink" href="#ska-engarchive-fetch" title="Permalink to this headline">¶</a></h3>
+<section id="cheta-fetch">
+<h3>cheta.fetch<a class="headerlink" href="#cheta-fetch" title="Permalink to this headline">¶</a></h3>
 <p>The tools to access and manipulate telemetry with the Ska engineering archive
 are described in the <a class="reference internal" href="fetch_tutorial.html"><span class="doc">Fetch Tutorial</span></a>.</p>
 </section>
@@ -236,7 +236,7 @@ get help for and use:</p>
 <p>For a more concrete example, say you want to fetch some daily telemetry values
 but forgot exactly how to do the query and what are the available columns.  Use
 help and TAB completion to remind yourself:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">Ska.engarchive.fetch</span> <span class="k">as</span> <span class="nn">fetch</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cheta.fetch</span> <span class="k">as</span> <span class="nn">fetch</span>
 <span class="n">help</span> <span class="n">fetch</span>
 <span class="n">tephin</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;tephin&#39;</span><span class="p">,</span> <span class="s1">&#39;2009:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2009:002&#39;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;daily&#39;</span><span class="p">)</span>
 <span class="n">tephin</span><span class="o">.&lt;</span><span class="n">TAB</span><span class="o">&gt;</span>
@@ -566,7 +566,7 @@ locations (text location) are in data coordinates.</p>
 <li><a class="reference internal" href="#configure">Configure</a></li>
 <li><a class="reference internal" href="#basic-functionality-test">Basic Functionality Test</a></li>
 <li><a class="reference internal" href="#tools-overview">Tools overview</a><ul>
-<li><a class="reference internal" href="#ska-engarchive-fetch">Ska.engarchive.fetch</a></li>
+<li><a class="reference internal" href="#cheta-fetch">cheta.fetch</a></li>
 <li><a class="reference internal" href="#id2">IPython</a></li>
 <li><a class="reference internal" href="#id3">NumPy</a></li>
 <li><a class="reference internal" href="#id4">Matplotlib</a></li>

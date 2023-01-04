@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Plotting API documentation &#8212; Eng archive 4.57.0 documentation</title>
+    <title>Plotting API documentation &#8212; Eng archive 4.58.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -61,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.57.0 documentation</a>
+	<a href="index.html">Eng archive 4.58.0 documentation</a>
 	 &#187;
       </li>
       
@@ -75,13 +75,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="module-Ska.engarchive.plot">
-<span id="plotting-api-documentation"></span><h1>Plotting API documentation<a class="headerlink" href="#module-Ska.engarchive.plot" title="Permalink to this headline">¶</a></h1>
+  <section id="module-cheta.plot">
+<span id="plotting-api-documentation"></span><h1>Plotting API documentation<a class="headerlink" href="#module-cheta.plot" title="Permalink to this headline">¶</a></h1>
 <section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="Ska.engarchive.plot.MsidPlot">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Ska.engarchive.plot.</span></span><span class="sig-name descname"><span class="pre">MsidPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_minmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-c'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/engarchive/plot.html#MsidPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Ska.engarchive.plot.MsidPlot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cheta.plot.MsidPlot">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">cheta.plot.</span></span><span class="sig-name descname"><span class="pre">MsidPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_minmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-c'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cheta/plot.html#MsidPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.plot.MsidPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Make an interactive plot for exploring the MSID data.</p>
 <p>This method opens a new plot figure (or clears the current figure)
@@ -105,7 +105,7 @@ z: zoom at cursor x
 </div>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dat</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;aoattqt1&#39;</span><span class="p">,</span> <span class="s1">&#39;2011:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2012:001&#39;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;5min&#39;</span><span class="p">)</span>
-<span class="n">iplot</span> <span class="o">=</span> <span class="n">Ska</span><span class="o">.</span><span class="n">engarchive</span><span class="o">.</span><span class="n">MsidPlot</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+<span class="n">iplot</span> <span class="o">=</span> <span class="n">cheta</span><span class="o">.</span><span class="n">MsidPlot</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Caveat: the <code class="docutils literal notranslate"><span class="pre">MsidPlot()</span></code> class is not meant for use within scripts, and

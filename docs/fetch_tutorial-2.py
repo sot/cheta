@@ -1,4 +1,4 @@
-from Ska.engarchive import fetch
+from cheta import fetch
 import matplotlib.pyplot as plt
 from kadi import events
 
