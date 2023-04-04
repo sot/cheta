@@ -332,7 +332,7 @@ def update_index_file(index_file, opt, logger):
         return None
 
     logger.info(f"Writing {len(rows)} row(s) to index file {index_file}")
-    index_tbl.write(index_file, format="ascii.ecsv")
+    index_tbl.write(index_file, format="ascii.ecsv", overwrite=True)
 
     return index_tbl
 
