@@ -391,7 +391,7 @@ class Comp_Quat(ComputedMsid):
 
     msid_match = r"quat_(aoattqt|aoatupq|aocmdqt|aotarqt)"
 
-    def get_msid_attrs(self, tstart: float, tstop:float, msid: str, msid_args: tuple):
+    def get_msid_attrs(self, tstart: float, tstop: float, msid: str, msid_args: tuple):
         from Quaternion import Quat, normalize
 
         msid_root = msid_args[0]
