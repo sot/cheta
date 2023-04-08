@@ -261,3 +261,95 @@ def test_msid_state_intervals():
         "datestart", "datestop", "val"
     ]
     assert intervals.pformat() == expected
+
+
+def test_logical_intervals_no_values():
+    with pytest.raises(ValueError):
+        utils.logical_intervals([], [])
+
+
+def test_logical_intervals_one_value_error():
+    with pytest.raises(ValueError):
+        intervals = utils.logical_intervals([1], [True])
+
+def test_logical_intervals_one_value_true():
+    intervals = utils.logical_intervals([1], [True], start=0, stop=2)
+    out = intervals["duration", "tstart", "tstop"]
+    for name in out.colnames:
+        out[name].format = ".1f"
+    # fmt: off
+    exp = [
+        "duration tstart tstop",
+        "-------- ------ -----",
+        "     2.0    0.0   2.0"
+    ]
+    # fmt: on
+    assert out.pformat_all() == exp
+
+
+def test_logical_intervals_one_value_false():
+    intervals = utils.logical_intervals([1], [False], start=0, stop=2)
+    out = intervals["duration", "tstart", "tstop"]
+    for name in out.colnames:
+        out[name].format = ".1f"
+    # fmt: off
+    exp = [
+        "duration tstart tstop",
+        "-------- ------ -----",
+    ]
+    # fmt: on
+    assert out.pformat_all() == exp
+
+
+def test_logical_intervals_no_start_stop():
+    """
+    Test logical_intervals function.
+    """
+    times = np.arange(5)
+    vals = np.array([0, 1, 1, 0, 1])
+    intervals = utils.logical_intervals(times, vals)
+    out = intervals["duration", "tstart", "tstop"]
+    for name in out.colnames:
+        out[name].format = ".1f"
+    exp = [
+        "duration tstart tstop",
+        "-------- ------ -----",
+        "     2.0    0.5   2.5",
+        "     1.0    3.5   4.5",
+    ]
+    assert out.pformat_all() == exp
+
+
+def test_logical_intervals_start_stop_1():
+    times = np.arange(5)
+    vals = np.array([0, 1, 1, 0, 1])
+
+    intervals = utils.logical_intervals(times, vals, start=-1, stop=6)
+    out = intervals["duration", "tstart", "tstop"]
+    for name in out.colnames:
+        out[name].format = ".1f"
+    exp = [
+        "duration tstart tstop",
+        "-------- ------ -----",
+        "     2.0    0.5   2.5",
+        "     2.5    3.5   6.0",
+    ]
+    assert out.pformat_all() == exp
+
+
+def test_logical_intervals_start_stop_2():
+    """Test forcing start and stop values"""
+    times = np.arange(5)
+    vals = np.array([1, 1, 1, 0, 1])
+
+    intervals = utils.logical_intervals(times, vals, start=-1, stop=6)
+    out = intervals["duration", "tstart", "tstop"]
+    for name in out.colnames:
+        out[name].format = ".1f"
+    exp = [
+        "duration tstart tstop",
+        "-------- ------ -----",
+        "     3.5   -1.0   2.5",
+        "     2.5    3.5   6.0",
+    ]
+    assert out.pformat_all() == exp
