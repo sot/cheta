@@ -4,6 +4,7 @@
 
 import numpy as np
 import pytest
+from cxotime import CxoTime
 from Quaternion import Quat
 
 from .. import fetch as fetch_cxc
@@ -285,6 +286,72 @@ def test_pitch_comp():
     )
     # fmt: on
     assert np.allclose(dat.vals, exp, rtol=0, atol=2e-2)
+
+
+@pytest.mark.parametrize("pitch_roll", ["pitch", "roll"])
+def test_pitch_roll_comp_short_npnt(pitch_roll):
+    """Test pitch_comp and roll_comp during a time with NPNT"""
+    # Sampled each 1.025 seconds
+    start = "2022:200:00:00:00.000"
+    stop = "2022:200:00:00:04.000"
+
+    dat = fetch_eng.Msid(f"{pitch_roll}_comp", start, stop)
+    if pitch_roll == "pitch":
+        exp_vals = [156.00595556, 156.00595083, 156.00595562, 156.00594386]
+    else:
+        exp_vals = [0.03759918, 0.03763989, 0.03770095, 0.03773727]
+    exp_dates = [
+        "2022:200:00:00:00.066",
+        "2022:200:00:00:01.091",
+        "2022:200:00:00:02.116",
+        "2022:200:00:00:03.141",
+    ]
+    assert np.all(CxoTime(dat.times).date == exp_dates)
+    assert np.allclose(dat.vals, exp_vals, rtol=0, atol=1e-4)
+
+
+@pytest.mark.parametrize("pitch_roll", ["pitch", "roll"])
+def test_pitch_roll_comp_short_nsun(pitch_roll):
+    """Test pitch/roll_comp during a time with NSUN"""
+    # Sampled each 4.1 seconds
+    start = "2022:295:18:00:00.000"
+    stop = "2022:295:18:00:16.000"
+
+    dat = fetch_eng.Msid(f"{pitch_roll}_comp", start, stop)
+    if pitch_roll == "pitch":
+        exp_vals = [90.15486, 90.1576, 90.178665, 90.18141]
+    else:
+        exp_vals = [-0.10997535, -0.10997537, -0.09622853, -0.09622855]
+    exp_dates = [
+        "2022:295:18:00:01.716",
+        "2022:295:18:00:05.816",
+        "2022:295:18:00:09.916",
+        "2022:295:18:00:14.016",
+    ]
+    assert np.all(CxoTime(dat.times).date == exp_dates)
+    assert np.allclose(dat.vals, exp_vals, rtol=0, atol=1e-4)
+
+
+@pytest.mark.parametrize("pitch_roll", ["pitch", "roll"])
+def test_pitch_roll_comp_short_safe_mode(pitch_roll):
+    """Test pitch/roll_comp during a time with NPNT"""
+    # Sampled each 0.25625 seconds
+    start = "2022:295:00:00:00.000"
+    stop = "2022:295:00:00:01.000"
+
+    dat = fetch_eng.Msid(f"{pitch_roll}_comp", start, stop)
+    if pitch_roll == "pitch":
+        exp_vals = [90.127625, 90.14162, 90.14162, 90.14162]
+    else:
+        exp_vals = [0.21003094, 0.20195293, 0.20195293, 0.20195293]
+    exp_dates = [
+        "2022:295:00:00:00.165",
+        "2022:295:00:00:00.421",
+        "2022:295:00:00:00.677",
+        "2022:295:00:00:00.934",
+    ]
+    assert np.all(CxoTime(dat.times).date == exp_dates)
+    assert np.allclose(dat.vals, exp_vals, rtol=0, atol=1e-4)
 
 
 def test_roll_comp():

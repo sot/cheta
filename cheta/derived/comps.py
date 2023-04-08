@@ -565,7 +565,8 @@ class Comp_KadiCommandState(ComputedMsid):
 
 @functools.lru_cache(maxsize=1)
 def get_roll_pitch_tlm(start, stop):
-    from .. import fetch
+    """Get telemetry values to compute pitch and roll in safe mode"""
+    from cheta import fetch
 
     msids = ["6sares1", "6sares2", "6sunsa1", "6sunsa2", "6sunsa3"]
     dat = fetch.MSIDset(msids, start, stop)
@@ -621,15 +622,22 @@ def calc_css_roll_safe(start, stop):
     return times, vals
 
 
-def calc_pitch_roll_obc(start, stop, pitch_roll):
+def calc_pitch_roll_obc(tstart: float, tstop: float, pitch_roll: str):
     """Use the code in the PCAD derived parameter classes to get the pitch and off
-    nominal roll from OBC quaternion data."""
+    nominal roll from OBC quaternion data.
+
+    :param tstart: start time (CXC seconds)
+    :param tstop: stop time (CXC seconds)
+    :param pitch_roll: 'pitch' or 'roll'
+    """
     from .pcad import DP_PITCH, DP_ROLL
 
     dp = DP_PITCH() if pitch_roll == "pitch" else DP_ROLL()
-    tlm = dp.fetch(start, stop)
+    # Pad by 12 minutes on each side to ensure ephemeris data are available.
+    tlm = dp.fetch(tstart - 720, tstop + 720)
     vals = dp.calc(tlm)
-    return tlm.times, vals
+    i0, i1 = np.searchsorted(tlm.times, [tstart, tstop])
+    return tlm.times[i0:i1], vals[i0:i1]
 
 
 # Class name is arbitrary, but by convention start with `Comp_`
@@ -679,7 +687,7 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
         :param msid_args: tuple of regex match groups (msid_name,)
         :returns: dict of MSID attributes
         """
-        from kadi.commands.utils import get_ofp_states
+        from cheta.utils import get_ofp_states
 
         from .. import fetch
         from ..utils import logical_intervals
@@ -690,7 +698,7 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
         # Whether we are computing "pitch" or "roll", parsed from MSID name
         pitch_roll: str = msid_args[0]
 
-        ofp_states = get_ofp_states(stop.date, days=(stop - start).jd)
+        ofp_states = get_ofp_states(start, stop)
 
         tlms = []
         for ofp_state in ofp_states:
@@ -703,10 +711,6 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
                     dat.times, vals, complete_intervals=False, max_gap=2.1
                 )
                 states_npnt_nman["val"] = np.repeat("NPNT_NMAN", len(states_npnt_nman))
-                # Require at least 10 minutes => 2 samples of the ephem data. This is
-                # needed for the built-in derived parameter calculation to work.
-                ok = states_npnt_nman["duration"] > 10 * 60 + 1
-                states_npnt_nman = states_npnt_nman[ok]
 
                 states_nsun = logical_intervals(
                     dat.times, dat.vals == "NSUN", max_gap=2.1, complete_intervals=False
