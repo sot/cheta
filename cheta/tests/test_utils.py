@@ -138,3 +138,15 @@ def test_get_telem_table(dt):
     }
 
     assert dat.pformat_all() == exp[dt]
+
+
+@pytest.mark.parametrize("unit_system", ["eng", "cxc", "sci", None])
+def test_get_telem_table_units(unit_system):
+    """Test getting telemetry with different unit systems"""
+    start = CxoTime("2023:001:00:00:00.000")
+    stop = start + 32.8 * u.s
+    kwargs = {"unit_system": unit_system} if unit_system else {}
+    dat = get_telem_table(["aacccdpt"], start, stop, **kwargs)
+
+    exp = {"eng": 19.54, "cxc": 266.23, "sci": -6.92, None: 19.54}
+    assert dat["aacccdpt"][0] == pytest.approx(exp[unit_system], abs=0.01)

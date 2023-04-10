@@ -13,8 +13,6 @@ from astropy.table import Table
 from Chandra.Time import DateTime
 from cxotime import CxoTime, CxoTimeLike
 
-from cheta import fetch_eng
-
 # Cache the results of fetching 3 days of telemetry keyed by MSID
 FETCH_SIZES = {}
 
@@ -428,6 +426,7 @@ def get_telem_table(
     start: CxoTimeLike,
     stop: CxoTimeLike,
     time_pad: u.Quantity = 15 * u.min,
+    unit_system: str = "eng",
 ) -> Table:
     """
     Fetch telemetry for a list of MSIDs and return as an Astropy Table.
@@ -443,16 +442,20 @@ def get_telem_table(
     :param start: start time for telemetry (CxoTime-like)
     :param stop: stop time for telemetry (CxoTime-like)
     :param time_pad: Quantity time pad on each end for fetch (default=15 min)
+    :param unit_system: unit system for fetch ("eng" | "cxc" | "sci", default="eng")
 
     :returns: Table of requested telemetry values from fetch
     """
+    from cheta import fetch_eng, fetch_sci, fetch
+
     start = CxoTime(start)
     stop = CxoTime(stop)
     names = ["time"] + msids
+    fetch_module = {"eng": fetch_eng, "cxc": fetch, "sci": fetch_sci}[unit_system]
 
     # Get the MSIDset for the requested MSIDs and time range with some padding to
     # ensure samples even for slow MSIDS like ephemeris at 5-min cadence.
-    msidset = fetch_eng.MSIDset(msids, start - time_pad, stop + time_pad)
+    msidset = fetch_module.MSIDset(msids, start - time_pad, stop + time_pad)
 
     if any(len(msidset[msid]) == 0 for msid in msids):
         # If no telemetry was found then return an empty table with the expected names
