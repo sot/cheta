@@ -9,7 +9,6 @@ from cheta.utils import (
     get_fetch_size,
     get_ofp_states,
     get_telem_table,
-    NoTelemetryError,
 )
 
 

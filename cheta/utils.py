@@ -11,8 +11,9 @@ import numpy as np
 import six
 from astropy.table import Table
 from Chandra.Time import DateTime
-from cheta import fetch, fetch_eng
 from cxotime import CxoTime, CxoTimeLike
+
+from cheta import fetch_eng
 
 # Cache the results of fetching 3 days of telemetry keyed by MSID
 FETCH_SIZES = {}

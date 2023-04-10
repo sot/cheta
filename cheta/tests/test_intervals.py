@@ -270,7 +270,8 @@ def test_logical_intervals_no_values():
 
 def test_logical_intervals_one_value_error():
     with pytest.raises(ValueError):
-        intervals = utils.logical_intervals([1], [True])
+        utils.logical_intervals([1], [True])
+
 
 def test_logical_intervals_one_value_true():
     intervals = utils.logical_intervals([1], [True], start=0, stop=2)
