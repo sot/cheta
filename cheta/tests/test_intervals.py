@@ -354,3 +354,85 @@ def test_logical_intervals_start_stop_2():
         "     2.5    3.5   6.0",
     ]
     assert out.pformat_all() == exp
+
+
+def test_state_intervals_no_values():
+    with pytest.raises(ValueError):
+        utils.state_intervals([], [])
+
+
+def test_state_intervals_one_value_error():
+    with pytest.raises(ValueError):
+        utils.state_intervals([1], [True])
+
+
+def test_state_intervals_one_value_true():
+    intervals = utils.state_intervals([1], [True], start=0, stop=2)
+    out = intervals["val", "duration", "tstart", "tstop"]
+    for name in out.colnames[1:]:
+        out[name].format = ".1f"
+    exp = [
+        "val  duration tstart tstop",
+        "---- -------- ------ -----",
+        "True      2.0    0.0   2.0",
+    ]
+    assert out.pformat_all() == exp
+
+
+def test_state_intervals_no_start_stop():
+    """
+    Test state_intervals function.
+    """
+    times = np.arange(5)
+    vals = np.array([0, 1, 1, 0, 1])
+    intervals = utils.state_intervals(times, vals)
+    out = intervals["val", "duration", "tstart", "tstop"]
+    for name in out.colnames[1:]:
+        out[name].format = ".1f"
+    exp = [
+        "val duration tstart tstop",
+        "--- -------- ------ -----",
+        "  0      1.0   -0.5   0.5",
+        "  1      2.0    0.5   2.5",
+        "  0      1.0    2.5   3.5",
+        "  1      1.0    3.5   4.5",
+    ]
+    assert out.pformat_all() == exp
+
+
+def test_state_intervals_start_stop_1():
+    times = np.arange(5)
+    vals = np.array([0, 1, 1, 0, 1])
+
+    intervals = utils.state_intervals(times, vals, start=-1, stop=6)
+    out = intervals["val", "duration", "tstart", "tstop"]
+    for name in out.colnames[1:]:
+        out[name].format = ".1f"
+    exp = [
+        "val duration tstart tstop",
+        "--- -------- ------ -----",
+        "  0      1.0   -0.5   0.5",
+        "  1      2.0    0.5   2.5",
+        "  0      1.0    2.5   3.5",
+        "  1      1.0    3.5   4.5",
+    ]
+    assert out.pformat_all() == exp
+
+
+def test_state_intervals_start_stop_2():
+    """Test forcing start and stop values"""
+    times = np.arange(5)
+    vals = np.array([1, 1, 1, 0, 1])
+
+    intervals = utils.state_intervals(times, vals, start=-1, stop=6)
+    out = intervals["val", "duration", "tstart", "tstop"]
+    for name in out.colnames[1:]:
+        out[name].format = ".1f"
+    exp = [
+        "val duration tstart tstop",
+        "--- -------- ------ -----",
+        "  1      3.0   -0.5   2.5",
+        "  0      1.0    2.5   3.5",
+        "  1      1.0    3.5   4.5",
+    ]
+    assert out.pformat_all() == exp
