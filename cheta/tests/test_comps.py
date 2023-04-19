@@ -2,6 +2,7 @@
 
 """Test that computed MSIDs work as expected."""
 
+import astropy.units as u
 import numpy as np
 import pytest
 from cxotime import CxoTime
@@ -286,6 +287,15 @@ def test_pitch_comp():
     )
     # fmt: on
     assert np.allclose(dat.vals, exp, rtol=0, atol=2e-2)
+
+
+@pytest.mark.parametrize("start", ["2022:200", "2022:295:18:00:00", "2022:295"])
+@pytest.mark.parametrize("pitch_roll", ["pitch", "roll"])
+def test_pitch_roll_comp_short_interval(start, pitch_roll):
+    """Test pitch_comp and roll_comp for short inteval during NPNT, NSUN, Safe Sun"""
+    stop = CxoTime(start) + 0.001 * u.s
+    dat = fetch_eng.Msid(f"{pitch_roll}_comp", start, stop)
+    assert len(dat) == 0
 
 
 @pytest.mark.parametrize("pitch_roll", ["pitch", "roll"])
