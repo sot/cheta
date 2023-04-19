@@ -387,6 +387,12 @@ class Comp_Quat(ComputedMsid):
              [193.28905485,  19.1689407 ,  67.36208471],
              [193.28906329,  19.16893787,  67.36207699],
              [193.28908839,  19.16895134,  67.36206404]])
+
+    This computed MSID can be used with the MAUDE data source. Be aware that if the
+    telemetry has a missing VCDU then there is a risk of getting a slightly incorrect
+    quaternion. This would occur since the code uses nearest-neighbor interpolation to
+    associate the four components of the quaternion with a single time. For back-orbit
+    data this is rare, but for real-time data it is more likely.
     """
 
     msid_match = r"quat_(aoattqt|aoatupq|aocmdqt|aotarqt)"
