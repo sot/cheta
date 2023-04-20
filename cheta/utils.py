@@ -414,6 +414,17 @@ def state_intervals(times, vals, start=None, stop=None):
     if np.any(bad):
         out = out[~bad]
 
+    # Potentially adjust the first and last intervals to be from start/stop.
+    if len(out) > 0:
+        if start is not None:
+            out["datestart"][0] = start.date
+            out["tstart"][0] = start.secs
+        if stop is not None:
+            out["datestop"][-1] = stop.date
+            out["tstop"][-1] = stop.secs
+        out["duration"][0] = out["tstop"][0] - out["tstart"][0]
+        out["duration"][-1] = out["tstop"][-1] - out["tstart"][-1]
+
     out["tstart"].info.format = ".3f"
     out["tstop"].info.format = ".3f"
     out["duration"].info.format = ".3f"

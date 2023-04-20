@@ -585,9 +585,8 @@ def get_roll_pitch_tlm_safe_table(start, stop):
 @functools.lru_cache(maxsize=1)
 def get_roll_pitch_tlm_safe(start, stop):
     """Get telemetry values to compute pitch and roll in safe mode.
-    
-    This uses the OBC-computed sun position in the solar array frame from CSS data.
-    """
+
+    This uses the OBC-computed sun position in the solar array frame from CSS data."""
     from cheta import fetch
 
     msids = ["6sares1", "6sares2", "6sunsa1", "6sunsa2", "6sunsa3"]
