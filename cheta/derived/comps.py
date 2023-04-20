@@ -387,27 +387,37 @@ class Comp_Quat(ComputedMsid):
              [193.28905485,  19.1689407 ,  67.36208471],
              [193.28906329,  19.16893787,  67.36207699],
              [193.28908839,  19.16895134,  67.36206404]])
+
+    This computed MSID can be used with the MAUDE data source. Be aware that if the
+    telemetry has a missing VCDU then there is a risk of getting a slightly incorrect
+    quaternion. This would occur since the code uses nearest-neighbor interpolation to
+    associate the four components of the quaternion with a single time. For back-orbit
+    data this is rare, but for real-time data it is more likely.
     """
 
     msid_match = r"quat_(aoattqt|aoatupq|aocmdqt|aotarqt)"
 
-    def get_msid_attrs(self, tstart, tstop, msid, msid_args):
+    def get_msid_attrs(self, tstart: float, tstop: float, msid: str, msid_args: tuple):
         from Quaternion import Quat, normalize
-
-        if "maude" in self.fetch_sys.data_source.sources():
-            raise ValueError(
-                f"{msid} is not available from MAUDE due to issues aligning telemetry"
-            )
 
         msid_root = msid_args[0]
         n_comp = 4 if msid_root == "aoattqt" else 3
         msids = [f"{msid_root}{ii}" for ii in range(1, n_comp + 1)]
-        dat = self.fetch_sys.MSIDset(msids, tstart, tstop)
+
+        # Get the raw MSIDs. Fetch a bit extra to avoid edge effects, in particular a
+        # MAUDE query with a start time that lands between components of a quaternion.
+        # E.g. aocmdqt* are spread over about 0.5 sec, but aoattqt seems to be within
+        # the same minor frame.
+        dat = self.fetch_sys.MSIDset(msids, tstart - 35, tstop + 35)
 
         # Interpolate to a common time base, leaving in flagged bad data and
-        # marking data bad if any of the set at each time are bad. See:
+        # marking data bad if any of the set at each time are bad. Note that this uses
+        # nearest-neighbor interpolation. Empirically for these MSIDs that will work to
+        # correctly bin the components together. See:
         # https://sot.github.io/eng_archive/fetch_tutorial.html#filtering-and-bad-values
-        dat.interpolate(times=dat[msids[0]].times, filter_bad=False, bad_union=True)
+        times = dat[msids[0]].times
+        ok = (times >= tstart) & (times < tstop)
+        dat.interpolate(times=times[ok], filter_bad=False, bad_union=True)
 
         q1 = dat[msids[0]].vals.astype(np.float64)
         q2 = dat[msids[1]].vals.astype(np.float64)

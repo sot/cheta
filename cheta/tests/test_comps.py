@@ -239,10 +239,23 @@ def test_stats(stat):
 
 
 @pytest.mark.parametrize("msid", ["aoattqt", "aoatupq", "aocmdqt", "aotarqt"])
-def test_quat_comp(msid):
-    start, stop = "2022:002", "2022:003"
-    datq = fetch_eng.MSID(f"quat_{msid}", start, stop)
-    dats = fetch_eng.MSIDset([f"{msid}*"], start, stop)
+@pytest.mark.parametrize("maude", [False, True])
+@pytest.mark.parametrize("offset", [0, 2, 4, 6])
+def test_quat_comp(msid, maude, offset):
+    tstart0 = 761356871.0
+    tstart = tstart0 + offset * 8.0
+    tstop = tstart + 60.0
+
+    data_source = ("maude allow_subset=False" if maude else "cxc")
+    with fetch_eng.data_source(data_source):
+        datq = fetch_eng.MSID(f"quat_{msid}", tstart, tstop)
+        dats = fetch_eng.MSIDset([f"{msid}*"], tstart - 40, tstop + 40)
+
+    msids = sorted(dats)
+    times = dats[msids[0]].times
+    ok = (times >= tstart) & (times < tstop)
+    dats.interpolate(times=times[ok], filter_bad=False, bad_union=True)
+
     n_comp = len(dats)
     for ii in range(n_comp):
         vq = datq.vals.q[:, ii]
@@ -252,14 +265,6 @@ def test_quat_comp(msid):
         ok = np.isclose(vq, vn, rtol=0, atol=(1e-4 if msid == "aocmdqt" else 1e-8))
         assert np.all(ok)
     assert isinstance(datq.vals, Quat)
-
-
-@pytest.mark.parametrize("msid", ["aoattqt", "aoatupq", "aocmdqt", "aotarqt"])
-def test_quat_comp_exception(msid):
-    start, stop = "2022:002", "2022:003"
-    with pytest.raises(ValueError, match=f"quat_{msid} is not available from MAUDE"):
-        with fetch_eng.data_source("maude"):
-            fetch_eng.MSID(f"quat_{msid}", start, stop)
 
 
 def test_pitch_comp():
