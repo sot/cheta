@@ -1,8 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import astropy.units as u
 import numpy as np
+import pytest
+from cxotime import CxoTime
 
-from .. import fetch
-from ..utils import get_fetch_size
+from cheta import fetch
+from cheta.utils import (
+    get_fetch_size,
+    get_ofp_states,
+    get_telem_table,
+)
 
 
 def test_get_fetch_size_functionality():
@@ -67,3 +74,79 @@ def test_get_fetch_size_accuracy():
     dat.interpolate(328.0 * 2)
     fetch_bytes = sum(getattr(dat, attr).nbytes for attr in dat.colnames)
     assert np.isclose(out_mb, fetch_bytes / 1e6, rtol=0.0, atol=0.01)
+
+
+def test_get_ofp_states():
+    out = get_ofp_states("2022:292", "2022:297")
+    # Reference values take from original implementation of get_ofp_states in kadi.utils
+    # *except* that start and stop values now match the supplied start/stop.
+    exp = [
+        "      datestart              datestop       val ",
+        "--------------------- --------------------- ----",
+        "2022:292:00:00:00.000 2022:293:16:27:57.429 NRML",
+        "2022:293:16:27:57.429 2022:293:16:27:59.479 STUP",
+        "2022:293:16:27:59.479 2022:293:16:28:00.504 SYON",
+        "2022:293:16:28:00.504 2022:294:16:32:25.285 NRML",
+        "2022:294:16:32:25.285 2022:294:16:32:27.347 STUP",
+        "2022:294:16:33:01.794 2022:295:16:48:09.260 SAFE",
+        "2022:295:16:48:09.260 2022:295:16:49:49.722 STUP",
+        "2022:295:16:50:22.339 2022:295:17:22:56.002 STUP",
+        "2022:295:17:22:56.002 2022:295:17:22:57.027 SYSF",
+        "2022:295:17:22:57.027 2022:295:17:41:01.477 SAFE",
+        "2022:295:17:41:01.477 2022:297:00:00:00.000 NRML",
+    ]
+
+    assert out["datestart", "datestop", "val"].pformat_all() == exp
+
+
+@pytest.mark.parametrize("dt", [0.001, 1.0])
+def test_get_ofp_states_safe_mode_short(dt):
+    """Test getting OFP states where the time range is within the SAFE mode and
+    there is zero or one sample of CONLOFP in the range."""
+    start = CxoTime("2022:295")
+    stop = start + dt * u.s
+    out = get_ofp_states(start, stop)
+    secs = {0.001: "00.001", 1.0: "01.000"}[dt]
+    exp = [
+        "      datestart              datestop       val ",
+        "--------------------- --------------------- ----",
+        f"2022:295:00:00:00.000 2022:295:00:00:{secs} SAFE",
+    ]
+
+    assert out["datestart", "datestop", "val"].pformat_all() == exp
+
+
+@pytest.mark.parametrize("dt", [0.001, 1.0])
+def test_get_telem_table(dt):
+    """Test getting telemetry where the time range is within the sampling of one
+    of the secondary MSIDs."""
+    start = CxoTime("2022:295:00:00:00.000")
+    stop = start + dt * u.s
+    dat = get_telem_table(["conlofp", "orbitephem0_x"], start, stop)
+    dat["orbitephem0_x"].info.format = ".2f"
+
+    exp = {
+        1.0: [  # One sample in primary MSID
+            "     time     conlofp orbitephem0_x",
+            "------------- ------- -------------",
+            "782784069.605    SAFE  -13267583.62",
+        ],
+        0.001: [  # No samples in primary MSID
+            "time conlofp orbitephem0_x",
+            "---- ------- -------------",
+        ],
+    }
+
+    assert dat.pformat_all() == exp[dt]
+
+
+@pytest.mark.parametrize("unit_system", ["eng", "cxc", "sci", None])
+def test_get_telem_table_units(unit_system):
+    """Test getting telemetry with different unit systems"""
+    start = CxoTime("2023:001:00:00:00.000")
+    stop = start + 32.8 * u.s
+    kwargs = {"unit_system": unit_system} if unit_system else {}
+    dat = get_telem_table(["aacccdpt"], start, stop, **kwargs)
+
+    exp = {"eng": 19.54, "cxc": 266.23, "sci": -6.92, None: 19.54}
+    assert dat["aacccdpt"][0] == pytest.approx(exp[unit_system], abs=0.01)

@@ -37,14 +37,12 @@ Basic units handling and conversion.
  ('VDC', 'V'),
  ('W', 'W')}
 """
-from __future__ import absolute_import, division, print_function
-
 import logging
 import os
 import warnings
 
 import numpy as np
-from six.moves import cPickle as pickle
+import pickle
 
 
 class NullHandler(logging.Handler):

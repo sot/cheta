@@ -2,18 +2,26 @@
 """
 Utilities for the engineering archive.
 """
+import functools
 import re
 from contextlib import contextmanager
 
+import astropy.units as u
 import numpy as np
 import six
+from astropy.table import Table
 from Chandra.Time import DateTime
+from cxotime import CxoTime, CxoTimeLike
 
 # Cache the results of fetching 3 days of telemetry keyed by MSID
 FETCH_SIZES = {}
 
 # Standard intervals for 5min and daily telemetry
 STATS_DT = {"5min": 328, "daily": 86400}
+
+
+class NoTelemetryError(Exception):
+    """No telemetry available for the specified interval"""
 
 
 def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True):
@@ -242,7 +250,9 @@ def _pad_long_gaps(times, bools, max_gap):
     return times, bools
 
 
-def logical_intervals(times, bools, complete_intervals=False, max_gap=None):
+def logical_intervals(
+    times, bools, complete_intervals=False, max_gap=None, start=None, stop=None
+):
     """Determine contiguous intervals during which `bools` is True.
 
     If ``complete_intervals`` is True (default is False) then the intervals are
@@ -252,6 +262,9 @@ def logical_intervals(times, bools, complete_intervals=False, max_gap=None):
     If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
     filled with a fictitious False value to create an artificial interval
     boundary at ``max_gap / 2`` seconds from the nearest data value.
+
+    If ``start`` is specified then the first interval will be from ``start``. If
+    ``stop`` is specified then the last interval will be to ``stop``.
 
     Returns an astropy Table with a row for each interval.  Columns are:
 
@@ -281,12 +294,18 @@ def logical_intervals(times, bools, complete_intervals=False, max_gap=None):
     :param bools: array of logical True/False values
     :param complete_intervals: return only complete intervals (default=True)
     :param max_gap: max allowed gap between time stamps (sec, default=None)
+    :param start: start time (CxoTimeLike, default=None)
+    :param stop: stop time (CxoTimeLike, default=None)
+
     :returns: Table of intervals
     """
+    times = np.asarray(times, dtype=float)
+    bools = np.asarray(bools, dtype=bool)
+
     if max_gap is not None:
         times, bools = _pad_long_gaps(times, bools, max_gap)
 
-    intervals = state_intervals(times, bools)
+    intervals = state_intervals(times, bools, start=start, stop=stop)
 
     if complete_intervals:
         if len(intervals) > 0 and intervals["val"][0]:
@@ -299,7 +318,7 @@ def logical_intervals(times, bools, complete_intervals=False, max_gap=None):
     return intervals[ok]
 
 
-def state_intervals(times, vals):
+def state_intervals(times, vals, start=None, stop=None):
     """
     Determine contiguous intervals during which the ``vals`` is unchanged.
 
@@ -311,6 +330,9 @@ def state_intervals(times, vals):
     * tstart: time of interval start (CXC sec)
     * tstop: time of interval stop (CXC sec)
     * val: MSID value during the interval
+
+    If ``start`` is specified then the first interval will be from ``start``. If
+    ``stop`` is specified then the last interval will be to ``stop``.
 
     Example::
 
@@ -326,31 +348,185 @@ def state_intervals(times, vals):
 
     :param times: times (CXC seconds)
     :param vals: state values for which intervals are returned.
+    :param start: start time (CxoTimeLike, default=None)
+    :param stop: stop time (CxoTimeLike, default=None)
     :returns: structured array table of intervals
     """
     from astropy.table import Table
 
-    if len(vals) < 2:
-        raise ValueError("Filtered data length must be at least 2")
+    times = np.asarray(times, dtype=float)
+    vals = np.asarray(vals)
 
-    transitions = np.hstack([[True], vals[:-1] != vals[1:], [True]])
-    t0 = times[0] - (times[1] - times[0]) / 2
-    t1 = times[-1] + (times[-1] - times[-2]) / 2
-    midtimes = np.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
+    if start is not None:
+        start = CxoTime(start)
 
-    state_vals = vals[transitions[1:]]
-    state_times = midtimes[transitions]
+    if stop is not None:
+        stop = CxoTime(stop)
 
-    intervals = {
-        "datestart": DateTime(state_times[:-1]).date,
-        "datestop": DateTime(state_times[1:]).date,
-        "tstart": state_times[:-1],
-        "tstop": state_times[1:],
-        "duration": state_times[1:] - state_times[:-1],
-        "val": state_vals,
-    }
+    if len(vals) == 0:
+        raise ValueError("data length must be at least 1")
 
-    return Table(intervals, names=sorted(intervals))
+    if len(vals) == 1:
+        if start is None or stop is None:
+            raise ValueError(
+                "For data length of 1, `start` and `stop` must be specified"
+            )
+
+        intervals = {
+            "datestart": [start.date],
+            "datestop": [stop.date],
+            "tstart": [start.secs],
+            "tstop": [stop.secs],
+            "duration": [stop.secs - start.secs],
+            "val": vals,
+        }
+
+    else:
+        transitions = np.hstack([[True], vals[:-1] != vals[1:], [True]])
+        t0 = times[0] - (times[1] - times[0]) / 2
+        t1 = times[-1] + (times[-1] - times[-2]) / 2
+        midtimes = np.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
+
+        state_vals = vals[transitions[1:]]
+        state_times = midtimes[transitions]
+
+        # Telemetry data may be provided that is outside the start/stop range. Here we
+        # clip the state_times to be within the start/stop range. Any states that are
+        # fully outside the range will have a duration of 0.0 sec and will be removed.
+        if start is not None:
+            state_times = state_times.clip(start.secs, None)
+        if stop is not None:
+            state_times = state_times.clip(None, stop.secs)
+
+        intervals = {
+            "datestart": CxoTime(state_times[:-1]).date,
+            "datestop": CxoTime(state_times[1:]).date,
+            "tstart": state_times[:-1],
+            "tstop": state_times[1:],
+            "duration": state_times[1:] - state_times[:-1],
+            "val": state_vals,
+        }
+
+    out = Table(intervals, names=sorted(intervals))
+
+    # Remove intervals that are outside the start/stop range
+    bad = out["duration"] <= 0.0
+    if np.any(bad):
+        out = out[~bad]
+
+    # Potentially adjust the first and last intervals to be from start/stop.
+    if len(out) > 0:
+        if start is not None:
+            out["datestart"][0] = start.date
+            out["tstart"][0] = start.secs
+        if stop is not None:
+            out["datestop"][-1] = stop.date
+            out["tstop"][-1] = stop.secs
+        out["duration"][0] = out["tstop"][0] - out["tstart"][0]
+        out["duration"][-1] = out["tstop"][-1] - out["tstart"][-1]
+
+    out["tstart"].info.format = ".3f"
+    out["tstop"].info.format = ".3f"
+    out["duration"].info.format = ".3f"
+
+    return out
+
+
+def get_telem_table(
+    msids: list,
+    start: CxoTimeLike,
+    stop: CxoTimeLike,
+    time_pad: u.Quantity = 15 * u.min,
+    unit_system: str = "eng",
+) -> Table:
+    """
+    Fetch telemetry for a list of MSIDs and return as an Astropy Table.
+
+    This interpolates all the MSIDs to the time base of the first MSID in the list. It
+    also fetches ``time_pad`` more than requested to ensure that the samples are
+    complete (e.g. if the interval is between MSID samples).
+
+    If no telemetry is available for the requested interval then an empty table is
+    returned with all float columns.
+
+    :param msids: fetch msids list
+    :param start: start time for telemetry (CxoTime-like)
+    :param stop: stop time for telemetry (CxoTime-like)
+    :param time_pad: Quantity time pad on each end for fetch (default=15 min)
+    :param unit_system: unit system for fetch ("eng" | "cxc" | "sci", default="eng")
+
+    :returns: Table of requested telemetry values from fetch
+    """
+    from cheta import fetch_eng, fetch_sci, fetch
+
+    start = CxoTime(start)
+    stop = CxoTime(stop)
+    names = ["time"] + msids
+    fetch_module = {"eng": fetch_eng, "cxc": fetch, "sci": fetch_sci}[unit_system]
+
+    # Get the MSIDset for the requested MSIDs and time range with some padding to
+    # ensure samples even for slow MSIDS like ephemeris at 5-min cadence.
+    msidset = fetch_module.MSIDset(msids, start - time_pad, stop + time_pad)
+
+    if any(len(msidset[msid]) == 0 for msid in msids):
+        # If no telemetry was found then return an empty table with the expected names
+        # but all float64 columns.
+        out = Table(names=names)
+        return out
+
+    # Use the first MSID as the primary one to set the time base
+    msid0 = msidset[msids[0]]
+    times = msid0.times
+    i0, i1 = np.searchsorted(times, [start.secs, stop.secs])
+    times = times[i0:i1]
+
+    msidset.interpolate(times=times, bad_union=True)
+
+    out = Table([msidset.times] + [msidset[x].vals for x in msids], names=names)
+    out["time"].info.format = ".3f"
+
+    return out
+
+
+@functools.lru_cache(maxsize=1)
+def get_ofp_states(start, stop):
+    """Get the Onboard Flight Program (OFP) states between ``start`` and ``stop`.
+
+    This is normally "NRML" but in safe mode it is "SAFE" or other values. State codes:
+    ['NNRM' 'STDB' 'STBS' 'NRML' 'NSTB' 'SUOF' 'SYON' 'DPLY' 'SYSF' 'STUP' 'SAFE']
+
+    :param start: start time (CxoTimeLike)
+    :param stop: stop time (CxoTimeLike)
+    :returns: astropy Table of OFP state intervals
+    """
+    from astropy.table import vstack
+
+    start = CxoTime(start)
+    stop = CxoTime(stop)
+
+    msid = "conlofp"
+    tlm = get_telem_table([msid], start - 30 * u.s, stop + 30 * u.s)
+
+    if len(tlm) == 0:
+        raise NoTelemetryError(f"No telemetry for {msid} between {start} and {stop}")
+
+    states_list = []
+    for state_code in np.unique(tlm[msid]):
+        states = logical_intervals(
+            tlm["time"],
+            tlm[msid] == state_code,
+            max_gap=2.1,
+            complete_intervals=False,
+            start=start,
+            stop=stop,
+        )
+        states["val"] = state_code
+        states_list.append(states)
+
+    states = vstack(states_list)
+    states.sort("datestart")
+
+    return states
 
 
 def get_date_id(date):

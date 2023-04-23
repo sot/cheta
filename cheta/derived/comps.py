@@ -564,8 +564,30 @@ class Comp_KadiCommandState(ComputedMsid):
 
 
 @functools.lru_cache(maxsize=1)
-def get_roll_pitch_tlm(start, stop):
-    from .. import fetch
+def get_roll_pitch_tlm_safe_table(start, stop):
+    """Get telemetry values to compute pitch and roll in safe mode"""
+    from cheta.utils import get_telem_table
+
+    msids = ["6sares1", "6sares2", "6sunsa1", "6sunsa2", "6sunsa3"]
+    dat = get_telem_table(msids, start, stop)
+
+    # Filter out of range values. This happens just at the beginning of safe mode.
+    bads = np.zeros(len(dat), dtype=bool)
+    for msid in msids:
+        x0, x1 = 0, 180 if ("6sares" in msid) else -1, 1
+        bads |= (dat[msid].vals < x0) | (dat[msid].vals > x1)
+    if np.any(bads):
+        dat = dat[~bads]
+
+    return dat
+
+
+@functools.lru_cache(maxsize=1)
+def get_roll_pitch_tlm_safe(start, stop):
+    """Get telemetry values to compute pitch and roll in safe mode.
+
+    This uses the OBC-computed sun position in the solar array frame from CSS data."""
+    from cheta import fetch
 
     msids = ["6sares1", "6sares2", "6sunsa1", "6sunsa2", "6sunsa3"]
     dat = fetch.MSIDset(msids, start, stop)
@@ -578,7 +600,15 @@ def get_roll_pitch_tlm(start, stop):
             x0, x1 = -1, 1
         dat[msid].bads |= (dat[msid].vals < x0) | (dat[msid].vals > x1)
 
-    dat.interpolate(times=dat[msids[0]].times, bad_union=True)
+    if any(len(dat[msid]) == 0 for msid in msids):
+        dat.times = np.array([], dtype=float)
+        for msid in msids:
+            dat[msid].times = np.array([], dtype=float)
+            dat[msid].vals = np.array([], dtype=float)
+            dat[msid].bads = np.array([], dtype=bool)
+    else:
+        dat.interpolate(times=dat[msids[0]].times, bad_union=True)
+
     return dat
 
 
@@ -586,7 +616,7 @@ def calc_css_pitch_safe(start, stop):
     from .pcad import arccos_clip, calc_sun_vec_body_css
 
     # Get the raw telemetry value in user-requested unit system
-    dat = get_roll_pitch_tlm(start, stop)
+    dat = get_roll_pitch_tlm_safe(start, stop)
 
     sun_vec_norm, bads = calc_sun_vec_body_css(dat, safe_mode=True)
     vals = np.degrees(arccos_clip(sun_vec_norm[0]))
@@ -610,7 +640,7 @@ def calc_css_roll_safe(start, stop):
     from .pcad import calc_sun_vec_body_css
 
     # Get the raw telemetry value in user-requested unit system
-    data = get_roll_pitch_tlm(start, stop)
+    data = get_roll_pitch_tlm_safe(start, stop)
 
     sun_vec_norm, bads = calc_sun_vec_body_css(data, safe_mode=True)
     vals = np.degrees(np.arctan2(-sun_vec_norm[1, :], -sun_vec_norm[2, :]))
@@ -621,15 +651,22 @@ def calc_css_roll_safe(start, stop):
     return times, vals
 
 
-def calc_pitch_roll_obc(start, stop, pitch_roll):
+def calc_pitch_roll_obc(tstart: float, tstop: float, pitch_roll: str):
     """Use the code in the PCAD derived parameter classes to get the pitch and off
-    nominal roll from OBC quaternion data."""
+    nominal roll from OBC quaternion data.
+
+    :param tstart: start time (CXC seconds)
+    :param tstop: stop time (CXC seconds)
+    :param pitch_roll: 'pitch' or 'roll'
+    """
     from .pcad import DP_PITCH, DP_ROLL
 
     dp = DP_PITCH() if pitch_roll == "pitch" else DP_ROLL()
-    tlm = dp.fetch(start, stop)
+    # Pad by 12 minutes on each side to ensure ephemeris data are available.
+    tlm = dp.fetch(tstart - 720, tstop + 720)
     vals = dp.calc(tlm)
-    return tlm.times, vals
+    i0, i1 = np.searchsorted(tlm.times, [tstart, tstop])
+    return tlm.times[i0:i1], vals[i0:i1]
 
 
 # Class name is arbitrary, but by convention start with `Comp_`
@@ -679,7 +716,7 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
         :param msid_args: tuple of regex match groups (msid_name,)
         :returns: dict of MSID attributes
         """
-        from kadi.commands.utils import get_ofp_states
+        from cheta.utils import get_ofp_states
 
         from .. import fetch
         from ..utils import logical_intervals
@@ -690,12 +727,17 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
         # Whether we are computing "pitch" or "roll", parsed from MSID name
         pitch_roll: str = msid_args[0]
 
-        ofp_states = get_ofp_states(stop.date, days=(stop - start).jd)
+        ofp_states = get_ofp_states(start, stop)
 
         tlms = []
         for ofp_state in ofp_states:
             if ofp_state["val"] == "NRML":
                 dat = fetch.Msid("aopcadmd", ofp_state["tstart"], ofp_state["tstop"])
+                if len(dat) == 0:
+                    # For an interval with no samples put in empty arrays so that
+                    # subsequent processing succeeds.
+                    tlms.append((np.array([], dtype=float), np.array([], dtype=float)))
+                    continue
 
                 # Get states of either NPNT / NMAN or NSUN
                 vals = np.isin(dat.vals, ["NPNT", "NMAN"])
@@ -703,10 +745,6 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
                     dat.times, vals, complete_intervals=False, max_gap=2.1
                 )
                 states_npnt_nman["val"] = np.repeat("NPNT_NMAN", len(states_npnt_nman))
-                # Require at least 10 minutes => 2 samples of the ephem data. This is
-                # needed for the built-in derived parameter calculation to work.
-                ok = states_npnt_nman["duration"] > 10 * 60 + 1
-                states_npnt_nman = states_npnt_nman[ok]
 
                 states_nsun = logical_intervals(
                     dat.times, dat.vals == "NSUN", max_gap=2.1, complete_intervals=False
@@ -717,10 +755,10 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
 
                 for state in states:
                     if state["val"] == "NPNT_NMAN":
-                        tlm = calc_pitch_roll_obc(
+                        times, vals = calc_pitch_roll_obc(
                             state["tstart"], state["tstop"], pitch_roll
                         )
-                        tlms.append(tlm)
+                        tlms.append((times, vals))
                     elif state["val"] == "NSUN":
                         tlm = fetch.Msid(
                             f"{pitch_roll}_css", state["tstart"], state["tstop"]
