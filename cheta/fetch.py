@@ -1128,12 +1128,11 @@ class MSID(object):
           in with fetch.read_bad_times().
         - Supply both ``start`` and ``stop`` values where each is a single
           value in a valid DateTime format.
-        - Supply an ``table`` parameter in the form of a 2-column table of
-          start and stop dates (space-delimited) or the name of a file with
-          data in the same format.
+        - Supply a ``table`` parameter with one of two forms: (1) list of bad time
+          interval strings, where each string contains the start and stop dates
+          separated by a space; (2) string with the name of a file in the same format.
 
-        The ``table`` parameter must be supplied as a table or the name of a
-        table file, for example::
+        Examples::
 
           bad_times = ['2008:292:00:00:00 2008:297:00:00:00',
                        '2008:305:00:12:00 2008:305:00:12:03',
@@ -1143,7 +1142,8 @@ class MSID(object):
 
         :param start: Start of time interval to exclude (any DateTime format)
         :param stop: End of time interval to exclude (any DateTime format)
-        :param table: Two-column table (start, stop) of bad time intervals
+        :param table: List of str with start and stop for bad time intervals or str
+            with name of file containing list of bad time intervals
         :param copy: return a copy of MSID object with bad times filtered
         """
         if table is not None:
@@ -1645,12 +1645,12 @@ class MSIDset(collections.OrderedDict):
           in with fetch.read_bad_times().
         - Supply both ``start`` and ``stop`` values where each is a single
           value in a valid DateTime format.
-        - Supply an ``table`` parameter in the form of a 2-column table of
-          start and stop dates (space-delimited) or the name of a file with
-          data in the same format.
+        - Supply a ``table`` parameter with one of two forms: (1) list of bad time
+          interval strings, where each string contains the start and stop dates
+          separated by a space; (2) string with the name of a file in the same format.
 
-        The ``table`` parameter must be supplied as a table or the name of a
-        table file, for example::
+        Examples::
+
 
           msidset.filter_bad_times()
           bad_times = ['2008:292:00:00:00 2008:297:00:00:00',
@@ -1661,7 +1661,8 @@ class MSIDset(collections.OrderedDict):
 
         :param start: Start of time interval to exclude (any DateTime format)
         :param stop: End of time interval to exclude (any DateTime format)
-        :param table: Two-column table (start, stop) of bad time intervals
+        :param table: List of str with start and stop for bad time intervals or str
+            with name of file containing list of bad time intervals
         :param copy: return a copy of MSID object with intervals selected
         """
         obj = self.copy() if copy else self
