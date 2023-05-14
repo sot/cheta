@@ -1142,7 +1142,8 @@ class MSID(object):
 
         :param start: Start of time interval to exclude (any DateTime format)
         :param stop: End of time interval to exclude (any DateTime format)
-        :param table: List of str with start and stop for bad time intervals
+        :param table: List of str with start and stop for bad time intervals or str
+            with name of file containing list of bad time intervals
         :param copy: return a copy of MSID object with bad times filtered
         """
         if table is not None:
@@ -1660,7 +1661,8 @@ class MSIDset(collections.OrderedDict):
 
         :param start: Start of time interval to exclude (any DateTime format)
         :param stop: End of time interval to exclude (any DateTime format)
-        :param table: Two-column table (start, stop) of bad time intervals
+        :param table: List of str with start and stop for bad time intervals or str
+            with name of file containing list of bad time intervals
         :param copy: return a copy of MSID object with intervals selected
         """
         obj = self.copy() if copy else self
