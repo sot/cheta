@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Pseudo-MSIDs in the engineering archive &#8212; Eng archive 4.58.0 documentation</title>
+    <title>Pseudo-MSIDs in the engineering archive &#8212; Eng archive 4.59.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -61,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.58.0 documentation</a>
+	<a href="index.html">Eng archive 4.59.0 documentation</a>
 	 &#187;
       </li>
       
@@ -5353,9 +5353,14 @@ TDB MSIDs:</p>
 <span class="go">       [193.28908839,  19.16895134,  67.36206404]])</span>
 </pre></div>
 </div>
+<p>This computed MSID can be used with the MAUDE data source. Be aware that if the
+telemetry has a missing VCDU then there is a risk of getting a slightly incorrect
+quaternion. This would occur since the code uses nearest-neighbor interpolation to
+associate the four components of the quaternion with a single time. For back-orbit
+data this is rare, but for real-time data it is more likely.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.derived.comps.Comp_Quat.get_msid_attrs">
-<span class="sig-name descname"><span class="pre">get_msid_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cheta/derived/comps.html#Comp_Quat.get_msid_attrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.derived.comps.Comp_Quat.get_msid_attrs" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_msid_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cheta/derived/comps.html#Comp_Quat.get_msid_attrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.derived.comps.Comp_Quat.get_msid_attrs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the attributes required for this MSID.</p>
 <p>Get attributes for computed MSID, which must include at least
 <code class="docutils literal notranslate"><span class="pre">vals</span></code>, <code class="docutils literal notranslate"><span class="pre">bads</span></code>, <code class="docutils literal notranslate"><span class="pre">times</span></code>, and may include additional attributes.</p>

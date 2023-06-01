@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Fetch API documentation &#8212; Eng archive 4.58.0 documentation</title>
+    <title>Fetch API documentation &#8212; Eng archive 4.59.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -61,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Eng archive 4.58.0 documentation</a>
+	<a href="index.html">Eng archive 4.59.0 documentation</a>
 	 &#187;
       </li>
       
@@ -134,12 +134,11 @@ indicate that there are no bad values.</p>
 in with fetch.read_bad_times().</p></li>
 <li><p>Supply both <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> values where each is a single
 value in a valid DateTime format.</p></li>
-<li><p>Supply an <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter in the form of a 2-column table of
-start and stop dates (space-delimited) or the name of a file with
-data in the same format.</p></li>
+<li><p>Supply a <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter with one of two forms: (1) list of bad time
+interval strings, where each string contains the start and stop dates
+separated by a space; (2) string with the name of a file in the same format.</p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter must be supplied as a table or the name of a
-table file, for example:</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bad_times</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2008:292:00:00:00 2008:297:00:00:00&#39;</span><span class="p">,</span>
              <span class="s1">&#39;2008:305:00:12:00 2008:305:00:12:03&#39;</span><span class="p">,</span>
              <span class="s1">&#39;2010:101:00:01:12 2010:101:00:01:25&#39;</span><span class="p">]</span>
@@ -152,7 +151,8 @@ table file, for example:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – Start of time interval to exclude (any DateTime format)</p></li>
 <li><p><strong>stop</strong> – End of time interval to exclude (any DateTime format)</p></li>
-<li><p><strong>table</strong> – Two-column table (start, stop) of bad time intervals</p></li>
+<li><p><strong>table</strong> – List of str with start and stop for bad time intervals or str
+with name of file containing list of bad time intervals</p></li>
 <li><p><strong>copy</strong> – return a copy of MSID object with bad times filtered</p></li>
 </ul>
 </dd>
@@ -511,12 +511,11 @@ indicate that there are no bad values.</p>
 in with fetch.read_bad_times().</p></li>
 <li><p>Supply both <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> values where each is a single
 value in a valid DateTime format.</p></li>
-<li><p>Supply an <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter in the form of a 2-column table of
-start and stop dates (space-delimited) or the name of a file with
-data in the same format.</p></li>
+<li><p>Supply a <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter with one of two forms: (1) list of bad time
+interval strings, where each string contains the start and stop dates
+separated by a space; (2) string with the name of a file in the same format.</p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter must be supplied as a table or the name of a
-table file, for example:</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bad_times</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2008:292:00:00:00 2008:297:00:00:00&#39;</span><span class="p">,</span>
              <span class="s1">&#39;2008:305:00:12:00 2008:305:00:12:03&#39;</span><span class="p">,</span>
              <span class="s1">&#39;2010:101:00:01:12 2010:101:00:01:25&#39;</span><span class="p">]</span>
@@ -529,7 +528,8 @@ table file, for example:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – Start of time interval to exclude (any DateTime format)</p></li>
 <li><p><strong>stop</strong> – End of time interval to exclude (any DateTime format)</p></li>
-<li><p><strong>table</strong> – Two-column table (start, stop) of bad time intervals</p></li>
+<li><p><strong>table</strong> – List of str with start and stop for bad time intervals or str
+with name of file containing list of bad time intervals</p></li>
 <li><p><strong>copy</strong> – return a copy of MSID object with bad times filtered</p></li>
 </ul>
 </dd>
@@ -862,12 +862,11 @@ the individual MSID.filter_bad() function for each MSID in the set:</p>
 in with fetch.read_bad_times().</p></li>
 <li><p>Supply both <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> values where each is a single
 value in a valid DateTime format.</p></li>
-<li><p>Supply an <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter in the form of a 2-column table of
-start and stop dates (space-delimited) or the name of a file with
-data in the same format.</p></li>
+<li><p>Supply a <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter with one of two forms: (1) list of bad time
+interval strings, where each string contains the start and stop dates
+separated by a space; (2) string with the name of a file in the same format.</p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter must be supplied as a table or the name of a
-table file, for example:</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msidset</span><span class="o">.</span><span class="n">filter_bad_times</span><span class="p">()</span>
 <span class="n">bad_times</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2008:292:00:00:00 2008:297:00:00:00&#39;</span><span class="p">,</span>
              <span class="s1">&#39;2008:305:00:12:00 2008:305:00:12:03&#39;</span><span class="p">,</span>
@@ -881,7 +880,8 @@ table file, for example:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – Start of time interval to exclude (any DateTime format)</p></li>
 <li><p><strong>stop</strong> – End of time interval to exclude (any DateTime format)</p></li>
-<li><p><strong>table</strong> – Two-column table (start, stop) of bad time intervals</p></li>
+<li><p><strong>table</strong> – List of str with start and stop for bad time intervals or str
+with name of file containing list of bad time intervals</p></li>
 <li><p><strong>copy</strong> – return a copy of MSID object with intervals selected</p></li>
 </ul>
 </dd>
@@ -1053,12 +1053,11 @@ indicate that there are no bad values.</p>
 in with fetch.read_bad_times().</p></li>
 <li><p>Supply both <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> values where each is a single
 value in a valid DateTime format.</p></li>
-<li><p>Supply an <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter in the form of a 2-column table of
-start and stop dates (space-delimited) or the name of a file with
-data in the same format.</p></li>
+<li><p>Supply a <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter with one of two forms: (1) list of bad time
+interval strings, where each string contains the start and stop dates
+separated by a space; (2) string with the name of a file in the same format.</p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">table</span></code> parameter must be supplied as a table or the name of a
-table file, for example:</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bad_times</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2008:292:00:00:00 2008:297:00:00:00&#39;</span><span class="p">,</span>
              <span class="s1">&#39;2008:305:00:12:00 2008:305:00:12:03&#39;</span><span class="p">,</span>
              <span class="s1">&#39;2010:101:00:01:12 2010:101:00:01:25&#39;</span><span class="p">]</span>
@@ -1071,7 +1070,8 @@ table file, for example:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – Start of time interval to exclude (any DateTime format)</p></li>
 <li><p><strong>stop</strong> – End of time interval to exclude (any DateTime format)</p></li>
-<li><p><strong>table</strong> – Two-column table (start, stop) of bad time intervals</p></li>
+<li><p><strong>table</strong> – List of str with start and stop for bad time intervals or str
+with name of file containing list of bad time intervals</p></li>
 <li><p><strong>copy</strong> – return a copy of MSID object with bad times filtered</p></li>
 </ul>
 </dd>

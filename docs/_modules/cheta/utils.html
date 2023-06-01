@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>cheta.utils &#8212; Eng archive 4.58.0 documentation</title>
+    <title>cheta.utils &#8212; Eng archive 4.59.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Eng archive 4.58.0 documentation</a>
+	<a href="../../index.html">Eng archive 4.59.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -67,18 +67,26 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Utilities for the engineering archive.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
 <span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
+<span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span><span class="p">,</span> <span class="n">CxoTimeLike</span>
 
 <span class="c1"># Cache the results of fetching 3 days of telemetry keyed by MSID</span>
 <span class="n">FETCH_SIZES</span> <span class="o">=</span> <span class="p">{}</span>
 
 <span class="c1"># Standard intervals for 5min and daily telemetry</span>
 <span class="n">STATS_DT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;5min&quot;</span><span class="p">:</span> <span class="mi">328</span><span class="p">,</span> <span class="s2">&quot;daily&quot;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="NoTelemetryError"><a class="viewcode-back" href="../../utils.html#cheta.utils.NoTelemetryError">[docs]</a><span class="k">class</span> <span class="nc">NoTelemetryError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;No telemetry available for the specified interval&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="get_fetch_size"><a class="viewcode-back" href="../../utils.html#cheta.utils.get_fetch_size">[docs]</a><span class="k">def</span> <span class="nf">get_fetch_size</span><span class="p">(</span><span class="n">msids</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolate_dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -307,7 +315,9 @@
     <span class="k">return</span> <span class="n">times</span><span class="p">,</span> <span class="n">bools</span>
 
 
-<div class="viewcode-block" id="logical_intervals"><a class="viewcode-back" href="../../utils.html#cheta.utils.logical_intervals">[docs]</a><span class="k">def</span> <span class="nf">logical_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">complete_intervals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="logical_intervals"><a class="viewcode-back" href="../../utils.html#cheta.utils.logical_intervals">[docs]</a><span class="k">def</span> <span class="nf">logical_intervals</span><span class="p">(</span>
+    <span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">complete_intervals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which `bools` is True.</span>
 
 <span class="sd">    If ``complete_intervals`` is True (default is False) then the intervals are</span>
@@ -317,6 +327,9 @@
 <span class="sd">    If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are</span>
 <span class="sd">    filled with a fictitious False value to create an artificial interval</span>
 <span class="sd">    boundary at ``max_gap / 2`` seconds from the nearest data value.</span>
+
+<span class="sd">    If ``start`` is specified then the first interval will be from ``start``. If</span>
+<span class="sd">    ``stop`` is specified then the last interval will be to ``stop``.</span>
 
 <span class="sd">    Returns an astropy Table with a row for each interval.  Columns are:</span>
 
@@ -346,12 +359,18 @@
 <span class="sd">    :param bools: array of logical True/False values</span>
 <span class="sd">    :param complete_intervals: return only complete intervals (default=True)</span>
 <span class="sd">    :param max_gap: max allowed gap between time stamps (sec, default=None)</span>
+<span class="sd">    :param start: start time (CxoTimeLike, default=None)</span>
+<span class="sd">    :param stop: stop time (CxoTimeLike, default=None)</span>
+
 <span class="sd">    :returns: Table of intervals</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">bools</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bools</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">max_gap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">times</span><span class="p">,</span> <span class="n">bools</span> <span class="o">=</span> <span class="n">_pad_long_gaps</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">max_gap</span><span class="p">)</span>
 
-    <span class="n">intervals</span> <span class="o">=</span> <span class="n">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">)</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">complete_intervals</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">intervals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">intervals</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
@@ -364,7 +383,7 @@
     <span class="k">return</span> <span class="n">intervals</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="state_intervals"><a class="viewcode-back" href="../../utils.html#cheta.utils.state_intervals">[docs]</a><span class="k">def</span> <span class="nf">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+<div class="viewcode-block" id="state_intervals"><a class="viewcode-back" href="../../utils.html#cheta.utils.state_intervals">[docs]</a><span class="k">def</span> <span class="nf">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine contiguous intervals during which the ``vals`` is unchanged.</span>
 
@@ -376,6 +395,9 @@
 <span class="sd">    * tstart: time of interval start (CXC sec)</span>
 <span class="sd">    * tstop: time of interval stop (CXC sec)</span>
 <span class="sd">    * val: MSID value during the interval</span>
+
+<span class="sd">    If ``start`` is specified then the first interval will be from ``start``. If</span>
+<span class="sd">    ``stop`` is specified then the last interval will be to ``stop``.</span>
 
 <span class="sd">    Example::</span>
 
@@ -391,31 +413,185 @@
 
 <span class="sd">    :param times: times (CXC seconds)</span>
 <span class="sd">    :param vals: state values for which intervals are returned.</span>
+<span class="sd">    :param start: start time (CxoTimeLike, default=None)</span>
+<span class="sd">    :param stop: stop time (CxoTimeLike, default=None)</span>
 <span class="sd">    :returns: structured array table of intervals</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filtered data length must be at least 2&quot;</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
 
-    <span class="n">transitions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="kc">True</span><span class="p">],</span> <span class="n">vals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="p">[</span><span class="kc">True</span><span class="p">]])</span>
-    <span class="n">t0</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">t1</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">midtimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="n">t0</span><span class="p">],</span> <span class="p">(</span><span class="n">times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="n">t1</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
 
-    <span class="n">state_vals</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">transitions</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
-    <span class="n">state_times</span> <span class="o">=</span> <span class="n">midtimes</span><span class="p">[</span><span class="n">transitions</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span>
 
-    <span class="n">intervals</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;datestart&quot;</span><span class="p">:</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
-        <span class="s2">&quot;datestop&quot;</span><span class="p">:</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
-        <span class="s2">&quot;tstart&quot;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-        <span class="s2">&quot;tstop&quot;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
-        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">state_vals</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;data length must be at least 1&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">Table</span><span class="p">(</span><span class="n">intervals</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">intervals</span><span class="p">))</span></div>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">stop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;For data length of 1, `start` and `stop` must be specified&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">intervals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;datestart&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">start</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+            <span class="s2">&quot;datestop&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">stop</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+            <span class="s2">&quot;tstart&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">start</span><span class="o">.</span><span class="n">secs</span><span class="p">],</span>
+            <span class="s2">&quot;tstop&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">stop</span><span class="o">.</span><span class="n">secs</span><span class="p">],</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">stop</span><span class="o">.</span><span class="n">secs</span> <span class="o">-</span> <span class="n">start</span><span class="o">.</span><span class="n">secs</span><span class="p">],</span>
+            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">vals</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">transitions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="kc">True</span><span class="p">],</span> <span class="n">vals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="p">[</span><span class="kc">True</span><span class="p">]])</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">midtimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="n">t0</span><span class="p">],</span> <span class="p">(</span><span class="n">times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="n">t1</span><span class="p">]])</span>
+
+        <span class="n">state_vals</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">transitions</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+        <span class="n">state_times</span> <span class="o">=</span> <span class="n">midtimes</span><span class="p">[</span><span class="n">transitions</span><span class="p">]</span>
+
+        <span class="c1"># Telemetry data may be provided that is outside the start/stop range. Here we</span>
+        <span class="c1"># clip the state_times to be within the start/stop range. Any states that are</span>
+        <span class="c1"># fully outside the range will have a duration of 0.0 sec and will be removed.</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state_times</span> <span class="o">=</span> <span class="n">state_times</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">secs</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state_times</span> <span class="o">=</span> <span class="n">state_times</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">.</span><span class="n">secs</span><span class="p">)</span>
+
+        <span class="n">intervals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;datestart&quot;</span><span class="p">:</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+            <span class="s2">&quot;datestop&quot;</span><span class="p">:</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+            <span class="s2">&quot;tstart&quot;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;tstop&quot;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">state_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">state_times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">state_vals</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">intervals</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">intervals</span><span class="p">))</span>
+
+    <span class="c1"># Remove intervals that are outside the start/stop range</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">bad</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="o">~</span><span class="n">bad</span><span class="p">]</span>
+
+    <span class="c1"># Potentially adjust the first and last intervals to be from start/stop.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">&quot;datestart&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">date</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstart&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">secs</span>
+        <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">&quot;datestop&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">stop</span><span class="o">.</span><span class="n">date</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstop&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">stop</span><span class="o">.</span><span class="n">secs</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstop&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstart&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstop&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstart&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstart&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s2">&quot;.3f&quot;</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;tstop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s2">&quot;.3f&quot;</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s2">&quot;.3f&quot;</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="get_telem_table"><a class="viewcode-back" href="../../utils.html#cheta.utils.get_telem_table">[docs]</a><span class="k">def</span> <span class="nf">get_telem_table</span><span class="p">(</span>
+    <span class="n">msids</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">CxoTimeLike</span><span class="p">,</span>
+    <span class="n">stop</span><span class="p">:</span> <span class="n">CxoTimeLike</span><span class="p">,</span>
+    <span class="n">time_pad</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span> <span class="o">=</span> <span class="mi">15</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">min</span><span class="p">,</span>
+    <span class="n">unit_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;eng&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch telemetry for a list of MSIDs and return as an Astropy Table.</span>
+
+<span class="sd">    This interpolates all the MSIDs to the time base of the first MSID in the list. It</span>
+<span class="sd">    also fetches ``time_pad`` more than requested to ensure that the samples are</span>
+<span class="sd">    complete (e.g. if the interval is between MSID samples).</span>
+
+<span class="sd">    If no telemetry is available for the requested interval then an empty table is</span>
+<span class="sd">    returned with all float columns.</span>
+
+<span class="sd">    :param msids: fetch msids list</span>
+<span class="sd">    :param start: start time for telemetry (CxoTime-like)</span>
+<span class="sd">    :param stop: stop time for telemetry (CxoTime-like)</span>
+<span class="sd">    :param time_pad: Quantity time pad on each end for fetch (default=15 min)</span>
+<span class="sd">    :param unit_system: unit system for fetch (&quot;eng&quot; | &quot;cxc&quot; | &quot;sci&quot;, default=&quot;eng&quot;)</span>
+
+<span class="sd">    :returns: Table of requested telemetry values from fetch</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch_eng</span><span class="p">,</span> <span class="n">fetch_sci</span><span class="p">,</span> <span class="n">fetch</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">msids</span>
+    <span class="n">fetch_module</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;eng&quot;</span><span class="p">:</span> <span class="n">fetch_eng</span><span class="p">,</span> <span class="s2">&quot;cxc&quot;</span><span class="p">:</span> <span class="n">fetch</span><span class="p">,</span> <span class="s2">&quot;sci&quot;</span><span class="p">:</span> <span class="n">fetch_sci</span><span class="p">}[</span><span class="n">unit_system</span><span class="p">]</span>
+
+    <span class="c1"># Get the MSIDset for the requested MSIDs and time range with some padding to</span>
+    <span class="c1"># ensure samples even for slow MSIDS like ephemeris at 5-min cadence.</span>
+    <span class="n">msidset</span> <span class="o">=</span> <span class="n">fetch_module</span><span class="o">.</span><span class="n">MSIDset</span><span class="p">(</span><span class="n">msids</span><span class="p">,</span> <span class="n">start</span> <span class="o">-</span> <span class="n">time_pad</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="n">time_pad</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msidset</span><span class="p">[</span><span class="n">msid</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">msids</span><span class="p">):</span>
+        <span class="c1"># If no telemetry was found then return an empty table with the expected names</span>
+        <span class="c1"># but all float64 columns.</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># Use the first MSID as the primary one to set the time base</span>
+    <span class="n">msid0</span> <span class="o">=</span> <span class="n">msidset</span><span class="p">[</span><span class="n">msids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">msid0</span><span class="o">.</span><span class="n">times</span>
+    <span class="n">i0</span><span class="p">,</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="p">[</span><span class="n">start</span><span class="o">.</span><span class="n">secs</span><span class="p">,</span> <span class="n">stop</span><span class="o">.</span><span class="n">secs</span><span class="p">])</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">i0</span><span class="p">:</span><span class="n">i1</span><span class="p">]</span>
+
+    <span class="n">msidset</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">times</span><span class="o">=</span><span class="n">times</span><span class="p">,</span> <span class="n">bad_union</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Table</span><span class="p">([</span><span class="n">msidset</span><span class="o">.</span><span class="n">times</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">msidset</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">msids</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s2">&quot;.3f&quot;</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="get_ofp_states"><a class="viewcode-back" href="../../utils.html#cheta.utils.get_ofp_states">[docs]</a><span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_ofp_states</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the Onboard Flight Program (OFP) states between ``start`` and ``stop`.</span>
+
+<span class="sd">    This is normally &quot;NRML&quot; but in safe mode it is &quot;SAFE&quot; or other values. State codes:</span>
+<span class="sd">    [&#39;NNRM&#39; &#39;STDB&#39; &#39;STBS&#39; &#39;NRML&#39; &#39;NSTB&#39; &#39;SUOF&#39; &#39;SYON&#39; &#39;DPLY&#39; &#39;SYSF&#39; &#39;STUP&#39; &#39;SAFE&#39;]</span>
+
+<span class="sd">    :param start: start time (CxoTimeLike)</span>
+<span class="sd">    :param stop: stop time (CxoTimeLike)</span>
+<span class="sd">    :returns: astropy Table of OFP state intervals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">vstack</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span>
+
+    <span class="n">msid</span> <span class="o">=</span> <span class="s2">&quot;conlofp&quot;</span>
+    <span class="n">tlm</span> <span class="o">=</span> <span class="n">get_telem_table</span><span class="p">([</span><span class="n">msid</span><span class="p">],</span> <span class="n">start</span> <span class="o">-</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tlm</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NoTelemetryError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No telemetry for </span><span class="si">{</span><span class="n">msid</span><span class="si">}</span><span class="s2"> between </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">stop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">states_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">state_code</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">tlm</span><span class="p">[</span><span class="n">msid</span><span class="p">]):</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">logical_intervals</span><span class="p">(</span>
+            <span class="n">tlm</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span>
+            <span class="n">tlm</span><span class="p">[</span><span class="n">msid</span><span class="p">]</span> <span class="o">==</span> <span class="n">state_code</span><span class="p">,</span>
+            <span class="n">max_gap</span><span class="o">=</span><span class="mf">2.1</span><span class="p">,</span>
+            <span class="n">complete_intervals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">states</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state_code</span>
+        <span class="n">states_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+
+    <span class="n">states</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">(</span><span class="n">states_list</span><span class="p">)</span>
+    <span class="n">states</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;datestart&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">states</span></div>
 
 
 <div class="viewcode-block" id="get_date_id"><a class="viewcode-back" href="../../utils.html#cheta.utils.get_date_id">[docs]</a><span class="k">def</span> <span class="nf">get_date_id</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
