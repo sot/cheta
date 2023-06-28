@@ -12,6 +12,7 @@ import six
 from astropy.table import Table
 from Chandra.Time import DateTime
 from cxotime import CxoTime, CxoTimeLike
+from ska_helpers import intervals
 
 # Cache the results of fetching 3 days of telemetry keyed by MSID
 FETCH_SIZES = {}
@@ -23,6 +24,10 @@ STATS_DT = {"5min": 328, "daily": 86400}
 class NoTelemetryError(Exception):
     """No telemetry available for the specified interval"""
 
+
+# Make these functions available in this namespace after moving them to ska_helpers.
+logical_intervals = intervals.logical_intervals
+state_intervals = intervals.state_intervals
 
 def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True):
     """
@@ -234,204 +239,6 @@ def ss_vector(start, stop=None, obj="Earth"):
     return out
 
 
-def _pad_long_gaps(times, bools, max_gap):
-    dts = np.diff(times)
-    i_long_gaps = np.flatnonzero(dts > max_gap)
-    if len(i_long_gaps) > 0:
-        for i in i_long_gaps[::-1]:
-            times = np.concatenate(
-                [
-                    times[: i + 1],
-                    [times[i] + max_gap / 2.0, times[i + 1] - max_gap / 2.0],
-                    times[i + 1 :],
-                ]
-            )
-            bools = np.concatenate([bools[: i + 1], [False, False], bools[i + 1 :]])
-    return times, bools
-
-
-def logical_intervals(
-    times, bools, complete_intervals=False, max_gap=None, start=None, stop=None
-):
-    """Determine contiguous intervals during which `bools` is True.
-
-    If ``complete_intervals`` is True (default is False) then the intervals are
-    guaranteed to be complete so that the all reported intervals had a
-    transition before and after within the telemetry interval.
-
-    If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
-    filled with a fictitious False value to create an artificial interval
-    boundary at ``max_gap / 2`` seconds from the nearest data value.
-
-    If ``start`` is specified then the first interval will be from ``start``. If
-    ``stop`` is specified then the last interval will be to ``stop``.
-
-    Returns an astropy Table with a row for each interval.  Columns are:
-
-    * datestart: date of interval start
-    * datestop: date of interval stop
-    * duration: duration of interval (sec)
-    * tstart: time of interval start (CXC sec)
-    * tstop: time of interval stop (CXC sec)
-
-    Example (find SCS107 runs via telemetry)::
-
-      >>> from cheta import utils, fetch
-      >>> dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'], '2012:190', '2012:205')
-      >>> dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)
-      >>> scs107 = ((dat['3tscmove'].vals == 'T')
-                    & (dat['aorwbias'].vals == 'DISA')
-                    & (dat['coradmen'].vals == 'DISA'))
-      >>> scs107s = utils.logical_intervals(dat.times, scs107)
-      >>> print(scs107s['datestart', 'datestop', 'duration'])
-            datestart              datestop          duration
-      --------------------- --------------------- -------------
-      2012:194:20:00:31.652 2012:194:20:04:21.252 229.600000083
-      2012:196:21:07:36.452 2012:196:21:11:26.052 229.600000083
-      2012:201:11:45:46.852 2012:201:11:49:36.452 229.600000083
-
-    :param times: array of time stamps in CXC seconds
-    :param bools: array of logical True/False values
-    :param complete_intervals: return only complete intervals (default=True)
-    :param max_gap: max allowed gap between time stamps (sec, default=None)
-    :param start: start time (CxoTimeLike, default=None)
-    :param stop: stop time (CxoTimeLike, default=None)
-
-    :returns: Table of intervals
-    """
-    times = np.asarray(times, dtype=float)
-    bools = np.asarray(bools, dtype=bool)
-
-    if max_gap is not None:
-        times, bools = _pad_long_gaps(times, bools, max_gap)
-
-    intervals = state_intervals(times, bools, start=start, stop=stop)
-
-    if complete_intervals:
-        if len(intervals) > 0 and intervals["val"][0]:
-            intervals = intervals[1:]
-        if len(intervals) > 0 and intervals["val"][-1]:
-            intervals = intervals[:-1]
-
-    ok = intervals["val"]  # Intervals where bools is True
-    del intervals["val"]
-    return intervals[ok]
-
-
-def state_intervals(times, vals, start=None, stop=None):
-    """
-    Determine contiguous intervals during which the ``vals`` is unchanged.
-
-    Returns an Astropy Table with a row for each interval.  Columns are:
-
-    * datestart: date of interval start
-    * datestop: date of interval stop
-    * duration: duration of interval (sec)
-    * tstart: time of interval start (CXC sec)
-    * tstop: time of interval stop (CXC sec)
-    * val: MSID value during the interval
-
-    If ``start`` is specified then the first interval will be from ``start``. If
-    ``stop`` is specified then the last interval will be to ``stop``.
-
-    Example::
-
-      >>> from cheta import fetch, utils
-      >>> dat = fetch.Msid('cobsrqid', '2010:003:12:00:00', '2010:004:12:00:00')
-      >>> obsids = utils.state_intervals(dat.times, dat.vals)
-      >>> print(obsids['datestart', 'datestop', 'val'])
-            datestart              datestop         val
-      --------------------- --------------------- -------
-      2010:003:12:00:00.976 2010:004:09:07:44.180 11011.0
-      2010:004:09:07:44.180 2010:004:09:40:52.680 56548.0
-      2010:004:09:40:52.680 2010:004:12:00:00.280 12068.0
-
-    :param times: times (CXC seconds)
-    :param vals: state values for which intervals are returned.
-    :param start: start time (CxoTimeLike, default=None)
-    :param stop: stop time (CxoTimeLike, default=None)
-    :returns: structured array table of intervals
-    """
-    from astropy.table import Table
-
-    times = np.asarray(times, dtype=float)
-    vals = np.asarray(vals)
-
-    if start is not None:
-        start = CxoTime(start)
-
-    if stop is not None:
-        stop = CxoTime(stop)
-
-    if len(vals) == 0:
-        raise ValueError("data length must be at least 1")
-
-    if len(vals) == 1:
-        if start is None or stop is None:
-            raise ValueError(
-                "For data length of 1, `start` and `stop` must be specified"
-            )
-
-        intervals = {
-            "datestart": [start.date],
-            "datestop": [stop.date],
-            "tstart": [start.secs],
-            "tstop": [stop.secs],
-            "duration": [stop.secs - start.secs],
-            "val": vals,
-        }
-
-    else:
-        transitions = np.hstack([[True], vals[:-1] != vals[1:], [True]])
-        t0 = times[0] - (times[1] - times[0]) / 2
-        t1 = times[-1] + (times[-1] - times[-2]) / 2
-        midtimes = np.hstack([[t0], (times[:-1] + times[1:]) / 2, [t1]])
-
-        state_vals = vals[transitions[1:]]
-        state_times = midtimes[transitions]
-
-        # Telemetry data may be provided that is outside the start/stop range. Here we
-        # clip the state_times to be within the start/stop range. Any states that are
-        # fully outside the range will have a duration of 0.0 sec and will be removed.
-        if start is not None:
-            state_times = state_times.clip(start.secs, None)
-        if stop is not None:
-            state_times = state_times.clip(None, stop.secs)
-
-        intervals = {
-            "datestart": CxoTime(state_times[:-1]).date,
-            "datestop": CxoTime(state_times[1:]).date,
-            "tstart": state_times[:-1],
-            "tstop": state_times[1:],
-            "duration": state_times[1:] - state_times[:-1],
-            "val": state_vals,
-        }
-
-    out = Table(intervals, names=sorted(intervals))
-
-    # Remove intervals that are outside the start/stop range
-    bad = out["duration"] <= 0.0
-    if np.any(bad):
-        out = out[~bad]
-
-    # Potentially adjust the first and last intervals to be from start/stop.
-    if len(out) > 0:
-        if start is not None:
-            out["datestart"][0] = start.date
-            out["tstart"][0] = start.secs
-        if stop is not None:
-            out["datestop"][-1] = stop.date
-            out["tstop"][-1] = stop.secs
-        out["duration"][0] = out["tstop"][0] - out["tstart"][0]
-        out["duration"][-1] = out["tstop"][-1] - out["tstart"][-1]
-
-    out["tstart"].info.format = ".3f"
-    out["tstop"].info.format = ".3f"
-    out["duration"].info.format = ".3f"
-
-    return out
-
-
 def get_telem_table(
     msids: list,
     start: CxoTimeLike,
@@ -457,7 +264,7 @@ def get_telem_table(
 
     :returns: Table of requested telemetry values from fetch
     """
-    from cheta import fetch_eng, fetch_sci, fetch
+    from cheta import fetch, fetch_eng, fetch_sci
 
     start = CxoTime(start)
     stop = CxoTime(stop)
