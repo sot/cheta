@@ -668,7 +668,7 @@ def calc_pitch_roll_obc(tstart: float, tstop: float, pitch_roll: str):
     # Filter bad data values
     tlm.interpolate(times=tlm.times)
     tlm.bads = np.zeros(len(tlm.times), dtype=bool)
-    
+
     vals = dp.calc(tlm)
     i0, i1 = np.searchsorted(tlm.times, [tstart, tstop])
     return tlm.times[i0:i1], vals[i0:i1]
