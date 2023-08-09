@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Command-line fetch &#8212; Eng archive 4.59.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,9 +12,8 @@
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -76,7 +75,7 @@
           <div class="body" role="main">
             
   <section id="command-line-fetch">
-<h1>Command-line fetch<a class="headerlink" href="#command-line-fetch" title="Permalink to this headline">¶</a></h1>
+<h1>Command-line fetch<a class="headerlink" href="#command-line-fetch" title="Permalink to this heading">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">fetch_ska</span></code> application allows use of the Ska engineering archive
 without getting into Python or using any scripting.  From a single command
 line tool you can access most of the common processing steps associated with
@@ -94,7 +93,7 @@ convenient like GRETA time.</p></li>
 <p>Aside from the first two steps (fetching data and filtering bad data), all the steps are
 optional.</p>
 <section id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h2>
 <p>The very first thing is to get set up to use the Ska environment following the
 instructions in the <a class="reference external" href="tutorial.html#configure">Ska Analysis Tutorial</a>.  Assuming that is
 done, then you need to enter the Ska environment using the <code class="docutils literal notranslate"><span class="pre">ska</span></code> (or <code class="docutils literal notranslate"><span class="pre">skatest</span></code>)
@@ -106,7 +105,7 @@ alias:</p>
 prompt, so don’t type that).  After doing <code class="docutils literal notranslate"><span class="pre">ska</span></code> you should see your prompt change to
 include a <code class="docutils literal notranslate"><span class="pre">ska-</span></code> prefix.</p>
 <section id="getting-help">
-<h3>Getting help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h3>
+<h3>Getting help<a class="headerlink" href="#getting-help" title="Permalink to this heading">¶</a></h3>
 <p>You can get help by asking <code class="docutils literal notranslate"><span class="pre">ska_fetch</span></code> to print its command line options:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="o">--</span><span class="n">help</span>
 
@@ -165,7 +164,7 @@ include a <code class="docutils literal notranslate"><span class="pre">ska-</spa
 </div>
 </section>
 <section id="try-it-out">
-<h3>Try it out<a class="headerlink" href="#try-it-out" title="Permalink to this headline">¶</a></h3>
+<h3>Try it out<a class="headerlink" href="#try-it-out" title="Permalink to this heading">¶</a></h3>
 <p>There are plenty of options but frequently you’ll only need a few.  Let’s start by
 trying the first example provided in the help output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">TEPHIN</span> <span class="n">AOPCADMD</span> <span class="o">--</span><span class="n">start</span><span class="o">=</span><span class="mi">2013</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">stop</span><span class="o">=</span><span class="mi">2013</span><span class="p">:</span><span class="mi">030</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="mi">5</span><span class="nb">min</span> \
@@ -234,17 +233,13 @@ corresponding state code string.</p>
 </section>
 </section>
 <section id="details">
-<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this heading">¶</a></h2>
 <p>There are many options controlling <code class="docutils literal notranslate"><span class="pre">fetch_ska</span></code>, but they can be broken down
 into manageable subsets as in the following sections.  This will include detailed
 discussion of how to use each of the options.</p>
 <section id="desired-telemetry">
-<h3>Desired telemetry<a class="headerlink" href="#desired-telemetry" title="Permalink to this headline">¶</a></h3>
+<h3>Desired telemetry<a class="headerlink" href="#desired-telemetry" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 21%" />
-<col style="width: 79%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Argument</p></th>
 <th class="head"><p>Description</p></th>
@@ -281,12 +276,8 @@ units (i.e. what is in the TDB and GRETA), science units (mostly just temperatur
 instead of F), or CXC units (whatever is in CXC decom, which e.g. has temperatures in K).</p>
 </section>
 <section id="interpolation">
-<h3>Interpolation<a class="headerlink" href="#interpolation" title="Permalink to this headline">¶</a></h3>
+<h3>Interpolation<a class="headerlink" href="#interpolation" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Argument</p></th>
 <th class="head"><p>Description</p></th>
@@ -307,12 +298,8 @@ in seconds.  When interpolating <code class="docutils literal notranslate"><span
 <code class="docutils literal notranslate"><span class="pre">union_bad=True</span></code> (as described in <a class="reference internal" href="#interpolation">Interpolation</a>).</p>
 </section>
 <section id="intervals">
-<h3>Intervals<a class="headerlink" href="#intervals" title="Permalink to this headline">¶</a></h3>
+<h3>Intervals<a class="headerlink" href="#intervals" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Argument</p></th>
 <th class="head"><p>Description</p></th>
@@ -358,12 +345,8 @@ to <code class="docutils literal notranslate"><span class="pre">AIRU2BT</span></
 section for more details.</p>
 </section>
 <section id="output">
-<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<h3>Output<a class="headerlink" href="#output" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Argument</p></th>
 <th class="head"><p>Description</p></th>
@@ -387,12 +370,8 @@ option for FOT analysis will be <code class="docutils literal notranslate"><span
 corresponding to the MSIDs in the set.</p>
 </section>
 <section id="process-control">
-<h3>Process control<a class="headerlink" href="#process-control" title="Permalink to this headline">¶</a></h3>
+<h3>Process control<a class="headerlink" href="#process-control" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 77%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Argument</p></th>
 <th class="head"><p>Description</p></th>
@@ -468,12 +447,16 @@ larger values.</p>
 </ul>
 
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="fetch_tutorial.html"
-                        title="previous chapter">Fetch Tutorial</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="pseudo_msids.html"
-                        title="next chapter">Pseudo-MSIDs in the engineering archive</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="fetch_tutorial.html"
+                          title="previous chapter">Fetch Tutorial</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="pseudo_msids.html"
+                          title="next chapter">Pseudo-MSIDs in the engineering archive</a></p>
+  </div>
 <form action="search.html" method="get">
   <input type="text" name="q" placeholder="Search" />
   <input type="hidden" name="check_keywords" value="yes" />
@@ -488,7 +471,7 @@ larger values.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>

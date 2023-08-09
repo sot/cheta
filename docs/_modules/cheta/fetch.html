@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,9 +11,8 @@
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -146,7 +145,7 @@
 
 
 <span class="k">class</span> <span class="nc">_DataSource</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Context manager and quasi-singleton configuration object for managing the</span>
 <span class="sd">    data_source(s) used for fetching telemetry.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -166,7 +165,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">data_sources</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set current data sources.</span>
 
 <span class="sd">        :param *data_sources: one or more sources (str)</span>
@@ -189,7 +188,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">include_test</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get tuple of current data sources names.</span>
 
 <span class="sd">        :param include_test: include sources that start with &#39;test&#39;</span>
@@ -204,7 +203,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_msids</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the set of MSID names corresponding to ``source`` (e.g. &#39;cxc&#39; or &#39;maude&#39;)</span>
 
 <span class="sd">        :param source: str</span>
@@ -225,7 +224,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the data sources and corresponding options as a dict.</span>
 
 <span class="sd">        Example::</span>
@@ -256,7 +255,7 @@
 
 
 <span class="k">def</span> <span class="nf">local_or_remote_function</span><span class="p">(</span><span class="n">remote_print_output</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator maker so that a function gets run either locally or remotely</span>
 <span class="sd">    depending on the state of remote_access.access_remotely.  This decorator</span>
 <span class="sd">    maker takes an optional remote_print_output argument that will be</span>
@@ -305,7 +304,7 @@
 
 
 <span class="k">def</span> <span class="nf">_split_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a tuple of the components for ``path``. Strip off the drive if</span>
 <span class="sd">    it exists AND access is remote. This works correctly for the local OS</span>
 <span class="sd">    (linux / windows).</span>
@@ -398,12 +397,12 @@
 
 
 <div class="viewcode-block" id="get_units"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.get_units">[docs]</a><span class="k">def</span> <span class="nf">get_units</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Get the unit system currently being used for conversions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the unit system currently being used for conversions.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">UNITS</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="set_units"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.set_units">[docs]</a><span class="k">def</span> <span class="nf">set_units</span><span class="p">(</span><span class="n">unit_system</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Set the unit system used for output telemetry values.  The default</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the unit system used for output telemetry values.  The default</span>
 <span class="sd">    is &quot;cxc&quot;.  Allowed values for ``unit_system``  are:</span>
 
 <span class="sd">    ====  ==============================================================</span>
@@ -418,7 +417,7 @@
 
 
 <div class="viewcode-block" id="read_bad_times"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.read_bad_times">[docs]</a><span class="k">def</span> <span class="nf">read_bad_times</span><span class="p">(</span><span class="n">table</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Include a list of bad times from ``table`` in the fetch module</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Include a list of bad times from ``table`` in the fetch module</span>
 <span class="sd">    ``bad_times`` registry.  This routine can be called multiple times with</span>
 <span class="sd">    different tables and the bad times will be appended to the registry.  The</span>
 <span class="sd">    table can include any number of bad time interval specifications, one per</span>
@@ -443,7 +442,7 @@
 
 
 <div class="viewcode-block" id="msid_glob"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.msid_glob">[docs]</a><span class="k">def</span> <span class="nf">msid_glob</span><span class="p">(</span><span class="n">msid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the archive MSIDs matching ``msid``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the archive MSIDs matching ``msid``.</span>
 
 <span class="sd">    The function returns a tuple of (msids, MSIDs) where ``msids`` is a list of</span>
 <span class="sd">    MSIDs that is all lower case and (where possible) matches the input</span>
@@ -478,7 +477,7 @@
 
 
 <span class="k">def</span> <span class="nf">_msid_glob</span><span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the archive MSIDs matching ``msid``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the archive MSIDs matching ``msid``.</span>
 
 <span class="sd">    The function returns a tuple of (msids, MSIDs) where ``msids`` is a list of</span>
 <span class="sd">    MSIDs that is all lower case and (where possible) matches the input</span>
@@ -533,7 +532,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_table_intervals_as_list</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">check_overlaps</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine if the input ``table`` looks like a table of intervals.  This can either be</span>
 <span class="sd">    a structured array / Table with datestart / datestop or tstart / tstop columns,</span>
 <span class="sd">    OR a list of lists.</span>
@@ -580,7 +579,7 @@
 
 
 <div class="viewcode-block" id="MSID"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID">[docs]</a><span class="k">class</span> <span class="nc">MSID</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Fetch data from the engineering telemetry archive into an MSID object.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch data from the engineering telemetry archive into an MSID object.</span>
 
 <span class="sd">    The input ``msid`` is case-insensitive and can include linux file &quot;glob&quot;</span>
 <span class="sd">    patterns, for instance ``orb*1*_x`` (ORBITEPHEM1_X) or ``*pcadmd``</span>
@@ -668,7 +667,7 @@
         <span class="k">return</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&gt;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_get_data_over_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intervals</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch intervals separately and concatenate the results.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msids</span> <span class="o">=</span> <span class="p">[]</span>
@@ -689,7 +688,7 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get data from the Eng archive&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get data from the Eng archive&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="s2">&quot;Getting data for </span><span class="si">%s</span><span class="s2"> between </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">msid</span><span class="p">,</span>
@@ -794,7 +793,7 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_stat_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Do the actual work of getting stats values for an MSID from HDF5</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do the actual work of getting stats values for an MSID from HDF5</span>
 <span class="sd">        files&quot;&quot;&quot;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">msid_files</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Opening </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -871,14 +870,14 @@
     <span class="nd">@staticmethod</span>
     <span class="nd">@cache</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_get_msid_data_from_cxc_cached</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">unit_system</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Do the actual work of getting time and values for an MSID from HDF5</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do the actual work of getting time and values for an MSID from HDF5</span>
 <span class="sd">        files and cache recent results.  Caching is very beneficial for derived</span>
 <span class="sd">        parameter updates but not desirable for normal fetch usage.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MSID</span><span class="o">.</span><span class="n">_get_msid_data_from_cxc</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">unit_system</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_msid_data_from_cxc</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">unit_system</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Do the actual work of getting time and values for an MSID from HDF5</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do the actual work of getting time and values for an MSID from HDF5</span>
 <span class="sd">        files&quot;&quot;&quot;</span>
 
         <span class="c1"># Get a row slice into HDF5 file for this content type that picks out</span>
@@ -982,7 +981,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">bads</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_msid_data_from_maude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">unit_system</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get time and values for an MSID from MAUDE.</span>
 <span class="sd">        Returned values are (for now) all assumed to be good.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1030,7 +1029,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;List of state codes tuples (raw_count, state_code) for state-valued</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of state codes tuples (raw_count, state_code) for state-valued</span>
 <span class="sd">        MSIDs</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;U&quot;</span><span class="p">):</span>
@@ -1063,7 +1062,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">raw_vals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Raw counts corresponding to the string state-code values that are</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raw counts corresponding to the string state-code values that are</span>
 <span class="sd">        stored in ``self.vals``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If this is not a string-type value then there are no raw values</span>
@@ -1084,13 +1083,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tdb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Access the Telemetry database entries for this MSID&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the Telemetry database entries for this MSID&quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">Ska.tdb</span>
 
         <span class="k">return</span> <span class="n">Ska</span><span class="o">.</span><span class="n">tdb</span><span class="o">.</span><span class="n">msids</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">MSID</span><span class="p">]</span>
 
 <div class="viewcode-block" id="MSID.interpolate"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform nearest-neighbor interpolation of the MSID to the specified</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform nearest-neighbor interpolation of the MSID to the specified</span>
 <span class="sd">        time sequence.</span>
 
 <span class="sd">        The time sequence steps uniformly by ``dt`` seconds starting at the</span>
@@ -1154,7 +1153,7 @@
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MSID.filter_bad"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.filter_bad">[docs]</a>    <span class="k">def</span> <span class="nf">filter_bad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Filter out any bad values.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter out any bad values.</span>
 
 <span class="sd">        After applying this method the &quot;bads&quot; column will be set to None to</span>
 <span class="sd">        indicate that there are no bad values.</span>
@@ -1185,7 +1184,7 @@
             <span class="k">return</span> <span class="n">obj</span></div>
 
 <div class="viewcode-block" id="MSID.filter_bad_times"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.filter_bad_times">[docs]</a>    <span class="k">def</span> <span class="nf">filter_bad_times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Filter out intervals of bad data in the MSID object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter out intervals of bad data in the MSID object.</span>
 
 <span class="sd">        There are three usage options:</span>
 
@@ -1231,7 +1230,7 @@
             <span class="k">return</span> <span class="n">obj</span></div>
 
 <div class="viewcode-block" id="MSID.remove_intervals"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.remove_intervals">[docs]</a>    <span class="k">def</span> <span class="nf">remove_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intervals</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove telemetry points that occur within the specified ``intervals``</span>
 
 <span class="sd">        This method is the converse of select_intervals().</span>
@@ -1270,7 +1269,7 @@
             <span class="k">return</span> <span class="n">obj</span></div>
 
 <div class="viewcode-block" id="MSID.select_intervals"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.select_intervals">[docs]</a>    <span class="k">def</span> <span class="nf">select_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intervals</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select telemetry points that occur within the specified ``intervals``</span>
 
 <span class="sd">        This method is the converse of remove_intervals().</span>
@@ -1309,7 +1308,7 @@
             <span class="k">return</span> <span class="n">obj</span></div>
 
     <span class="k">def</span> <span class="nf">_filter_times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intervals</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filter the times of self based on ``intervals``.</span>
 
 <span class="sd">        :param intervals: iterable (N x 2) with tstart, tstop in seconds</span>
@@ -1359,7 +1358,7 @@
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="n">attr</span><span class="p">[</span><span class="n">ok</span><span class="p">])</span>
 
 <div class="viewcode-block" id="MSID.write_zip"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.write_zip">[docs]</a>    <span class="k">def</span> <span class="nf">write_zip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Write MSID to a zip file named ``filename``</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write MSID to a zip file named ``filename``</span>
 
 <span class="sd">        Within the zip archive the data for this MSID will be stored in csv</span>
 <span class="sd">        format with the name &lt;msid_name&gt;.csv.</span>
@@ -1400,7 +1399,7 @@
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MSID.logical_intervals"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.logical_intervals">[docs]</a>    <span class="k">def</span> <span class="nf">logical_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">complete_intervals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which the logical comparison</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which the logical comparison</span>
 <span class="sd">        expression &quot;MSID.vals op val&quot; is True.  Allowed values for ``op``</span>
 <span class="sd">        are::</span>
 
@@ -1467,7 +1466,7 @@
         <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">logical_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">complete_intervals</span><span class="p">,</span> <span class="n">max_gap</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MSID.state_intervals"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.state_intervals">[docs]</a>    <span class="k">def</span> <span class="nf">state_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which the MSID value</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which the MSID value</span>
 <span class="sd">        is unchanged.</span>
 
 <span class="sd">        Returns a structured array table with a row for each interval.</span>
@@ -1505,7 +1504,7 @@
         <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MSID.iplot"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.iplot">[docs]</a>    <span class="k">def</span> <span class="nf">iplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="n">fmt_minmax</span><span class="o">=</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Make an interactive plot for exploring the MSID data.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make an interactive plot for exploring the MSID data.</span>
 
 <span class="sd">        This method opens a new plot figure (or clears the current figure) and</span>
 <span class="sd">        plots the MSID ``vals`` versus ``times``.  This plot can be panned or</span>
@@ -1545,7 +1544,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_iplot</span> <span class="o">=</span> <span class="n">MsidPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">fmt_minmax</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MSID.plot"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSID.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot the MSID ``vals`` using Ska.Matplotlib.plot_cxctime()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the MSID ``vals`` using Ska.Matplotlib.plot_cxctime()</span>
 
 <span class="sd">        This is a convenience function for plotting the MSID values.  It</span>
 <span class="sd">        is equivalent to::</span>
@@ -1578,7 +1577,7 @@
 
 
 <div class="viewcode-block" id="MSIDset"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSIDset">[docs]</a><span class="k">class</span> <span class="nc">MSIDset</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Fetch a set of MSIDs from the engineering telemetry archive.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch a set of MSIDs from the engineering telemetry archive.</span>
 
 <span class="sd">    Each input ``msid`` is case-insensitive and can include linux file &quot;glob&quot;</span>
 <span class="sd">    patterns, for instance ``orb*1*_?`` (ORBITEPHEM1_X, Y and Z) or</span>
@@ -1641,7 +1640,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deepcopy__</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MSIDset.filter_bad"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSIDset.filter_bad">[docs]</a>    <span class="k">def</span> <span class="nf">filter_bad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">union</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Filter bad values for the MSID set.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter bad values for the MSID set.</span>
 
 <span class="sd">        By default (``union=False``) the bad values are filtered individually for</span>
 <span class="sd">        each MSID.</span>
@@ -1702,7 +1701,7 @@
             <span class="k">return</span> <span class="n">obj</span></div>
 
 <div class="viewcode-block" id="MSIDset.filter_bad_times"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSIDset.filter_bad_times">[docs]</a>    <span class="k">def</span> <span class="nf">filter_bad_times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Filter out intervals of bad data in the MSIDset object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter out intervals of bad data in the MSIDset object.</span>
 
 <span class="sd">        There are three usage options:</span>
 
@@ -1748,7 +1747,7 @@
         <span class="n">bad_union</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform nearest-neighbor interpolation of all MSID values in the set</span>
 <span class="sd">        to a common time sequence.  The values are updated in-place.</span>
 
@@ -1876,7 +1875,7 @@
             <span class="k">return</span> <span class="n">obj</span></div>
 
 <div class="viewcode-block" id="MSIDset.write_zip"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.MSIDset.write_zip">[docs]</a>    <span class="k">def</span> <span class="nf">write_zip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Write MSIDset to a zip file named ``filename``</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write MSIDset to a zip file named ``filename``</span>
 
 <span class="sd">        Within the zip archive the data for each MSID in the set will be stored</span>
 <span class="sd">        in csv format with the name &lt;msid_name&gt;.csv.</span>
@@ -1890,7 +1889,7 @@
 
 
 <div class="viewcode-block" id="Msid"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.Msid">[docs]</a><span class="k">class</span> <span class="nc">Msid</span><span class="p">(</span><span class="n">MSID</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fetch data from the engineering telemetry archive into an MSID object.</span>
 <span class="sd">    Same as MSID class but with filter_bad=True by default.</span>
 
@@ -1913,7 +1912,7 @@
 
 
 <div class="viewcode-block" id="Msidset"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.Msidset">[docs]</a><span class="k">class</span> <span class="nc">Msidset</span><span class="p">(</span><span class="n">MSIDset</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Fetch a set of MSIDs from the engineering telemetry archive.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch a set of MSIDs from the engineering telemetry archive.</span>
 <span class="sd">    Same as MSIDset class but with filter_bad=True by default.</span>
 
 <span class="sd">    :param msids: list of MSID names (case-insensitive)</span>
@@ -1935,7 +1934,7 @@
 
 
 <span class="k">class</span> <span class="nc">HrcSsMsid</span><span class="p">(</span><span class="n">Msid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fetch data from the engineering telemetry archive into an MSID object.</span>
 <span class="sd">    Same as MSID class but with filter_bad=True by default.</span>
 
@@ -1983,7 +1982,7 @@
 
 
 <span class="k">class</span> <span class="nc">memoized</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Decorator that caches a function&#39;s return value each time it is called.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator that caches a function&#39;s return value each time it is called.</span>
 <span class="sd">    If called later with the same arguments, the cached value is returned, and</span>
 <span class="sd">    not re-evaluated.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2004,12 +2003,12 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the function&#39;s docstring.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the function&#39;s docstring.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>
 
 
 <div class="viewcode-block" id="get_time_range"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.get_time_range">[docs]</a><span class="k">def</span> <span class="nf">get_time_range</span><span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the time range for the given ``msid``.</span>
 
 <span class="sd">    :param msid: MSID name</span>
@@ -2061,7 +2060,7 @@
     <span class="n">max_fetch_Mb</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
     <span class="n">max_output_Mb</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    High-level routine to get telemetry for one or more MSIDs and perform</span>
 <span class="sd">    common processing functions:</span>
 
@@ -2111,7 +2110,7 @@
 
 <span class="nd">@lru_cache_timed</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">get_interval</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the approximate row intervals that enclose the specified ``tstart`` and</span>
 <span class="sd">    ``tstop`` times for the ``content`` type.</span>
 
@@ -2168,7 +2167,7 @@
 
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span> <span class="nf">_cache_ft</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cache the global filetype ``ft`` context variable so that fetch operations</span>
 <span class="sd">    do not corrupt user values of ``ft``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2185,7 +2184,7 @@
 
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span> <span class="nf">_set_msid_files_basedir</span><span class="p">(</span><span class="n">datestart</span><span class="p">,</span> <span class="n">msid_files</span><span class="o">=</span><span class="n">msid_files</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    If datestart is before 2000:001:00:00:00 then use the 1999 archive files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -2201,7 +2200,7 @@
 
 
 <span class="k">def</span> <span class="nf">_fix_ctu_dwell_mode_bads</span><span class="p">(</span><span class="n">msid</span><span class="p">,</span> <span class="n">bads</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Because of an issue related to the placement of the dwell mode flag, MSIDs that get</span>
 <span class="sd">    stepped on in dwell mode get a bad value at the beginning of a dwell mode, while the</span>
 <span class="sd">    dwell mode values (DWELLnn) get a bad value at the end.  This does a simple</span>
@@ -2235,7 +2234,7 @@
 
 
 <span class="k">def</span> <span class="nf">add_logging_handler</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Configure logging for fetch module.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configure logging for fetch module.</span>
 
 <span class="sd">    :param level: logging level (logging.DEBUG, logging.INFO, etc)</span>
 <span class="sd">    :param formatter: logging.Formatter (default: Formatter(&#39;%(funcName)s: %(message)s&#39;))</span>
@@ -2254,14 +2253,14 @@
 
 
 <span class="k">def</span> <span class="nf">_plural</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return English plural of ``x``.  Super-simple and only valid for the</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return English plural of ``x``.  Super-simple and only valid for the</span>
 <span class="sd">    known small set of cases within fetch where it will get applied.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="s2">&quot;es&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">))</span> <span class="k">else</span> <span class="n">x</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">get_data_gap_spec_parser</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get parser for fetch data gap specification.</span>
 
 <span class="sd">    This env var is in the form of a command line argument string with the following</span>
@@ -2313,7 +2312,7 @@
 
 
 <div class="viewcode-block" id="create_msid_data_gap"><a class="viewcode-back" href="../../fetch.html#cheta.fetch.create_msid_data_gap">[docs]</a><span class="k">def</span> <span class="nf">create_msid_data_gap</span><span class="p">(</span><span class="n">msid_obj</span><span class="p">:</span> <span class="n">MSID</span><span class="p">,</span> <span class="n">data_gap_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make a data gap in the ``msid_obj`` (in-place) by removing data points.</span>
 
 <span class="sd">    This is mostly useful for testing via setting the ``CHETA_FETCH_DATA_GAP``</span>
@@ -2383,7 +2382,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>

@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,9 +11,8 @@
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -86,11 +85,11 @@
 
 
 <div class="viewcode-block" id="NoTelemetryError"><a class="viewcode-back" href="../../utils.html#cheta.utils.NoTelemetryError">[docs]</a><span class="k">class</span> <span class="nc">NoTelemetryError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;No telemetry available for the specified interval&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;No telemetry available for the specified interval&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="get_fetch_size"><a class="viewcode-back" href="../../utils.html#cheta.utils.get_fetch_size">[docs]</a><span class="k">def</span> <span class="nf">get_fetch_size</span><span class="p">(</span><span class="n">msids</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolate_dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate the memory size required to fetch the ``msids`` between ``start`` and</span>
 <span class="sd">    ``stop``.  This is generally intended for limiting queries to be less than ~100 Mb and</span>
 <span class="sd">    allows for making some assumptions for improved performance (see below).</span>
@@ -156,7 +155,7 @@
 
 
 <div class="viewcode-block" id="ss_vector"><a class="viewcode-back" href="../../utils.html#cheta.utils.ss_vector">[docs]</a><span class="k">def</span> <span class="nf">ss_vector</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="s2">&quot;Earth&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculate vector to Earth, Sun, or Moon in Chandra body coordinates</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate vector to Earth, Sun, or Moon in Chandra body coordinates</span>
 <span class="sd">    between ``start`` and ``stop`` dates at 5 minute (328 sec) intervals.</span>
 
 <span class="sd">    The return value in a NumPy structured array table (see below) which</span>
@@ -318,7 +317,7 @@
 <div class="viewcode-block" id="logical_intervals"><a class="viewcode-back" href="../../utils.html#cheta.utils.logical_intervals">[docs]</a><span class="k">def</span> <span class="nf">logical_intervals</span><span class="p">(</span>
     <span class="n">times</span><span class="p">,</span> <span class="n">bools</span><span class="p">,</span> <span class="n">complete_intervals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which `bools` is True.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine contiguous intervals during which `bools` is True.</span>
 
 <span class="sd">    If ``complete_intervals`` is True (default is False) then the intervals are</span>
 <span class="sd">    guaranteed to be complete so that the all reported intervals had a</span>
@@ -384,7 +383,7 @@
 
 
 <div class="viewcode-block" id="state_intervals"><a class="viewcode-back" href="../../utils.html#cheta.utils.state_intervals">[docs]</a><span class="k">def</span> <span class="nf">state_intervals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine contiguous intervals during which the ``vals`` is unchanged.</span>
 
 <span class="sd">    Returns an Astropy Table with a row for each interval.  Columns are:</span>
@@ -504,7 +503,7 @@
     <span class="n">time_pad</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span> <span class="o">=</span> <span class="mi">15</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">min</span><span class="p">,</span>
     <span class="n">unit_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;eng&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fetch telemetry for a list of MSIDs and return as an Astropy Table.</span>
 
 <span class="sd">    This interpolates all the MSIDs to the time base of the first MSID in the list. It</span>
@@ -555,7 +554,7 @@
 
 <div class="viewcode-block" id="get_ofp_states"><a class="viewcode-back" href="../../utils.html#cheta.utils.get_ofp_states">[docs]</a><span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">get_ofp_states</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the Onboard Flight Program (OFP) states between ``start`` and ``stop`.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the Onboard Flight Program (OFP) states between ``start`` and ``stop`.</span>
 
 <span class="sd">    This is normally &quot;NRML&quot; but in safe mode it is &quot;SAFE&quot; or other values. State codes:</span>
 <span class="sd">    [&#39;NNRM&#39; &#39;STDB&#39; &#39;STBS&#39; &#39;NRML&#39; &#39;NSTB&#39; &#39;SUOF&#39; &#39;SYON&#39; &#39;DPLY&#39; &#39;SYSF&#39; &#39;STUP&#39; &#39;SAFE&#39;]</span>
@@ -595,7 +594,7 @@
 
 
 <div class="viewcode-block" id="get_date_id"><a class="viewcode-back" href="../../utils.html#cheta.utils.get_date_id">[docs]</a><span class="k">def</span> <span class="nf">get_date_id</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get date_id format used in sync repo index.</span>
 
 <span class="sd">    :param date:</span>
@@ -608,7 +607,7 @@
 
 <div class="viewcode-block" id="set_fetch_basedir"><a class="viewcode-back" href="../../utils.html#cheta.utils.set_fetch_basedir">[docs]</a><span class="nd">@contextmanager</span>
 <span class="k">def</span> <span class="nf">set_fetch_basedir</span><span class="p">(</span><span class="n">basedir</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Temporarily override the base directory that fetch uses for telemetry data.</span>
 
 <span class="sd">    Example to use local data::</span>
@@ -653,7 +652,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>

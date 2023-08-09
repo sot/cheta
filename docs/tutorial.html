@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Ska Analysis Tutorial &#8212; Eng archive 4.59.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,9 +12,8 @@
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -76,9 +75,9 @@
           <div class="body" role="main">
             
   <section id="ska-analysis-tutorial">
-<h1>Ska Analysis Tutorial<a class="headerlink" href="#ska-analysis-tutorial" title="Permalink to this headline">¶</a></h1>
+<h1>Ska Analysis Tutorial<a class="headerlink" href="#ska-analysis-tutorial" title="Permalink to this heading">¶</a></h1>
 <section id="id1">
-<h2>Overview<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>Overview<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <p>This document gives a tutorial introduction to analysis using the Ska analysis
 environment, including basic configuration and a number
 of examples.</p>
@@ -99,12 +98,12 @@ telemetry archive.</p>
 </ul>
 </section>
 <section id="configure">
-<h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
+<h2>Configure<a class="headerlink" href="#configure" title="Permalink to this heading">¶</a></h2>
 <p>To set up for using the Ska3 environment, visit the <a class="reference external" href="https://github.com/sot/skare3/wiki/Ska3-runtime-environment-for-users#configuration-hints">Ska3 configuration hints</a>
 page.</p>
 </section>
 <section id="basic-functionality-test">
-<h2>Basic Functionality Test<a class="headerlink" href="#basic-functionality-test" title="Permalink to this headline">¶</a></h2>
+<h2>Basic Functionality Test<a class="headerlink" href="#basic-functionality-test" title="Permalink to this heading">¶</a></h2>
 <p>Once you have done the configuration setup that was just described, open a new
 xterm window and get into the Ska3 environment by use the <code class="docutils literal notranslate"><span class="pre">ska3</span></code> alias:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska3</span>
@@ -113,7 +112,7 @@ xterm window and get into the Ska3 environment by use the <code class="docutils 
 <p>To test the basic functionality of your setup, try the following at the linux
 shell prompt.  In this tutorial all shell commands are shown with a “% ”
 to indicate the shell prompt.  Your prompt may be different and you should
-not include the “% ” when copying the examples.:</p>
+not include the “% “ when copying the examples.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ipython</span> <span class="o">--</span><span class="n">matplotlib</span>
 </pre></div>
 </div>
@@ -136,7 +135,7 @@ not include the “% ” when copying the examples.:</p>
 <img alt="_images/basic_func.png" src="_images/basic_func.png" />
 </section>
 <section id="tools-overview">
-<h2>Tools overview<a class="headerlink" href="#tools-overview" title="Permalink to this headline">¶</a></h2>
+<h2>Tools overview<a class="headerlink" href="#tools-overview" title="Permalink to this heading">¶</a></h2>
 <p>There are four key elements that are the basis for doing plotting and analysis
 with the engineering archive.</p>
 <ul class="simple">
@@ -146,12 +145,12 @@ with the engineering archive.</p>
 <li><p><a class="reference external" href="http://numpy.scipy.org/">NumPy</a>: python numerical package for fast vector and array math</p></li>
 </ul>
 <section id="cheta-fetch">
-<h3>cheta.fetch<a class="headerlink" href="#cheta-fetch" title="Permalink to this headline">¶</a></h3>
+<h3>cheta.fetch<a class="headerlink" href="#cheta-fetch" title="Permalink to this heading">¶</a></h3>
 <p>The tools to access and manipulate telemetry with the Ska engineering archive
 are described in the <a class="reference internal" href="fetch_tutorial.html"><span class="doc">Fetch Tutorial</span></a>.</p>
 </section>
 <section id="id2">
-<h3>IPython<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>IPython<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference external" href="http://ipython.scipy.org/moin/">IPython</a> is a command-line tool that provides a python prompt
 that is the basis for interactive analysis.  At the core it provides
 an interpreter for python language commands but with the addition of
@@ -276,7 +275,7 @@ see are a special version of generic python lists.  If you print a
 billion-element python list you’ll be waiting for a while.</p>
 </section>
 <section id="id3">
-<h3>NumPy<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3>NumPy<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
 <p>Even though it was not explicit we have already been using <a class="reference external" href="http://numpy.scipy.org/">NumPy</a> arrays in
 the examples so far.  NumPy is a Python library for working with
 multidimensional arrays. The main data type is an array. An array is a set of
@@ -357,7 +356,7 @@ as “&gt;&gt;&gt;” in order to distinguish the input from the outputs.</p>
 </div>
 </section>
 <section id="id4">
-<h3>Matplotlib<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<h3>Matplotlib<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> mode of <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a> is a collection of command style functions
 that make <a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a>  work like matlab.  Each <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> function makes
 some change to a figure: eg, create a figure, create a plotting area
@@ -577,12 +576,16 @@ locations (text location) are in data coordinates.</p>
 </ul>
 
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Ska Engineering Telemetry Archive</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="fetch_tutorial.html"
-                        title="next chapter">Fetch Tutorial</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Ska Engineering Telemetry Archive</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="fetch_tutorial.html"
+                          title="next chapter">Fetch Tutorial</a></p>
+  </div>
 <form action="search.html" method="get">
   <input type="text" name="q" placeholder="Search" />
   <input type="hidden" name="check_keywords" value="yes" />
@@ -597,7 +600,7 @@ locations (text location) are in data coordinates.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>

@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Utilities API documentation &#8212; Eng archive 4.59.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,9 +12,8 @@
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -76,11 +75,11 @@
           <div class="body" role="main">
             
   <section id="module-cheta.utils">
-<span id="utilities-api-documentation"></span><h1>Utilities API documentation<a class="headerlink" href="#module-cheta.utils" title="Permalink to this headline">¶</a></h1>
+<span id="utilities-api-documentation"></span><h1>Utilities API documentation<a class="headerlink" href="#module-cheta.utils" title="Permalink to this heading">¶</a></h1>
 <p>Utilities for the engineering archive.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="cheta.utils.NoTelemetryError">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">cheta.utils.</span></span><span class="sig-name descname"><span class="pre">NoTelemetryError</span></span><a class="reference internal" href="_modules/cheta/utils.html#NoTelemetryError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.utils.NoTelemetryError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.utils.</span></span><span class="sig-name descname"><span class="pre">NoTelemetryError</span></span><a class="reference internal" href="_modules/cheta/utils.html#NoTelemetryError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.utils.NoTelemetryError" title="Permalink to this definition">¶</a></dt>
 <dd><p>No telemetry available for the specified interval</p>
 </dd></dl>
 
@@ -89,10 +88,10 @@
 <span class="sig-prename descclassname"><span class="pre">cheta.utils.</span></span><span class="sig-name descname"><span class="pre">get_date_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cheta/utils.html#get_date_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.utils.get_date_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get date_id format used in sync repo index.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>date</strong> – </p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>date_id</p>
 </dd>
 </dl>
@@ -117,7 +116,7 @@ should be OK.  (This does not account for the number of MSIDs passed in <code cl
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>msids</strong> – list of MSIDs or a single MSID</p></li>
 <li><p><strong>start</strong> – start time</p></li>
@@ -127,7 +126,7 @@ should be OK.  (This does not account for the number of MSIDs passed in <code cl
 <li><p><strong>fast</strong> – return (-1, -1) if conditions on duration / stat (default=True)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>fetch_Mb, interpolated_Mb</p>
 </dd>
 </dl>
@@ -140,13 +139,13 @@ should be OK.  (This does not account for the number of MSIDs passed in <code cl
 <p>This is normally “NRML” but in safe mode it is “SAFE” or other values. State codes:
 [‘NNRM’ ‘STDB’ ‘STBS’ ‘NRML’ ‘NSTB’ ‘SUOF’ ‘SYON’ ‘DPLY’ ‘SYSF’ ‘STUP’ ‘SAFE’]</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – start time (CxoTimeLike)</p></li>
 <li><p><strong>stop</strong> – stop time (CxoTimeLike)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>astropy Table of OFP state intervals</p>
 </dd>
 </dl>
@@ -154,7 +153,7 @@ should be OK.  (This does not account for the number of MSIDs passed in <code cl
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cheta.utils.get_telem_table">
-<span class="sig-prename descclassname"><span class="pre">cheta.utils.</span></span><span class="sig-name descname"><span class="pre">get_telem_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">msids:</span> <span class="pre">list,</span> <span class="pre">start:</span> <span class="pre">Optional[Union[cxotime.cxotime.CxoTime,</span> <span class="pre">str,</span> <span class="pre">float,</span> <span class="pre">int,</span> <span class="pre">numpy.ndarray,</span> <span class="pre">complex,</span> <span class="pre">bytes,</span> <span class="pre">numpy.generic,</span> <span class="pre">Sequence[Union[int,</span> <span class="pre">float,</span> <span class="pre">complex,</span> <span class="pre">str,</span> <span class="pre">bytes,</span> <span class="pre">numpy.generic]],</span> <span class="pre">Sequence[Sequence[Any]],</span> <span class="pre">numpy.typing._array_like._SupportsArray]],</span> <span class="pre">stop:</span> <span class="pre">Optional[Union[cxotime.cxotime.CxoTime,</span> <span class="pre">str,</span> <span class="pre">float,</span> <span class="pre">int,</span> <span class="pre">numpy.ndarray,</span> <span class="pre">complex,</span> <span class="pre">bytes,</span> <span class="pre">numpy.generic,</span> <span class="pre">Sequence[Union[int,</span> <span class="pre">float,</span> <span class="pre">complex,</span> <span class="pre">str,</span> <span class="pre">bytes,</span> <span class="pre">numpy.generic]],</span> <span class="pre">Sequence[Sequence[Any]],</span> <span class="pre">numpy.typing._array_like._SupportsArray]],</span> <span class="pre">time_pad:</span> <span class="pre">astropy.units.quantity.Quantity</span> <span class="pre">=</span> <span class="pre">&lt;Quantity</span> <span class="pre">15.</span> <span class="pre">min&gt;,</span> <span class="pre">unit_system:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'eng'</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">astropy.table.table.Table</span></span></span><a class="reference internal" href="_modules/cheta/utils.html#get_telem_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.utils.get_telem_table" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cheta.utils.</span></span><span class="sig-name descname"><span class="pre">get_telem_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msids:</span> <span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start:</span> <span class="pre">~cxotime.cxotime.CxoTime</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">~numpy.ndarray</span> <span class="pre">|</span> <span class="pre">~numpy._typing._array_like._SupportsArray[~numpy.dtype]</span> <span class="pre">|</span> <span class="pre">~numpy._typing._nested_sequence._NestedSequence[~numpy._typing._array_like._SupportsArray[~numpy.dtype]]</span> <span class="pre">|</span> <span class="pre">bool</span> <span class="pre">|</span> <span class="pre">complex</span> <span class="pre">|</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">~numpy._typing._nested_sequence._NestedSequence[bool</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">|</span> <span class="pre">complex</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">bytes]</span> <span class="pre">|</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop:</span> <span class="pre">~cxotime.cxotime.CxoTime</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">~numpy.ndarray</span> <span class="pre">|</span> <span class="pre">~numpy._typing._array_like._SupportsArray[~numpy.dtype]</span> <span class="pre">|</span> <span class="pre">~numpy._typing._nested_sequence._NestedSequence[~numpy._typing._array_like._SupportsArray[~numpy.dtype]]</span> <span class="pre">|</span> <span class="pre">bool</span> <span class="pre">|</span> <span class="pre">complex</span> <span class="pre">|</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">~numpy._typing._nested_sequence._NestedSequence[bool</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">|</span> <span class="pre">complex</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">bytes]</span> <span class="pre">|</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_pad:</span> <span class="pre">~astropy.units.quantity.Quantity</span> <span class="pre">=</span> <span class="pre">&lt;Quantity</span> <span class="pre">15.</span> <span class="pre">min&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'eng'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Table</span></span></span><a class="reference internal" href="_modules/cheta/utils.html#get_telem_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cheta.utils.get_telem_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch telemetry for a list of MSIDs and return as an Astropy Table.</p>
 <p>This interpolates all the MSIDs to the time base of the first MSID in the list. It
 also fetches <code class="docutils literal notranslate"><span class="pre">time_pad</span></code> more than requested to ensure that the samples are
@@ -162,7 +161,7 @@ complete (e.g. if the interval is between MSID samples).</p>
 <p>If no telemetry is available for the requested interval then an empty table is
 returned with all float columns.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>msids</strong> – fetch msids list</p></li>
 <li><p><strong>start</strong> – start time for telemetry (CxoTime-like)</p></li>
@@ -171,7 +170,7 @@ returned with all float columns.</p>
 <li><p><strong>unit_system</strong> – unit system for fetch (“eng” | “cxc” | “sci”, default=”eng”)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Table of requested telemetry values from fetch</p>
 </dd>
 </dl>
@@ -214,7 +213,7 @@ boundary at <code class="docutils literal notranslate"><span class="pre">max_gap
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>times</strong> – array of time stamps in CXC seconds</p></li>
 <li><p><strong>bools</strong> – array of logical True/False values</p></li>
@@ -224,7 +223,7 @@ boundary at <code class="docutils literal notranslate"><span class="pre">max_gap
 <li><p><strong>stop</strong> – stop time (CxoTimeLike, default=None)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Table of intervals</p>
 </dd>
 </dl>
@@ -240,7 +239,7 @@ boundary at <code class="docutils literal notranslate"><span class="pre">max_gap
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>basedir</strong> – str or os.PathLike, base directory for cheta data</p>
 </dd>
 </dl>
@@ -286,14 +285,14 @@ are also provided.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> – start time (DateTime format)</p></li>
 <li><p><strong>stop</strong> – stop time (DateTime format)</p></li>
 <li><p><strong>obj</strong> – solar system object (‘Earth’, ‘Moon’, ‘Sun’)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>table of vector values</p>
 </dd>
 </dl>
@@ -327,7 +326,7 @@ are also provided.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>times</strong> – times (CXC seconds)</p></li>
 <li><p><strong>vals</strong> – state values for which intervals are returned.</p></li>
@@ -335,7 +334,7 @@ are also provided.</p>
 <li><p><strong>stop</strong> – stop time (CxoTimeLike, default=None)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>structured array table of intervals</p>
 </dd>
 </dl>
@@ -354,16 +353,31 @@ are also provided.</p>
               <img class="logo" src="_static/ska.png" alt="Logo"/>
             </a></p><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#">Utilities API documentation</a></li>
+<li><a class="reference internal" href="#">Utilities API documentation</a><ul>
+<li><a class="reference internal" href="#cheta.utils.NoTelemetryError"><code class="docutils literal notranslate"><span class="pre">NoTelemetryError</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.get_date_id"><code class="docutils literal notranslate"><span class="pre">get_date_id()</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.get_fetch_size"><code class="docutils literal notranslate"><span class="pre">get_fetch_size()</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.get_ofp_states"><code class="docutils literal notranslate"><span class="pre">get_ofp_states()</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.get_telem_table"><code class="docutils literal notranslate"><span class="pre">get_telem_table()</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.logical_intervals"><code class="docutils literal notranslate"><span class="pre">logical_intervals()</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.set_fetch_basedir"><code class="docutils literal notranslate"><span class="pre">set_fetch_basedir()</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.ss_vector"><code class="docutils literal notranslate"><span class="pre">ss_vector()</span></code></a></li>
+<li><a class="reference internal" href="#cheta.utils.state_intervals"><code class="docutils literal notranslate"><span class="pre">state_intervals()</span></code></a></li>
+</ul>
+</li>
 </ul>
 
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="plot.html"
-                        title="previous chapter">Plotting API documentation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="date_time_formats.html"
-                        title="next chapter">&lt;no title&gt;</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="plot.html"
+                          title="previous chapter">Plotting API documentation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="date_time_formats.html"
+                          title="next chapter">&lt;no title&gt;</a></p>
+  </div>
 <form action="search.html" method="get">
   <input type="text" name="q" placeholder="Search" />
   <input type="hidden" name="check_keywords" value="yes" />
@@ -378,7 +392,7 @@ are also provided.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>

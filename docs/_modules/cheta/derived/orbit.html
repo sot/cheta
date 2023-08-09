@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,9 +11,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="../../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -108,7 +107,7 @@
 
 
 <div class="viewcode-block" id="calc_orbital_elements"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.calc_orbital_elements">[docs]</a><span class="k">def</span> <span class="nf">calc_orbital_elements</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate orbital elements given input position (x, y, z) in m and</span>
 <span class="sd">    velocity (vx, vy, vz) in m/s.  Orbit perigee and apogee are computed</span>
 <span class="sd">    as well.</span>
@@ -132,7 +131,7 @@
     <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">arccos</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">sqrt</span>
 
     <span class="k">def</span> <span class="nf">arccos_2pi</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">reflect</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return arccos(arg) where reflect is False, 2 * pi - arccos(arg) where reflect is True</span>
 
 <span class="sd">        :param arg: float, np.ndarray: input arg (radians)</span>
@@ -261,49 +260,49 @@
 
 
 <div class="viewcode-block" id="DP_SEMI_MAJOR_AXIS"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_SEMI_MAJOR_AXIS">[docs]</a><span class="k">class</span> <span class="nc">DP_SEMI_MAJOR_AXIS</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbital element: semi-major axis (m)</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="DP_ORBIT_PERIOD"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_ORBIT_PERIOD">[docs]</a><span class="k">class</span> <span class="nc">DP_ORBIT_PERIOD</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbital element: period (sec)</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="DP_ECCENTRICITY"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_ECCENTRICITY">[docs]</a><span class="k">class</span> <span class="nc">DP_ECCENTRICITY</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbital element: eccentricity</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="DP_INCLINATION"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_INCLINATION">[docs]</a><span class="k">class</span> <span class="nc">DP_INCLINATION</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbital element: inclination (degrees)</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="DP_ASCENDING_NODE"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_ASCENDING_NODE">[docs]</a><span class="k">class</span> <span class="nc">DP_ASCENDING_NODE</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbital element: right ascension of ascending node (degrees)</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="DP_ARGUMENT_PERIGEE"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_ARGUMENT_PERIGEE">[docs]</a><span class="k">class</span> <span class="nc">DP_ARGUMENT_PERIGEE</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbital element: argument of perigee (degrees)</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="DP_MEAN_ANOMALY"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_MEAN_ANOMALY">[docs]</a><span class="k">class</span> <span class="nc">DP_MEAN_ANOMALY</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbital element: mean anomaly (degrees)</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="DP_PERIGEE_RADIUS"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_PERIGEE_RADIUS">[docs]</a><span class="k">class</span> <span class="nc">DP_PERIGEE_RADIUS</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbit perigee based on orbital elements (m)</span>
 
 <span class="sd">    Defined as ``semi_major_axis * (1 - eccentricity)``</span>
@@ -311,7 +310,7 @@
 
 
 <div class="viewcode-block" id="DP_APOGEE_RADIUS"><a class="viewcode-back" href="../../../pseudo_msids.html#cheta.derived.orbit.DP_APOGEE_RADIUS">[docs]</a><span class="k">class</span> <span class="nc">DP_APOGEE_RADIUS</span><span class="p">(</span><span class="n">DerivedParameterOrbit</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orbit apogee based on orbital elements (m)</span>
 
 <span class="sd">    Defined as ``semi_major_axis * (1 + eccentricity)``</span>
@@ -343,7 +342,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2011, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>
