@@ -664,6 +664,13 @@ def calc_pitch_roll_obc(tstart: float, tstop: float, pitch_roll: str):
     dp = DP_PITCH() if pitch_roll == "pitch" else DP_ROLL()
     # Pad by 12 minutes on each side to ensure ephemeris data are available.
     tlm = dp.fetch(tstart - 720, tstop + 720)
+
+    # Filter bad data values. The `dp.fetch` above sets bad over intervals where any of
+    # the inputs are missing and calling interpolate like below will cut those out.
+    # See PR #250 for more details.
+    tlm.interpolate(times=tlm.times)
+    tlm.bads = np.zeros(len(tlm.times), dtype=bool)
+
     vals = dp.calc(tlm)
     i0, i1 = np.searchsorted(tlm.times, [tstart, tstop])
     return tlm.times[i0:i1], vals[i0:i1]
@@ -739,15 +746,26 @@ class Comp_Pitch_Roll_OBC_Safe(ComputedMsid):
                     tlms.append((np.array([], dtype=float), np.array([], dtype=float)))
                     continue
 
-                # Get states of either NPNT / NMAN or NSUN
+                # Get states of either NPNT / NMAN or NSUN which cover exactly the
+                # time span of the ofp_state interval.
                 vals = np.isin(dat.vals, ["NPNT", "NMAN"])
                 states_npnt_nman = logical_intervals(
-                    dat.times, vals, complete_intervals=False, max_gap=2.1
+                    dat.times,
+                    vals,
+                    complete_intervals=False,
+                    max_gap=2.1,
+                    start=ofp_state["tstart"],
+                    stop=ofp_state["tstop"],
                 )
                 states_npnt_nman["val"] = np.repeat("NPNT_NMAN", len(states_npnt_nman))
 
                 states_nsun = logical_intervals(
-                    dat.times, dat.vals == "NSUN", max_gap=2.1, complete_intervals=False
+                    dat.times,
+                    dat.vals == "NSUN",
+                    max_gap=2.1,
+                    complete_intervals=False,
+                    start=ofp_state["tstart"],
+                    stop=ofp_state["tstop"],
                 )
                 states_nsun["val"] = np.repeat("NSUN", len(states_nsun))
                 states = tbl.vstack([states_npnt_nman, states_nsun])
