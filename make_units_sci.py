@@ -3,7 +3,7 @@
 Make a unit_system consistent with usual CXC Science units where all temperatures
 are in degC instead of Kelvins.  Otherwise leave the CXC units untouched.
 """
-import cPickle as pickle
+import pickle
 
 units_cxc = pickle.load(open("units_cxc.pkl"))
 units_sci = dict(

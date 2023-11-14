@@ -31,7 +31,6 @@ from itertools import count
 import numpy as np
 import six
 from Chandra.Time import DateTime
-from six.moves import zip
 
 from . import fetch, utils
 

@@ -74,6 +74,7 @@ extend-ignore = [
 extend-exclude = [
   "docs",
   "dev_utils",
+  "**/*.ipynb",
 ]
 
 [pycodestyle]

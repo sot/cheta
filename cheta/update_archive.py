@@ -26,7 +26,7 @@ from Chandra.Time import DateTime
 from ska_helpers.retry import tables_open_file
 
 import cheta.derived
-from cheta import converters, fetch, file_defs
+from cheta import converters, ephem_stk, fetch, file_defs
 
 
 def get_options(args=None):
@@ -1237,16 +1237,6 @@ def unlink_archive_files(filetype, archfiles):
 
 def get_archive_files(filetype):
     """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
-
-    # Files could exist already in testing.
-    # Don't allow arbitrary arch files at once because of memory issues.
-    files = sorted(glob.glob(filetype["fileglob"]))
-    if files:
-        return sorted(files)[: opt.max_arch_files]
-
-    # Retrieve CXC archive files in a temp directory with arc5gl
-    arc5 = Ska.arc5gl.Arc5gl(echo=True)
-
     # End time for archive queries (minimum of start + max_query_days and NOW)
     datestop = DateTime(opt.date_now)
 
@@ -1257,6 +1247,21 @@ def get_archive_files(filetype):
     datestart = DateTime(
         max(vals["max(filetime)"] or 0.0, datestop.secs - opt.max_lookback_time * 86400)
     )
+
+    # Special-case this content type. This fetches ephemeris files from OCCweb and
+    # writes them in the current directory as compatible FITS files.
+    if filetype["content"] == "ORBITEPHEM_STK":
+        ephem_stk.create_archive_files_ephem_stk(opt.date_now)
+
+    # Files could exist already in testing.
+    # Don't allow arbitrary arch files at once because of memory issues.
+    files = sorted(glob.glob(filetype["fileglob"]))
+    if files:
+        return sorted(files)[: opt.max_arch_files]
+
+    # Retrieve CXC archive files in a temp directory with arc5gl
+    arc5 = Ska.arc5gl.Arc5gl(echo=True)
+
 
     # For *ephem0 the query needs to extend well into the future
     # to guarantee getting all available files.  This is the archives fault.
