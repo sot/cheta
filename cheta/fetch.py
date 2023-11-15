@@ -2194,7 +2194,7 @@ def _plural(x):
     """Return English plural of ``x``.  Super-simple and only valid for the
     known small set of cases within fetch where it will get applied.
     """
-    return x + "es" if (x.endswith("x") or x.endswith("s")) else x + "s"
+    return x + "es" if (x.endswith(("x", "s"))) else x + "s"
 
 
 def get_data_gap_spec_parser():

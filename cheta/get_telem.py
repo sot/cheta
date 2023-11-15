@@ -74,7 +74,7 @@ def sanitize_event_expression(expr):
                 ast.literal_eval(word)
                 tokens.append("LITERAL")
             except Exception:
-                raise ValueError("Cannot identify word {!r}".format(word))
+                raise ValueError("Cannot identify word {!r}".format(word)) from None
 
     # Now check syntax and do substitutions where needed
     in_arg_list = False

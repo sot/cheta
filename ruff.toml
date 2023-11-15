@@ -47,7 +47,7 @@ ignore = [
   "PLR2004", # Magic number
 ]
 
-# TODO : fix these and stop ignoring. Commented out ones are common and OK to except.
+# TODO : fix these and stop ignoring. This is an old package with a lot of poor style.
 extend-ignore = [
   "PGH004", # Use specific rule codes when using `noqa`
   "D205", # 1 blank line required between summary line and description
@@ -59,7 +59,16 @@ extend-ignore = [
   "C408", # Unnecessary `dict` call (rewrite as a literal)
   "C416", # Unnecessary `dict` comprehension (rewrite using `dict()`)
   "PGH002", # warn is deprecated in favor of warning
-#  "PYI056", # Calling `.append()` on `__all__` may not be supported by all type checkers
+  "TID252", # Relative imports from parent modules are banned (DO NOT FIX: namespace)
+  "PLW0603", # Using the global statement to update `password` is discouraged
+  "SIM118", # Use `key in dict` instead of `key in dict.keys()`
+  "B007", # Loop control variable `time` not used within loop body
+  "E721", # Do not compare types, use `isinstance()`
+  "PGH001", # No builtin `eval()` allowed
+  "B904", # Within an `except` clause, raise exceptions with
+  "B007", # Loop control variable `i` not used within loop body
+  "PLW0602", # Using global for .. but no assignment is done
+  "PLR5501", # Use `elif` instead of `else` then `if`, to reduce indentation
 ]
 
 extend-exclude = [

@@ -2,8 +2,7 @@
 import numpy as np
 
 from .. import fetch as fetch_cxc
-from .. import fetch_eng as fetch_eng
-from .. import fetch_sci as fetch_sci
+from .. import fetch_eng, fetch_sci
 from ..units import Units
 
 start = "2011:001:00:00:00"
