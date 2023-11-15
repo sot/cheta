@@ -102,7 +102,6 @@ def get_options(args=None):
 class RowMismatchError(ValueError):
     """Exception for row mismatch between existing archive and available sync update"""
 
-    pass
 
 
 @contextlib.contextmanager
@@ -344,7 +343,7 @@ def get_copy_files(logger, msids, msids_content):
         f"Found {len(copy_files)} local archive files that are "
         "missing and need to be copied"
     )
-    logger.debug(f"Copy_files:")
+    logger.debug("Copy_files:")
     for copy_file in sorted(copy_files):
         logger.debug(copy_file)
 
@@ -586,7 +585,7 @@ def sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl):
             )
             logger.warn(msg)
             logger.warn(
-                f"Attempting to fix by removing that file and trying to sync again."
+                "Attempting to fix by removing that file and trying to sync again."
             )
             pth.unlink()
             _sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl)
@@ -813,7 +812,7 @@ def get_last_date_id(msid_files, msids, stat, logger):
         with open(last_date_id_file, "r") as fh:
             last_date_id = fh.read()
     else:
-        logger.verbose(f"Reading stat h5 files to get last update time")
+        logger.verbose("Reading stat h5 files to get last update time")
         times = []
         for msid in msids:
             fetch.ft["msid"] = msid

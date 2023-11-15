@@ -523,7 +523,7 @@ def acisdeahk(dat):
     dat = pyfits_to_recarray(dat)
     rows = dat[dat["CCD_ID"] >= 10]
     if len(rows) == 0:
-        raise NoValidDataError()
+        raise NoValidDataError
 
     # Go through input data one row (query) at a time and assemble contemporaneous
     # queries into a single row with a column for each query value.

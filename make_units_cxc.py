@@ -2,19 +2,18 @@
 """
 Create the default unit system as found in the CXC telemetry FITS files.
 """
-from __future__ import print_function
 
-import os
-import re
-import glob
 import argparse
-import cPickle as pickle
+import glob
+import os
+import pickle
+import re
+
 import pyfits
 import pyyaks
 
-from cheta.converters import _get_deahk_cols, CXC_TO_MSID
-from cheta import file_defs
-from cheta import fetch
+from cheta import fetch, file_defs
+from cheta.converters import CXC_TO_MSID, _get_deahk_cols
 
 
 def get_options(args=None):

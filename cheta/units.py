@@ -39,10 +39,10 @@ Basic units handling and conversion.
 """
 import logging
 import os
+import pickle
 import warnings
 
 import numpy as np
-import pickle
 
 
 class NullHandler(logging.Handler):

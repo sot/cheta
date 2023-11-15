@@ -340,7 +340,7 @@ class ComputedMsid:
             rows = np.searchsorted(msid_obj.times, times)
             vals_stats = calc_stats_vals(msid_obj, rows, indexes, interval)
         else:
-            raise ValueError()
+            raise ValueError
 
         # Replicate the name munging that fetch does going from the HDF5 columns
         # to what is seen in a stats fetch query.

@@ -25,10 +25,8 @@ import tables
 from Chandra.Time import DateTime
 from ska_helpers.retry import tables_open_file
 
-import cheta.converters as converters
 import cheta.derived
-import cheta.fetch as fetch
-import cheta.file_defs as file_defs
+from cheta import converters, fetch, file_defs
 
 
 def get_options(args=None):
@@ -299,7 +297,7 @@ def main_loop():
                     try:
                         Ska.tdb.msids[colname].Tsc["STATE_CODE"]
                     except Exception:
-                        if not colname.upper() in fetch.STATE_CODES:
+                        if colname.upper() not in fetch.STATE_CODES:
                             continue
 
                 msid = update_stats(colname, "daily")
@@ -864,7 +862,7 @@ def truncate_archive(filetype, date):
         "SELECT rowstart FROM archfiles WHERE year>={0} AND doy>={1}".format(year, doy)
     )
     if len(out) == 0:
-        logger.verbose(f"No rows to delete - skipping")
+        logger.verbose("No rows to delete - skipping")
         db.conn.close()
         return
 

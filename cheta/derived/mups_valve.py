@@ -1,4 +1,3 @@
-# coding: utf-8
 
 """
  Fetch clean MUPS valve temperature telemetry

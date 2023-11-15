@@ -6,8 +6,9 @@ Make a unit_system consistent with usual OCC/FOT engineering units via P009.
 import pickle
 from copy import copy
 
-import cheta.converters
 import Ska.tdb
+
+import cheta.converters
 
 units_cxc = pickle.load(open("units_cxc.pkl", "rb"))
 units_eng = copy(units_cxc)

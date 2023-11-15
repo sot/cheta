@@ -3,15 +3,15 @@
 
 import optparse
 import os
+import pickle
 import re
 
 import pyyaks.context
 import pyyaks.logger
 import Ska.DBI
 import tables
-from six.moves import cPickle as pickle
 
-import cheta.fetch as fetch
+from cheta import fetch
 
 opt = None
 ft = fetch.ft

@@ -3,6 +3,7 @@
 
 import optparse
 import os
+import pickle
 import re
 from pathlib import Path
 
@@ -12,11 +13,8 @@ import pyyaks.logger
 import Ska.DBI
 import tables
 from Chandra.Time import DateTime
-from six.moves import cPickle as pickle
 
-import cheta.derived as derived
-import cheta.fetch as fetch
-import cheta.file_defs as file_defs
+from cheta import derived, fetch, file_defs
 
 
 def get_options():
