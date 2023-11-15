@@ -504,7 +504,6 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
 
     # Got an intervals list, now sort
     if check_overlaps and intervals is not None:
-
         intervals = sorted(intervals, key=lambda x: x[0])
 
         # Check for overlaps
@@ -2067,7 +2066,6 @@ def get_interval(content, tstart, tstop):
         "Getting interval data from " + "DB on Ska eng archive server..."
     )
     def get_interval_from_db(tstart, tstop, server):
-
         import Ska.DBI
 
         db = Ska.DBI.DBI(dbi="sqlite", server=os.path.join(*server))

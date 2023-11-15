@@ -540,7 +540,6 @@ def get_full_data_sets(ft, index_tbl, logger, opt):
     # Iterate over sync files that contain new data
     dats = []
     for row in index_tbl:
-
         # Limit processed archfiles by date
         if row["filetime0"] > DateTime(opt.date_stop).secs:
             break
