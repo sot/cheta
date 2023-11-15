@@ -1,4 +1,3 @@
-
 """
  Fetch clean MUPS valve temperature telemetry
 

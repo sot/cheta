@@ -103,7 +103,6 @@ class RowMismatchError(ValueError):
     """Exception for row mismatch between existing archive and available sync update"""
 
 
-
 @contextlib.contextmanager
 def timing_logger(logger, text, level_pre="info", level_post="info"):
     start = time.time()
