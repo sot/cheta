@@ -216,4 +216,4 @@ def create_archive_ephem_stk_files(start: CxoTimeLike, stop: CxoTimeLike = None)
     stop = CxoTime(stop)
 
     stk_files = get_ephem_stk_files(start, stop, latest_only=False)
-    
+    print(stk_files)

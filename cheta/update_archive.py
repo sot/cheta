@@ -249,7 +249,7 @@ def main_loop():
     for filetype in filetypes:
         # Update attributes of global ContextValue "ft".  This is needed for
         # rendering of "files" ContextValue.
-        ft["content"] = filetype.content.lower()
+        ft["content"] = filetype["content"].lower()
 
         if opt.create:
             create_content_dir()
@@ -1236,14 +1236,17 @@ def unlink_archive_files(filetype, archfiles):
 
 
 def get_archive_files(filetype):
-    """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
+    """Update FITS file archive with arc5gl.
+
+    This places the files in the current directory and returns a list of the files.
+    """
     # End time for archive queries (minimum of start + max_query_days and NOW)
     datestop = DateTime(opt.date_now)
 
     # Get datestart as the most-recent file time from archfiles table.  However,
     # do not look back further than --max-lookback-time
-    db = Ska.DBI.DBI(dbi="sqlite", server=msid_files["archfiles"].abs)
-    vals = db.fetchone("select max(filetime) from archfiles")
+    with Ska.DBI.DBI(dbi="sqlite", server=msid_files["archfiles"].abs) as db:
+        vals = db.fetchone("select max(filetime) from archfiles")
     datestart = DateTime(
         max(vals["max(filetime)"] or 0.0, datestop.secs - opt.max_lookback_time * 86400)
     )
@@ -1253,15 +1256,18 @@ def get_archive_files(filetype):
     if filetype["content"] == "ORBITEPHEM_STK":
         ephem_stk.create_archive_files_ephem_stk(opt.date_now)
 
-    # Files could exist already in testing.
-    # Don't allow arbitrary arch files at once because of memory issues.
     files = sorted(glob.glob(filetype["fileglob"]))
-    if files:
-        return sorted(files)[: opt.max_arch_files]
+    # Files could exist already, either in testing or because they were created in
+    # above. If not then get from the CXC archive.
+    if not files:
+        # Retrieve CXC archive files in a temp directory with arc5gl
+        files = get_archive_files_from_cxc_archive(filetype, datestop, datestart)
 
-    # Retrieve CXC archive files in a temp directory with arc5gl
+    return sorted(files)[: opt.max_arch_files]
+
+
+def get_archive_files_from_cxc_archive(filetype, datestop, datestart):
     arc5 = Ska.arc5gl.Arc5gl(echo=True)
-
 
     # For *ephem0 the query needs to extend well into the future
     # to guarantee getting all available files.  This is the archives fault.

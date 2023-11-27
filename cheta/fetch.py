@@ -275,7 +275,8 @@ msid_files.update(file_defs.msid_files)
 # Note that filetypes.as_array().view(np.recarray) does not quite work...
 filetypes = ascii.read(os.path.join(DIR_PATH, "filetypes.dat"))
 filetypes_arr = filetypes.as_array()
-filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
+# Annotate as list[np.record] so iterator gives np.record type.
+filetypes: list[np.record] = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
 filetypes[()] = filetypes_arr
 
 # Get the list of filenames (an array is built to pass all the filenames at
