@@ -22,8 +22,12 @@ from astropy.io import ascii
 from Chandra.Time import DateTime
 from ska_helpers.utils import lru_cache_timed
 
-from . import __version__  # noqa
-from . import cache, file_defs, remote_access
+from . import (
+    __version__,  # noqa
+    cache,
+    file_defs,
+    remote_access,
+)
 from .derived.comps import ComputedMsid
 from .lazy import LazyDict
 from .remote_access import ENG_ARCHIVE
@@ -504,7 +508,6 @@ def _get_table_intervals_as_list(table, check_overlaps=True):
 
     # Got an intervals list, now sort
     if check_overlaps and intervals is not None:
-
         intervals = sorted(intervals, key=lambda x: x[0])
 
         # Check for overlaps
@@ -2067,7 +2070,6 @@ def get_interval(content, tstart, tstop):
         "Getting interval data from " + "DB on Ska eng archive server..."
     )
     def get_interval_from_db(tstart, tstop, server):
-
         import Ska.DBI
 
         db = Ska.DBI.DBI(dbi="sqlite", server=os.path.join(*server))
@@ -2192,7 +2194,7 @@ def _plural(x):
     """Return English plural of ``x``.  Super-simple and only valid for the
     known small set of cases within fetch where it will get applied.
     """
-    return x + "es" if (x.endswith("x") or x.endswith("s")) else x + "s"
+    return x + "es" if (x.endswith(("x", "s"))) else x + "s"
 
 
 def get_data_gap_spec_parser():

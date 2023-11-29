@@ -457,7 +457,7 @@ def get_telem_table(
 
     :returns: Table of requested telemetry values from fetch
     """
-    from cheta import fetch_eng, fetch_sci, fetch
+    from cheta import fetch, fetch_eng, fetch_sci
 
     start = CxoTime(start)
     stop = CxoTime(stop)

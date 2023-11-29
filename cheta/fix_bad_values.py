@@ -50,8 +50,7 @@ import scipy.stats.mstats
 import tables
 from Chandra.Time import DateTime
 
-import cheta.file_defs as file_defs
-from cheta import fetch
+from cheta import fetch, file_defs
 
 ft = fetch.ft
 opt = None

@@ -248,7 +248,7 @@ def test_quat_comp(msid, maude, offset):
     tstart = tstart0 + offset * 8.0
     tstop = tstart + 60.0
 
-    data_source = ("maude allow_subset=False" if maude else "cxc")
+    data_source = "maude allow_subset=False" if maude else "cxc"
     with fetch_eng.data_source(data_source):
         datq = fetch_eng.MSID(f"quat_{msid}", tstart, tstop)
         dats = fetch_eng.MSIDset([f"{msid}*"], tstart - 40, tstop + 40)
