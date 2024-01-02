@@ -1001,7 +1001,7 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
 
     logger.info("Reading (%d / %d) %s" % (i, len(archfiles), filename))
     vals = {}
-    bads = np.zeros((len(times), len(colnames)), dtype=np.bool)
+    bads = np.zeros((len(times), len(colnames)), dtype=bool)
     for i, colname in enumerate(colnames):
         if colname == "TIME":
             vals[colname] = times

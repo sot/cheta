@@ -74,8 +74,8 @@ def generic_converter(prefix=None, add_quality=False, aliases=None):
 
         if add_quality:
             descrs = [(x,) + y[1:] for x, y in zip(colnames_out, dat.dtype.descr)]
-            quals = numpy.zeros((len(dat), len(colnames) + 1), dtype=numpy.bool)
-            descrs += [("QUALITY", numpy.bool, (len(colnames) + 1,))]
+            quals = numpy.zeros((len(dat), len(colnames) + 1), dtype=bool)
+            descrs += [("QUALITY", bool, (len(colnames) + 1,))]
             arrays += [quals]
         else:
             descrs = [
@@ -563,7 +563,7 @@ def acisdeahk(dat):
         quality = (False, False) + bads
         outs.append((times[i0], quality) + vals)
 
-    dtype = [("TIME", numpy.float64), ("QUALITY", numpy.bool, (len(col_names) + 2,))]
+    dtype = [("TIME", numpy.float64), ("QUALITY", bool, (len(col_names) + 2,))]
     dtype += [(col_name, numpy.float32) for col_name in col_names]
 
     return numpy.rec.fromrecords(outs, dtype=dtype)
