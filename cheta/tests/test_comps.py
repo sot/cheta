@@ -205,7 +205,7 @@ def test_cmd_states():
             173.38189234,
         ]
     )
-    assert np.allclose(dat.vals, exp_vals)
+    assert np.allclose(dat.vals, exp_vals, rtol=0, atol=1e-3)
     assert type(dat.vals) is np.ndarray
     assert np.allclose(np.diff(dat.times), 1025.0)
     assert not np.any(dat.bads)
