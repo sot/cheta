@@ -17,7 +17,7 @@ name = "cheta"
 namespace = "Ska.engarchive"
 
 package_dir = {name: name}
-packages = ["cheta", "cheta.derived", "cheta.tests"]
+packages = ["cheta", "cheta.derived", "cheta.comps", "cheta.tests"]
 package_data = {
     "cheta": ["task_schedule.cfg", "*.dat", "units_*.pkl", "archfiles_def.sql"],
     "cheta.tests": ["*.dat"],
