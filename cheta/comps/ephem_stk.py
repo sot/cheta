@@ -14,7 +14,7 @@ from astropy.table import Column, Table
 from cxotime import CxoTime, CxoTimeLike
 from kadi import occweb
 
-from cheta.derived.comps import ComputedMsid
+from .computed_msid import ComputedMsid
 
 logger = logging.getLogger("cheta.fetch")
 

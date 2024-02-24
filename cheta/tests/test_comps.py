@@ -12,8 +12,8 @@ from Quaternion import Quat
 
 from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
+from ..comps import ComputedMsid
 from ..derived.base import DerivedParameter
-from ..derived.comps import ComputedMsid
 
 try:
     import maude
