@@ -14,7 +14,7 @@ class Counter(dict):
         return 0
 
 
-# TODO: replace with std_library version of this in Py3.6 (issue #173)
+# Note: this is not equivalent to functools.lru_cache, see #173.
 
 
 def lru_cache(maxsize=30):
