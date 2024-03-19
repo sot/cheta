@@ -11,6 +11,7 @@ Msid files are the hdf5 files containing the entire mission telemetry for one MS
 Arch files are the CXC archive files containing a short interval of telemetry for
 all MSIDs in the same content-type group (e.g. ACIS2ENG).
 """
+
 import os
 
 SKA = os.environ.get("SKA") or "/proj/sot/ska"
