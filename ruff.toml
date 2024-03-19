@@ -3,6 +3,7 @@ extend = "ruff-base.toml"
 # These are files to exclude for this project.
 extend-exclude = [
   # "**/*.ipynb",  # commonly not ruff-compliant
+  "dev_utils",
 ]
 
 # These are rules that commonly cause many ruff warnings. Code will be improved by
