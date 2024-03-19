@@ -142,7 +142,7 @@ def generic_converter2(msid_cxc_map, default_dtypes=None):
     def _convert(dat):
         # Make quality bool array with entries for TIME, QUALITY, then all other cols
         out_names = ["TIME", "QUALITY"] + list(msid_cxc_map.keys())
-        out_quality = np.zeros(shape=(len(dat), len(out_names)), dtype=np.bool)
+        out_quality = np.zeros(shape=(len(dat), len(out_names)), dtype=bool)
         out_arrays = {"TIME": dat["TIME"], "QUALITY": out_quality}
 
         for out_name, in_name in msid_cxc_map.items():

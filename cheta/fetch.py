@@ -1902,7 +1902,7 @@ class HrcSsMsid(Msid):
         out = MSIDset(msids, start=start, stop=stop, stat=stat)
         if stat is not None:
             for m in msids:
-                out[m].bads = np.zeros(len(out[m].vals), dtype=np.bool)
+                out[m].bads = np.zeros(len(out[m].vals), dtype=bool)
 
         # Set bad mask
         i_bads = np.flatnonzero(out["HRC_SS_HK_BAD"].vals > 0)
