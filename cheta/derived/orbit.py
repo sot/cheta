@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import absolute_import, division, print_function
 
 """
 Orbital elements based on the position and velocity of Chandra at each 5 minute predictive
@@ -32,6 +31,7 @@ Example::
 
 The relevant equations were taken from http://www.castor2.ca/05_OD/01_Gauss/14_Kepler/index.html.
 """
+
 import numpy as np
 from Chandra.Time import DateTime
 

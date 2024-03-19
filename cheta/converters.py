@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import absolute_import, division, print_function
 
 import logging
 import sys
@@ -10,7 +9,6 @@ import numpy as np
 import Ska.Numpy
 import Ska.tdb
 from Chandra.Time import DateTime
-from six.moves import zip
 
 from . import units
 

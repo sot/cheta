@@ -2,13 +2,13 @@
 """
 Utilities for the engineering archive.
 """
+
 import functools
 import re
 from contextlib import contextmanager
 
 import astropy.units as u
 import numpy as np
-import six
 from astropy.table import Table
 from Chandra.Time import DateTime
 from cxotime import CxoTime, CxoTimeLike
@@ -61,7 +61,7 @@ def get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True
     from . import fetch
 
     # Allow for a single MSID input and make all values lower-case
-    if isinstance(msids, six.string_types):
+    if isinstance(msids, str):
         msids = [msids]
     msids = [msid.lower() for msid in msids]
 
