@@ -22,6 +22,7 @@ See: https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAW
 
 import functools
 import re
+import warnings
 
 import astropy.table as tbl
 import numpy as np
@@ -428,7 +429,11 @@ class Comp_Quat(ComputedMsid):
             q4 = np.sqrt((1.0 - q1**2 - q2**2 - q3**2).clip(0.0))
 
         q = np.array([q1, q2, q3, q4]).transpose()
-        quat = Quat(q=normalize(q))
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", message="Normalizing quaternion with zero norm"
+            )
+            quat = Quat(q=normalize(q))
         bads = np.zeros_like(q1, dtype=bool)
         for msid in msids:
             bads |= dat[msid].bads
