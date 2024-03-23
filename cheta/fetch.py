@@ -719,7 +719,7 @@ class MSID(object):
         self.colnames = [
             attr
             for attr, val in attrs.items()
-            if (isinstance(val, np.ndarray) and len(val) == len(attrs["times"]))
+            if (hasattr(val, "shape") and len(val) == len(attrs["times"]))
         ]
 
         # Apply attributes to self
