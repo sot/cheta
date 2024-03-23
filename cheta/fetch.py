@@ -295,7 +295,8 @@ def load_msid_names(all_msid_names_files):
     all_colnames = dict()
     for k, msid_names_file in all_msid_names_files.items():
         try:
-            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), "rb"))
+            with open(os.path.join(*msid_names_file), "rb") as fh:
+                all_colnames[k] = pickle.load(fh)
         except IOError:
             pass
     return all_colnames
