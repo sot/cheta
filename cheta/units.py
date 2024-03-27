@@ -61,7 +61,8 @@ module_dir = os.path.dirname(__file__)
 
 units = {}
 units["system"] = "cxc"
-units["cxc"] = pickle.load(open(os.path.join(module_dir, "units_cxc.pkl"), "rb"))
+with open(os.path.join(module_dir, "units_cxc.pkl"), "rb") as fh:
+    units["cxc"] = pickle.load(fh)
 
 
 # Equivalent unit descriptors used in 'eng' and 'cxc' units
@@ -222,7 +223,8 @@ def load_units(unit_system):
 
     if unit_system not in units:
         filename = os.path.join(module_dir, "units_{0}.pkl".format(unit_system))
-        units[unit_system] = pickle.load(open(filename, "rb"))
+        with open(filename, "rb") as fh:
+            units[unit_system] = pickle.load(fh)
 
 
 def set_units(unit_system):

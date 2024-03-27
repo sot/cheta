@@ -295,7 +295,8 @@ def load_msid_names(all_msid_names_files):
     all_colnames = dict()
     for k, msid_names_file in all_msid_names_files.items():
         try:
-            all_colnames[k] = pickle.load(open(os.path.join(*msid_names_file), "rb"))
+            with open(os.path.join(*msid_names_file), "rb") as fh:
+                all_colnames[k] = pickle.load(fh)
         except IOError:
             pass
     return all_colnames
@@ -719,7 +720,7 @@ class MSID(object):
         self.colnames = [
             attr
             for attr, val in attrs.items()
-            if (isinstance(val, np.ndarray) and len(val) == len(attrs["times"]))
+            if (hasattr(val, "shape") and len(val) == len(attrs["times"]))
         ]
 
         # Apply attributes to self
