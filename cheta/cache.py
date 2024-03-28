@@ -3,10 +3,8 @@
 import collections
 import functools
 from heapq import nsmallest
+from itertools import filterfalse
 from operator import itemgetter
-
-import six
-from six.moves import filterfalse
 
 
 class Counter(dict):
@@ -16,7 +14,7 @@ class Counter(dict):
         return 0
 
 
-# TODO: replace with std_library version of this in Py3.6 (issue #173)
+# Note: this is not equivalent to functools.lru_cache, see #173.
 
 
 def lru_cache(maxsize=30):
@@ -131,7 +129,7 @@ def lfu_cache(maxsize=100):
                 # purge least frequently used cache entry
                 if len(cache) > maxsize:
                     for key, _ in nsmallest(
-                        maxsize // 10, six.iteritems(use_count), key=itemgetter(1)
+                        maxsize // 10, use_count.items(), key=itemgetter(1)
                     ):
                         del cache[key], use_count[key]
 

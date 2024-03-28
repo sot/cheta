@@ -29,7 +29,6 @@ This script reads from the cheta telemetry archive and updates the
 sync repository to capture newly-available data since the last bundle.
 """
 
-
 import argparse
 import gzip
 import pickle

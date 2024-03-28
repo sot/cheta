@@ -2,6 +2,8 @@
 
 """Test that computed MSIDs work as expected."""
 
+import warnings
+
 import astropy.units as u
 import numpy as np
 import pytest
@@ -267,6 +269,28 @@ def test_quat_comp(msid, maude, offset):
         ok = np.isclose(vq, vn, rtol=0, atol=(1e-4 if msid == "aocmdqt" else 1e-8))
         assert np.all(ok)
     assert isinstance(datq.vals, Quat)
+
+
+def test_quat_comp_bad_times():
+    """Test bad time data on 2024:264. All four quats have zero value and are bad.
+
+    The bad sample times are ['2024:064:09:27:02.652' '2024:064:09:27:03.677'].
+    """
+    start = "2024:064:09:26:00"
+    stop = "2024:064:09:28:00"
+    # Assert no warnings despite quat with zero normalization. The zero-norm samples are
+    # marked bad.
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # Assert no warnings
+        dat = fetch_eng.MSID("quat_aoattqt", start, stop)
+
+    assert np.count_nonzero(dat.bads) == 2
+    assert len(dat.vals) == len(dat.times)
+
+    dat2 = fetch_eng.Msid("quat_aoattqt", start, stop)
+    assert dat2.bads is None  # After Msid filtering
+    assert len(dat2.vals) == len(dat2.times)
+    assert len(dat2.vals) == len(dat.vals) - 2
 
 
 def test_pitch_comp():

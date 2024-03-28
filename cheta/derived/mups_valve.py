@@ -1,67 +1,67 @@
 """
- Fetch clean MUPS valve temperature telemetry
+Fetch clean MUPS valve temperature telemetry
 
- This makes use of the temperature correction code provided by Scott Blanchard (to correct
- for a resistor dropout in the thermistor data) and xija thermal model developed by
- Matt Dahmer.
+This makes use of the temperature correction code provided by Scott Blanchard (to correct
+for a resistor dropout in the thermistor data) and xija thermal model developed by
+Matt Dahmer.
 
- The basic cleaning algorithm is very simple:
+The basic cleaning algorithm is very simple:
 
- - Fetch raw telemetry from the cheta archive.
- - Compute a xija thermal model prediction for the same timespan (actually starting a few
-   days in advance to burn out uncertainty in the pseudo-node value).
- - Accept either raw telemetry or corrected data which are within a tolerance (5 degF) of
-   the model.
- - In the gaps where the model diverges from both raw and corrected temperatures,
-   "repropagate" the model starting from the last accepted temperature value.
-   This effectively takes out much of the systematic model error, which can be up to
-   15 degF after a transition to a new attitude.
- - In some cases this allows recovery of additional data, while in others the data are
-   not recoverable: either due to partial disconnect of the parallel resistor or full
-   disconnects where the output voltage exceeds 5.12 V.
+- Fetch raw telemetry from the cheta archive.
+- Compute a xija thermal model prediction for the same timespan (actually starting a few
+  days in advance to burn out uncertainty in the pseudo-node value).
+- Accept either raw telemetry or corrected data which are within a tolerance (5 degF) of
+  the model.
+- In the gaps where the model diverges from both raw and corrected temperatures,
+  "repropagate" the model starting from the last accepted temperature value.
+  This effectively takes out much of the systematic model error, which can be up to
+  15 degF after a transition to a new attitude.
+- In some cases this allows recovery of additional data, while in others the data are
+  not recoverable: either due to partial disconnect of the parallel resistor or full
+  disconnects where the output voltage exceeds 5.12 V.
 
- The output of this function is a `fetch.Msid` object with some bonus attributes,
- documented below.  In particular the output cleaned data are labeled so one knows
- exactly where each data point came from.
+The output of this function is a `fetch.Msid` object with some bonus attributes,
+documented below.  In particular the output cleaned data are labeled so one knows
+exactly where each data point came from.
 
- The function is fast, and one can get 5 years of cleaned telemetry in a few seconds
- on a modern laptop with SSD drive.
+The function is fast, and one can get 5 years of cleaned telemetry in a few seconds
+on a modern laptop with SSD drive.
 
- This cleaning technique recovers on average about 90% of data for PM2THV1T.  Since
- 2015, about 60% of telemetry is good (no dropout) while 30% is in a recoverable
- fully-dropped state (and 10% is not recoverable).
+This cleaning technique recovers on average about 90% of data for PM2THV1T.  Since
+2015, about 60% of telemetry is good (no dropout) while 30% is in a recoverable
+fully-dropped state (and 10% is not recoverable).
 
- ```
- def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
-                      version=None):
-     Fetch a cleaned version of telemetry for ``msid``.
+```
+def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
+                     version=None):
+    Fetch a cleaned version of telemetry for ``msid``.
 
-      If not supplied the model spec will come from
-      ``xija.get_model_spec.get_xija_model_spec(msid, version=version)``
-      (which uses ``$SKA/data/chandra_models/chandra_models/xija/mups_valve/{msid}_spec.json``).
+     If not supplied the model spec will come from
+     ``xija.get_model_spec.get_xija_model_spec(msid, version=version)``
+     (which uses ``$SKA/data/chandra_models/chandra_models/xija/mups_valve/{msid}_spec.json``).
 
-     This function returns a `fetch.Msid` object like a normal fetch but with extra attributes:
+    This function returns a `fetch.Msid` object like a normal fetch but with extra attributes:
 
-     - vals: cleaned telemetry (either original or corrected telemetry, or xija model prediction)
-     - source: label for each vals data point
-       - 0: unrecoverable, so use xija model value
-       - 1: original telemetry
-       - 2: corrected telemetry
-     - vals_raw: raw (uncleaned) telemetry
-     - vals_nan: cleaned telem but with np.nan at points where data are unrecoverable (this is
-                 for plotting)
-     - vals_corr: telemetry with the MUPS correction applied
-     - vals_model: xija model prediction
+    - vals: cleaned telemetry (either original or corrected telemetry, or xija model prediction)
+    - source: label for each vals data point
+      - 0: unrecoverable, so use xija model value
+      - 1: original telemetry
+      - 2: corrected telemetry
+    - vals_raw: raw (uncleaned) telemetry
+    - vals_nan: cleaned telem but with np.nan at points where data are unrecoverable (this is
+                for plotting)
+    - vals_corr: telemetry with the MUPS correction applied
+    - vals_model: xija model prediction
 
-     :param start: start time
-     :param stop: stop time (default=NOW)
-     :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
-     :param median: length of median filter (default=7, use 0 to disable)
-     :param model_spec: file name or URL containing relevant xija model spec
-     :param version: version of chandra_models repo (tag, branch, or commit)
+    :param start: start time
+    :param stop: stop time (default=NOW)
+    :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
+    :param median: length of median filter (default=7, use 0 to disable)
+    :param model_spec: file name or URL containing relevant xija model spec
+    :param version: version of chandra_models repo (tag, branch, or commit)
 
-     :returns: fetch.Msid object
- ```
+    :returns: fetch.Msid object
+```
 """
 
 import os

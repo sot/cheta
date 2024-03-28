@@ -20,7 +20,6 @@ Examples
 Arguments
 =========
 """
-from __future__ import absolute_import, division, print_function
 
 import argparse
 import ast
@@ -29,9 +28,7 @@ import shlex
 from itertools import count
 
 import numpy as np
-import six
 from Chandra.Time import DateTime
-from six.moves import zip
 
 from . import fetch, utils
 
@@ -188,7 +185,7 @@ def get_telem(
     start = stop - 30 if start is None else DateTime(start)
     stat = None if sampling == "full" else sampling
     filter_bad = interpolate_dt is None
-    if isinstance(msids, six.string_types):
+    if isinstance(msids, str):
         msids = [msids]
 
     logger.info(
