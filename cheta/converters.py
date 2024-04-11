@@ -434,34 +434,55 @@ def obc4eng(dat):
     At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to
     read out in wide-mode.  After this time the data in the listed OOBTHRxx MSIDs became
     invalid while the OOBTHRxx_WIDE MSIDs became valid.  This converter simply copies the
-    *_WIDE values to the original MSIDs after the time of patch activation.  The *_WIDE
-    MSIDs are not available in the eng archive (by the _WIDE names).
+    *_WIDE values to the original MSIDs after the time of patch activation.
+
+    At 2017:312:16:11:16, patch PR-411 was applied which transitioned 6 OBA thermistors to
+    wide-mode and these were added below as patch "c".
+
+    At 2024:102:11:20:00, patch PR-575 was applied which transitioned more HRMA thermistors
+    to wide-mode and these patches (noted as A and B in PR-575) are applied as patches d and e
+    below.
+
     """
-    # MSIDs OOBTHR<msid_num> that went to _WIDE after the patch, which was done in parts A
-    # and B.
+    # MSIDs OOBTHR<msid_num> or OHRTHR<msid_num> that went to _WIDE after the patches, which are
+    # called out as patches a, b, c, d, and e below.
+
+    parent_msid = {
+        "a": "OOBTHR",
+        "b": "OOBTHR",
+        "c": "OOBTHR",
+        "d": "OHRTHR",
+        "e": "OHRTHR",
+    }
+
     msid_nums = {
         "a": "08 09 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29".split(),
         "b": "30 31 33 34 35 36 37 38 39 40 41 44 45 46 49 50 51 52 53 54".split(),
         "c": "02 03 04 05 06 07".split(),
+        "d": "44 02 21 45 03 22 46 23 04 47 49 24 05 06 25 50 51 07 26 27 29 30".split(),
+        "e": "08 09 10 11 12 13 14 18 20 31 33 34 35 36 37 41 42 43 "
+        "52 53 54 55 56 57 58 62".split(),
     }
 
     # Convert using the baseline converter
     out = numpy_converter(dat)
 
     # The patch times below correspond to roughly the middle of the major frame where
-    # patches A and B were applied, respectively.
+    # patches were applied.
     patch_times = {
         "a": DateTime("2014:342:16:29:30").secs,
         "b": DateTime("2014:342:16:32:45").secs,
         "c": DateTime("2017:312:16:11:16").secs,
+        "d": DateTime("2024:102:11:20:00").secs,
+        "e": DateTime("2024:102:11:20:00").secs,
     }
 
-    for patch in ("a", "b", "c"):
-        # Set a mask defining times after the activation of wide-range telemetry in PR-361
+    for patch in ("a", "b", "c", "d", "e"):
+        # Set a mask defining times after the activation of wide-range telemetry
         mask = out["TIME"] > patch_times[patch]
         if np.any(mask):
             for msid_num in msid_nums[patch]:
-                msid = "OOBTHR" + msid_num
+                msid = parent_msid[patch] + msid_num
                 msid_wide = msid + "_WIDE"
                 print("Fixing MSID {}".format(msid))
                 out[msid][mask] = out[msid_wide][mask]
@@ -480,7 +501,10 @@ def tel2eng(dat):
     only the wide version of this MSID is valid after this patch is applied.
 
     This converter simply copies the 4OAVOBAT_WIDE values after the time of patch activation to
-    4OAVOBAT.  4OAVOBAT_WIDE is not available in the eng archive (by the _WIDE name).
+    4OAVOBAT.
+
+    At 2024:102:11:20:00, patch PR-575 was applied which transitioned more HRMA thermistors
+    to wide-mode and msid 4OAVHRMT required the same update as 4OAVOBAT in 2014.
     """
 
     # Convert using the baseline converter
@@ -489,16 +513,25 @@ def tel2eng(dat):
     # 4OAVOBAT is modified by both patches since it is an average of MSIDs in both parts of the
     # patch. Use the second time value as this is when the process is complete. See obc4eng() for
     # both times and further details.
-    patch_time = DateTime("2014:342:16:32:45").secs
+    patch_time = {
+        "pr-361": DateTime("2014:342:16:32:45").secs,
+        "pr-575": DateTime("2024:102:11:20:00").secs,
+    }
 
-    mask = out["TIME"] > patch_time
-    if np.any(mask):
-        print("Fixing MSID 4OAVOBAT")
-        out["4OAVOBAT"][mask] = out["4OAVOBAT_WIDE"][mask]
+    msid = {
+        "pr-361": "4OAVOBAT",
+        "pr-575": "4OAVHRMT",
+    }
 
-        q_index = quality_index(out, "4OAVOBAT")
-        q_index_wide = quality_index(out, "4OAVOBAT_WIDE")
-        out["QUALITY"][mask, q_index] = out["QUALITY"][mask, q_index_wide]
+    for patch in ["pr-361", "pr-575"]:
+        mask = out["TIME"] > patch_time[patch]
+        if np.any(mask):
+            print(f"Fixing MSID {msid[patch]}")
+            out[msid[patch]][mask] = out[msid[patch] + "_WIDE"][mask]
+
+            q_index = quality_index(out, msid[patch])
+            q_index_wide = quality_index(out, msid[patch] + "_WIDE")
+            out["QUALITY"][mask, q_index] = out["QUALITY"][mask, q_index_wide]
 
     return out
 
