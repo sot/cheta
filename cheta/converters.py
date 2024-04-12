@@ -473,8 +473,8 @@ def obc4eng(dat):
         "a": DateTime("2014:342:16:29:30").secs,
         "b": DateTime("2014:342:16:32:45").secs,
         "c": DateTime("2017:312:16:11:16").secs,
-        "d": DateTime("2024:102:11:20:00").secs,
-        "e": DateTime("2024:102:11:20:00").secs,
+        "d": DateTime("2024:102:11:49:20").secs,
+        "e": DateTime("2024:102:11:52:20").secs,
     }
 
     for patch in ("a", "b", "c", "d", "e"):
@@ -515,7 +515,7 @@ def tel2eng(dat):
     # both times and further details.
     patch_time = {
         "pr-361": DateTime("2014:342:16:32:45").secs,
-        "pr-575": DateTime("2024:102:11:20:00").secs,
+        "pr-575": DateTime("2024:102:11:52:20").secs,
     }
 
     msid = {
