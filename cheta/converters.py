@@ -484,7 +484,7 @@ def obc4eng(dat):
             for msid_num in msid_nums[patch]:
                 msid = parent_msid[patch] + msid_num
                 msid_wide = msid + "_WIDE"
-                print("Fixing MSID {}".format(msid))
+                logger.debug(f"Fixing MSID {msid}")
                 out[msid][mask] = out[msid_wide][mask]
 
                 q_index = quality_index(out, msid)
@@ -526,7 +526,7 @@ def tel2eng(dat):
     for patch in ["pr-361", "pr-575"]:
         mask = out["TIME"] > patch_time[patch]
         if np.any(mask):
-            print(f"Fixing MSID {msid[patch]}")
+            logger.debug(f"Fixing MSID {msid[patch]}")
             out[msid[patch]][mask] = out[msid[patch] + "_WIDE"][mask]
 
             q_index = quality_index(out, msid[patch])
