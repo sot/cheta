@@ -287,6 +287,13 @@ for filetype in filetypes:
     all_msid_names_files[str(ft["content"])] = _split_path(msid_files["colnames"].abs)
 
 
+@local_or_remote_function("Get TDB entry for MSID from Ska eng archive server...")
+def get_tdb(msid):
+    import ska_tdb
+
+    return ska_tdb.msids[msid]
+
+
 # Function to load MSID names from the files (executed remotely, if necessary)
 @local_or_remote_function("Loading MSID names from Ska eng archive server...")
 def load_msid_names(all_msid_names_files):
@@ -980,10 +987,9 @@ class MSID(object):
             self._state_codes = STATE_CODES[self.MSID]
 
         if not hasattr(self, "_state_codes"):
-            import Ska.tdb
-
             try:
-                states = Ska.tdb.msids[self.MSID].Tsc
+                tdb_msid = get_tdb(self.MSID)
+                states = tdb_msid.Tsc
             except Exception:
                 self._state_codes = None
             else:
@@ -1025,9 +1031,7 @@ class MSID(object):
     @property
     def tdb(self):
         """Access the Telemetry database entries for this MSID"""
-        import Ska.tdb
-
-        return Ska.tdb.msids[self.MSID]
+        return get_tdb(self.MSID)
 
     def interpolate(self, dt=None, start=None, stop=None, times=None):
         """Perform nearest-neighbor interpolation of the MSID to the specified
