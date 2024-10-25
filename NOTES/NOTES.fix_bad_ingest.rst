@@ -22,10 +22,42 @@ This is generally the preferred method since it is simpler. Note that users
 may still need to truncate (see the `GRETA and users`_ section.)
 
 The example in this section is from another bad file ingested June 11, 2021.
-See email ``Fwd: [operators] 2 small files to replace in archive``.
+See email ``Fwd: [operators] 2 small files to replace in archive`` and
+``Ska telemetry archive (IMPORTANT if you have a local archive)``.
 
 HEAD
 ^^^^
+
+On-the-side update
+~~~~~~~~~~~~~~~~~~
+This is preferred for smaller content directories like ``acisdeahk``::
+
+  # Get the data files from before the bad ingest
+  cd ~/tmp
+  mkdir cheta-acisdeahk
+  cd cheta-acisdeahk
+  mkdir data
+  mkdir sync
+  rsync -av /proj/sot/.snapshot/weekly.2024-10-20_0015/ska/data/eng_archive/data/acisdeahk data/
+  rsync -av /proj/sot/.snapshot/weekly.2024-10-20_0015/ska/data/eng_archive/sync/acisdeahk sync/
+  
+  # Reprocess on the side
+  export ENG_ARCHIVE=$PWD
+  cheta_update_server_archive --data-root=$PWD --content=acisdeahk
+  cheta_update_server_sync --data-root=$PWD --content=acisdeahk
+  
+  # Copy new files to /proj/sot/ska/data/eng_archive
+  cd /proj/sot/ska/data/eng_archive
+  cp -rp ~/tmp/cheta-acisdeahk/data/acisdeahk data/acisdeahk-new
+  cp -rp ~/tmp/cheta-acisdeahk/sync/acisdeahk sync/acisdeahk-new
+    
+  # "Atomic" move of new directories to flight
+  mv data/acisdeahk{,-2024-10-25}; mv data/acisdeahk{-new,}
+  mv sync/acisdeahk{,-2024-10-25}; mv sync/acisdeahk{-new,}
+
+In-place update
+~~~~~~~~~~~~~~~
+This is preferred if the bad content directory is very large (well over a Gb).
 
 Find the last snapshot before the bad ingest::
 
