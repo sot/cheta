@@ -920,21 +920,43 @@ def truncate_archive(filetype, date):
     logger.verbose(cmd)
 
 
-def read_archfile(i, f, filetype, row, colnames, archfiles, db):
-    """Read filename ``f`` with index ``i`` (position within list of filenames).  The
-    file has type ``filetype`` and will be added to MSID file at row index ``row``.
-    ``colnames`` is the list of column names for the content type (not used here).
+def read_archfile(idx_archfile, archfile, filetype, row, colnames, archfiles, db):
+    """Read a FITS file which has been retrieved from the CXCDS archive.
+
+    Parameters
+    ----------
+    idx_archfile : int
+        Index of the archfile in the list of archfiles
+    archfile : str
+        Full path of FITS file to read
+    filetype : dict
+        Filetype dictionary with keys, level, instrum, content, arc5gl_query, fileglob.
+    row : int
+        Row number in the MSID file to start writing data
+    colnames : list of str
+        List of column names for the content type
+    archfiles : numpy structured array
+        Array of archfiles
+
+    Returns
+    -------
+    dat : numpy structured array
+        Data read from the FITS file
+    archfiles_row : dict
+        Row of info about this FILE to insert into archfiles table for content type
     """
     # Check if filename is already in archfiles.  If so then abort further processing.
-    filename = os.path.basename(f)
+    filename = os.path.basename(archfile)
     if db.fetchall("SELECT filename FROM archfiles WHERE filename=?", (filename,)):
-        logger.verbose("File %s already in archfiles - unlinking and skipping" % f)
-        os.unlink(f)
+        logger.verbose(
+            "File %s already in archfiles - unlinking and skipping" % archfile
+        )
+        os.unlink(archfile)
         return None, None
 
     # Read FITS archive file and accumulate data into dats list and header into headers dict
-    logger.info("Reading (%d / %d) %s" % (i, len(archfiles), filename))
-    hdus = pyfits.open(f, character_as_bytes=True)
+    logger.info("Reading (%d / %d) %s" % (idx_archfile, len(archfiles), filename))
+    hdus = pyfits.open(archfile, character_as_bytes=True)
     hdu = hdus[1]
 
     try:
@@ -975,14 +997,33 @@ def read_archfile(i, f, filetype, row, colnames, archfiles, db):
     return dat, archfiles_row
 
 
-def read_derived(i, filename, filetype, row, colnames, archfiles, db):
+def read_derived(idx_archfile, filename, filetype, row, colnames, archfiles, db):
     """Read derived data using eng_archive and derived computation classes.
-    ``filename`` has format <content>_<index0>_<index1> where <content>
-    is the content type (e.g. "dp_thermal128"), <index0> is the start index for
-    the new data and index1 is the end index (using Python slicing convention
-    index0:index1).  Args ``i``, ``filetype``, and ``row`` are as in
-    read_archive().  ``row`` must equal <index0>.  ``colnames`` is the list of
-    column names for the content type.
+
+    Parameters
+    ----------
+    idx_archfile : int
+        Index of the archfile in the list of archfiles
+    filename : str
+        File to read with format <content>_<index0>_<index1> where <content> is the
+        content type (e.g. "dp_thermal128"), <index0> is the start index for the new
+        data and <index1> is the end index (using Python slicing convention
+        index0:index1).
+    filetype : dict
+        Filetype dictionary with keys, level, instrum, content, arc5gl_query, fileglob.
+    row : int
+        Row number in the MSID file to start writing data (must equal <index0>)
+    colnames : list of str
+        List of column names for the content type
+    archfiles : numpy structured array
+        Array of archfiles
+
+    Returns
+    -------
+    dat : numpy structured array
+        Data read from the FITS file
+    archfiles_row : dict
+        Row of info about this FILE to insert into archfiles table for content type
     """
     # Check if filename is already in archfiles.  If so then abort further processing.
 
@@ -999,20 +1040,20 @@ def read_derived(i, filename, filetype, row, colnames, archfiles, db):
     time_step = mnf_step * cheta.derived.MNF_TIME
     times = time_step * np.arange(index0, index1)
 
-    logger.info("Reading (%d / %d) %s" % (i, len(archfiles), filename))
+    logger.info("Reading (%d / %d) %s" % (idx_archfile, len(archfiles), filename))
     vals = {}
     bads = np.zeros((len(times), len(colnames)), dtype=bool)
-    for i, colname in enumerate(colnames):
+    for ii, colname in enumerate(colnames):
         if colname == "TIME":
             vals[colname] = times
-            bads[:, i] = False
+            bads[:, ii] = False
         else:
             dp_class = getattr(cheta.derived, colname.upper())
             dp = dp_class()
             dataset = dp.fetch(times[0] - 1000, times[-1] + 1000)
             ok = (index0 <= dataset.indexes) & (dataset.indexes < index1)
             vals[colname] = dp.calc(dataset)[ok]
-            bads[:, i] = dataset.bads[ok]
+            bads[:, ii] = dataset.bads[ok]
 
     vals["QUALITY"] = bads
     dat = Ska.Numpy.structured_array(vals, list(colnames) + ["QUALITY"])
@@ -1059,9 +1100,11 @@ def update_msid_files(filetype, archfiles):
 
     content_is_derived = filetype["instrum"] == "DERIVED"
 
-    for i, f in enumerate(archfiles):
+    for idx_archfile, archfile in enumerate(archfiles):
         get_data = read_derived if content_is_derived else read_archfile
-        dat, archfiles_row = get_data(i, f, filetype, row, colnames, archfiles, db)
+        dat, archfiles_row = get_data(
+            idx_archfile, archfile, filetype, row, colnames, archfiles, db
+        )
         if dat is None:
             continue
 
@@ -1154,7 +1197,7 @@ def update_msid_files(filetype, archfiles):
         # subsequent relocation into arch_files archive.  In the case of a gap
         # where ingest is stopped before all archfiles are processed, this will
         # leave files in a tmp dir.
-        archfiles_processed.append(f)
+        archfiles_processed.append(archfile)
         if not opt.dry_run:
             db.insert(archfiles_row, "archfiles")
 
