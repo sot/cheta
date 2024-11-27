@@ -32,5 +32,5 @@ def test_orbital_elements():
         "mean_anomaly": 354.971325,
     }  # 354.9724 in reference (roundoff in example)
 
-    for key in expected:
+    for key in expected:  # noqa: PLC0206
         assert np.allclose(out[key], expected[key], atol=0.0, rtol=1e-6)

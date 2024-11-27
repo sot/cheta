@@ -65,7 +65,9 @@ for msid in msids:
             if attr not in f:
                 continue
             if len(f[attr]) != len(t[attr]):
-                print(f"[NOT OK] {msid} {stat}: Length mismatch: {len(f[attr])} {len(t[attr])}")
+                print(
+                    f"[NOT OK] {msid} {stat}: Length mismatch: {len(f[attr])} {len(t[attr])}"
+                )
                 all_ok = False
                 continue
             if attr == "quals":
