@@ -1,34 +1,34 @@
-# From within the hg eng_archive repo
-# source make_test_eng_archive.csh
-
 export ENG_ARCHIVE=$PWD/test/eng_archive
+
 mkdir -p test/eng_archive
 rm -rf test/eng_archive/*
+cp /proj/sot/ska/data/eng_archive/filetypes*.dat test/eng_archive/
+mkdir test/eng_archive/data
 
 rm -f test/make_eng_archive.log
 touch test/make_eng_archive.log
 
-# To make the data from scratch use the following.  BUT NORMALLY just use the
-# existing copy of the flight eng archive as the baseline start point.
+CONTENTS="--content=acis2eng --content=acis3eng --content=acisdeahk --content=ccdm4eng --content=simcoor --content=thm1eng --content=orbitephem0"
+DATAROOT="--data-root=$PWD/test/eng_archive"
 
-# echo "Making regr data..."
-# ./make_regr_data.py --start 2012:290 --stop 2012:300 --data-root test/eng_archive >>& test/make_eng_archive.log
-# 
-# echo "Tarring..."
-# cd test
-# tar zcf eng_archive.tar.gz eng_archive
-# cd ..
+echo "Updating archive, do 'tail -f test/make_eng_archive.log' in another window"
+
+python -m cheta.update_archive $DATAROOT $CONTENTS --date-now=2024:005 --date-start=2024:001 --max-lookback-time=5 --create >> test/make_eng_archive.log 2>&1
+python -m cheta.update_archive $DATAROOT $CONTENTS --date-now=2024:007 >> test/make_eng_archive.log 2>&1
+python -m cheta.update_archive $DATAROOT $CONTENTS --date-now=2024:011 >> test/make_eng_archive.log 2>&1
+python -m cheta.update_archive $DATAROOT $CONTENTS --date-now=2024:015 >> test/make_eng_archive.log 2>&1
+
+python -m cheta.add_derived $DATAROOT --content=dp_acispow --start=2024:001 --stop=2024:002 >> test/make_eng_archive.log 2>&1
+python -m cheta.update_archive $DATAROOT --content=dp_acispow128 --date-now=2024:005 --date-start=2024:001 --max-lookback-time=5 >> test/make_eng_archive.log 2>&1
+python -m cheta.update_archive $DATAROOT --content=dp_acispow128 --date-now=2024:007 >> test/make_eng_archive.log 2>&1
+python -m cheta.update_archive $DATAROOT --content=dp_acispow128 --date-now=2024:011 >> test/make_eng_archive.log 2>&1
+python -m cheta.update_archive $DATAROOT --content=dp_acispow128 --date-now=2024:015 >> test/make_eng_archive.log 2>&1
+
+
+unset ENG_ARCHIVE
 
 cd test
-tar xvf /proj/sot/ska/data/eng_archive/regr/flight_eng_archive.tar.gz
+  ./get_regr_vals.py --start 2024:002 --stop 2024:008
+  ./get_regr_vals.py --start 2024:002 --stop 2024:008 --test
+  ./compare_regr_vals.py
 cd ..
-
-CONTENTS="--content=acis2eng --content=acis3eng --content=acisdeahk --content=ccdm4eng --content=dp_acispow128 --content=orbitephem0 --content=simcoor --content=thm1eng"
-DATAROOT="--data-root=test/eng_archive"
-UPDATE_OPTS="$DATAROOT $CONTENTS"
-
-echo "Updating archive..."
-./update_archive.py --date-now 2012:315 --date-start 2012:300 --max-lookback-time=2 $UPDATE_OPTS >> test/make_eng_archive.log 2>&1
-
-
-
