@@ -6,7 +6,7 @@
 # repository. It then compares the outputs for a handful of MSIDs to flight archive.
 # It should take a few minutes to run.
 
-./make_test_eng_archive.sh
+./regression_test_eng_archive.sh
 
 # Basic sanity test with some plots (probably not useful)
 
