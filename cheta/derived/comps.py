@@ -435,8 +435,8 @@ class Comp_Quat(ComputedMsid):
             )
             quat = Quat(q=normalize(q))
         bads = np.zeros_like(q1, dtype=bool)
-        for msid in msids:
-            bads |= dat[msid].bads
+        for msid_ in msids:
+            bads |= dat[msid_].bads
 
         out = {"vals": quat, "bads": bads, "times": dat.times, "unit": None}
         return out

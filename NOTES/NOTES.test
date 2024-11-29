@@ -1,24 +1,25 @@
-##########################################################################
-# For py.test unit tests and general development
-##########################################################################
-skadev
-export KADI=/proj/sot/ska/data/kadi
-export ENG_ARCHIVE=/proj/sot/ska/data/eng_archive
+#################################################################################
+# Regression test for primary (HEAD) update_archive.py and fetch.py
+#################################################################################
 
-python setup.py install
-cd doc  # make sure it's picking up the installed version
-ipython
->>> import Ska.engarchive
->>> Ska.engarchive.test(args='-k -test_fetch_regr')  # normally skip this
+# This script generates a fresh cheta data archive using the current code in the
+# repository. It then compares the outputs for a handful of MSIDs to flight archive.
+# It should take a few minutes to run.
 
-##########################################################################
-# Build and install docs
-##########################################################################
-cd doc
-make html
-cd ..
-su -l aca
-make install_doc
+./regression_test_eng_archive.sh
+
+# Basic sanity test with some plots (probably not useful)
+
+$ env ENG_ARCHIVE=$PWD/test/eng_archive ipython --matplotlib
+>>> run test/make_plots.py
+
+#############################################################################
+#############################################################################
+# Everything below here is likely out of date and/or not useful.            #
+# It is included strictly for reference just in case.                       #
+#############################################################################
+#############################################################################
+
 
 #############################################################################
 # Make baseline (seed) test data using flight Ska.
@@ -44,82 +45,11 @@ tar zcf eng_archive.tar.gz eng_archive
 cp eng_archive.tar.gz /proj/sot/ska/data/eng_archive/regr/flight_eng_archive.tar.gz
 popd
 
-
-#################################################################################
-######## Regression test for primary (HEAD) update_archive.py and fetch.py
-#################################################################################
-
-# First make test data.  This sets ENG_ARCHIVE in that window.
-
-[[ source make_test_eng_archive.csh ]]
-. make_test_eng_archive.sh   # THIS actually works now
-
-# Basic sanity test with some plots
-
-[[ setenv ENG_ARCHIVE $PWD/test/eng_archive ]]
-export ENG_ARCHIVE=$PWD/test/eng_archive
-
-test/make_plots.py
-
-# Regression test.  Get_regr_vals.py uses the local ../Ska/engarchive/fetch.py
-# if --test is given, otherwise uses the installed Ska version.  It sets
-# ENG_ARCHIVE internally prior to importing fetch.
-
-[[ unsetenv ENG_ARCHIVE ]]
-unset ENG_ARCHIVE
-
-cd test
-  ./get_regr_vals.py --start 2012:302 --stop 2012:310
-  ./get_regr_vals.py --start 2012:302 --stop 2012:310 --test
-  ./compare_regr_vals.py
-cd ..
-[[ setenv ENG_ARCHIVE $PWD/test/eng_archive ]]
-export ENG_ARCHIVE=$PWD/test/eng_archive
-
-## 2011-Feb-18: All tests pass for rev 56:5b12e819e1df
-## 2012-Jan-21: All tests pass for 0.16dev e359acd5 !!
-## 2012-Apr-29: All tests pass for 0.18dev efddf4d
-## 2012-Nov-27: All tests pass for 0.21
-
-############################################################################################
-######## Regression test for new skare (updated Python, NumPy, tables, etc) in $ska/test/
-############################################################################################
-
-skatest
-
-. make_test_eng_archive.sh   # THIS actually works now
-
-# Basic sanity test with some plots
-test/make_plots.py
-
-pushd test
-  rm regr_vals.test
-  ./get_regr_vals.py --start 2012:302 --stop 2012:310 --test
-popd
-
-
-############
-# Regression test.  Get_regr_vals.py uses the local ../Ska/engarchive/fetch.py
-# if --test is given, otherwise uses the installed Ska version.  It sets
-# ENG_ARCHIVE internally prior to importing fetch.
-ska
-unset ENG_ARCHIVE
-pushd test
-  rm regr_vals.flight
-  ./get_regr_vals.py --start 2012:302 --stop 2012:310
-  ./compare_regr_vals.py
-popd
-
-## 2011-Jun-20 All tests pass for devska (skare 0.10)
-## 2012-Jun-12 All tests pass in skatest (skare 0.13) + new eng archive ddc63d2
-## 2012-Jun-20 All tests pass in skatest skare 0.13-r241-427bb9c + eng_arch ddc63d2
-## 2013-Apr-16 All tests pass in skatest skare 0.15-r293--e754375 + eng_arch f5db57c
-
 ########################################################################################################
 ######## Regression test for new skare in /proj/sot/ska
 ########################################################################################################
 
-# Make baseline (seed) test data using flight Ska. 
+# Make baseline (seed) test data using flight Ska.
 
 ska
 
@@ -178,7 +108,7 @@ test/make_plots.py
 
 unsetenv ENG_ARCHIVE
 pushd test
-./get_regr_vals.py --start 2010:265 --stop 2010:285 --test 
+./get_regr_vals.py --start 2010:265 --stop 2010:285 --test
 ./get_regr_vals.py --start 2010:265 --stop 2010:285
 ./compare_regr_vals.py
 popd

@@ -446,8 +446,7 @@ def _get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger
 
             # For rarely sampled data like CPE1ENG, delta_rows can end up being larger than the
             # table due to the gaps.  Therefore clip to the length of the table.
-            if delta_rows > len(table):
-                delta_rows = len(table)
+            delta_rows = min(delta_rows, len(table))
 
             times = (table[-delta_rows:]["index"] + 0.5) * dt
 
