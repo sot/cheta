@@ -44,7 +44,6 @@ def adjust_time(msid, start, stop):
 
     :returns: fetch ``MSID`` or ``Msid`` object
     """
-    samp_rate = tables["tsmpl"][msid.msid]["SAMPLE_RATE"]
     str_num = tables["tsmpl"][msid.msid]["STREAM_NUMBER"]
     start_minor_frame = tables["tloc"][msid.msid]["START_MINOR_FRAME"]
     # stream# to FMT name converter. Unsure if FMT6/SHuttle data needs to be handled
@@ -60,7 +59,6 @@ def adjust_time(msid, start, stop):
     # for each format, generate time offset based on stream number,  sample
     # rate and  start minor frame...
     t_off = {}
-    t_samp = {}
     str_num_2_idx = {}
     idx = 0
 
@@ -81,7 +79,6 @@ def adjust_time(msid, start, stop):
         off_phase = MNF_TIME * start_minor_frame[str_num_2_idx[stream]]
         t_off[fmt] = off_phase
         # 128 -> 0.25625, 64 -> 0.51250 , &c.
-        t_samp[fmt] = (128 / samp_rate[str_num_2_idx[stream]]) * 0.25625
 
     # Get Telemetry format for the time interval in question.  CCSDSTMF is
     # updated 128x per MjF, so it's at max time resolution

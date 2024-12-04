@@ -1,4 +1,5 @@
 import numpy as np
+from cxotime import secs2date
 
 from cheta import fetch
 from cheta.time_offsets import MNF_TIME, adjust_time, get_hi_res_times
@@ -16,8 +17,14 @@ def test_time_adjust_get_hi_res_times():
     start = "2020:030:03:00:00"
     stop = "2020:030:05:00:00"
     dat = fetch.Msid("tephin", start, stop)
+    with fetch.data_source("maude allow_subset=False"):
+        dat_maude = fetch.Msid("tephin", start, stop)
 
     dat_adj = adjust_time(dat, start, stop)
+    dates_maude = secs2date(dat_maude.times)
+    dates_adj = secs2date(dat_adj.times)
+    assert np.all(dates_maude == dates_adj)
+
     times_adj, fmt_intervals = get_hi_res_times(dat)
 
     # Test re-using fmt_intervals
