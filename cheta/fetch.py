@@ -1093,6 +1093,25 @@ class MSID(object):
 
         return deepcopy(self)
 
+    def set_hi_res_times(self, fmt_intervals=None):
+        """Update MSID timestamps to have minor frame time resolution.
+        This makes the MSID ``times`` match MAUDE. (TODO: better explanation)
+        """
+        from cheta.time_offsets import get_hi_res_times
+
+        if self.stat is not None:
+            return
+
+        data_sources = list(self.data_source.keys())
+        if data_sources == ["maude"]:
+            return
+        elif data_sources == ["cxc"]:
+            self.times, _ = get_hi_res_times(self, fmt_intervals)
+        else:
+            raise ValueError(
+                "cannot set hi_res times for query with mixed cxc and maude data"
+            )
+
     def filter_bad(self, bads=None, copy=False):
         """Filter out any bad values.
 
