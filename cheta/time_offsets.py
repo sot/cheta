@@ -6,10 +6,11 @@ Describe what this module does.
 import copy
 
 import numpy as np
-from Ska.engarchive import fetch_eng as fetch
-from Ska.engarchive.utils import logical_intervals, state_intervals
-from Ska.tdb import msids as tdb_msids
-from Ska.tdb import tables
+from ska_tdb import msids as tdb_msids
+from ska_tdb import tables
+
+from cheta import fetch_eng as fetch
+from cheta.utils import logical_intervals, state_intervals
 
 MNF_TIME = 0.25625  # Minor frame time (s)
 

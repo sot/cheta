@@ -1599,6 +1599,14 @@ class MSIDset(collections.OrderedDict):
     def copy(self):
         return self.__deepcopy__()
 
+    def set_hi_res_times(self):
+        """Update MSID timestamps to have minor frame time resolution.
+        This makes the MSID ``times`` match MAUDE. (TODO: better explanation)
+        """
+        fmt_intervals = None
+        for msid in self.values():
+            msid.set_hi_res_times(fmt_intervals)
+
     def filter_bad(self, copy=False, union=False):
         """Filter bad values for the MSID set.
 
