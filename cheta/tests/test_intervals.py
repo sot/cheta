@@ -285,7 +285,7 @@ def test_logical_intervals_one_value_true():
         "     2.0    0.0   2.0"
     ]
     # fmt: on
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_logical_intervals_one_value_false():
@@ -299,7 +299,7 @@ def test_logical_intervals_one_value_false():
         "-------- ------ -----",
     ]
     # fmt: on
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_logical_intervals_no_start_stop():
@@ -318,7 +318,7 @@ def test_logical_intervals_no_start_stop():
         "     2.0    0.5   2.5",
         "     1.0    3.5   4.5",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_logical_intervals_start_stop_1():
@@ -340,7 +340,7 @@ def test_logical_intervals_start_stop_1():
         "     2.0    0.5   2.5",
         "     2.5    3.5   6.0",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_logical_intervals_start_stop_2():
@@ -362,7 +362,7 @@ def test_logical_intervals_start_stop_2():
         "     3.5   -1.0   2.5",
         "     2.5    3.5   6.0",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_logical_intervals_start_stop_3():
@@ -379,7 +379,7 @@ def test_logical_intervals_start_stop_3():
         "-------- ------ -----",
         "     1.3    1.2   2.5",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_state_intervals_no_values():
@@ -402,7 +402,7 @@ def test_state_intervals_one_value_true():
         "---- -------- ------ -----",
         "True      2.0    0.0   2.0",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_state_intervals_no_start_stop():
@@ -423,7 +423,7 @@ def test_state_intervals_no_start_stop():
         "  0      1.0    2.5   3.5",
         "  1      1.0    3.5   4.5",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_state_intervals_start_stop_1():
@@ -442,7 +442,7 @@ def test_state_intervals_start_stop_1():
         "  0      1.0    2.5   3.5",
         "  1      2.5    3.5   6.0",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_state_intervals_start_stop_2():
@@ -461,7 +461,7 @@ def test_state_intervals_start_stop_2():
         "  0      1.0    2.5   3.5",
         "  1      2.5    3.5   6.0",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
 
 
 def test_state_intervals_start_stop_3():
@@ -481,4 +481,4 @@ def test_state_intervals_start_stop_3():
         " 40      1.0    2.5   3.5",
         " 50      0.4    3.5   3.9",
     ]
-    assert out.pformat_all() == exp
+    assert out.pformat() == exp
