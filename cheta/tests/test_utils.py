@@ -96,7 +96,7 @@ def test_get_ofp_states():
         "2022:295:17:41:01.477 2022:297:00:00:00.000 NRML",
     ]
 
-    assert out["datestart", "datestop", "val"].pformat_all() == exp
+    assert out["datestart", "datestop", "val"].pformat() == exp
 
 
 @pytest.mark.parametrize("dt", [0.001, 1.0])
@@ -113,7 +113,7 @@ def test_get_ofp_states_safe_mode_short(dt):
         f"2022:295:00:00:00.000 2022:295:00:00:{secs} SAFE",
     ]
 
-    assert out["datestart", "datestop", "val"].pformat_all() == exp
+    assert out["datestart", "datestop", "val"].pformat() == exp
 
 
 @pytest.mark.parametrize("dt", [0.001, 1.0])
@@ -137,7 +137,7 @@ def test_get_telem_table(dt):
         ],
     }
 
-    assert dat.pformat_all() == exp[dt]
+    assert dat.pformat() == exp[dt]
 
 
 @pytest.mark.parametrize("unit_system", ["eng", "cxc", "sci", None])
