@@ -863,6 +863,12 @@ class MSID(object):
             times_all_ok = np.all(times_ok)
             if not times_all_ok:
                 times = times[times_ok]
+            elif remote_access.access_remotely:
+                # This is really to prevent an issue in MATLAB tools where the times
+                # array is not "well-behaved" and causes issues in the MATLAB interface
+                # layer. But since remote access is almost always done with MATLAB and
+                # is slow, we'll just copy the array to be safe.
+                times = times.copy()
 
             times_cache.update(
                 dict(key=cache_key, val=times, ok=times_ok, all_ok=times_all_ok)
