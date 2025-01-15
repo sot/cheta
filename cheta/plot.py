@@ -3,13 +3,21 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from Chandra.Time import DateTime
-from matplotlib.dates import epoch2num, num2epoch
+from cxotime import CxoTime
 from Ska.Matplotlib import plot_cxctime
 
 from . import __version__  # noqa
 
 MIN_TSTART_UNIX = DateTime("1999:100").unix
 MAX_TSTOP_UNIX = DateTime().unix + 1e7
+
+
+def unix_to_plot_date(epoch):
+    return CxoTime(epoch, format="unix").plot_date
+
+
+def plot_date_to_unix(num):
+    return CxoTime(num, format="plot_date").unix
 
 
 def get_stat(t0, t1, npix):
@@ -107,16 +115,16 @@ class MsidPlot(object):
             zoom = self.zoom if event.key == "p" else 1.0 / self.zoom
             new_x1 = zoom * (x1 - xc) + xc
             new_x0 = new_x1 - zoom * dx
-            tstart = max(num2epoch(new_x0), MIN_TSTART_UNIX)
-            tstop = min(num2epoch(new_x1), MAX_TSTOP_UNIX)
-            new_x0 = epoch2num(tstart)
-            new_x1 = epoch2num(tstop)
+            tstart = max(plot_date_to_unix(new_x0), MIN_TSTART_UNIX)
+            tstop = min(plot_date_to_unix(new_x1), MAX_TSTOP_UNIX)
+            new_x0 = unix_to_plot_date(tstart)
+            new_x1 = unix_to_plot_date(tstop)
 
             self.ax.set_xlim(new_x0, new_x1)
             self.ax.figure.canvas.draw_idle()
         elif event.key == "m":
-            for _ in range(len(self.ax.lines)):
-                self.ax.lines.pop()
+            for line in self.ax.lines:
+                line.remove()
             self.plot_mins = not self.plot_mins
             print(
                 "\nPlotting mins and maxes is {}".format(
@@ -155,8 +163,8 @@ Interactive MSID plot keys:
 
     def xlim_changed(self, event):
         x0, x1 = self.ax.get_xlim()
-        self.tstart = DateTime(num2epoch(x0), format="unix").secs
-        self.tstop = DateTime(num2epoch(x1), format="unix").secs
+        self.tstart = DateTime(plot_date_to_unix(x0), format="unix").secs
+        self.tstop = DateTime(plot_date_to_unix(x1), format="unix").secs
         stat = get_stat(self.tstart, self.tstop, self.npix)
 
         if (
@@ -174,8 +182,8 @@ Interactive MSID plot keys:
 
     def draw_plot(self):
         msid = self.msid
-        for _ in range(len(self.ax.lines)):
-            self.ax.lines.pop()
+        for line in self.ax.lines:
+            line.remove()
 
         # Force manual y scaling
         scaley = self.scaley
