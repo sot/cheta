@@ -22,8 +22,9 @@ The data archive includes:
 
 The cheta package includes:
 
-- Powerful class to fetch, manipulate, and plot telemetry data.
-- Tools to perform a daily update of the primary archive on HEAD from the CXC L0 archive.
+- A powerful ``MSID`` class to fetch, manipulate, and plot telemetry data.
+- Interface to the MAUDE telemetry server which uses the ``MSID`` interface.
+- User-definable classes to compute pseudo-MSIDs from archive MSIDs.
 - Tools to synchronize a local archive of telemetry data from the primary archive.
 
 .. toctree::
