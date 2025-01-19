@@ -1,16 +1,13 @@
 :tocdepth: 3
 
-.. |fetch_MSID| replace:: :func:`~cheta.fetch.MSID`
-.. |fetch_MSIDset| replace:: :func:`~cheta.fetch.MSIDset`
-.. |fetch_MSIDset_interpolate| replace:: :func:`~cheta.fetch.MSIDset.interpolate`
-.. |get_telem| replace:: :func:`~cheta.fetch.get_telem`
+.. include:: references.rst
 
 ================================
 Fetch Tutorial
 ================================
 
 The python module ``cheta.fetch`` provides a simple interface to the
-engineering archive data files.  Using the module functions it is easy to
+cheta archive data files.  Using the module functions it is easy to
 retrieve data over a time range for a single MSID or a related set of MSIDs.
 The data are return as MSID objects that contain not only the telemetry timestamps
 and values but also various other data arrays and MSID metadata.
@@ -18,12 +15,10 @@ and values but also various other data arrays and MSID metadata.
 Getting started
 ================
 
-**First fetch**
-
 The basic process of fetching data always starts with importing the module
 into the python session::
 
-  import cheta.fetch as fetch
+  from cheta import fetch_eng as fetch
 
 The ``as fetch`` part of the ``import`` statement just creates an short alias
 to avoid always typing the somewhat lengthy ``cheta.fetch.MSID(..)``.
@@ -65,7 +60,7 @@ a stop time then it defaults to the latest available data in the archive.
 
 **Derived parameters (calcs)**
 
-The engineering archive has pseudo-MSIDs that are derived via calculation from
+The cheta archive has pseudo-MSIDs that are derived via calculation from
 telemetry MSIDs. These are also known as "calcs" in the context of MAUDE. In
 MAUDE, a calc is normally indicated with a prefix of ``CALC_``, but for
 compatibility with cheta a prefix of ``DP_`` is also allowed.
@@ -109,63 +104,27 @@ Date and time formats
 
 .. include:: date_time_formats.rst
 
-Converting between units is straightforward with the ``Chandra.Time`` module::
+Converting between units is straightforward with the `cxotime
+<https://sot.github.io/cxotime>`_ module::
 
-  import Chandra.Time
-  datetime = Chandra.Time.DateTime(126446464.184)
+  from cxotime import CxoTime
+  datetime = CxoTime(126446464.184)
   datetime.date
   Out[]: '2002:003:12:00:00.000'
 
   datetime.greta
   Out[]: '2002003.120000000'
 
-  Chandra.Time.DateTime('2009:235:12:13:14').secs
+  CxoTime('2009:235:12:13:14').secs
   Out[]: 367416860.18399996
-
-Exporting to CSV
-================
-
-If you want to move the fetch data to your local machine an ``MSID`` or
-``MSIDset`` can be exported as ASCII data table(s) in CSV format.  This can
-easily be imported into Excel or other PC applications.::
-
-  biases = fetch.MSIDset(['aogbias1', 'aogbias2', 'aogbias3'], '2002:001', stat='daily')
-  biases.write_zip('biases.zip')
-
-To suspend the ipython shell and look at the newly created file do::
-
-  <Ctrl>-z
-
-  % ls -l biases.zip
-  -rw-rw-r-- 1 aldcroft aldcroft 366924 Dec  4 17:07 biases.zip
-
-  % unzip -l biases.zip
-  Archive:  biases.zip
-    Length     Date   Time    Name
-   --------    ----   ----    ----
-     510809  12-04-09 17:02   aogbias1.csv
-     504556  12-04-09 17:02   aogbias2.csv
-     504610  12-04-09 17:02   aogbias3.csv
-   --------                   -------
-    1519975                   3 files
-
-To resume your ``ipython`` session::
-
-  % fg
-
-From a separate local cygwin or terminal window then retrieve the zip file and
-unzip as follows::
-
-  scp ccosmos.cfa.harvard.edu:biases.zip ./
-  unzip biases.zip
 
 Plotting time data
 ====================
 
 Even though seconds since 1998.0 is convenient for computations it isn't so
-natural for humans.  As mentioned the ``Chandra.Time`` module can help with
+natural for humans.  As mentioned the ``cxotime`` module can help with
 converting between formats but for making plots we use the
-`plot_cxctime() <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.Matplotlib.html#Ska.Matplotlib.plot_cxctime>`_
+`plot_cxctime() <https://sot.github.io/ska_matplotlib/#ska_matplotlib.plot_cxctime>`_
 function of the ``Ska.Matplotlib`` module::
 
   from Ska.Matplotlib import plot_cxctime
@@ -262,7 +221,7 @@ Using Kadi
 
 Frequently one can handle this with the :func:`~cheta.fetch.MSID.remove_intervals`
 :func:`~cheta.fetch.MSID.select_intervals` methods in conjunction with the `kadi event
-intervals <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-intervals>`_
+intervals <https://sot.github.io/kadi/events.html#interval-events>`_
 mechanism.
 
 As a simple example, the following code fetches the pitch component of the spacecraft
@@ -419,7 +378,7 @@ Bad data
 -----------
 
 For various reasons (typically a VCDU drop) the data value associated with a particular
-readout may be bad.  To handle this the engineering archive provides a boolean array
+readout may be bad.  To handle this the cheta archive provides a boolean array
 called ``bads`` that is ``True`` for bad samples.  This array corresponds to the
 respective ``times`` and ``vals`` arrays.  To remove the bad values one can use numpy
 boolean masking::
@@ -576,7 +535,7 @@ objects have a ``copy()`` method to explicitly make an independent copy::
 Five minute and daily stats
 ===========================
 
-The engineering telemetry archive also hosts tables of telemetry statistics
+The cheta telemetry archive also hosts tables of telemetry statistics
 computed over 5 minute and daily intervals.  To be more precise, the intervals
 are 328 seconds (10 major frames) and 86400 seconds.  The daily intervals are
 not *exactly* lined up with the midnight boundary but are within a couple of minutes.
@@ -635,6 +594,8 @@ that they do not have an associated bad values mask.  Instead if there are not
 at least 3 good samples within an interval then no record for that interval
 will exist.
 
+.. _MSID-sets:
+
 MSID sets
 ==========
 
@@ -681,18 +642,18 @@ resulting data may well have time "gaps" where bad values were filtered.  In thi
 the time delta between samples won't always be 0.25625 seconds.
 
 How do you know if your favorite MSIDs are always sampled at the same rate in
-the Ska engineering archive?  Apart from certain sets of MSIDs that are obvious
+the cheta archive?  Apart from certain sets of MSIDs that are obvious
 (like the gyro counts), here is where things get a little complicated and a
 digression is needed.
 
-The engineering archive is derived from CXC level-0 engineering telemetry
+The cheta archive is derived from CXC level-0 engineering telemetry
 decom.  This processing divides the all the engineering MSIDs into groups based
 on subsystem (ACIS, CCDM, EPHIN, EPS, HRC, MISC, OBC, PCAD, PROP, SIM, SMS,
 TEL, THM) and further divides by sampling rate (e.g. ACIS2ENG, ACIS3ENG,
 ACIS4ENG).  In all there about 80 "content-types" for engineering telemetry.
 All MSIDs within a content type are guaranteed to come out of CXC L0 decom with
 the same time-stamps, though of course the bad value masks can be different.
-Thus from the perspective of the Ska engineering archive two MSIDs are sure to
+Thus from the perspective of the cheta archive two MSIDs are sure to
 have the same sampling (time-stamps) if and only if they have have the same CXC
 content type.  In order to know whether the ``MSIDset.filter_bad()`` function
 will apply a common bad values filter to a set of MSIDs you need to inspect the
@@ -822,7 +783,7 @@ Unit systems
 ==============
 
 Within ``fetch`` it is possible to select a different system of physical
-units for the retrieved telemetry.  Internally the engineering archive
+units for the retrieved telemetry.  Internally the cheta archive
 stores values in the FITS format standard units as used by the CXC archive.
 This is essentially the MKS system and features all temperatures in Kelvins
 (not the most convenient).
@@ -854,7 +815,7 @@ units use the command::
 Mixing units
 ---------------
 
-Beginning with version 0.18 of the engineering archive it is possible to
+Beginning with version 0.18 of the cheta archive it is possible to
 reliably use the import mechanism to select different unit systems within the
 same script or Python process.
 
@@ -1005,14 +966,13 @@ via the daily state code counts is a snap::
 
 One could then drill down on these dates using 5-minute or full-resolution telemetry.
 
-Telemetry database
-==================
+Telemetry database (TDB)
+========================
 
 With an |fetch_MSID| object you can directly access all the information
-in the Chandra Telemetry Database which relates to that MSID.  This is
+in the Chandra Telemetry Database (TDB) which relates to that MSID.  This is
 done through the
-`Ska.tdb <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html>`_
-module.  For example::
+`ska_tdb <https://sot.github.io/ska_tdb>`_ module.  For example::
 
   >>> dat = fetch.Msid('aopcadmd', '2011:187', '2011:190')
 
@@ -1038,10 +998,8 @@ module.  For example::
   >>> dat.tdb.description
   'LR/15/SD/10 PCAD_MODE'
 
-Note that the ``tdb`` attribute is equivalent to ``Ska.tdb.msids[MSID]``,
-so refer to the
-`Ska.tdb <http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Ska.tdb.html>`_
-documentation for further information.
+Note that the ``tdb`` attribute is equivalent to ``Ska.tdb.msids[MSID]``, so refer to
+the `ska_tdb <https://sot.github.io/ska_tdb>`_ documentation for further information.
 
 MAUDE telemetry server
 ======================
@@ -1058,7 +1016,7 @@ In order to fill this gap an interface to the `MAUDE telemetry server
 
 The key differences between the CXC and MAUDE telemetry data sources are:
 
-- CXC includes `pseudo-MSIDs <../pseudo_msids.html>`_ such as ephemeris data, ACIS and HRC
+- CXC includes :ref:`pseudo-msids` such as ephemeris data, ACIS and HRC
   housekeeping, and derived parameters like the pitch and off-nominal roll angle.
 - CXC has a latency of 2-3 days vs. hours for MAUDE back-orbit telemetry.
 - During a realtime support MAUDE provides real-time telemetry.
@@ -1076,8 +1034,9 @@ The key differences between the CXC and MAUDE telemetry data sources are:
 Basic usage
 -----------
 
-Once you have followed the steps to `Setup for MAUDE authentication`_, you can access
-the MAUDE data.
+Once you have followed the steps to `Setup for MAUDE authentication
+<https://sot.github.io/maude/#setup-for-authentication>`_, you can access the MAUDE
+data.
 
 The source of data for fetch queries is controlled by the module-level ``fetch.data_source``
 configuration object.  You can first view the current data source with::
@@ -1212,36 +1171,10 @@ only one of the sources, then just the one source will be used.  For instance::
   {'cxc': {'start': '2016:145:12:00:00.241',
            'stop': '2016:150:18:37:01.841'}}
 
-
-Setup for MAUDE authentication
-------------------------------
-
-In order to use MAUDE as the data source you must have authentication credentials
-(username and password) to access OCCweb.  One can provide those credentials manually to
-the :func:`~maude.maude.get_msids` function call, but this gets tiresome.
-
-The preferred method to use this from a secure machine is to edit the file ``.netrc`` in
-your home directory and put in your OCCweb credentials.
-
-**IMPORTANT**: make sure the file is readable only by you!
-::
-
-  chmod og-rwx ~/.netrc
-
-
-Once you have done that, add these three lines.  If there are already
-other machines defined you need a blank line between the machine configs.
-::
-
-  machine  occweb
-  login    your-occweb-username
-  password your-occweb-password
-
-
 Pushing it to the limit
 ========================
 
-The engineering telemetry archive is designed to help answer questions that
+The cheta telemetry archive is designed to help answer questions that
 require big datasets.  Let's explore what is possible.  First quit from your
 current ``ipython`` session with ``exit()``.  Then start a window that will let
 you watch memory usage::
@@ -1330,162 +1263,6 @@ This returns two numbers: the first is the memory (megabytes) for the internal f
 operation to get the telemetry data, and the second is the memory for the interpolated
 output.  This estimate is made by fetching a 3-day sample of data starting at 2010:001
 and extrapolating.  Therefore the size estimates are reflective of normal operations.
-
-Fetching the easy way
-=====================
-
-The high-level function |get_telem| is available to simplify use of the Ska engineering
-archive.  It provides a way to combine many of the common processing steps associated with
-fetching and using telemetry data into a single function call.  This includes:
-
-- Fetch a set of MSIDs over a time range, specifying the sampling as
-  either full-resolution, 5-minute, or daily data.
-- Filter out bad or missing data.
-- Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
-- Remove or select time intervals corresponding to specified Kadi event types.
-- Change the time format from CXC seconds (seconds since 1998.0) to something more
-  convenient like GRETA time.
-- Write the MSID telemetry data to a zip file.
-
-Aside from the first two steps (fetching data and filtering bad data), all the steps are
-optional.
-
-The |get_telem| function has a lot of parameters in order to be flexible, but we'll break
-them down into manageable groups.
-
-**Desired telemetry**
-
-The first set are the key inputs relating to the actual telemetry:
-
-============== ======================================================
-Argument       Description
-============== ======================================================
-msids          MSID(s) to fetch (string or list of strings)
-start          Start time for data fetch (default=<stop> - 30 days)
-stop           Stop time for data fetch (default=NOW)
-sampling       Data sampling (full | 5min | daily) (default=full)')
-unit_system    Unit system for data (eng | sci | cxc) (default=eng)
-============== ======================================================
-
-The first argument ``msids`` is the only one that always has to be provided.  It should be
-either a single string like ``'COBSRQID'`` or a list of strings like ``['TEPHIN',
-'TCYLAFT6', 'TEIO']``.  Note that the MSID is case-insensitive so ``'tephin'`` is fine.
-
-The ``start`` and ``stop`` arguments are typically a string like ``'2012:001:02:03:04'``
-(ISO time) or ``'2012001.020304'`` (GRETA time).  If not provided then the last 30 days of
-telemetry will be fetched.
-
-The ``sampling`` argument will choose between either full-resolution telemetry
-or the 5-minute or daily summary statistic values.
-
-The ``unit_system`` argument selects the output unit system.  The choices are engineering
-units (i.e. what is in the TDB and GRETA), science units (mostly just temperatures in C
-instead of F), or CXC units (whatever is in CXC decom, which e.g. has temperatures in K).
-
-Example::
-
-  % ska
-  % ipython --pylab
-  >>> from cheta.fetch import get_telem
-  >>> dat = get_telem(['tephin', 'tcylaft6'], '2010:001', '2010:030', sampling='5min')
-  >>> clf()
-  >>> dat['tephin'].plot(label='TEPHIN', color='r')
-  >>> dat['tcylaft6'].plot(label='TCYLAFT6', color='b')
-  >>> legend()
-
-The output of |get_telem| is an |fetch_MSIDset| object which is described in the `MSID
-sets`_ section.
-
-**Interpolation**
-
-============== ======================================================
-Argument       Description
-============== ======================================================
-interpolate_dt Interpolate to uniform time steps (secs, default=None)
-============== ======================================================
-
-In general different MSIDs will come down in telemetry with different sampling and time
-stamps.  Interpolation allows you to put all the MSIDs onto a common time sequence so you
-can compare them, plot one against the other, and so forth.  You can see the
-`Interpolation`_ section for the gory details, but if you need to have your MSIDs on
-a common time sequence then set ``interpolate_dt`` to the desired time step
-in seconds.  When interpolating |get_telem| uses ``filter_bad=True`` and
-``union_bad=True`` (as described in `Interpolation`_).
-
-**Intervals**
-
-============== ======================================================
-Argument       Description
-============== ======================================================
-remove_events  Remove kadi events expression (default=None)
-select_events  Select kadi events expression (default=None)
-============== ======================================================
-
-These arguments allow you to select or remove intervals in the data using the `Kadi event
-definitions <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_.
-For instance we can select times of stable NPM dwells during radiation zones::
-
-  >>> dat = get_telem(['aoatter1', 'aoatter2', 'aoatter3'],
-                      start='2014:001', stop='2014:010', interpolate_dt=32.8,
-                      select_events='dwells & rad_zones')
-
-The order of processing is to first remove event intervals, then select event intervals.
-
-The expression for ``remove_events`` or ``select_events`` can be any logical expression
-involving Kadi query names (see the `event definitions table
-<http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_).  The
-following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
-``select_events`` this would imply selecting telemetry which is either during a DSN pass
-or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
-that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
-A positive padding expands the event intervals while negative contracts the intervals.
-
-**Output**
-
-============== =========================================================
-Argument       Description
-============== =========================================================
-time_format    Output time format (secs|date|greta|jd|..., default=secs)
-outfile        Output file name (default=None)
-============== =========================================================
-
-By default the ``times`` attribute for each MSID is provided in seconds since 1998.0 (CXC
-seconds).  The ``time_format`` argument allows selecting any time format supported by
-`Chandra.Time <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/pydocs/Chandra.Time.html>`_.
-
-If the ``outfile`` is set to a valid file name then the MSID set will be written out as a
-compressed zip archive.  This archive will contain a CSV file corresponding to each MSID
-in the set.  See the section on `Exporting to CSV`_ for additional information and an
-example of the output format.
-
-**Process control**
-
-============== ======================================================
-Argument       Description
-============== ======================================================
-quiet          Suppress run-time logging output (default=False)
-max_fetch_Mb   Max allowed memory (Mb) for fetching (default=1000)
-max_output_Mb  Max allowed memory (Mb) for output (default=100)
-============== ======================================================
-
-Normally |get_telem| outputs a few lines of progress information as it is processing the
-request.  To disable this logging set ``quiet=True``.
-
-The next two arguments are in place to prevent accidentally doing a huge query that will
-consume all available memory or generate a large file that will be slow to read.  For
-instance getting all the gyro count data for the mission will take more than 70 Gb of
-memory.
-
-The ``max_fetch_Mb`` argument specifies how much memory the fetched |fetch_MSIDset| can
-take.  This has a default of 1000 Mb = 1 Gb.
-
-The ``max_output_Mb`` only applies if you have also specified an ``outfile`` to write.
-This checks the size of the actual output |fetch_MSIDset|, which may be smaller than the
-fetch object if data sampling has been reduced via the ``interpolate_dt`` argument.  This
-has a default of 100 Mb.
-
-Both of the defaults here are relatively conservative, and with experience you can set
-larger values.
 
 Putting it all together
 =======================
@@ -1580,10 +1357,10 @@ Remote access is controlled as follows:
 - If ``SKA_ACCESS_REMOTELY`` is not defined on a linux or Mac system, remote access
   is always *disabled*.
 - If ``SKA_ACCESS_REMOTELY`` is not defined on a Windows system, remote access
-  is *enabled* unless the system finds a local engineering data archive.  It looks
+  is *enabled* unless the system finds a local cheta data archive.  It looks
   for data in either ``$SKA/data/eng_archive`` or ``$ENG_ARCHIVE``, where those
   refer to user-defined environment variables.
-- If remote access is disabled and there is no local engineering data archive,
+- If remote access is disabled and there is no local cheta data archive,
   then a warning is issued. In this case you can still use MAUDE for data access
   with ``fetch.data_source.set('maude')``.
 
@@ -1626,4 +1403,15 @@ Local cheta archive
 Instructions for creating, using, and maintaining a local cheta archive (on your
 laptop for instance) are found at the `Tutorial for installing and maintaining a
 cheta telemetry archive
-<https://github.com/sot/eng_archive/wiki/Tutorial:-install-and-maintain-cheta-telemetry-archive>`_.
+<https://github.com/sot/cheta/wiki/Tutorial:-install-and-maintain-cheta-telemetry-archive>`_.
+
+Archived topics
+===============
+
+This section contains a list of topics that have been archived from the main tutorial
+These topics are still relevant but are not as commonly used as the main topics.
+
+.. toctree::
+   :maxdepth: 1
+
+   archived_topics

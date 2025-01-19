@@ -98,25 +98,28 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+autodoc_typehints = 'none'
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  Major themes that come with
-# Sphinx are currently 'default' and 'sphinxdoc'.
-# html_theme = 'sphinxdoc'
-html_theme = 'bootstrap-ska'
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+html_theme = 'pydata_sphinx_theme'
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#html_theme_options = {}
 html_theme_options = {
-    'logotext1': 'Ska! ',  # white,  semi-bold
-    'logotext2': 'Cheta',  # orange, light
-    'logotext3': '',   # white,  light
-    'homepage_url': 'https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc',
-    'homepage_text': 'ska',
-    'homepage_text_2': 'tools'
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/sot/cheta",
+            "icon": "fab fa-github-square",
+        },
+    ],
+    "navbar_end": ["theme-switcher", "navbar-icon-links"],
+    "secondary_sidebar_items": ["page-toc"],
+}
+
+html_sidebars = {
+  "**": []
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -132,7 +135,7 @@ html_theme_options = {
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 # convert ska.jpg -fuzz 100% -transparent white -threshold 1%  -resize 100x100 ska.png
-html_logo = 'ska.png'
+html_logo = 'logo.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

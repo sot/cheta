@@ -1,4 +1,4 @@
-The Ska engineering telemetry archive tools support a wide
+The cheta telemetry archive tools support a wide
 range of formats for representing date-time stamps.  Note that within this and
 other documents for this tool suite, the words 'time' and 'date' are used
 interchangably to mean a date-time stamp.
