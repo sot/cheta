@@ -30,38 +30,38 @@ on a modern laptop with SSD drive.
 This cleaning technique recovers on average about 90% of data for PM2THV1T.  Since
 2015, about 60% of telemetry is good (no dropout) while 30% is in a recoverable
 fully-dropped state (and 10% is not recoverable).
+::
 
-```
-def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
-                     version=None):
-    Fetch a cleaned version of telemetry for ``msid``.
+    def fetch_clean_msid(msid, start, stop=None, dt_thresh=5.0, median=7, model_spec=None,
+                        version=None):
+        Fetch a cleaned version of telemetry for ``msid``.
 
-     If not supplied the model spec will come from
-     ``xija.get_model_spec.get_xija_model_spec(msid, version=version)``
-     (which uses ``$SKA/data/chandra_models/chandra_models/xija/mups_valve/{msid}_spec.json``).
+        If not supplied the model spec will come from
+        ``xija.get_model_spec.get_xija_model_spec(msid, version=version)``
+        (which uses ``$SKA/data/chandra_models/chandra_models/xija/mups_valve/{msid}_spec.json``).
 
-    This function returns a `fetch.Msid` object like a normal fetch but with extra attributes:
+        This function returns a `fetch.Msid` object like a normal fetch but with extra attributes:
 
-    - vals: cleaned telemetry (either original or corrected telemetry, or xija model prediction)
-    - source: label for each vals data point
-      - 0: unrecoverable, so use xija model value
-      - 1: original telemetry
-      - 2: corrected telemetry
-    - vals_raw: raw (uncleaned) telemetry
-    - vals_nan: cleaned telem but with np.nan at points where data are unrecoverable (this is
-                for plotting)
-    - vals_corr: telemetry with the MUPS correction applied
-    - vals_model: xija model prediction
+        - vals: cleaned telemetry (either original or corrected telemetry, or xija model prediction)
+        - source: label for each vals data point
+        - 0: unrecoverable, so use xija model value
+        - 1: original telemetry
+        - 2: corrected telemetry
+        - vals_raw: raw (uncleaned) telemetry
+        - vals_nan: cleaned telem but with np.nan at points where data are unrecoverable (this is
+                    for plotting)
+        - vals_corr: telemetry with the MUPS correction applied
+        - vals_model: xija model prediction
 
-    :param start: start time
-    :param stop: stop time (default=NOW)
-    :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
-    :param median: length of median filter (default=7, use 0 to disable)
-    :param model_spec: file name or URL containing relevant xija model spec
-    :param version: version of chandra_models repo (tag, branch, or commit)
+        :param start: start time
+        :param stop: stop time (default=NOW)
+        :param dt_thresh: tolerance for matching model to data in degF (default=5 degF)
+        :param median: length of median filter (default=7, use 0 to disable)
+        :param model_spec: file name or URL containing relevant xija model spec
+        :param version: version of chandra_models repo (tag, branch, or commit)
 
-    :returns: fetch.Msid object
-```
+        :returns: fetch.Msid object
+
 """
 
 import os
@@ -154,6 +154,7 @@ volt_without_resistor_to_volt_with_resistor = interp1d(
 
 def get_corr_mups_temp(temp):
     """Calculate a MUPS valve thermistor corrected temperature.
+
     Args:
         temp (float, int): Temperature in Fahrenheit to which a correction will be applied.
 

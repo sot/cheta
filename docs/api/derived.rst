@@ -22,12 +22,6 @@ EPS
 .. automodule:: cheta.derived.eps
     :members:
 
-MUPS valve
-----------
-
-.. automodule:: cheta.derived.mups_valve
-    :members:
-
 Orbit
 -----
 
