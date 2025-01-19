@@ -154,10 +154,10 @@ The first two of these are detected by looking at "spare" bits in the MSID ``SCI
 data.  The following code illustrates detecting conditions (1) or (2)::
 
   >>> from cheta import fetch
-  >>> from Chandra.Time import DateTime
+  >>> from cxotime import CxoTime
   >>> dat = fetch.Msid('HRC_SS_HK_BAD', '1999:300', '1999:310')
   >>> bad = (dat.vals & 0x7f) > 0
-  >>> DateTime(dat.times[bad]).date
+  >>> CxoTime(dat.times[bad]).date
   array(['1999:301:16:10:13.375', '1999:301:16:10:15.425',
          '1999:301:18:16:42.476', '1999:301:18:16:44.526',
          '1999:301:19:20:03.176', '1999:301:19:20:05.226',

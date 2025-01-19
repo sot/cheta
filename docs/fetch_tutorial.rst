@@ -125,9 +125,9 @@ Even though seconds since 1998.0 is convenient for computations it isn't so
 natural for humans.  As mentioned the ``cxotime`` module can help with
 converting between formats but for making plots we use the
 `plot_cxctime() <https://sot.github.io/ska_matplotlib/#ska_matplotlib.plot_cxctime>`_
-function of the ``Ska.Matplotlib`` module::
+function of the ``ska_matplotlib`` module::
 
-  from Ska.Matplotlib import plot_cxctime
+  from ska_matplotlib import plot_cxctime
   clf()
   plot_cxctime(tephin.times, tephin.vals)
 
@@ -417,7 +417,7 @@ locate and filter it out as follows (but see also :ref:`filter_bad_times`)::
   aorate1.vals[bad_vals_mask]
   Out[]: array([ -2.24164635e+32], dtype=float32)
 
-  Chandra.Time.DateTime(aorate1.times[bad_vals_mask]).date
+  CxoTime(aorate1.times[bad_vals_mask]).date
   Out[]: array(['2007:310:22:10:02.951'],
          dtype='|S21')
 
@@ -938,7 +938,7 @@ the duty cycle for an ON/OFF bi-level for mission trending::
 
 .. # Could use a plot directive here
    from cheta import fetch
-   from Ska.Matplotlib import plot_cxctime
+   from ska_matplotlib import plot_cxctime
    import matplotlib.pyplot as plt
    plt.figure(figsize=(6, 4), dpi=75)
 
@@ -998,7 +998,7 @@ done through the
   >>> dat.tdb.description
   'LR/15/SD/10 PCAD_MODE'
 
-Note that the ``tdb`` attribute is equivalent to ``Ska.tdb.msids[MSID]``, so refer to
+Note that the ``tdb`` attribute is equivalent to ``ska_tdb.msids[MSID]``, so refer to
 the `ska_tdb <https://sot.github.io/ska_tdb>`_ documentation for further information.
 
 MAUDE telemetry server
@@ -1188,7 +1188,7 @@ all the ``TEIO`` data for the mission::
   ipython --matplotlib
   import cheta.fetch as fetch
   import matplotlib.pyplot as plt
-  from Ska.Matplotlib import plot_cxctime
+  from ska_matplotlib import plot_cxctime
   time teio = fetch.MSID('teio', '2000:001', '2010:001', filter_bad=True)
   Out[]: CPU times: user 2.08 s, sys: 0.49 s, total: 2.57 s
          Wall time: 2.85 s
@@ -1271,9 +1271,9 @@ As a final example here is a real-world problem of wanting to compare OBC
 rates to those derived on the ground using raw gyro data.
 ::
 
-  import cheta.fetch as fetch
-  from Ska.Matplotlib import plot_cxctime
-  import Ska.Numpy
+  from cheta import fetch
+  from ska_matplotlib import plot_cxctime
+  import ska_numpy
 
   tstart = '2009:313:16:00:00'
   tstop = '2009:313:17:00:00'
@@ -1306,7 +1306,7 @@ rates to those derived on the ground using raw gyro data.
       subplot(3, 1, frame)
       obc_rates = obc[msid].vals * 206254.
       plot_cxctime(obc[msid].times, obc_rates, '-')
-      plot_cxctime(obc[msid].times, Ska.Numpy.smooth(obc_rates, window_len=20), '-r')
+      plot_cxctime(obc[msid].times, ska_numpy.smooth(obc_rates, window_len=20), '-r')
       ylim(average(obc_rates) + array([-1.5, 1.5]))
       title(label.capitalize() + ' rate (arcsec/sec)')
 
@@ -1322,7 +1322,7 @@ rates to those derived on the ground using raw gyro data.
       subplot(3, 1, 1+axis)
       raw_rate = raw_rates[axis, :]
       plot_cxctime(raw_times, raw_rate, '-')
-      plot_cxctime(raw_times, Ska.Numpy.smooth(raw_rate, window_len=20), '-r')
+      plot_cxctime(raw_times, ska_numpy.smooth(raw_rate, window_len=20), '-r')
       ylim(np.mean(raw_rate) + np.array([-0.4, 0.4]))
       title(label.capitalize() + ' S/C rate (arcsec/sec)')
 

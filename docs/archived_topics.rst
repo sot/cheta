@@ -120,7 +120,7 @@ outfile        Output file name (default=None)
 
 By default the ``times`` attribute for each MSID is provided in seconds since 1998.0 (CXC
 seconds).  The ``time_format`` argument allows selecting any time format supported by
-`Chandra.Time <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/pydocs/Chandra.Time.html>`_.
+`cxotime <https://sot.github.io/cxotime>`_.
 
 If the ``outfile`` is set to a valid file name then the MSID set will be written out as a
 compressed zip archive.  This archive will contain a CSV file corresponding to each MSID
@@ -430,8 +430,7 @@ Argument         Description
 
 By default the ``times`` column for each MSID output is provided in the format of seconds
 since 1998.0 (CXC seconds).  The ``time_format`` argument allows selecting any time format
-supported by `Chandra.Time
-<http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/pydocs/Chandra.Time.html>`_.  A common
+supported by `cxotime <https://sot.github.io/cxotime>`_.  A common
 option for FOT analysis will be ``greta``.
 
 The MSID set will always be written out as a compressed zip archive with the given name
