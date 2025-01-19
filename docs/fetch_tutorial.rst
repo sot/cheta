@@ -26,8 +26,8 @@ Fetching and plotting full time-resolution data for a single MSID is then quite
 easy::
 
   tephin = fetch.MSID('tephin', '2009:001', '2009:007') # (MSID, start, stop)
-  clf()
-  plot(tephin.times, tephin.vals)
+  plt.clf()
+  plt.plot(tephin.times, tephin.vals)
 
 .. image:: fetchplots/first.png
 
@@ -128,7 +128,7 @@ converting between formats but for making plots we use the
 function of the ``ska_matplotlib`` module::
 
   from ska_matplotlib import plot_cxctime
-  clf()
+  plt.clf()
   plot_cxctime(tephin.times, tephin.vals)
 
 An even simpler way to make the same plot is with the
@@ -545,11 +545,11 @@ These data are accessed by specifying
   tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
   tephin_daily = fetch.MSID('tephin', '2000:001', stat='daily')
   figure(1)
-  clf()
+  plt.clf()
   plot_cxctime(tephin_daily.times, tephin_daily.mins, '-b')
   plot_cxctime(tephin_daily.times, tephin_daily.maxes, '-r')
   figure(2)
-  clf()
+  plt.clf()
   plot_cxctime(tephin_5min.times, tephin_5min.means, '-b')
 
 .. image:: fetchplots/tephin_daily.png
@@ -608,7 +608,7 @@ The returned ``rates`` object is like a python dictionary (hash) object with
 a couple extra methods.  Indexing the object by the MSID name gives the
 usual ``fetch.MSID`` object that we've been using up to this point::
 
-  clf()
+  plt.clf()
   plot_cxctime(rates['aorate1'].times, rates['aorate1'].vals)
 
 You might wonder what's special about an ``MSIDset``, after all the actual code
@@ -681,8 +681,8 @@ new centroid value every 2.05 sec.
   gyr_dct1 = msids['aogyrct1'].vals[1:] - msids['aogyrct1'].vals[:-1]
   gyr_dt = msids['aogyrct1'].times[1:] - msids['aogyrct1'].times[:-1]
   gyr_rate = gyr_dct1 / gyr_dt * 0.02
-  clf()
-  plot(aca_rate, gyr_rate, '.')
+  plt.clf()
+  plt.plot(aca_rate, gyr_rate, '.')
 
 .. image:: fetchplots/aca_gyro_rates.png
 
@@ -1299,7 +1299,7 @@ rates to those derived on the ground using raw gyro data.
 
   # Plot the OBC rates
   figure(1, figsize=(8,6))
-  clf()
+  plt.clf()
   for frame, msid, label in ((1, 'aorate1', 'roll'),
                              (2, 'aorate2', 'pitch'),
                              (3, 'aorate3', 'yaw')):
@@ -1315,7 +1315,7 @@ rates to those derived on the ground using raw gyro data.
 
   # Plot the S/C rates from raw gyro data
   figure(2, figsize=(8,6))
-  clf()
+  plt.clf()
   for axis, label in ((0, 'roll'),
                       (1, 'pitch'),
                       (2, 'yaw')):

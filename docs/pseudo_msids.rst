@@ -654,35 +654,6 @@ sequence with step size ``time_step``.
                    data['1dp28bvo'].vals * data['1dpicbcu'].vals)
           return power
 
-
-ACIS Power
-^^^^^^^^^^^
-.. automodule:: cheta.derived.acispow
-   :members:
-
-EPS
-^^^^^^^^^^^^^^^^^
-.. automodule:: cheta.derived.eps
-   :members:
-   :undoc-members:
-
-Orbital elements
-^^^^^^^^^^^^^^^^^
-.. automodule:: cheta.derived.orbit
-   :members:
-   :undoc-members:
-
-PCAD
-^^^^^
-.. automodule:: cheta.derived.pcad
-   :members:
-
-Thermal
-^^^^^^^^^
-.. automodule:: cheta.derived.thermal
-   :members:
-   :undoc-members:
-
 Computed MSIDs
 --------------
 
@@ -811,9 +782,3 @@ following structure::
 
 The specified units must all be convertable using functions defined in the
 ``converters`` dict in the ``cheta.units`` module.
-
-Built-in computed MSIDs and API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-  .. automodule:: cheta.derived.comps
-    :members:
