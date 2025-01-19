@@ -544,11 +544,11 @@ These data are accessed by specifying
 
   tephin_5min = fetch.MSID('tephin', '2009:001', stat='5min')
   tephin_daily = fetch.MSID('tephin', '2000:001', stat='daily')
-  figure(1)
+  plt.figure(1)
   plt.clf()
   plot_cxctime(tephin_daily.times, tephin_daily.mins, '-b')
   plot_cxctime(tephin_daily.times, tephin_daily.maxes, '-r')
-  figure(2)
+  plt.figure(2)
   plt.clf()
   plot_cxctime(tephin_5min.times, tephin_5min.means, '-b')
 
@@ -1271,6 +1271,7 @@ As a final example here is a real-world problem of wanting to compare OBC
 rates to those derived on the ground using raw gyro data.
 ::
 
+  import matplotlib.pyplot as plt
   from cheta import fetch
   from ska_matplotlib import plot_cxctime
   import ska_numpy
@@ -1298,7 +1299,7 @@ rates to those derived on the ground using raw gyro data.
   raw_rates = np.dot(cts2rate, delta_cts) * 0.02 / delta_times
 
   # Plot the OBC rates
-  figure(1, figsize=(8,6))
+  plt.figure(1, figsize=(8,6))
   plt.clf()
   for frame, msid, label in ((1, 'aorate1', 'roll'),
                              (2, 'aorate2', 'pitch'),
@@ -1310,11 +1311,11 @@ rates to those derived on the ground using raw gyro data.
       ylim(average(obc_rates) + array([-1.5, 1.5]))
       title(label.capitalize() + ' rate (arcsec/sec)')
 
-  subplots_adjust(bottom=0.12, top=0.90)
-  # savefig('obc_rates.png')
+  plt.subplots_adjust(bottom=0.12, top=0.90)
+  # plt.savefig('obc_rates.png')
 
   # Plot the S/C rates from raw gyro data
-  figure(2, figsize=(8,6))
+  plt.figure(2, figsize=(8,6))
   plt.clf()
   for axis, label in ((0, 'roll'),
                       (1, 'pitch'),
@@ -1326,8 +1327,8 @@ rates to those derived on the ground using raw gyro data.
       ylim(np.mean(raw_rate) + np.array([-0.4, 0.4]))
       title(label.capitalize() + ' S/C rate (arcsec/sec)')
 
-  subplots_adjust(bottom=0.12, top=0.90)
-  # savefig('gyro_sc_rates.png')
+  plt.subplots_adjust(bottom=0.12, top=0.90)
+  # plt.savefig('gyro_sc_rates.png')
 
 .. image:: fetchplots/obc_rates.png
 .. image:: fetchplots/gyro_sc_rates.png
