@@ -27,7 +27,8 @@ sys.path.insert(0, rootpath)
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.viewcode']
+              'sphinx.ext.viewcode',
+              'sphinx_copybutton',]
 
 try:
     import matplotlib.sphinxext.plot_directive
@@ -217,3 +218,20 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+# Plot directive configuration
+plot_formats = ['png']
+plot_html_show_formats = False
+plot_html_show_source_link = False
+plot_pre_code = """\
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from cheta import fetch_eng, fetch_sci
+from ska_matplotlib import plot_cxctime
+
+matplotlib.style.use("bmh")
+"""
+
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
