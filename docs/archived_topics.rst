@@ -11,7 +11,7 @@ fetching and using telemetry data into a single function call.  This includes:
   either full-resolution, 5-minute, or daily data.
 - Filter out bad or missing data.
 - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
-- Remove or select time intervals corresponding to specified Kadi event types.
+- Remove or select time intervals corresponding to specified |kadi| event types.
 - Change the time format from CXC seconds (seconds since 1998.0) to something more
   convenient like GRETA time.
 - Write the MSID telemetry data to a zip file.
@@ -90,9 +90,9 @@ remove_events  Remove kadi events expression (default=None)
 select_events  Select kadi events expression (default=None)
 ============== ======================================================
 
-These arguments allow you to select or remove intervals in the data using the `Kadi event
-definitions <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_.
-For instance we can select times of stable NPM dwells during radiation zones::
+These arguments allow you to select or remove intervals in the data using the |kadi|
+event definitions. For instance we can select times of stable NPM dwells during
+radiation zones::
 
   >>> dat = get_telem(['aoatter1', 'aoatter2', 'aoatter3'],
                       start='2014:001', stop='2014:010', interpolate_dt=32.8,
@@ -101,8 +101,7 @@ For instance we can select times of stable NPM dwells during radiation zones::
 The order of processing is to first remove event intervals, then select event intervals.
 
 The expression for ``remove_events`` or ``select_events`` can be any logical expression
-involving Kadi query names (see the `event definitions table
-<http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_).  The
+involving |kadi| event query names.  The
 following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
 ``select_events`` this would imply selecting telemetry which is either during a DSN pass
 or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
@@ -168,7 +167,7 @@ fetching and using telemetry data:
   either full-resolution, 5-minute, or daily data.
 - Filter out bad or missing data.
 - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
-- Remove or select time intervals corresponding to specified Kadi event types.
+- Remove or select time intervals corresponding to specified |kadi| event types.
 - Change the time format from CXC seconds (seconds since 1998.0) to something more
   convenient like GRETA time.
 - Write the MSID telemetry data to a zip file.
@@ -180,16 +179,15 @@ optional.
 Getting started
 ----------------
 
-The very first thing is to get set up to use the Ska environment following the
-instructions in the `Ska Analysis Tutorial <tutorial.html#configure>`_.  Assuming that is
-done, then you need to enter the Ska environment using the ``ska`` (or ``skatest``)
-alias::
+The very first thing is to `get set up to use the Ska environment
+<https://github.com/sot/skare3/wiki/Ska-Overview#how-to-use-ska>`_.  Assuming that is
+done, then you need to enter the Ska environment using the ``ska3`` alias::
 
-  % ska
+  $ ska3
 
-(In case you don't use linux frequently, the ``%`` is meant to represent the command
-prompt, so don't type that).  After doing ``ska`` you should see your prompt change to
-include a ``ska-`` prefix.
+(In case you don't use linux frequently, the ``$`` is meant to represent the command
+prompt, so don't type that).  After doing ``ska3`` you should see your prompt change to
+include a ``ska3-`` prefix.
 
 Getting help
 ^^^^^^^^^^^^^
@@ -384,9 +382,9 @@ Argument         Description
 --select_events  Select kadi events expression (default=None)
 ================ ======================================================
 
-These arguments allow you to select or remove intervals in the data using the `Kadi event
-definitions <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_.
-For instance we can select times of stable NPM dwells during radiation zones::
+These arguments allow you to select or remove intervals in the data using the |kadi|
+event definitions. For instance we can select times of stable NPM dwells during
+radiation zones::
 
   % ska_fetch AOATTER1 AOATTER2 AOATTER3 --start=2014:001 --stop=2014:010 \
               select_events='dwells & rad_zones'
@@ -397,14 +395,13 @@ by the shell.
 
 The order of processing is to first remove event intervals, then select event intervals.
 
-The expression for ``--remove_events`` or ``--select_events`` can be any logical expression
-involving Kadi query names (see the `event definitions table
-<http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_).  The
-following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
-``select_events`` this would imply selecting telemetry which is either during a DSN pass
-or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
-that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
-A positive padding expands the event intervals while negative contracts the intervals.
+The expression for ``--remove_events`` or ``--select_events`` can be any logical
+expression involving |kadi| event query names.  The following string would be valid:
+``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for ``select_events`` this would
+imply selecting telemetry which is either during a DSN pass or (within a NPM dwell and
+not during an eclipse).  The ``[pad=-300]`` qualifier means that a buffer of 300 seconds
+is applied on each edge to provide padding from the maneuver. A positive padding expands
+the event intervals while negative contracts the intervals.
 
 Another example of practical interest is using the LTT bad times event to remove bad times
 for long-term trending plots by MSID.  In this case we get daily IRU-2 temps since 2004,
@@ -414,9 +411,7 @@ removing known LTT bad times::
                 --remove-events='ltt_bads[msid="AIRU2BT"]'
 
 Notice the syntax here which indicates selecting all the LTT bad times corresponding
-to ``AIRU2BT``.  See the
-`LTT bad times <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#ltt-bad-times>`_
-section for more details.
+to ``AIRU2BT``.
 
 Output
 ^^^^^^^
