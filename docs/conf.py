@@ -51,8 +51,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Eng archive'
-copyright = u'2011, Tom Aldcroft'
+project = 'Cheta'
+copyright = '2025, Tom Aldcroft'
 
 # The full version, including alpha/beta/rc tags.  Already defined above.
 from cheta import __version__ as version
@@ -115,7 +115,7 @@ html_theme_options = {
             "icon": "fab fa-github-square",
         },
     ],
-    "navbar_start": ["navbar-logo", "navbar-version"],
+    "navbar_start": ["navbar-project-version"],
     "navbar_end": ["theme-switcher", "navbar-icon-links"],
     "secondary_sidebar_items": ["page-toc"],
 }
@@ -137,7 +137,7 @@ html_sidebars = {
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 # convert ska.jpg -fuzz 100% -transparent white -threshold 1%  -resize 100x100 ska.png
-html_logo = 'logo.png'
+# html_logo = 'logo.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
