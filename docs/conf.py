@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Eng archive documentation build configuration file, created by
+# Cheta documentation build configuration file, created by
 # sphinx-quickstart on Mon Nov 23 22:45:31 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -185,40 +185,7 @@ html_show_sourcelink = False
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Engarchivedoc'
-
-
-# -- Options for LaTeX output --------------------------------------------------
-
-# The paper size ('letter' or 'a4').
-#latex_paper_size = 'letter'
-
-# The font size ('10pt', '11pt' or '12pt').
-#latex_font_size = '10pt'
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [
-  ('index', 'Engarchive.tex', u'Eng archive Documentation',
-   u'Tom Aldcroft', 'manual'),
-]
-
-# The name of an image file (relative to this directory) to place at the top of
-# the title page.
-#latex_logo = None
-
-# For "manual" documents, if this is true, then toplevel headings are parts,
-# not chapters.
-#latex_use_parts = False
-
-# Additional stuff for the LaTeX preamble.
-#latex_preamble = ''
-
-# Documents to append as an appendix to all manuals.
-#latex_appendices = []
-
-# If false, no module index is generated.
-#latex_use_modindex = True
+htmlhelp_basename = 'chetadoc'
 
 # Plot directive configuration
 plot_formats = ['png']
