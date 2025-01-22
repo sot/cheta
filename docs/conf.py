@@ -24,9 +24,12 @@ sys.path.insert(0, str(rootpath))
 # Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc',
+              # 'sphinx.ext.imgmath',
+              # 'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode',
               'sphinx_copybutton',
               'matplotlib.sphinxext.plot_directive',
+              # 'numpydoc'
              ]
 
 templates_path = ['_templates']
@@ -42,6 +45,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 autodoc_typehints = 'none'
 
 # -- Options for HTML output ---------------------------------------------------
+html_baseurl = f"https://sot.github.io/{project}/"
 
 # The theme to use for HTML and HTML Help pages.
 html_theme = 'pydata_sphinx_theme'
@@ -50,7 +54,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": f"https://github.com/sot/{{project}}",
+            "url": f"https://github.com/sot/{project}",
             "icon": "fab fa-github-square",
         },
     ],
@@ -65,7 +69,7 @@ html_sidebars = {
 }
 
 # If true, links to the reST sources are added to the pages.
-html_show_sourcelink = False
+html_show_sourcelink = True
 
 # Copybutton configuration
 copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
@@ -84,3 +88,12 @@ from ska_matplotlib import plot_cxctime
 
 matplotlib.style.use("bmh")
 """
+
+# Don't show summaries of the members in each class along with the
+# class' docstring
+numpydoc_show_class_members = False
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+    }
