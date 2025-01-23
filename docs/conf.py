@@ -24,8 +24,6 @@ sys.path.insert(0, str(rootpath))
 # Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-#     "sphinx.ext.autodoc",
-#     "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
@@ -101,6 +99,7 @@ intersphinx_mapping = {
 }
 
 automodapi_inheritance_diagram = False
+automodapi_toctreedirnm = "_api"
 # autosummary_generate = True
 # autosummary_imported_members = False
 

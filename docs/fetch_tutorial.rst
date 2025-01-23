@@ -222,7 +222,7 @@ Using Kadi
 ^^^^^^^^^^^
 
 Frequently one can handle this with the :func:`~cheta.fetch.MSID.remove_intervals`
-:func:`~cheta.fetch.MSID.select_intervals` methods in conjunction with the |kadi| event
+:func:`~cheta.fetch.MSID.select_intervals` methods in conjunction with the `kadi` event
 intervals mechanism.
 
 As a simple example, the following code fetches the pitch component of the spacecraft
@@ -266,7 +266,7 @@ after the end of each maneuver.
 Using logical intervals
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-For cases where the intervals to be filtered cannot be expressed as |kadi| events,
+For cases where the intervals to be filtered cannot be expressed as `kadi` events,
 the approach is to use the :func:`~cheta.utils.logical_intervals` function
 located in the ``cheta.utils`` module.  This function creates an intervals
 table where each row represents a desired interval and includes a ``datestart`` and

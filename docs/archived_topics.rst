@@ -11,7 +11,7 @@ fetching and using telemetry data into a single function call.  This includes:
   either full-resolution, 5-minute, or daily data.
 - Filter out bad or missing data.
 - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
-- Remove or select time intervals corresponding to specified |kadi| event types.
+- Remove or select time intervals corresponding to specified `kadi` event types.
 - Change the time format from CXC seconds (seconds since 1998.0) to something more
   convenient like GRETA time.
 - Write the MSID telemetry data to a zip file.
@@ -90,7 +90,7 @@ remove_events  Remove kadi events expression (default=None)
 select_events  Select kadi events expression (default=None)
 ============== ======================================================
 
-These arguments allow you to select or remove intervals in the data using the |kadi|
+These arguments allow you to select or remove intervals in the data using the `kadi`
 event definitions. For instance we can select times of stable NPM dwells during
 radiation zones::
 
@@ -101,7 +101,7 @@ radiation zones::
 The order of processing is to first remove event intervals, then select event intervals.
 
 The expression for ``remove_events`` or ``select_events`` can be any logical expression
-involving |kadi| event query names.  The
+involving `kadi` event query names.  The
 following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
 ``select_events`` this would imply selecting telemetry which is either during a DSN pass
 or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
@@ -167,7 +167,7 @@ fetching and using telemetry data:
   either full-resolution, 5-minute, or daily data.
 - Filter out bad or missing data.
 - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
-- Remove or select time intervals corresponding to specified |kadi| event types.
+- Remove or select time intervals corresponding to specified `kadi` event types.
 - Change the time format from CXC seconds (seconds since 1998.0) to something more
   convenient like GRETA time.
 - Write the MSID telemetry data to a zip file.
@@ -382,7 +382,7 @@ Argument         Description
 --select_events  Select kadi events expression (default=None)
 ================ ======================================================
 
-These arguments allow you to select or remove intervals in the data using the |kadi|
+These arguments allow you to select or remove intervals in the data using the `kadi`
 event definitions. For instance we can select times of stable NPM dwells during
 radiation zones::
 
@@ -396,7 +396,7 @@ by the shell.
 The order of processing is to first remove event intervals, then select event intervals.
 
 The expression for ``--remove_events`` or ``--select_events`` can be any logical
-expression involving |kadi| event query names.  The following string would be valid:
+expression involving `kadi` event query names.  The following string would be valid:
 ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for ``select_events`` this would
 imply selecting telemetry which is either during a DSN pass or (within a NPM dwell and
 not during an eclipse).  The ``[pad=-300]`` qualifier means that a buffer of 300 seconds
