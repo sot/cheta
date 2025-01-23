@@ -10,9 +10,9 @@ from pathlib import Path
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'cheta'
-copyright = '2025, Smithsonian Astrophysical Observatory'
-author = 'Tom Aldcroft'
+project = "cheta"
+copyright = "2025, Smithsonian Astrophysical Observatory"
+author = "Tom Aldcroft"
 
 # -- Path setup --------------------------------------------------------------
 rootpath = Path(__file__).resolve().parents[1]
@@ -23,32 +23,36 @@ sys.path.insert(0, str(rootpath))
 
 # Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc',
-              # 'sphinx.ext.imgmath',
-              # 'sphinx.ext.intersphinx',
-              'sphinx.ext.viewcode',
-              'sphinx_copybutton',
-              'matplotlib.sphinxext.plot_directive',
-              # 'numpydoc'
-             ]
+extensions = [
+#     "sphinx.ext.autodoc",
+#     "sphinx.ext.autosummary",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
+    "sphinx_copybutton",
+    "matplotlib.sphinxext.plot_directive",
+    "numpydoc",
+    "sphinx_automodapi.automodapi",
+    "sphinx_automodapi.smart_resolver",
+]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # Version information from the package.
 pkg = importlib.import_module(project)
 version = pkg.__version__
 release = version
 
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # Do not show type hints in the documentation
-autodoc_typehints = 'none'
+autodoc_typehints = "none"
 
 # -- Options for HTML output ---------------------------------------------------
 html_baseurl = f"https://sot.github.io/{project}/"
 
 # The theme to use for HTML and HTML Help pages.
-html_theme = 'pydata_sphinx_theme'
+html_theme = "pydata_sphinx_theme"
 
 html_theme_options = {
     "icon_links": [
@@ -64,9 +68,7 @@ html_theme_options = {
 }
 
 # No left sidebar
-html_sidebars = {
-  "**": []
-}
+html_sidebars = {"**": []}
 
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = True
@@ -76,7 +78,7 @@ copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: 
 copybutton_prompt_is_regexp = True
 
 # Plot directive configuration
-plot_formats = ['png']
+plot_formats = ["png"]
 plot_html_show_formats = False
 plot_html_show_source_link = False
 plot_pre_code = """\
@@ -95,5 +97,11 @@ numpydoc_show_class_members = False
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
-    }
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+}
+
+automodapi_inheritance_diagram = False
+# autosummary_generate = True
+# autosummary_imported_members = False
+
+toc_object_entries = False
