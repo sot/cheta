@@ -101,5 +101,5 @@ autoapi_dirs = ["../cheta"]
 autoapi_root = "api"
 autoapi_template_dir = "_templates"
 autoapi_own_page_level = "function"
-autoapi_ignore = ["*/test*.py", "*/fetch_old.py", "setup.py"]
-suppress_warnings = ["autoapi.python_import_resolution"]
+autoapi_ignore = ["*/test_*.py", "*/fetch_old.py", "setup.py"]
+# suppress_warnings = ["autoapi.python_import_resolution"]

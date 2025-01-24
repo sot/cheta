@@ -23,6 +23,8 @@ from astropy.io import ascii
 from Chandra.Time import DateTime
 from ska_helpers.utils import lru_cache_timed
 
+import cheta.remote_access
+
 from . import (
     __version__,  # noqa
     cache,
@@ -31,7 +33,6 @@ from . import (
 )
 from .derived.comps import ComputedMsid
 from .lazy import LazyDict
-from .remote_access import ENG_ARCHIVE
 from .units import Units
 
 __all__ = [
@@ -289,14 +290,16 @@ def _get_start_stop_dates(times):
 ft = pyyaks.context.ContextDict("ft")
 
 # Global (eng_archive) definition of file names
-msid_files = pyyaks.context.ContextDict("msid_files", basedir=ENG_ARCHIVE)
+msid_files = pyyaks.context.ContextDict(
+    "msid_files", basedir=cheta.remote_access.ENG_ARCHIVE
+)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names.
 # Then convert from astropy Table to recarray for API stability.
 # Note that filetypes.as_array().view(np.recarray) does not quite work...
-__filetypes = ascii.read(os.path.join(DIR_PATH, "filetypes.dat"))
-filetypes_arr = __filetypes.as_array()
+filetypes_tbl = ascii.read(os.path.join(DIR_PATH, "filetypes.dat"))
+filetypes_arr = filetypes_tbl.as_array()
 filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
 filetypes[()] = filetypes_arr
 
