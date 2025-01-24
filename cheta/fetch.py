@@ -23,8 +23,6 @@ from astropy.io import ascii
 from Chandra.Time import DateTime
 from ska_helpers.utils import lru_cache_timed
 
-import cheta.remote_access
-
 from . import (
     __version__,  # noqa
     cache,
@@ -290,9 +288,7 @@ def _get_start_stop_dates(times):
 ft = pyyaks.context.ContextDict("ft")
 
 # Global (eng_archive) definition of file names
-msid_files = pyyaks.context.ContextDict(
-    "msid_files", basedir=cheta.remote_access.ENG_ARCHIVE
-)
+msid_files = pyyaks.context.ContextDict("msid_files", basedir=remote_access.ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names.
