@@ -32,7 +32,3 @@ The cheta package includes:
 
    fetch_tutorial
    pseudo_msids
-   api/index
-
-
-

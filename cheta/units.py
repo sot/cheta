@@ -149,12 +149,17 @@ def FASTEP_to_mm(vals, delta_val=False):
 
 def mm_to_FASTEP(vals, delta_val=False):
     """
-    # compute mm from simulated integral step values and invert the CXC calibration
-    # given below:
-    x = np.arange(-5000.0, 0.0)  # step
-    y = (1.47906994e-3  *   x +  3.5723322e-8 *   x**2 +  -1.08492544e-12  *   x**3 +
-         3.9803832e-17  *   x**4 +  5.29336e-21  *  x**5 +  1.020064e-25  *   x**6)
-    r = np.polyfit(y, x, 8)
+    Convert from mm to focus assembly steps.
+
+    ::
+
+        # compute mm from simulated integral step values and invert the CXC calibration
+        # given below:
+        x = np.arange(-5000.0, 0.0)  # step
+        y = (1.47906994e-3  *   x +  3.5723322e-8 *   x**2 +  -1.08492544e-12  *   x**3 +
+            3.9803832e-17  *   x**4 +  5.29336e-21  *  x**5 +  1.020064e-25  *   x**6)
+        r = np.polyfit(y, x, 8)
+
     """
     r = np.array(
         [

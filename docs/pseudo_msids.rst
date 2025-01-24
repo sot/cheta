@@ -666,7 +666,7 @@ Cheta provides support for on-the-fly computed MSIDs with the following features
   or application of a function to any other MSID.
 * Support for 5-minute and daily stats also included.
 
-See the :ref:`computed-msids` section for a list of the available
+See the :mod:`cheta.derived.comps` API docs for a list of the available
 computed MSIDs.
 
 See the `DAWG computed MSIDs notebook

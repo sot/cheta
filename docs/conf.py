@@ -30,8 +30,7 @@ extensions = [
     "sphinx_copybutton",
     "matplotlib.sphinxext.plot_directive",
     "numpydoc",
-    "sphinx_automodapi.automodapi",
-    "sphinx_automodapi.smart_resolver",
+    "autoapi.extension",
 ]
 
 templates_path = ["_templates"]
@@ -98,9 +97,9 @@ intersphinx_mapping = {
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
 }
 
-automodapi_inheritance_diagram = False
-automodapi_toctreedirnm = "_api"
-# autosummary_generate = True
-# autosummary_imported_members = False
-
-toc_object_entries = False
+autoapi_dirs = ["../cheta"]
+autoapi_root = "api"
+autoapi_template_dir = "_templates"
+autoapi_own_page_level = "function"
+autoapi_ignore = ["*/test*.py", "*/fetch_old.py", "setup.py"]
+suppress_warnings = ["autoapi.python_import_resolution"]

@@ -434,7 +434,7 @@ def obc4eng(dat):
     At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to
     read out in wide-mode.  After this time the data in the listed OOBTHRxx MSIDs became
     invalid while the OOBTHRxx_WIDE MSIDs became valid.  This converter simply copies the
-    *_WIDE values to the original MSIDs after the time of patch activation.
+    ``*_WIDE`` values to the original MSIDs after the time of patch activation.
 
     At 2017:312:16:11:16, patch PR-411 was applied which transitioned 6 OBA thermistors to
     wide-mode and these were added below as patch "c".
