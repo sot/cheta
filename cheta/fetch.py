@@ -2284,8 +2284,7 @@ def create_msid_data_gap(msid_obj: MSID, data_gap_spec: str):
         start = CxoTime(args.start)
         stop = CxoTime(args.stop)
         logger.info(
-            f"Creating data gap for {msid_obj.MSID} "
-            f"from {start.date} to {stop.date}"
+            f"Creating data gap for {msid_obj.MSID} from {start.date} to {stop.date}"
         )
         i0, i1 = np.searchsorted(msid_obj.times, [start.secs, stop.secs])
         for attr in msid_obj.colnames:

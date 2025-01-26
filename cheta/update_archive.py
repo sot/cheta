@@ -255,11 +255,11 @@ def main_loop():
             create_content_dir()
 
         if not os.path.exists(msid_files["colnames"].abs):
-            logger.info(f'No colnames.pickle for {ft["content"]} - skipping')
+            logger.info(f"No colnames.pickle for {ft['content']} - skipping")
             continue
 
         if not os.path.exists(fetch.msid_files["archfiles"].abs):
-            logger.info(f'No archfiles.db3 for {ft["content"]} - skipping')
+            logger.info(f"No archfiles.db3 for {ft['content']} - skipping")
             continue
 
         # Column names for stats updates (without TIME, MJF, MNF, TLM_FMT)
@@ -848,7 +848,7 @@ def truncate_archive(filetype, date):
     """Truncate msid and statfiles for every archive file after date (to nearest
     year:doy)
     """
-    logger.info(f'Truncating {filetype["content"]} full and stat files after {date}')
+    logger.info(f"Truncating {filetype['content']} full and stat files after {date}")
     colnames = pickle.load(open(msid_files["colnames"].abs, "rb"))
 
     date = DateTime(date).date

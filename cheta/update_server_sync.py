@@ -236,7 +236,7 @@ def check_index_tbl_consistency(index_tbl):
 
     for idx, row0, row1 in zip(count(), index_tbl[:-1], index_tbl[1:]):
         if row0["row1"] != row1["row0"]:
-            msg = f'rows not contiguous at table date0={index_tbl["date_id"][idx]}'
+            msg = f"rows not contiguous at table date0={index_tbl['date_id'][idx]}"
             return msg
 
     # No problems
@@ -308,7 +308,7 @@ def update_index_file(index_file, opt, logger):
                 break
 
     if not rows:
-        logger.info(f'No updates available for content {fetch.ft["content"]}')
+        logger.info(f"No updates available for content {fetch.ft['content']}")
         return index_tbl
 
     # Create table from scratch or add new rows.  In normal processing there
@@ -367,8 +367,8 @@ def update_sync_data_full(content, logger, row):
     with DBI(dbi="sqlite", server=fetch.msid_files["archfiles"].abs) as dbi:
         query = (
             "select * from archfiles "
-            f'where filetime >= {row["filetime0"]} '
-            f'and filetime <= {row["filetime1"]} '
+            f"where filetime >= {row['filetime0']} "
+            f"and filetime <= {row['filetime1']} "
             "order by filetime "
         )
         archfiles = dbi.fetchall(query)

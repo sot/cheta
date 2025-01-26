@@ -509,7 +509,7 @@ def update_full_archfiles_db3(dat, logger, msid_files, opt):
                 vals = {
                     name: as_python(archfile[name]) for name in archfile.dtype.names
                 }
-                logger.debug(f'Inserting {vals["filename"]}')
+                logger.debug(f"Inserting {vals['filename']}")
                 if not opt.dry_run:
                     try:
                         db.insert(vals, "archfiles")
@@ -754,7 +754,7 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
     vals = {key: dat[f"{msid}.{key}"] for key in ("data", "row0", "row1")}
     logger.debug(
         f"append_stat_col msid={msid} date_id={date_id}, "
-        f'row0,1 = {vals["row0"]} {vals["row1"]}'
+        f"row0,1 = {vals['row0']} {vals['row1']}"
     )
 
     mode = "r" if opt.dry_run else "a"
@@ -765,7 +765,7 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
         if vals["row1"] - 1 <= last_row_idx:
             logger.debug(
                 f"Skipping {date_id} for {msid}: no new data "
-                f'row1={vals["row1"]} last_row_idx={last_row_idx}'
+                f"row1={vals['row1']} last_row_idx={last_row_idx}"
             )
             return
 
@@ -780,14 +780,14 @@ def append_stat_col(dat, stat_file, msid, date_id, opt, logger):
         if vals["row0"] != len(h5.root.data):
             raise RowMismatchError(
                 f"ERROR: unexpected discontinuity for stat msid={msid} "
-                f'content={fetch.ft["content"]}\n'
+                f"content={fetch.ft['content']}\n"
                 "Looks like your archive is in a bad state, CONTACT "
                 "your local Ska expert with this info:\n"
-                f'  First row0 in new data {vals["row0"]} != '
+                f"  First row0 in new data {vals['row0']} != "
                 f"length of existing data {len(h5.root.data)}"
             )
 
-        logger.debug(f'Appending {len(vals["data"])} rows to {stat_file}')
+        logger.debug(f"Appending {len(vals['data'])} rows to {stat_file}")
         if not opt.dry_run:
             h5.root.data.append(vals["data"])
 
@@ -873,10 +873,10 @@ def append_h5_col(opt, msid, vals, logger, msid_files):
         if vals["row0"] != len(h5.root.data):
             raise RowMismatchError(
                 f"ERROR: unexpected discontinuity for full msid={msid} "
-                f'content={fetch.ft["content"]}\n'
+                f"content={fetch.ft['content']}\n"
                 "Looks like your archive is in a bad state, CONTACT "
                 "your local Ska expert with this info:\n"
-                f'  First row0 in new data {vals["row0"]} != '
+                f"  First row0 in new data {vals['row0']} != "
                 f"length of existing data {len(h5.root.data)}"
             )
 
