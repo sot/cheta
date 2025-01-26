@@ -561,9 +561,7 @@ class MSID(object):
             start, stop = intervals[0][0], intervals[-1][1]
 
         self.tstart = DateTime(start).secs
-        self.tstop = (
-            DateTime(stop).secs if stop else DateTime(time.time(), format="unix").secs
-        )
+        self.tstop = DateTime(stop).secs
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
         self.data_source = {}
