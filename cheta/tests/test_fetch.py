@@ -367,6 +367,13 @@ def test_interpolate_times_raise():
         dat.interpolate(10.0, times=[1, 2])
 
 
+def test_cxotime_now(monkeypatch):
+    monkeypatch.setenv("CXOTIME_NOW", "2025:002:00:00:00")
+    dat = fetch.Msid("tephin", "2025:001:12:00:00", stat="5min")
+    assert CxoTime(dat.times[-1]).date < "2025:002:00:00:00.000"
+    assert len(dat) == 132  # Matches number of 5 min intervals in 12 hours
+
+
 def test_interpolate_times():
     dat = fetch.MSIDset(
         ["aoattqt1", "aogyrct1", "aopcadmd"], "2008:002:21:48:00", "2008:002:21:50:00"
