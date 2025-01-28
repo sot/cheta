@@ -5,7 +5,7 @@ remote server.
 
 Functional testing
 ------------------
-For tests that require remote access, yoou must be VPN'd to the remote network and enter
+For tests that require remote access, you must be VPN'd to the remote network and enter
 an IP address and credentials for the remote server. Normally this is the OCC VPN and
 chimchim (respectively) using the existing flight remote server. However, testing with
 the SI VPN and a server on the HEAD network is also possible.
