@@ -157,7 +157,12 @@ def establish_connection():
                 client_key_file, sshserver=f"{username}@{hostname}", password=password
             )
         except Exception:
+            import traceback
+
             print("Error connecting to server ", hostname, ": ", sys.exc_info()[0])
+            print()
+            traceback.print_exc()
+            print()
             sys.stdout.flush()
             _remote_client = None
             # Clear out information so the user can try again

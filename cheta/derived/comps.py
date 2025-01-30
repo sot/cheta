@@ -7,8 +7,7 @@ Support computed MSIDs in the cheta archive.
   Cleaned MUPS valve temperatures MSIDs ``(pm2thv1t|pm1thv2t)_clean``.
 - :class:`~cheta.derived.comps.Comp_KadiCommandState`:
   Commanded states ``cmd_state_<key>_<dt>`` for any kadi commanded state value.
-- :class:`~cheta.derived.comps.Comp_Quat`:
-  Quaternions
+- :class:`~cheta.derived.comps.Comp_Quat`: Quaternions
     - ``quat_aoattqt`` = ``AOATTQT[1-4]``
     - ``quat_aoatupq`` = ``AOATUPQ[1-3]``
     - ``quat_aocmdqt`` = ``AOCMDQT[1-3]``

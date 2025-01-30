@@ -1,19 +1,29 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Test getting data archive path information for eng archive and possible access
-via a remote server.
+Test getting data archive path information for eng archive and possible access via a
+remote server.
 
-In addition, do manual tests below.  For tests that require remote access, one
-must be VPN'd to the OCC network and enter an IP address and credentials for
-chimchim.  In addition, the file ska_remote_access.json must be installed at the
-Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
-"ska_remote_access.json" to find a path to this file.
+Functional testing
+------------------
+For tests that require remote access, you must be VPN'd to the remote network and enter
+an IP address and credentials for the remote server. Normally this is the OCC VPN and
+chimchim (respectively) using the existing flight remote server. However, testing with
+the SI VPN and a server on the HEAD network is also possible.
 
-- Nominal remote access on Windows: No env vars set (SKA, ENG_ARCHIVE,
-  SKA_ACCESS_REMOTELY). Confirm that remote access is enabled and works by
-  fetching an MSID::
+Client remote access key file
+-----------------------------
+The file ``ska_remote_access.json`` must be installed at the Ska3 root (``python -c
+'import sys; print(sys.prefix)'``). This provides credentials for connecting to the
+server. See the TWiki path SpecialProject > DAWG > DAWG_TIPS_AND_TRICKS > Ska section
+for the file.
 
-    >>> import os os.environ.pop('SKA', None)
+Remote access on Windows
+------------------------
+Here there are no special environment vars set (SKA, ENG_ARCHIVE, SKA_ACCESS_REMOTELY).
+Confirm that remote access is enabled and works by fetching an MSID::
+
+    >>> import os
+    >>> os.environ.pop('SKA', None)
     >>> os.environ.pop('ENG_ARCHIVE', None)
     >>> os.environ.pop('SKA_ACCESS_REMOTELY', None)
     >>> from cheta import fetch, remote_access
@@ -22,9 +32,10 @@ Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
     >>> dat = fetch.Msid('tephin', '2018:001', '2018:010')
     >>> print(dat.vals)
 
-- Override remote access on Windows by setting SKA to a valid path so eng
-  archive data will be found. Confirm that remote access is disabled and fetch
-  uses local access::
+Local Ska data on Windows
+-------------------------
+Override remote access on Windows by setting SKA to a valid path so eng archive data is
+found. Confirm that remote access is disabled and fetch uses local access::
 
     >>> import os
     >>> os.environ['SKA'] = <path_to_ska_root>
@@ -36,8 +47,9 @@ Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
     >>> dat = fetch.Msid('1wrat', '2018:001', '2018:010')
     >>> print(dat.vals)
 
-- Override remote access on non-Windows by setting SKA_ACCESS_REMOTELY to
-  'True'::
+Remote access on non-Windows
+----------------------------
+Override remote access on non-Windows by setting SKA_ACCESS_REMOTELY to 'True'::
 
     >>> import os
     >>> os.environ['SKA_ACCESS_REMOTELY'] = 'True'
@@ -45,30 +57,41 @@ Ska3 root (sys.prefix).  Search email around Jan 3, 2019 for
     >>> import fetch, remote_access
     >>> fetch.add_logging_handler()
     >>> assert remote_access.access_remotely is True
+
+    # Optional for testing with a custom remote server on kady
+    >>> remote_access.client_key_file = <path_to_ska_remote_access.json>
+
     >>> dat = fetch.Msid('tephin', '2018:001', '2018:010')
     >>> print(dat.vals)
 
+Start a test remote server
+--------------------------
+Normally it is sufficient to use the existing ``chimchim`` server. However, for testing
+with a new Python version or other changes, you can start a new server on ``kady``.
+
 Scripts related to starting and maintaining a remote data server can be found in
-`/home/mbaski/python`. The files there are named obviously.
+``/home/mbaski/python``. The files there are named obviously, though circa 2025 they
+still refer to SHINY throughout.
 
-As an example:
-```
-/proj/sot/ska3/shiny/bin/skare /proj/sot/ska3/shiny/bin/ipcontroller --profile=test_remote \
- --reuse \
- >& remote_ipython_server.log &
+.. warning:: For aspect team testing, it is best to use ``kady`` as the test server.
+     There was some question about whether testing on ``chimchim`` was interfering
+     with the production server that is normally running.
 
-/proj/sot/ska3/shiny/bin/skare /proj/sot/ska3/shiny/bin/ipengine \
-  --file /home/taldcroft/.ipython/profile_test_remote/security/ipcontroller-engine.json \
+As an example (in the flight Ska3 environment)::
+
+  ipcontroller --profile=test_remote --reuse >& remote_ipython_server.log &
+
+  ipengine --file $HOME/.ipython/profile_test_remote/security/ipcontroller-engine.json \
   >& remote_ipython_engine.log &
-```
 
-The first time you run the `ipcontroller` command this will create the
-`ipcontroller-client.json` and `ipcontroller-engine.json` files in
-`$HOME/.ipython/profile_test_remote/security/`.
+The first time you run the ``ipcontroller`` command this will create the
+``ipcontroller-client.json`` and ``ipcontroller-engine.json`` files in
+``$HOME/.ipython/profile_test_remote/security/``. You might want to skip the ``--reuse``
+flag to get a fresh start if things are not working.
 
-The `ipcontroller-client.json` then needs to be placed into the Ska3
-installation root directory (`python -c 'import sys; print(sys.prefix)'`) as
-`ska_remote_access.json`.
+The ``ipcontroller-client.json`` then needs to be copied to the local client machine.
+For testing, you should copy it to any local file and then override
+``remote_access.client_key_file`` accordingly.
 """
 
 import os
