@@ -285,10 +285,13 @@ def update_index_file(index_file, opt, logger):
                 f"filetime > {DateTime(filetime0).fits[:-4]} {filetime0} "
                 f"filetime <= {DateTime(filetime1).fits[:-4]} {filetime1} "
             )
+            # Require files in time range and which have at least one row of data. It
+            # can happen that L0 files are created but with zero rows.
             archfiles = dbi.fetchall(
                 "select * from archfiles "
                 f"where filetime > {filetime0} "
                 f"and filetime <= {filetime1} "
+                "and rowstop > rowstart "
                 "order by filetime "
             )
 
