@@ -1,3 +1,8 @@
+.. |fetch_MSID| replace:: :func:`~cheta.fetch.MSID`
+.. |fetch_MSIDset| replace:: :func:`~cheta.fetch.MSIDset`
+.. |fetch_MSIDset_interpolate| replace:: :func:`~cheta.fetch.MSIDset.interpolate`
+.. |get_telem| replace:: :func:`~cheta.fetch.get_telem`
+
 .. _`Main`: index.html
 .. _`overview`: index.html
 .. _`tutorial`: tutorial.html
@@ -12,3 +17,5 @@
 .. _HEAsoft: http://heasarc.gsfc.nasa.gov/lheasoft/
 .. _CIAO: http://cxc.harvard.edu/ciao/
 .. _SAS: http://xmm.vilspa.esa.es/sas/
+.. _kadi: https://sot.github.io/kadi/
+

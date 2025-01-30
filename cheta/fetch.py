@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Fetch values from the Ska engineering telemetry archive.
+Fetch values from the cheta telemetry archive.
 """
 
 import collections
@@ -31,8 +31,28 @@ from . import (
 )
 from .derived.comps import ComputedMsid
 from .lazy import LazyDict
-from .remote_access import ENG_ARCHIVE
 from .units import Units
+
+__all__ = [
+    "data_source",
+    "local_or_remote_function",
+    "get_units",
+    "set_units",
+    "read_bad_times",
+    "msid_glob",
+    "MSID",
+    "MSIDset",
+    "Msid",
+    "Msidset",
+    "HrcSsMsid",
+    "memoized",
+    "get_time_range",
+    "get_telem",
+    "add_logging_handler",
+    "get_data_gap_spec_parser",
+    "msid_matches_data_gap_spec",
+    "create_msid_data_gap",
+]
 
 # Module-level units, defaults to CXC units (e.g. Kelvins etc)
 UNITS = Units(system="cxc")
@@ -109,7 +129,7 @@ class _DataSource(object):
         """
         Set current data sources.
 
-        :param *data_sources: one or more sources (str)
+        :param data_sources: one or more sources (str)
         """
         if any(
             data_source.split()[0] not in cls._allowed for data_source in data_sources
@@ -268,14 +288,14 @@ def _get_start_stop_dates(times):
 ft = pyyaks.context.ContextDict("ft")
 
 # Global (eng_archive) definition of file names
-msid_files = pyyaks.context.ContextDict("msid_files", basedir=ENG_ARCHIVE)
+msid_files = pyyaks.context.ContextDict("msid_files", basedir=remote_access.ENG_ARCHIVE)
 msid_files.update(file_defs.msid_files)
 
 # Module-level values defining available content types and column (MSID) names.
 # Then convert from astropy Table to recarray for API stability.
 # Note that filetypes.as_array().view(np.recarray) does not quite work...
-filetypes = ascii.read(os.path.join(DIR_PATH, "filetypes.dat"))
-filetypes_arr = filetypes.as_array()
+filetypes_tbl = ascii.read(os.path.join(DIR_PATH, "filetypes.dat"))
+filetypes_arr = filetypes_tbl.as_array()
 filetypes = np.recarray(len(filetypes_arr), dtype=filetypes_arr.dtype)
 filetypes[()] = filetypes_arr
 
@@ -1830,6 +1850,7 @@ class MSIDset(collections.OrderedDict):
 class Msid(MSID):
     """
     Fetch data from the engineering telemetry archive into an MSID object.
+
     Same as MSID class but with filter_bad=True by default.
 
     :param msid: name of MSID (case-insensitive)
@@ -2003,16 +2024,16 @@ def get_telem(
     High-level routine to get telemetry for one or more MSIDs and perform
     common processing functions:
 
-      - Fetch a set of MSIDs over a time range, specifying the sampling as
-        either full-resolution, 5-minute, or daily data.
-      - Filter out bad or missing data.
-      - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
-      - Remove or select time intervals corresponding to specified Kadi event types.
-      - Change the time format from CXC seconds (seconds since 1998.0) to something more
-        convenient like GRETA time.
-      - Write the MSID telemetry data to a zipfile.
+    - Fetch a set of MSIDs over a time range, specifying the sampling as
+      either full-resolution, 5-minute, or daily data.
+    - Filter out bad or missing data.
+    - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
+    - Remove or select time intervals corresponding to specified Kadi event types.
+    - Change the time format from CXC seconds (seconds since 1998.0) to something more
+      convenient like GRETA time.
+    - Write the MSID telemetry data to a zipfile.
 
-    :param msids: MSID(s) to fetch (string or list of strings)')
+    :param msids: MSID(s) to fetch (string or list of strings)
     :param start: Start time for data fetch (default=<stop> - 30 days)
     :param stop: Stop time for data fetch (default=NOW)
     :param sampling: Data sampling (full | 5min | daily) (default=full)

@@ -490,7 +490,7 @@ def get_telem_table(
 
 @functools.lru_cache(maxsize=1)
 def get_ofp_states(start, stop):
-    """Get the Onboard Flight Program (OFP) states between ``start`` and ``stop`.
+    """Get the Onboard Flight Program (OFP) states between ``start`` and ``stop``.
 
     This is normally "NRML" but in safe mode it is "SAFE" or other values. State codes:
     ['NNRM' 'STDB' 'STBS' 'NRML' 'NSTB' 'SUOF' 'SYON' 'DPLY' 'SYSF' 'STUP' 'SAFE']

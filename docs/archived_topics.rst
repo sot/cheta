@@ -1,8 +1,164 @@
-=====================
-Command-line fetch
-=====================
+.. include:: references.rst
 
-The ``fetch_ska`` application allows use of the Ska engineering archive
+One-stop fetch function
+=======================
+
+The high-level function |get_telem| is available to simplify use of the cheta
+archive.  It provides a way to combine many of the common processing steps associated with
+fetching and using telemetry data into a single function call.  This includes:
+
+- Fetch a set of MSIDs over a time range, specifying the sampling as
+  either full-resolution, 5-minute, or daily data.
+- Filter out bad or missing data.
+- Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
+- Remove or select time intervals corresponding to specified `kadi` event types.
+- Change the time format from CXC seconds (seconds since 1998.0) to something more
+  convenient like GRETA time.
+- Write the MSID telemetry data to a zip file.
+
+Aside from the first two steps (fetching data and filtering bad data), all the steps are
+optional.
+
+The |get_telem| function has a lot of parameters in order to be flexible, but we'll break
+them down into manageable groups.
+
+**Desired telemetry**
+
+The first set are the key inputs relating to the actual telemetry:
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+msids          MSID(s) to fetch (string or list of strings)
+start          Start time for data fetch (default=<stop> - 30 days)
+stop           Stop time for data fetch (default=NOW)
+sampling       Data sampling (full | 5min | daily) (default=full)')
+unit_system    Unit system for data (eng | sci | cxc) (default=eng)
+============== ======================================================
+
+The first argument ``msids`` is the only one that always has to be provided.  It should be
+either a single string like ``'COBSRQID'`` or a list of strings like ``['TEPHIN',
+'TCYLAFT6', 'TEIO']``.  Note that the MSID is case-insensitive so ``'tephin'`` is fine.
+
+The ``start`` and ``stop`` arguments are typically a string like ``'2012:001:02:03:04'``
+(ISO time) or ``'2012001.020304'`` (GRETA time).  If not provided then the last 30 days of
+telemetry will be fetched.
+
+The ``sampling`` argument will choose between either full-resolution telemetry
+or the 5-minute or daily summary statistic values.
+
+The ``unit_system`` argument selects the output unit system.  The choices are engineering
+units (i.e. what is in the TDB and GRETA), science units (mostly just temperatures in C
+instead of F), or CXC units (whatever is in CXC decom, which e.g. has temperatures in K).
+
+Example::
+
+  % ska
+  % ipython --pylab
+  >>> from cheta.fetch import get_telem
+  >>> dat = get_telem(['tephin', 'tcylaft6'], '2010:001', '2010:030', sampling='5min')
+  >>> clf()
+  >>> dat['tephin'].plot(label='TEPHIN', color='r')
+  >>> dat['tcylaft6'].plot(label='TCYLAFT6', color='b')
+  >>> legend()
+
+The output of |get_telem| is an |fetch_MSIDset| object which is described in the
+:ref:`MSID-sets` section.
+
+**Interpolation**
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+interpolate_dt Interpolate to uniform time steps (secs, default=None)
+============== ======================================================
+
+In general different MSIDs will come down in telemetry with different sampling and time
+stamps.  Interpolation allows you to put all the MSIDs onto a common time sequence so you
+can compare them, plot one against the other, and so forth.  You can see the
+`Interpolation`_ section for the gory details, but if you need to have your MSIDs on
+a common time sequence then set ``interpolate_dt`` to the desired time step
+in seconds.  When interpolating |get_telem| uses ``filter_bad=True`` and
+``union_bad=True`` (as described in `Interpolation`_).
+
+**Intervals**
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+remove_events  Remove kadi events expression (default=None)
+select_events  Select kadi events expression (default=None)
+============== ======================================================
+
+These arguments allow you to select or remove intervals in the data using the `kadi`
+event definitions. For instance we can select times of stable NPM dwells during
+radiation zones::
+
+  >>> dat = get_telem(['aoatter1', 'aoatter2', 'aoatter3'],
+                      start='2014:001', stop='2014:010', interpolate_dt=32.8,
+                      select_events='dwells & rad_zones')
+
+The order of processing is to first remove event intervals, then select event intervals.
+
+The expression for ``remove_events`` or ``select_events`` can be any logical expression
+involving `kadi` event query names.  The
+following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
+``select_events`` this would imply selecting telemetry which is either during a DSN pass
+or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
+that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
+A positive padding expands the event intervals while negative contracts the intervals.
+
+**Output**
+
+============== =========================================================
+Argument       Description
+============== =========================================================
+time_format    Output time format (secs|date|greta|jd|..., default=secs)
+outfile        Output file name (default=None)
+============== =========================================================
+
+By default the ``times`` attribute for each MSID is provided in seconds since 1998.0 (CXC
+seconds).  The ``time_format`` argument allows selecting any time format supported by
+`cxotime <https://sot.github.io/cxotime>`_.
+
+If the ``outfile`` is set to a valid file name then the MSID set will be written out as a
+compressed zip archive.  This archive will contain a CSV file corresponding to each MSID
+in the set.  See the section on `Exporting to CSV`_ for additional information and an
+example of the output format.
+
+**Process control**
+
+============== ======================================================
+Argument       Description
+============== ======================================================
+quiet          Suppress run-time logging output (default=False)
+max_fetch_Mb   Max allowed memory (Mb) for fetching (default=1000)
+max_output_Mb  Max allowed memory (Mb) for output (default=100)
+============== ======================================================
+
+Normally |get_telem| outputs a few lines of progress information as it is processing the
+request.  To disable this logging set ``quiet=True``.
+
+The next two arguments are in place to prevent accidentally doing a huge query that will
+consume all available memory or generate a large file that will be slow to read.  For
+instance getting all the gyro count data for the mission will take more than 70 Gb of
+memory.
+
+The ``max_fetch_Mb`` argument specifies how much memory the fetched |fetch_MSIDset| can
+take.  This has a default of 1000 Mb = 1 Gb.
+
+The ``max_output_Mb`` only applies if you have also specified an ``outfile`` to write.
+This checks the size of the actual output |fetch_MSIDset|, which may be smaller than the
+fetch object if data sampling has been reduced via the ``interpolate_dt`` argument.  This
+has a default of 100 Mb.
+
+Both of the defaults here are relatively conservative, and with experience you can set
+larger values.
+
+Command-line fetch
+==================
+
+The ``fetch_ska`` application allows use of the cheta archive
 without getting into Python or using any scripting.  From a single command
 line tool you can access most of the common processing steps associated with
 fetching and using telemetry data:
@@ -11,7 +167,7 @@ fetching and using telemetry data:
   either full-resolution, 5-minute, or daily data.
 - Filter out bad or missing data.
 - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
-- Remove or select time intervals corresponding to specified Kadi event types.
+- Remove or select time intervals corresponding to specified `kadi` event types.
 - Change the time format from CXC seconds (seconds since 1998.0) to something more
   convenient like GRETA time.
 - Write the MSID telemetry data to a zip file.
@@ -23,16 +179,15 @@ optional.
 Getting started
 ----------------
 
-The very first thing is to get set up to use the Ska environment following the
-instructions in the `Ska Analysis Tutorial <tutorial.html#configure>`_.  Assuming that is
-done, then you need to enter the Ska environment using the ``ska`` (or ``skatest``)
-alias::
+The very first thing is to `get set up to use the Ska environment
+<https://github.com/sot/skare3/wiki/Ska-Overview#how-to-use-ska>`_.  Assuming that is
+done, then you need to enter the Ska environment using the ``ska3`` alias::
 
-  % ska
+  $ ska3
 
-(In case you don't use linux frequently, the ``%`` is meant to represent the command
-prompt, so don't type that).  After doing ``ska`` you should see your prompt change to
-include a ``ska-`` prefix.
+(In case you don't use linux frequently, the ``$`` is meant to represent the command
+prompt, so don't type that).  After doing ``ska3`` you should see your prompt change to
+include a ``ska3-`` prefix.
 
 Getting help
 ^^^^^^^^^^^^^
@@ -48,7 +203,7 @@ You can get help by asking ``ska_fetch`` to print its command line options::
                    [--max-fetch-Mb MAX_FETCH_MB] [--max-output-Mb MAX_OUTPUT_MB]
                    MSID [MSID ...]
 
-  Fetch telemetry from the Ska engineering archive.
+  Fetch telemetry from the cheta archive.
 
   Examples
   ========
@@ -227,9 +382,9 @@ Argument         Description
 --select_events  Select kadi events expression (default=None)
 ================ ======================================================
 
-These arguments allow you to select or remove intervals in the data using the `Kadi event
-definitions <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_.
-For instance we can select times of stable NPM dwells during radiation zones::
+These arguments allow you to select or remove intervals in the data using the `kadi`
+event definitions. For instance we can select times of stable NPM dwells during
+radiation zones::
 
   % ska_fetch AOATTER1 AOATTER2 AOATTER3 --start=2014:001 --stop=2014:010 \
               select_events='dwells & rad_zones'
@@ -240,14 +395,13 @@ by the shell.
 
 The order of processing is to first remove event intervals, then select event intervals.
 
-The expression for ``--remove_events`` or ``--select_events`` can be any logical expression
-involving Kadi query names (see the `event definitions table
-<http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#event-definitions>`_).  The
-following string would be valid: ``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for
-``select_events`` this would imply selecting telemetry which is either during a DSN pass
-or (within a NPM dwell and not during an eclipse).  The ``[pad=-300]`` qualifier means
-that a buffer of 300 seconds is applied on each edge to provide padding from the maneuver.
-A positive padding expands the event intervals while negative contracts the intervals.
+The expression for ``--remove_events`` or ``--select_events`` can be any logical
+expression involving `kadi` event query names.  The following string would be valid:
+``'dsn_comms | (dwells[pad=-300] & ~eclipses)'``, and for ``select_events`` this would
+imply selecting telemetry which is either during a DSN pass or (within a NPM dwell and
+not during an eclipse).  The ``[pad=-300]`` qualifier means that a buffer of 300 seconds
+is applied on each edge to provide padding from the maneuver. A positive padding expands
+the event intervals while negative contracts the intervals.
 
 Another example of practical interest is using the LTT bad times event to remove bad times
 for long-term trending plots by MSID.  In this case we get daily IRU-2 temps since 2004,
@@ -257,9 +411,7 @@ removing known LTT bad times::
                 --remove-events='ltt_bads[msid="AIRU2BT"]'
 
 Notice the syntax here which indicates selecting all the LTT bad times corresponding
-to ``AIRU2BT``.  See the
-`LTT bad times <http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/kadi/#ltt-bad-times>`_
-section for more details.
+to ``AIRU2BT``.
 
 Output
 ^^^^^^^
@@ -273,8 +425,7 @@ Argument         Description
 
 By default the ``times`` column for each MSID output is provided in the format of seconds
 since 1998.0 (CXC seconds).  The ``time_format`` argument allows selecting any time format
-supported by `Chandra.Time
-<http://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/pydocs/Chandra.Time.html>`_.  A common
+supported by `cxotime <https://sot.github.io/cxotime>`_.  A common
 option for FOT analysis will be ``greta``.
 
 The MSID set will always be written out as a compressed zip archive with the given name
@@ -320,3 +471,40 @@ aforementioned gyro counts query::
 
 Both of the defaults here are relatively conservative, and with experience you can set
 larger values.
+
+Exporting to CSV
+================
+
+If you want to move the fetch data to your local machine an ``MSID`` or
+``MSIDset`` can be exported as ASCII data table(s) in CSV format.  This can
+easily be imported into Excel or other PC applications.::
+
+  biases = fetch.MSIDset(['aogbias1', 'aogbias2', 'aogbias3'], '2002:001', stat='daily')
+  biases.write_zip('biases.zip')
+
+To suspend the ipython shell and look at the newly created file do::
+
+  <Ctrl>-z
+
+  % ls -l biases.zip
+  -rw-rw-r-- 1 aldcroft aldcroft 366924 Dec  4 17:07 biases.zip
+
+  % unzip -l biases.zip
+  Archive:  biases.zip
+    Length     Date   Time    Name
+   --------    ----   ----    ----
+     510809  12-04-09 17:02   aogbias1.csv
+     504556  12-04-09 17:02   aogbias2.csv
+     504610  12-04-09 17:02   aogbias3.csv
+   --------                   -------
+    1519975                   3 files
+
+To resume your ``ipython`` session::
+
+  % fg
+
+From a separate local cygwin or terminal window then retrieve the zip file and
+unzip as follows::
+
+  scp ccosmos.cfa.harvard.edu:biases.zip ./
+  unzip biases.zip
