@@ -26,6 +26,7 @@ from Chandra.Time import DateTime
 from ska_helpers.retry import tables_open_file
 
 import cheta.derived
+import cheta.remote_access
 from cheta import converters, fetch, file_defs
 
 
@@ -129,11 +130,15 @@ arch_files = pyyaks.context.ContextDict(
 )
 arch_files.update(file_defs.arch_files)
 
-# Set up fetch so it will first try to read from opt.data_root if that is
-# provided as an option and exists, and if not fall back to the default of
-# fetch.ENG_ARCHIVE.  Fetch is a read-only process so this is safe when testing.
+# Set up fetch so it will first try to read from opt.data_root if that is provided as an
+# option and exists, and if not fall back to the default of
+# cheta.remote_access.ENG_ARCHIVE. In this context that could be overridden with the
+# ENG_ARCHIVE environment variable. Fetch is a read-only process so this is safe when
+# testing.
 if opt.data_root:
-    fetch.msid_files.basedir = ":".join([opt.data_root, fetch.ENG_ARCHIVE])
+    fetch.msid_files.basedir = ":".join(
+        [opt.data_root, cheta.remote_access.ENG_ARCHIVE]
+    )
 
 # Set up logging
 loglevel = pyyaks.logger.VERBOSE if opt.log_level is None else int(opt.log_level)
