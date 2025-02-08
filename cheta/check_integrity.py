@@ -11,6 +11,7 @@ import pyyaks.logger
 import Ska.DBI
 import tables
 
+import cheta.remote_access
 from cheta import fetch
 
 opt = None
@@ -167,7 +168,9 @@ def main():
     # fetch.ENG_ARCHIVE.  Fetch is a read-only process so this is safe when
     # testing.
     if opt.data_root:
-        fetch.msid_files.basedir = ":".join([opt.data_root, fetch.ENG_ARCHIVE])
+        fetch.msid_files.basedir = ":".join(
+            [opt.data_root, cheta.remote_access.ENG_ARCHIVE]
+        )
 
     # Set up logging
     loglevel = pyyaks.logger.VERBOSE if opt.verbose else pyyaks.logger.INFO
