@@ -4,6 +4,7 @@ Fetch telemetry from the cheta archive.
 
 Examples
 ========
+::
 
   # Get full-resolution TEPHIN, AOPCADMD for 30 days, and save as telem.zip
   % ska_fetch TEPHIN AOPCADMD --start=2013:001 --stop=2013:030 --sampling=5min \\
