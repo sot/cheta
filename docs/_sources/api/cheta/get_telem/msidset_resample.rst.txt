@@ -1,0 +1,27 @@
+cheta.get_telem.msidset_resample
+================================
+
+.. py:function:: cheta.get_telem.msidset_resample(msidset, dt)
+
+   
+   Resample the ``msidset`` in-place to a common time basis, starting at
+   ``msidset.tstart`` and stepping by ``dt``.  This assumes an unfiltered MSIDset, and
+   returns a filtered MSIDset.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

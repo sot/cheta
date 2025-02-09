@@ -1,0 +1,452 @@
+cheta.derived
+=============
+
+.. py:module:: cheta.derived
+
+.. autoapi-nested-parse::
+
+   
+   Derived Parameters
+
+   The engineering archive has pseudo-MSIDs that are derived via computation from
+   telemetry MSIDs.  All derived parameter names begin with the characters ``DP_``
+   (not case sensitive as usual).  Otherwise there is no difference from standard
+   MSIDs.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /api/cheta/derived/acispow/index
+   /api/cheta/derived/base/index
+   /api/cheta/derived/comps/index
+   /api/cheta/derived/eps/index
+   /api/cheta/derived/mups_valve/index
+   /api/cheta/derived/orbit/index
+   /api/cheta/derived/pcad/index
+   /api/cheta/derived/test/index
+   /api/cheta/derived/thermal/index
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/DP_DPA_POWER
+   /api/cheta/derived/DP_DEA_POWER
+   /api/cheta/derived/DP_PSMC_POWER
+   /api/cheta/derived/DerivedParameter
+   /api/cheta/derived/DerivedParameterEps
+   /api/cheta/derived/DP_BATT1_TAVE
+   /api/cheta/derived/DP_BATT2_TAVE
+   /api/cheta/derived/DP_BATT3_TAVE
+   /api/cheta/derived/DP_EPOWER1
+   /api/cheta/derived/DP_MYSAPOW
+   /api/cheta/derived/DP_PYSAPOW
+   /api/cheta/derived/DerivedParameterOrbit
+   /api/cheta/derived/DP_SEMI_MAJOR_AXIS
+   /api/cheta/derived/DP_ORBIT_PERIOD
+   /api/cheta/derived/DP_ECCENTRICITY
+   /api/cheta/derived/DP_INCLINATION
+   /api/cheta/derived/DP_ASCENDING_NODE
+   /api/cheta/derived/DP_ARGUMENT_PERIGEE
+   /api/cheta/derived/DP_MEAN_ANOMALY
+   /api/cheta/derived/DP_PERIGEE_RADIUS
+   /api/cheta/derived/DP_APOGEE_RADIUS
+   /api/cheta/derived/DerivedParameterPcad
+   /api/cheta/derived/DP_CSS1_NPM_SUN
+   /api/cheta/derived/DP_CSS2_NPM_SUN
+   /api/cheta/derived/DP_CSS3_NPM_SUN
+   /api/cheta/derived/DP_CSS4_NPM_SUN
+   /api/cheta/derived/DP_FSS_CSS_ANGLE_DIFF
+   /api/cheta/derived/DP_MAN_ANG
+   /api/cheta/derived/DP_ONE_SHOT
+   /api/cheta/derived/DP_PITCH
+   /api/cheta/derived/DP_PITCH_CSS
+   /api/cheta/derived/DP_PITCH_CSS_SA
+   /api/cheta/derived/DP_PITCH_FSS
+   /api/cheta/derived/DP_ROLL
+   /api/cheta/derived/DP_ROLL_CSS
+   /api/cheta/derived/DP_ROLL_CSS_SA
+   /api/cheta/derived/DP_ROLL_FSS
+   /api/cheta/derived/DP_RW_MOM_TOT
+   /api/cheta/derived/DP_RW1_DELTA_TEMP
+   /api/cheta/derived/DP_RW2_DELTA_TEMP
+   /api/cheta/derived/DP_RW3_DELTA_TEMP
+   /api/cheta/derived/DP_RW4_DELTA_TEMP
+   /api/cheta/derived/DP_RW5_DELTA_TEMP
+   /api/cheta/derived/DP_RW6_DELTA_TEMP
+   /api/cheta/derived/DP_SA_ANG_AVG
+   /api/cheta/derived/DP_SUN_XZ_ANGLE
+   /api/cheta/derived/DP_SYS_MOM_TOT
+   /api/cheta/derived/DerivedParameterTest
+   /api/cheta/derived/DP_TEST1
+   /api/cheta/derived/DP_TEST2
+   /api/cheta/derived/DP_TEST3
+   /api/cheta/derived/DerivedParameterThermal
+   /api/cheta/derived/DP_EE_AXIAL
+   /api/cheta/derived/DP_EE_BULK
+   /api/cheta/derived/DP_EE_DIAM
+   /api/cheta/derived/DP_EE_RADIAL
+   /api/cheta/derived/DP_EE_THERM
+   /api/cheta/derived/DP_HAAG
+   /api/cheta/derived/DP_HARG
+   /api/cheta/derived/DP_HMAX35
+   /api/cheta/derived/DP_HMCSAVE
+   /api/cheta/derived/DP_HMIN35
+   /api/cheta/derived/DP_HRMA_AVE
+   /api/cheta/derived/DP_HRMHCHK
+   /api/cheta/derived/DP_OBAAG
+   /api/cheta/derived/DP_OBAAGW
+   /api/cheta/derived/DP_OBACAVE
+   /api/cheta/derived/DP_OBACAVEW
+   /api/cheta/derived/DP_OBADIG
+   /api/cheta/derived/DP_OBADIGW
+   /api/cheta/derived/DP_OBA_AVE
+   /api/cheta/derived/DP_OMAX34
+   /api/cheta/derived/DP_OMIN34
+   /api/cheta/derived/DP_P01
+   /api/cheta/derived/DP_P02
+   /api/cheta/derived/DP_P03
+   /api/cheta/derived/DP_P04
+   /api/cheta/derived/DP_P05
+   /api/cheta/derived/DP_P06
+   /api/cheta/derived/DP_P07
+   /api/cheta/derived/DP_P08
+   /api/cheta/derived/DP_P09
+   /api/cheta/derived/DP_P10
+   /api/cheta/derived/DP_P11
+   /api/cheta/derived/DP_P12
+   /api/cheta/derived/DP_P13
+   /api/cheta/derived/DP_P14
+   /api/cheta/derived/DP_P15
+   /api/cheta/derived/DP_P16
+   /api/cheta/derived/DP_P17
+   /api/cheta/derived/DP_P18
+   /api/cheta/derived/DP_P19
+   /api/cheta/derived/DP_P20
+   /api/cheta/derived/DP_P23
+   /api/cheta/derived/DP_P24
+   /api/cheta/derived/DP_P25
+   /api/cheta/derived/DP_P26
+   /api/cheta/derived/DP_P27
+   /api/cheta/derived/DP_P28
+   /api/cheta/derived/DP_P29
+   /api/cheta/derived/DP_P30
+   /api/cheta/derived/DP_P31
+   /api/cheta/derived/DP_P32
+   /api/cheta/derived/DP_P33
+   /api/cheta/derived/DP_P34
+   /api/cheta/derived/DP_P35
+   /api/cheta/derived/DP_P36
+   /api/cheta/derived/DP_P37
+   /api/cheta/derived/DP_P38
+   /api/cheta/derived/DP_P39
+   /api/cheta/derived/DP_P40
+   /api/cheta/derived/DP_P41
+   /api/cheta/derived/DP_P42
+   /api/cheta/derived/DP_P43
+   /api/cheta/derived/DP_P44
+   /api/cheta/derived/DP_P45
+   /api/cheta/derived/DP_P46
+   /api/cheta/derived/DP_P47
+   /api/cheta/derived/DP_P48
+   /api/cheta/derived/DP_P49
+   /api/cheta/derived/DP_P50
+   /api/cheta/derived/DP_P51
+   /api/cheta/derived/DP_P52
+   /api/cheta/derived/DP_P53
+   /api/cheta/derived/DP_P54
+   /api/cheta/derived/DP_P55
+   /api/cheta/derived/DP_P57
+   /api/cheta/derived/DP_P58
+   /api/cheta/derived/DP_P59
+   /api/cheta/derived/DP_P60
+   /api/cheta/derived/DP_P61
+   /api/cheta/derived/DP_P62
+   /api/cheta/derived/DP_P63
+   /api/cheta/derived/DP_P64
+   /api/cheta/derived/DP_P65
+   /api/cheta/derived/DP_P66
+   /api/cheta/derived/DP_P67
+   /api/cheta/derived/DP_P68
+   /api/cheta/derived/DP_P69
+   /api/cheta/derived/DP_P75
+   /api/cheta/derived/DP_P76
+   /api/cheta/derived/DP_P77
+   /api/cheta/derived/DP_P78
+   /api/cheta/derived/DP_P79
+   /api/cheta/derived/DP_P80
+   /api/cheta/derived/DP_PABH
+   /api/cheta/derived/DP_PAFTCONE
+   /api/cheta/derived/DP_PAFTCYL
+   /api/cheta/derived/DP_PAHP
+   /api/cheta/derived/DP_PCONE
+   /api/cheta/derived/DP_PFAP
+   /api/cheta/derived/DP_PFWDCONE
+   /api/cheta/derived/DP_PFWDCYL
+   /api/cheta/derived/DP_PHRMA
+   /api/cheta/derived/DP_PHRMASTRUTS
+   /api/cheta/derived/DP_PIC
+   /api/cheta/derived/DP_PMIDCONE
+   /api/cheta/derived/DP_PMNT
+   /api/cheta/derived/DP_POBAT
+   /api/cheta/derived/DP_POC
+   /api/cheta/derived/DP_PPL10
+   /api/cheta/derived/DP_PRADVNT
+   /api/cheta/derived/DP_PSCSTRUTS
+   /api/cheta/derived/DP_PTFTE
+   /api/cheta/derived/DP_PTOTAL
+   /api/cheta/derived/DP_SUNANGLE
+   /api/cheta/derived/DP_TABMAX
+   /api/cheta/derived/DP_TABMIN
+   /api/cheta/derived/DP_TELAB_AVE
+   /api/cheta/derived/DP_TELHS_AVE
+   /api/cheta/derived/DP_TELSS_AVE
+   /api/cheta/derived/DP_THSMAX
+   /api/cheta/derived/DP_THSMIN
+   /api/cheta/derived/DP_TILT_AXIAL
+   /api/cheta/derived/DP_TILT_BULK
+   /api/cheta/derived/DP_TILT_DIAM
+   /api/cheta/derived/DP_TILT_MAX
+   /api/cheta/derived/DP_TILT_RSS
+   /api/cheta/derived/DP_TSSMAX
+   /api/cheta/derived/DP_TSSMIN
+   /api/cheta/derived/DP_HADG
+   /api/cheta/derived/DP_ABH_DUTYCYCLE
+
+.. autoapisummary::
+
+   cheta.derived.DP_DPA_POWER
+   cheta.derived.DP_DEA_POWER
+   cheta.derived.DP_PSMC_POWER
+   cheta.derived.DerivedParameter
+   cheta.derived.DerivedParameterEps
+   cheta.derived.DP_BATT1_TAVE
+   cheta.derived.DP_BATT2_TAVE
+   cheta.derived.DP_BATT3_TAVE
+   cheta.derived.DP_EPOWER1
+   cheta.derived.DP_MYSAPOW
+   cheta.derived.DP_PYSAPOW
+   cheta.derived.DerivedParameterOrbit
+   cheta.derived.DP_SEMI_MAJOR_AXIS
+   cheta.derived.DP_ORBIT_PERIOD
+   cheta.derived.DP_ECCENTRICITY
+   cheta.derived.DP_INCLINATION
+   cheta.derived.DP_ASCENDING_NODE
+   cheta.derived.DP_ARGUMENT_PERIGEE
+   cheta.derived.DP_MEAN_ANOMALY
+   cheta.derived.DP_PERIGEE_RADIUS
+   cheta.derived.DP_APOGEE_RADIUS
+   cheta.derived.DerivedParameterPcad
+   cheta.derived.DP_CSS1_NPM_SUN
+   cheta.derived.DP_CSS2_NPM_SUN
+   cheta.derived.DP_CSS3_NPM_SUN
+   cheta.derived.DP_CSS4_NPM_SUN
+   cheta.derived.DP_FSS_CSS_ANGLE_DIFF
+   cheta.derived.DP_MAN_ANG
+   cheta.derived.DP_ONE_SHOT
+   cheta.derived.DP_PITCH
+   cheta.derived.DP_PITCH_CSS
+   cheta.derived.DP_PITCH_CSS_SA
+   cheta.derived.DP_PITCH_FSS
+   cheta.derived.DP_ROLL
+   cheta.derived.DP_ROLL_CSS
+   cheta.derived.DP_ROLL_CSS_SA
+   cheta.derived.DP_ROLL_FSS
+   cheta.derived.DP_RW_MOM_TOT
+   cheta.derived.DP_RW1_DELTA_TEMP
+   cheta.derived.DP_RW2_DELTA_TEMP
+   cheta.derived.DP_RW3_DELTA_TEMP
+   cheta.derived.DP_RW4_DELTA_TEMP
+   cheta.derived.DP_RW5_DELTA_TEMP
+   cheta.derived.DP_RW6_DELTA_TEMP
+   cheta.derived.DP_SA_ANG_AVG
+   cheta.derived.DP_SUN_XZ_ANGLE
+   cheta.derived.DP_SYS_MOM_TOT
+   cheta.derived.DerivedParameterTest
+   cheta.derived.DP_TEST1
+   cheta.derived.DP_TEST2
+   cheta.derived.DP_TEST3
+   cheta.derived.DerivedParameterThermal
+   cheta.derived.DP_EE_AXIAL
+   cheta.derived.DP_EE_BULK
+   cheta.derived.DP_EE_DIAM
+   cheta.derived.DP_EE_RADIAL
+   cheta.derived.DP_EE_THERM
+   cheta.derived.DP_HAAG
+   cheta.derived.DP_HARG
+   cheta.derived.DP_HMAX35
+   cheta.derived.DP_HMCSAVE
+   cheta.derived.DP_HMIN35
+   cheta.derived.DP_HRMA_AVE
+   cheta.derived.DP_HRMHCHK
+   cheta.derived.DP_OBAAG
+   cheta.derived.DP_OBAAGW
+   cheta.derived.DP_OBACAVE
+   cheta.derived.DP_OBACAVEW
+   cheta.derived.DP_OBADIG
+   cheta.derived.DP_OBADIGW
+   cheta.derived.DP_OBA_AVE
+   cheta.derived.DP_OMAX34
+   cheta.derived.DP_OMIN34
+   cheta.derived.DP_P01
+   cheta.derived.DP_P02
+   cheta.derived.DP_P03
+   cheta.derived.DP_P04
+   cheta.derived.DP_P05
+   cheta.derived.DP_P06
+   cheta.derived.DP_P07
+   cheta.derived.DP_P08
+   cheta.derived.DP_P09
+   cheta.derived.DP_P10
+   cheta.derived.DP_P11
+   cheta.derived.DP_P12
+   cheta.derived.DP_P13
+   cheta.derived.DP_P14
+   cheta.derived.DP_P15
+   cheta.derived.DP_P16
+   cheta.derived.DP_P17
+   cheta.derived.DP_P18
+   cheta.derived.DP_P19
+   cheta.derived.DP_P20
+   cheta.derived.DP_P23
+   cheta.derived.DP_P24
+   cheta.derived.DP_P25
+   cheta.derived.DP_P26
+   cheta.derived.DP_P27
+   cheta.derived.DP_P28
+   cheta.derived.DP_P29
+   cheta.derived.DP_P30
+   cheta.derived.DP_P31
+   cheta.derived.DP_P32
+   cheta.derived.DP_P33
+   cheta.derived.DP_P34
+   cheta.derived.DP_P35
+   cheta.derived.DP_P36
+   cheta.derived.DP_P37
+   cheta.derived.DP_P38
+   cheta.derived.DP_P39
+   cheta.derived.DP_P40
+   cheta.derived.DP_P41
+   cheta.derived.DP_P42
+   cheta.derived.DP_P43
+   cheta.derived.DP_P44
+   cheta.derived.DP_P45
+   cheta.derived.DP_P46
+   cheta.derived.DP_P47
+   cheta.derived.DP_P48
+   cheta.derived.DP_P49
+   cheta.derived.DP_P50
+   cheta.derived.DP_P51
+   cheta.derived.DP_P52
+   cheta.derived.DP_P53
+   cheta.derived.DP_P54
+   cheta.derived.DP_P55
+   cheta.derived.DP_P57
+   cheta.derived.DP_P58
+   cheta.derived.DP_P59
+   cheta.derived.DP_P60
+   cheta.derived.DP_P61
+   cheta.derived.DP_P62
+   cheta.derived.DP_P63
+   cheta.derived.DP_P64
+   cheta.derived.DP_P65
+   cheta.derived.DP_P66
+   cheta.derived.DP_P67
+   cheta.derived.DP_P68
+   cheta.derived.DP_P69
+   cheta.derived.DP_P75
+   cheta.derived.DP_P76
+   cheta.derived.DP_P77
+   cheta.derived.DP_P78
+   cheta.derived.DP_P79
+   cheta.derived.DP_P80
+   cheta.derived.DP_PABH
+   cheta.derived.DP_PAFTCONE
+   cheta.derived.DP_PAFTCYL
+   cheta.derived.DP_PAHP
+   cheta.derived.DP_PCONE
+   cheta.derived.DP_PFAP
+   cheta.derived.DP_PFWDCONE
+   cheta.derived.DP_PFWDCYL
+   cheta.derived.DP_PHRMA
+   cheta.derived.DP_PHRMASTRUTS
+   cheta.derived.DP_PIC
+   cheta.derived.DP_PMIDCONE
+   cheta.derived.DP_PMNT
+   cheta.derived.DP_POBAT
+   cheta.derived.DP_POC
+   cheta.derived.DP_PPL10
+   cheta.derived.DP_PRADVNT
+   cheta.derived.DP_PSCSTRUTS
+   cheta.derived.DP_PTFTE
+   cheta.derived.DP_PTOTAL
+   cheta.derived.DP_SUNANGLE
+   cheta.derived.DP_TABMAX
+   cheta.derived.DP_TABMIN
+   cheta.derived.DP_TELAB_AVE
+   cheta.derived.DP_TELHS_AVE
+   cheta.derived.DP_TELSS_AVE
+   cheta.derived.DP_THSMAX
+   cheta.derived.DP_THSMIN
+   cheta.derived.DP_TILT_AXIAL
+   cheta.derived.DP_TILT_BULK
+   cheta.derived.DP_TILT_DIAM
+   cheta.derived.DP_TILT_MAX
+   cheta.derived.DP_TILT_RSS
+   cheta.derived.DP_TSSMAX
+   cheta.derived.DP_TSSMIN
+   cheta.derived.DP_HADG
+   cheta.derived.DP_ABH_DUTYCYCLE
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/times_indexes
+   /api/cheta/derived/calc_orbital_elements
+   /api/cheta/derived/qmult
+   /api/cheta/derived/qrotate
+   /api/cheta/derived/arccos_clip
+   /api/cheta/derived/sun_vector_body
+   /api/cheta/derived/calc_sun_vec_body_css
+
+.. autoapisummary::
+
+   cheta.derived.times_indexes
+   cheta.derived.calc_orbital_elements
+   cheta.derived.qmult
+   cheta.derived.qrotate
+   cheta.derived.arccos_clip
+   cheta.derived.sun_vector_body
+   cheta.derived.calc_sun_vec_body_css
+
+
+

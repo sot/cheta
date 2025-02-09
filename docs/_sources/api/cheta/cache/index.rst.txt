@@ -1,0 +1,38 @@
+cheta.cache
+===========
+
+.. py:module:: cheta.cache
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/cache/Counter
+
+.. autoapisummary::
+
+   cheta.cache.Counter
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/cache/lru_cache
+   /api/cheta/cache/lfu_cache
+   /api/cheta/cache/f
+
+.. autoapisummary::
+
+   cheta.cache.lru_cache
+   cheta.cache.lfu_cache
+   cheta.cache.f
+
+
+

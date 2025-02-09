@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_EE_AXIAL
+=================================
+
+.. py:class:: cheta.derived.thermal.DP_EE_AXIAL
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OHRTHR58', 'OHRTHR12', 'OHRTHR36', 'OHRTHR56', 'OHRTHR57', 'OHRTHR55', 'OHRTHR35', 'OHRTHR37',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

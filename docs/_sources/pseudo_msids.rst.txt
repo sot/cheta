@@ -1,6 +1,8 @@
-========================================
-Pseudo-MSIDs in the engineering archive
-========================================
+.. _pseudo-msids:
+
+============
+Pseudo-MSIDs
+============
 
 A small selection of pseudo-MSIDs that do not come in the engineering telemetry
 stream are also available in the archive.  These are:
@@ -15,9 +17,9 @@ ACIS DEA housekeeping
 --------------------------------------------------
 
 The ACIS DEA telemeters a variety of useful information that is sent
-in an event-based format via queries to the processor.  The engineering
+in an event-based format via queries to the processor.  The cheta
 archive reformats those telemetry queries (one per psuedo-MSID) into
-records that match the engineering archive format where all queries with the
+records that match the cheta archive format where all queries with the
 same time stamp are place in a single record.
 
 The time sample of these data vary but are typically around once per 16 seconds.
@@ -125,7 +127,7 @@ HRC Secondary Science and Housekeeping
 --------------------------------------
 
 The HRC telemeters a variety of useful information that is sent down in secondary science
-and housekeeping formats (SS and HK hereafter).  The engineering archive reformats those
+and housekeeping formats (SS and HK hereafter).  The cheta archive reformats those
 telemetry values to be consistent with the MSFC-1949 specification of HRC SS and HK
 telemetry.  It also facilitates handling invalid data in SS and HK telemetry.
 
@@ -152,10 +154,10 @@ The first two of these are detected by looking at "spare" bits in the MSID ``SCI
 data.  The following code illustrates detecting conditions (1) or (2)::
 
   >>> from cheta import fetch
-  >>> from Chandra.Time import DateTime
+  >>> from cxotime import CxoTime
   >>> dat = fetch.Msid('HRC_SS_HK_BAD', '1999:300', '1999:310')
   >>> bad = (dat.vals & 0x7f) > 0
-  >>> DateTime(dat.times[bad]).date
+  >>> CxoTime(dat.times[bad]).date
   array(['1999:301:16:10:13.375', '1999:301:16:10:15.425',
          '1999:301:18:16:42.476', '1999:301:18:16:44.526',
          '1999:301:19:20:03.176', '1999:301:19:20:05.226',
@@ -375,7 +377,7 @@ TLMSTATUS              SEA telemetry status (updated or not updated)
 
 The state codes for these MSIDs (where applicable) are defined by the CXC `SIM level-0
 decom specification <http://icxc.harvard.edu/icd/Sim/Level0/1.2/l0icd.ps>`_ and differ
-from the values found in the TDB.  The engineering archive state codes are:
+from the values found in the TDB.  The cheta archive state codes are:
 
 ======== ======= ========
 MSID     Raw=0   Raw=1
@@ -430,7 +432,7 @@ MSID         Unit      Description
 
 The state codes for these MSIDs (where applicable) are defined by the CXC `SIM level-0
 decom specification <http://icxc.harvard.edu/icd/Sim/Level0/1.2/l0icd.ps>`_ and differ
-from the values found in the TDB.  The engineering archive state codes are:
+from the values found in the TDB.  The cheta archive state codes are:
 
 ======== ======= ========
 MSID     Raw=0   Raw=1
@@ -570,7 +572,7 @@ SCCT5                        Sci single detector counter CT5
 Derived Parameters or Calcs
 ---------------------------
 
-The engineering archive has pseudo-MSIDs that are derived via computation from
+The cheta archive has pseudo-MSIDs that are derived via computation from
 telemetry MSIDs. These are also known as "calcs" in the context of MAUDE (which
 inherited this from GRETA). In MAUDE, a calc is normally indicated with a prefix
 of ``CALC_``, but for compatibility with cheta a prefix of ``DP_`` is also
@@ -652,35 +654,6 @@ sequence with step size ``time_step``.
                    data['1dp28bvo'].vals * data['1dpicbcu'].vals)
           return power
 
-
-ACIS Power
-^^^^^^^^^^^
-.. automodule:: cheta.derived.acispow
-   :members:
-
-EPS
-^^^^^^^^^^^^^^^^^
-.. automodule:: cheta.derived.eps
-   :members:
-   :undoc-members:
-
-Orbital elements
-^^^^^^^^^^^^^^^^^
-.. automodule:: cheta.derived.orbit
-   :members:
-   :undoc-members:
-
-PCAD
-^^^^^
-.. automodule:: cheta.derived.pcad
-   :members:
-
-Thermal
-^^^^^^^^^
-.. automodule:: cheta.derived.thermal
-   :members:
-   :undoc-members:
-
 Computed MSIDs
 --------------
 
@@ -693,7 +666,7 @@ Cheta provides support for on-the-fly computed MSIDs with the following features
   or application of a function to any other MSID.
 * Support for 5-minute and daily stats also included.
 
-See the `Built-in computed MSIDs and API`_ section for a list of the available
+See the :mod:`cheta.derived.comps` API docs for a list of the available
 computed MSIDs.
 
 See the `DAWG computed MSIDs notebook
@@ -708,7 +681,7 @@ this formalism to create a computed MSID instead of just using the function
 output directly?
 
 * It gives you the entire fetch API!  You get for free all the
-  `fetch bling <https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc/eng_archive/fetch_tutorial.html>`_
+  `fetch bling <https://sot.github.io/cheta/fetch_tutorial.html>`_
   like plotting, selecting intervals, kadi event integration, interpolation.
 * If your computed MSID is useful to the community it is simple to add to the
   released ``cheta`` package for other users.
@@ -809,9 +782,3 @@ following structure::
 
 The specified units must all be convertable using functions defined in the
 ``converters`` dict in the ``cheta.units`` module.
-
-Built-in computed MSIDs and API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-  .. automodule:: cheta.derived.comps
-    :members:

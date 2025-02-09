@@ -1,0 +1,4 @@
+cheta.units.K_to_F
+==================
+
+.. py:function:: cheta.units.K_to_F(vals, delta_val=False)

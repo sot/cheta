@@ -1,0 +1,28 @@
+cheta.update_archive.del_stats
+==============================
+
+.. py:function:: cheta.update_archive.del_stats(colname, time0, interval)
+
+   
+   Delete all rows in ``interval`` stats file for column ``colname`` that
+   occur after time ``time0`` - ``interval``.  This is used to fix problems
+   that result from a file misorder.  Subsequent runs of update_stats will
+   refresh the values correctly.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

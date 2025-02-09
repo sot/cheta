@@ -1,0 +1,27 @@
+cheta.update_archive.append_h5_col
+==================================
+
+.. py:function:: cheta.update_archive.append_h5_col(dats, colname, files_overlaps)
+
+   
+   Append new values to an HDF5 MSID data table.
+
+   :param dats: List of pyfits HDU data objects
+   :param colname: column name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

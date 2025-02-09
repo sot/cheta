@@ -1,0 +1,27 @@
+cheta.update_archive.fix_state_code
+===================================
+
+.. py:function:: cheta.update_archive.fix_state_code(state_code)
+
+   
+   Return a version of ``state_code`` that has only alphanumeric chars.  This
+   can be used as a column name, unlike e.g. "n_+1/2".  Since this gets called
+   in an inner loop cache the result.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

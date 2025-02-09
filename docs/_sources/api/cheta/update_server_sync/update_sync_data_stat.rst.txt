@@ -1,0 +1,30 @@
+cheta.update_server_sync.update_sync_data_stat
+==============================================
+
+.. py:function:: cheta.update_server_sync.update_sync_data_stat(content, logger, row, stat)
+
+   
+   Update stats (5min, daily) sync data for index table ``row``
+
+   :param content: content name (e.g. acis4eng)
+   :param logger: logger
+   :param row: one row of the full-res index table
+   :param stat: stat interval (5min or daily)
+   :return:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

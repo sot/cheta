@@ -1,0 +1,44 @@
+cheta.fetch.create_msid_data_gap
+================================
+
+.. py:function:: cheta.fetch.create_msid_data_gap(msid_obj, data_gap_spec)
+
+   
+   Make a data gap in the ``msid_obj`` (in-place) by removing data points.
+
+   This is mostly useful for testing via setting the ``CHETA_FETCH_DATA_GAP``
+   environment variable.
+
+   The ``data_gap_spec`` string corresponds to a command line argument string with the
+   following options::
+
+       --include INCLUDE  Include MSIDs matching glob (default="*", can be repeated)
+       --exclude EXCLUDE  Exclude MSIDs matching glob (default=None, can be repeated)
+       --start START      Gap start (CxoTimeLike)
+       --stop STOP        Gap stop (CxoTimeLike)
+
+   For example::
+
+       >>> dat = fetch.MSID('aopcadmd', '2010:001', '2010:002')
+       >>> gap_spec = "--start=-2010:001:12:00:00 --stop=2010:001:12:30:00"
+       >>> fetch.create_msid_data_gap(dat, gap_spec)
+
+   :param msid_obj: MSID object
+   :param data_gap_spec: data gap specification
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

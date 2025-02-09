@@ -1,0 +1,25 @@
+cheta.units.FASTEP_to_mm
+========================
+
+.. py:function:: cheta.units.FASTEP_to_mm(vals, delta_val=False)
+
+   
+   Use CXC calibration value to convert from focus assembly steps to mm.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

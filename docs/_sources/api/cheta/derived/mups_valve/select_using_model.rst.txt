@@ -1,0 +1,37 @@
+cheta.derived.mups_valve.select_using_model
+===========================================
+
+.. py:function:: cheta.derived.mups_valve.select_using_model(data1, data2, model, dt_thresh, out, source)
+
+   
+   Select from either ``data1`` or ``data2`` using ``model`` to get clean data.
+
+   This does a 2-step process:
+
+   1. Select either `data1` or `data2` where either is within `dt_thresh` of `model`.
+   2. Fill in gaps where possible by propagating the model from previous good data,
+      thus reducing the impact of model errors.
+
+   :param data1: ndarray of data (e.g. observed temperature telemetry)
+   :param data2: ndarray of data (e.g. corrected temperature telemetry)
+   :param model: ndarray with model prediction for data
+   :param dt_thresh: model error tolerance for selecting data1 or data2
+   :param out: ndarray where output cleaned data is stored (must be same length as data)
+   :param source: ndarray where output source labeling is stored (same length as data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

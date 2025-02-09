@@ -1,0 +1,4 @@
+cheta.update_archive.update_stats
+=================================
+
+.. py:function:: cheta.update_archive.update_stats(colname, interval, msid=None)

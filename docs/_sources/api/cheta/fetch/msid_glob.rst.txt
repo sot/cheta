@@ -1,0 +1,32 @@
+cheta.fetch.msid_glob
+=====================
+
+.. py:function:: cheta.fetch.msid_glob(msid)
+
+   
+   Get the archive MSIDs matching ``msid``.
+
+   The function returns a tuple of (msids, MSIDs) where ``msids`` is a list of
+   MSIDs that is all lower case and (where possible) matches the input
+   ``msid``.  The output ``MSIDs`` is all upper case and corresponds to the
+   exact MSID names stored in the archive HDF5 files.
+
+   :param msid: input MSID glob
+   :returns: tuple (msids, MSIDs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

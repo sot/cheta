@@ -1,0 +1,71 @@
+cheta.fetch
+===========
+
+.. py:module:: cheta.fetch
+
+.. autoapi-nested-parse::
+
+   Fetch values from the cheta telemetry archive.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/fetch/MSID
+   /api/cheta/fetch/MSIDset
+   /api/cheta/fetch/Msid
+   /api/cheta/fetch/Msidset
+   /api/cheta/fetch/HrcSsMsid
+   /api/cheta/fetch/memoized
+
+.. autoapisummary::
+
+   cheta.fetch.MSID
+   cheta.fetch.MSIDset
+   cheta.fetch.Msid
+   cheta.fetch.Msidset
+   cheta.fetch.HrcSsMsid
+   cheta.fetch.memoized
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/fetch/local_or_remote_function
+   /api/cheta/fetch/get_units
+   /api/cheta/fetch/set_units
+   /api/cheta/fetch/read_bad_times
+   /api/cheta/fetch/msid_glob
+   /api/cheta/fetch/get_time_range
+   /api/cheta/fetch/get_telem
+   /api/cheta/fetch/add_logging_handler
+   /api/cheta/fetch/get_data_gap_spec_parser
+   /api/cheta/fetch/msid_matches_data_gap_spec
+   /api/cheta/fetch/create_msid_data_gap
+
+.. autoapisummary::
+
+   cheta.fetch.local_or_remote_function
+   cheta.fetch.get_units
+   cheta.fetch.set_units
+   cheta.fetch.read_bad_times
+   cheta.fetch.msid_glob
+   cheta.fetch.get_time_range
+   cheta.fetch.get_telem
+   cheta.fetch.add_logging_handler
+   cheta.fetch.get_data_gap_spec_parser
+   cheta.fetch.msid_matches_data_gap_spec
+   cheta.fetch.create_msid_data_gap
+
+
+

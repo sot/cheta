@@ -1,0 +1,4 @@
+cheta.converters.hrc0hk
+=======================
+
+.. py:function:: cheta.converters.hrc0hk(dat)

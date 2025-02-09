@@ -1,0 +1,4 @@
+cheta.derived.mups_valve.c2f
+============================
+
+.. py:function:: cheta.derived.mups_valve.c2f(degc)

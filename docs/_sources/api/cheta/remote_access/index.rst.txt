@@ -1,0 +1,54 @@
+cheta.remote_access
+===================
+
+.. py:module:: cheta.remote_access
+
+.. autoapi-nested-parse::
+
+   Settings and functions for remotely accessing an engineering archive.
+
+   NOTE: see test_remote_access.py for useful information about doing functional
+   testing of this code.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Exceptions
+----------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/remote_access/RemoteConnectionError
+
+.. autoapisummary::
+
+   cheta.remote_access.RemoteConnectionError
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/remote_access/get_data_access_info
+   /api/cheta/remote_access/establish_connection
+   /api/cheta/remote_access/connection_is_established
+   /api/cheta/remote_access/execute_remotely
+   /api/cheta/remote_access/test_connection
+   /api/cheta/remote_access/close_connection
+
+.. autoapisummary::
+
+   cheta.remote_access.get_data_access_info
+   cheta.remote_access.establish_connection
+   cheta.remote_access.connection_is_established
+   cheta.remote_access.execute_remotely
+   cheta.remote_access.test_connection
+   cheta.remote_access.close_connection
+
+
+

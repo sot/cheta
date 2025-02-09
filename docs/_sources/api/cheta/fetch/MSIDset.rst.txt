@@ -1,0 +1,279 @@
+cheta.fetch.MSIDset
+===================
+
+.. py:class:: cheta.fetch.MSIDset(msids=None, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None)
+
+   Bases: :py:obj:`collections.OrderedDict`
+
+
+   
+   Fetch a set of MSIDs from the engineering telemetry archive.
+
+   Each input ``msid`` is case-insensitive and can include linux file "glob"
+   patterns, for instance ``orb*1*_?`` (ORBITEPHEM1_X, Y and Z) or
+   ``aoattqt[1234]`` (AOATTQT1, 2, 3, and 4).  For derived parameters the
+   initial ``DP_`` is optional, for instance ``dpa_pow*`` (DP_DPA_POWER).
+
+   :param msids: list of MSID names (case-insensitive)
+   :param start: start date of telemetry (Chandra.Time compatible)
+   :param stop: stop date of telemetry (current time if not supplied)
+   :param filter_bad: automatically filter out bad values
+   :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+
+   :returns: Dict-like object containing MSID instances keyed by MSID name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: MSID
+
+
+   .. py:attribute:: tstart
+
+
+   .. py:attribute:: tstop
+
+
+   .. py:attribute:: datestart
+
+
+   .. py:attribute:: datestop
+
+
+   .. py:method:: __deepcopy__(memo=None)
+
+
+   .. py:method:: copy()
+
+      
+      D.copy() -> a shallow copy of D
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: filter_bad(copy=False, union=False)
+
+      
+      Filter bad values for the MSID set.
+
+      By default (``union=False``) the bad values are filtered individually for
+      each MSID.
+
+      If ``union=True`` this method applies the union (logical-OR) of bad value
+      masks for all MSIDs in the set with the same content type.  The result
+      is that the filtered MSID samples are valid for *all* MSIDs within the
+      content type and the arrays all match up.
+
+      For example::
+
+        msids = fetch.MSIDset(['aorate1', 'aorate2', 'aogyrct1', 'aogyrct2'],
+                              '2009:001', '2009:002')
+        msids.filter_bad()
+
+      Since ``aorate1`` and ``aorate2`` both have content type of
+      ``pcad3eng`` they will be filtered as a group and will remain with the
+      same sampling.  This will allow something like::
+
+        plot(msids['aorate1'].vals, msids['aorate2'].vals)
+
+      Likewise the two gyro count MSIDs would be filtered as a group.  If
+      this group-filtering is not the desired behavior one can always call
+      the individual MSID.filter_bad() function for each MSID in the set::
+
+        for msid in msids.values():
+            msid.filter_bad()
+
+      :param copy: return a copy of MSID object with intervals selected
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: filter_bad_times(start=None, stop=None, table=None, copy=False)
+
+      
+      Filter out intervals of bad data in the MSIDset object.
+
+      There are three usage options:
+
+      - Supply no arguments.  This will use the global list of bad times read
+        in with fetch.read_bad_times().
+      - Supply both ``start`` and ``stop`` values where each is a single
+        value in a valid DateTime format.
+      - Supply a ``table`` parameter with one of two forms: (1) list of bad time
+        interval strings, where each string contains the start and stop dates
+        separated by a space; (2) string with the name of a file in the same format.
+
+      Examples::
+
+        msidset.filter_bad_times()
+        bad_times = ['2008:292:00:00:00 2008:297:00:00:00',
+                     '2008:305:00:12:00 2008:305:00:12:03',
+                     '2010:101:00:01:12 2010:101:00:01:25']
+        msidset.filter_bad_times(table=bad_times)
+        msidset.filter_bad_times(table='msid_bad_times.dat')
+
+      :param start: Start of time interval to exclude (any DateTime format)
+      :param stop: End of time interval to exclude (any DateTime format)
+      :param table: List of str with start and stop for bad time intervals or str
+          with name of file containing list of bad time intervals
+      :param copy: return a copy of MSID object with intervals selected
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: interpolate(dt=None, start=None, stop=None, filter_bad=True, times=None, bad_union=False, copy=False)
+
+      
+      Perform nearest-neighbor interpolation of all MSID values in the set
+      to a common time sequence.  The values are updated in-place.
+
+      **Times**
+
+      The time sequence steps uniformly by ``dt`` seconds starting at the
+      ``start`` time and ending at the ``stop`` time.  If not provided the
+      times default to the ``start`` and ``stop`` times for the MSID set.
+
+      If ``times`` is provided then this gets used instead of the default linear
+      progression from ``start`` and ``dt``.
+
+      For each MSID in the set the ``times`` attribute is set to the common
+      time sequence.  In addition a new attribute ``times0`` is defined that
+      stores the nearest neighbor interpolated time, providing the *original*
+      timestamps of each new interpolated value for that MSID.
+
+      **Filtering and bad values**
+
+      If ``filter_bad`` is True (default) then bad values are filtered from
+      the interpolated MSID set.  There are two strategies for doing this:
+
+      1) ``bad_union = False``
+
+         Remove the bad values in each MSID prior to interpolating the set to
+         a common time series.  This essentially says to use all the available
+         data individually.  Each MSID has bad data filtered individually
+         *before* interpolation so that the nearest neighbor interpolation only
+         finds good data.  This strategy is done when ``filter_union = False``,
+         which is the default setting.
+
+      2) ``bad_union = True``
+
+        Mark every MSID in the set as bad at the interpolated time if *any*
+        of them are bad at that time.  This stricter version is required when it
+        is important that the MSIDs be truly correlated in time.  For instance
+        this is needed for attitude quaternions since all four values must be
+        from the exact same telemetry sample.  If you are not sure, this is the
+        safer option.
+
+      :param dt: time step (sec, default=328.0)
+      :param start: start of interpolation period (DateTime format)
+      :param stop: end of interpolation period (DateTime format)
+      :param filter_bad: filter bad values
+      :param times: array of times for interpolation (default=None)
+      :param bad_union: filter union of bad values after interpolating
+      :param copy: return a new copy instead of in-place update (default=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: write_zip(filename)
+
+      
+      Write MSIDset to a zip file named ``filename``
+
+      Within the zip archive the data for each MSID in the set will be stored
+      in csv format with the name <msid_name>.csv.
+
+      :param filename: output zipfile name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

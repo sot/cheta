@@ -1,0 +1,54 @@
+cheta.derived.pcad.DP_FSS_CSS_ANGLE_DIFF
+========================================
+
+.. py:class:: cheta.derived.pcad.DP_FSS_CSS_ANGLE_DIFF
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Angle between FSS and CSS Sun Vectors [Deg]
+
+   Defined as the angle between the FSS and CSS sun vectors
+
+   Calculated by rotating the CSS sun vector from the SA-1 frame to ACA frame
+   then computing the angular difference using the dot product and ARCCOS.
+   "Bads" flag is set equal to one when not in the FSS FOV.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aosunsa1', 'aosunsa2', 'aosunsa3', 'aosunac1', 'aosunac2', 'aosunac3', 'aosares1', 'aosares2',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: max_gap
+      :value: 18.0
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

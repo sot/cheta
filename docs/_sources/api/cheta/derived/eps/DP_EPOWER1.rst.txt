@@ -1,0 +1,42 @@
+cheta.derived.eps.DP_EPOWER1
+============================
+
+.. py:class:: cheta.derived.eps.DP_EPOWER1
+
+   Bases: :py:obj:`DerivedParameterEps`
+
+
+   
+   Bus Power = ELBI_LOW * ELBV
+   Telemetry 8x / MF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['ELBI_LOW', 'ELBV']
+
+
+
+   .. py:attribute:: time_step
+      :value: 4.1
+
+
+
+   .. py:method:: calc(data)
+

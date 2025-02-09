@@ -1,0 +1,4 @@
+cheta.get_telem.main
+====================
+
+.. py:function:: cheta.get_telem.main()

@@ -1,0 +1,4 @@
+cheta.plot.plot_date_to_unix
+============================
+
+.. py:function:: cheta.plot.plot_date_to_unix(num)

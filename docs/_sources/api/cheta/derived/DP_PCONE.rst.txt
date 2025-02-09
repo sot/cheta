@@ -1,0 +1,20 @@
+cheta.derived.DP_PCONE
+======================
+
+.. py:class:: cheta.derived.DP_PCONE
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ61', '4OHTRZ62', '4OHTRZ63']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

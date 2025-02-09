@@ -1,0 +1,20 @@
+cheta.derived.DP_PTFTE
+======================
+
+.. py:class:: cheta.derived.DP_PTFTE
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ58', '4OHTRZ59', '4OHTRZ60', '4OHTRZ61', '4OHTRZ62', '4OHTRZ63', '4OHTRZ64',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

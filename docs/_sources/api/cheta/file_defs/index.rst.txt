@@ -1,0 +1,24 @@
+cheta.file_defs
+===============
+
+.. py:module:: cheta.file_defs
+
+.. autoapi-nested-parse::
+
+   Directory and file location definitions for telemetry archive applications.
+   This is to be used to define corresponding ContextDict objects.
+
+   'ft' is expected to be a ContexDict represent an archive file as well with
+   content (e.g. ACIS2ENG), msid (1PDEAAT), year, doy and basename (archive file
+   basename) defined.
+
+   Msid files are the hdf5 files containing the entire mission telemetry for one MSID.
+   Arch files are the CXC archive files containing a short interval of telemetry for
+   all MSIDs in the same content-type group (e.g. ACIS2ENG).
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

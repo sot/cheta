@@ -1,0 +1,28 @@
+cheta.derived.orbit.DP_SEMI_MAJOR_AXIS
+======================================
+
+.. py:class:: cheta.derived.orbit.DP_SEMI_MAJOR_AXIS
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbital element: semi-major axis (m)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

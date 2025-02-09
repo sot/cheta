@@ -1,0 +1,30 @@
+cheta.get_telem.get_telem
+=========================
+
+.. py:function:: cheta.get_telem.get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng', interpolate_dt=None, remove_events=None, select_events=None, time_format=None, outfile=None, quiet=False, max_fetch_Mb=None, max_output_Mb=None)
+
+   
+   High-level routine to get telemetry for one or more MSIDs and perform
+   common post-processing functions.
+
+   This is a non-public version that really does the work.  The public interface
+   is fetch.get_telem(), which is a thin wrapper for this.  (Trying to factor code
+   out to separate modules and keep import times down).  See get_telem() for param
+   docs.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

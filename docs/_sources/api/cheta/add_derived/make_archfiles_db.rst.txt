@@ -1,0 +1,4 @@
+cheta.add_derived.make_archfiles_db
+===================================
+
+.. py:function:: cheta.add_derived.make_archfiles_db(filename, content_def)

@@ -1,0 +1,4 @@
+cheta.update_archive.unlink_archive_files
+=========================================
+
+.. py:function:: cheta.update_archive.unlink_archive_files(filetype, archfiles)

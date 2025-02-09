@@ -1,0 +1,42 @@
+cheta.update_archive.fix_misorders
+==================================
+
+.. py:function:: cheta.update_archive.fix_misorders(filetype)
+
+   
+   Fix problems in the eng archive where archive files were ingested out of
+   time order.  This results in a non-monotonic times in the MSID hdf5 files
+   and subsequently corrupts the stats files.  This routine looks for
+   discontinuities in rowstart assuming filename ordering and swaps neighbors.
+   One needs to verify in advance (--dry-run --fix-misorders --content ...)
+   that this will be an adequate fix.
+
+   Example::
+
+     update_archive.py --dry-run --fix-misorders --content misc3eng
+     update_archive.py --fix-misorders --content misc3eng >& fix_misc3.log
+     update_archive.py --content misc3eng --max-lookback-time 100 >>& fix_misc3.log
+
+   In the --dry-run it is important to verify that the gap is really just from
+   two mis-ordered files that can be swapped.  Look at the rowstart,rowstop values
+   in the filename-ordered list.
+
+   :param filetype: filetype
+   :returns: minimum time for all misorders found
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

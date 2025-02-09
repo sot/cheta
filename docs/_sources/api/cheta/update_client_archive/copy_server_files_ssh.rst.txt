@@ -1,0 +1,33 @@
+cheta.update_client_archive.copy_server_files_ssh
+=================================================
+
+.. py:function:: cheta.update_client_archive.copy_server_files_ssh(opt, logger, copy_files)
+
+   
+   Copy list of files from a remote server to the local archive.
+
+   This uses options in ``opt`` to deterimine the user name, remote server name,
+   and remote server path.  It then connects to the server, makes an sftp calls
+   ``copy_server_files`` to do the copy.
+
+   :param opt: options
+   :param logger: logger
+   :param copy_files: list of file paths, relative to the cheta archive root
+   :return: None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

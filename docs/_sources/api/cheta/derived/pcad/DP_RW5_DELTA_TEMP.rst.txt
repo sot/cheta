@@ -1,0 +1,43 @@
+cheta.derived.pcad.DP_RW5_DELTA_TEMP
+====================================
+
+.. py:class:: cheta.derived.pcad.DP_RW5_DELTA_TEMP
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Difference between Reaction Wheel 5 Compartment and Bearing Temperature
+   [Deg F]
+
+   Defined as TPCM_RW5 - ARWA5BT.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['tpcm_rw5', 'arwa5bt']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

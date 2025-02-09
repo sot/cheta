@@ -1,0 +1,33 @@
+cheta.remote_access.get_data_access_info
+========================================
+
+.. py:function:: cheta.remote_access.get_data_access_info(is_windows=IS_WINDOWS)
+
+   
+   Determine path to eng archive data and whether to access data remotely.
+
+   Returns path to data, equivalent of the ENG_ARCHIVE variable, i.e.
+   Path(SKA, 'data', 'eng_archive').  This is returned as a string absolute
+   path.
+
+   Also returns whether to access data using the remote server.
+
+   :param is_windows: bool, is this windows platform?
+   :return: eng_archive, access_remotely
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

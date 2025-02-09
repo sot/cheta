@@ -1,0 +1,25 @@
+cheta.fetch.get_units
+=====================
+
+.. py:function:: cheta.fetch.get_units()
+
+   
+   Get the unit system currently being used for conversions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

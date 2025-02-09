@@ -1,0 +1,4 @@
+cheta.units.convert
+===================
+
+.. py:function:: cheta.units.convert(msid, vals, delta_val=False)

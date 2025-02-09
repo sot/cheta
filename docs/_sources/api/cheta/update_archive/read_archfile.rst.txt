@@ -1,0 +1,51 @@
+cheta.update_archive.read_archfile
+==================================
+
+.. py:function:: cheta.update_archive.read_archfile(idx_archfile, archfile, filetype, row, colnames, archfiles, db)
+
+   
+   Read a FITS file which has been retrieved from the CXCDS archive.
+
+
+   :Parameters:
+
+       **idx_archfile** : int
+           Index of the archfile in the list of archfiles
+
+       **archfile** : str
+           Full path of FITS file to read
+
+       **filetype** : dict
+           Filetype dictionary with keys, level, instrum, content, arc5gl_query, fileglob.
+
+       **row** : int
+           Row number in the MSID file to start writing data
+
+       **colnames** : list of str
+           List of column names for the content type
+
+       **archfiles** : numpy structured array
+           Array of archfiles
+
+
+
+   :Returns:
+
+       **dat** : numpy structured array
+           Data read from the FITS file
+
+       **archfiles_row** : dict
+           Row of info about this FILE to insert into archfiles table for content type
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

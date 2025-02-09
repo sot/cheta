@@ -1,0 +1,20 @@
+cheta.derived.DP_TEST1
+======================
+
+.. py:class:: cheta.derived.DP_TEST1
+
+   Bases: :py:obj:`DerivedParameterTest`
+
+
+   .. py:attribute:: rootparams
+      :value: ['TEPHIN']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(dataset)
+

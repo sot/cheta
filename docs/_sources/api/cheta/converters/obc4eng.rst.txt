@@ -1,0 +1,34 @@
+cheta.converters.obc4eng
+========================
+
+.. py:function:: cheta.converters.obc4eng(dat)
+
+   
+   At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to
+   read out in wide-mode.  After this time the data in the listed OOBTHRxx MSIDs became
+   invalid while the OOBTHRxx_WIDE MSIDs became valid.  This converter simply copies the
+   ``*_WIDE`` values to the original MSIDs after the time of patch activation.
+
+   At 2017:312:16:11:16, patch PR-411 was applied which transitioned 6 OBA thermistors to
+   wide-mode and these were added below as patch "c".
+
+   At 2024:102:11:20:00, patch PR-575 was applied which transitioned more HRMA thermistors
+   to wide-mode and these patches (noted as A and B in PR-575) are applied as patches d and e
+   below.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

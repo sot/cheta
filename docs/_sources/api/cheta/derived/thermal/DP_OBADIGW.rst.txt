@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_OBADIGW
+================================
+
+.. py:class:: cheta.derived.thermal.DP_OBADIGW
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OOBTHR08', '4RT705T', 'OOBTHR19', '4RT707T', 'OOBTHR22', '4RT711T', 'OOBTHR13', '4RT701T',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

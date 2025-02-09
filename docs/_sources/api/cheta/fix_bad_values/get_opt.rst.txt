@@ -1,0 +1,4 @@
+cheta.fix_bad_values.get_opt
+============================
+
+.. py:function:: cheta.fix_bad_values.get_opt()

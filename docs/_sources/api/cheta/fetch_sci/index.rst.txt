@@ -1,0 +1,42 @@
+cheta.fetch_sci
+===============
+
+.. py:module:: cheta.fetch_sci
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/fetch_sci/MSID
+   /api/cheta/fetch_sci/Msid
+   /api/cheta/fetch_sci/MSIDset
+   /api/cheta/fetch_sci/Msidset
+
+.. autoapisummary::
+
+   cheta.fetch_sci.MSID
+   cheta.fetch_sci.Msid
+   cheta.fetch_sci.MSIDset
+   cheta.fetch_sci.Msidset
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/fetch_sci/get_units
+   /api/cheta/fetch_sci/set_units
+
+.. autoapisummary::
+
+   cheta.fetch_sci.get_units
+   cheta.fetch_sci.set_units
+
+
+

@@ -1,0 +1,34 @@
+cheta.update_server_sync._get_stat_data_from_archive
+====================================================
+
+.. py:function:: cheta.update_server_sync._get_stat_data_from_archive(filename, stat, tstart, tstop, last_row1, logger)
+
+   
+   Return stat table rows in the range tstart <= time < tstop.
+
+   Also returns the corresponding table row indexes.
+
+   :param filename: HDF5 file to read
+   :param stat: stat (5min or daily)
+   :param tstart: min time
+   :param tstop: max time
+   :param last_row1: row1 for previous index table entry
+   :param logger: logger
+   :return:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

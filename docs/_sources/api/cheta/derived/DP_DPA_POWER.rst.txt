@@ -1,0 +1,46 @@
+cheta.derived.DP_DPA_POWER
+==========================
+
+.. py:class:: cheta.derived.DP_DPA_POWER
+
+   Bases: :py:obj:`cheta.derived.base.DerivedParameter`
+
+
+   
+   ACIS total DPA-A and DPA-B power
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['1dp28avo', '1dpicacu', '1dp28bvo', '1dpicbcu']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:attribute:: content_root
+      :value: 'acispow'
+
+
+
+   .. py:method:: calc(data)
+

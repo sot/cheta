@@ -1,0 +1,4 @@
+cheta.converters.pyfits_to_recarray
+===================================
+
+.. py:function:: cheta.converters.pyfits_to_recarray(dat)

@@ -1,0 +1,4 @@
+cheta.update_client_archive.get_index_tbl
+=========================================
+
+.. py:function:: cheta.update_client_archive.get_index_tbl(content, logger, opt)

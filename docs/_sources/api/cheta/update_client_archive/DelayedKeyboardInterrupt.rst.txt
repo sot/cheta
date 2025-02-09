@@ -1,0 +1,47 @@
+cheta.update_client_archive.DelayedKeyboardInterrupt
+====================================================
+
+.. py:class:: cheta.update_client_archive.DelayedKeyboardInterrupt(logger)
+
+   Bases: :py:obj:`object`
+
+
+   
+   Delay keyboard interrupt while critical operation finishes.
+
+   Taken from https://stackoverflow.com/questions/842557/
+   how-to-prevent-a-block-of-code-from-being-interrupted-by-keyboardinterrupt-in-py/21919644
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: logger
+
+
+   .. py:attribute:: signal_received
+      :value: False
+
+
+
+   .. py:method:: __enter__()
+
+
+   .. py:method:: handler(sig, frame)
+
+
+   .. py:method:: __exit__(typ, value, traceback)
+

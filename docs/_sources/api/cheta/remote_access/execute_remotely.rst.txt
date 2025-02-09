@@ -1,0 +1,25 @@
+cheta.remote_access.execute_remotely
+====================================
+
+.. py:function:: cheta.remote_access.execute_remotely(fcn, *args, **kwargs)
+
+   
+   Function for executing a function remotely
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

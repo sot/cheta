@@ -1,0 +1,25 @@
+cheta.update_archive.get_archive_files
+======================================
+
+.. py:function:: cheta.update_archive.get_archive_files(filetype)
+
+   
+   Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

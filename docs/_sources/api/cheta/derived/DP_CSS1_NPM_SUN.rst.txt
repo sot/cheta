@@ -1,0 +1,49 @@
+cheta.derived.DP_CSS1_NPM_SUN
+=============================
+
+.. py:class:: cheta.derived.DP_CSS1_NPM_SUN
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Coarse Sun Sensor Counts 1 filtered for NPM and SA Illuminated
+
+   Defined as CSS-1 current converted back into counts
+   (AOCSSI1 * 4095 / 5.49549) when in NPM (AOPCADMD==1) and SA is illuminated
+   (AOSAILLM==1).  Otherwise, "Bads" flag is set equal to one.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aocssi1', 'aopcadmd', 'aosaillm']
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: max_gap
+      :value: 10.0
+
+
+
+   .. py:method:: calc(data)
+

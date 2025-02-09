@@ -1,0 +1,42 @@
+cheta.derived.calc_orbital_elements
+===================================
+
+.. py:function:: cheta.derived.calc_orbital_elements(x, y, z, vx, vy, vz)
+
+   
+   Calculate orbital elements given input position (x, y, z) in m and
+   velocity (vx, vy, vz) in m/s.  Orbit perigee and apogee are computed
+   as well.
+
+   Returns a dict with the following key values:
+
+     ================ ====
+     Key name         Unit
+     ================ ====
+     semi_major_axis    m
+     eccentricity       --
+     inclination       deg
+     ascending_node    deg
+     argument_perigee  deg
+     mean_anomaly      deg
+     orbit_period      sec
+     apogee_radius       m
+     perigee_radius      m
+     ================ ====
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

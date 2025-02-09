@@ -1,0 +1,33 @@
+cheta.update_client_archive.get_copy_files
+==========================================
+
+.. py:function:: cheta.update_client_archive.get_copy_files(logger, msids, msids_content)
+
+   
+   For given ``msids`` return list of files needed to copy.
+
+   This knows about the cheta archive structure and requires that the full, 5min,
+   daily h5 files are copied along with (if not already there) the archfiles.db3,
+   colnames.pkl, and TIME.h5.
+
+   :param logger: logger
+   :param msids: list of MSIDs
+   :param msids_content: dict mapping MSID to content type
+   :return: sorted list of files to copy relative to basedir
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

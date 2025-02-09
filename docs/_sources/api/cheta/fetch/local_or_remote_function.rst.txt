@@ -1,0 +1,34 @@
+cheta.fetch.local_or_remote_function
+====================================
+
+.. py:function:: cheta.fetch.local_or_remote_function(remote_print_output)
+
+   
+   Decorator maker so that a function gets run either locally or remotely
+   depending on the state of remote_access.access_remotely.  This decorator
+   maker takes an optional remote_print_output argument that will be
+   be printed (locally) if the function is executed remotely,
+
+   For functions that are decorated using this wrapper:
+
+   Every path that may be generated locally but used remotely should be
+   split with _split_path(). Conversely the functions that use
+   the resultant path should re-join them with os.path.join. In the
+   remote case the join will happen using the remote rules.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

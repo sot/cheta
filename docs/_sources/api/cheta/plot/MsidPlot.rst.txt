@@ -1,0 +1,122 @@
+cheta.plot.MsidPlot
+===================
+
+.. py:class:: cheta.plot.MsidPlot(msid, fmt='-b', fmt_minmax='-c', **plot_kwargs)
+
+   Bases: :py:obj:`object`
+
+
+   
+   Make an interactive plot for exploring the MSID data.
+
+   This method opens a new plot figure (or clears the current figure)
+   and plots the MSID ``vals`` versus ``times``.  This plot can be
+   panned or zoomed arbitrarily and the data values will be fetched
+   from the archive as needed.  Depending on the time scale, ``iplot``
+   will display either full resolution, 5-minute, or daily values.
+   For 5-minute and daily values the min and max values are also
+   plotted.
+
+   Once the plot is displayed and the window is selected by clicking in
+   it, the plot limits can be controlled by the usual methods (window
+   selection, pan / zoom).  In addition following key commands are
+   recognized::
+
+     a: autoscale for full data range in x and y
+     m: toggle plotting of min/max values
+     p: pan at cursor x
+     y: toggle autoscaling of y-axis
+     z: zoom at cursor x
+     ?: print help
+
+   Example::
+
+     dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
+     iplot = cheta.MsidPlot(dat)
+
+   Caveat: the ``MsidPlot()`` class is not meant for use within scripts, and
+   may give unexpected results if used in combination with other plotting
+   commands directed at the same plot figure.
+
+   :param msid: MSID object
+   :param fmt: plot format for values (default="-b")
+   :param fmt_minmax: plot format for mins and maxes (default="-c")
+   :param plot_kwargs: additional plotting keyword args
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: fig
+
+
+   .. py:attribute:: ax
+
+
+   .. py:attribute:: zoom
+      :value: 4.0
+
+
+
+   .. py:attribute:: msid
+
+
+   .. py:attribute:: fetch
+
+
+   .. py:attribute:: fmt
+      :value: '-b'
+
+
+
+   .. py:attribute:: fmt_minmax
+      :value: '-c'
+
+
+
+   .. py:attribute:: plot_kwargs
+
+
+   .. py:attribute:: msidname
+
+
+   .. py:attribute:: plot_mins
+      :value: True
+
+
+
+   .. py:attribute:: tstart
+
+
+   .. py:attribute:: tstop
+
+
+   .. py:attribute:: scaley
+      :value: True
+
+
+
+   .. py:property:: npix
+
+
+   .. py:method:: key_press(event)
+
+
+   .. py:method:: xlim_changed(event)
+
+
+   .. py:method:: draw_plot()
+

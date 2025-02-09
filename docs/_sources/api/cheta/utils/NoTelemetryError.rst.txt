@@ -1,0 +1,28 @@
+cheta.utils.NoTelemetryError
+============================
+
+.. py:exception:: cheta.utils.NoTelemetryError
+
+   Bases: :py:obj:`Exception`
+
+
+   
+   No telemetry available for the specified interval
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

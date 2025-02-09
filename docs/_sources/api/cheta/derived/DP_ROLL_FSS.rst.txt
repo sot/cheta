@@ -1,0 +1,60 @@
+cheta.derived.DP_ROLL_FSS
+=========================
+
+.. py:class:: cheta.derived.DP_ROLL_FSS
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Off-Nominal Roll Angle from FSS Data in ACA Frame [Deg]
+
+   Defined as the rotation about the ACA X-axis required to align the sun
+   vector with the ACA X/Z plane.
+
+   When in FSS FOV per AOSUNPRS:
+   Calculated using the FSS alpha and beta angles to compute the sun vector
+   in the FSS frame.  The sun vector is then rotated into the ACA frame
+   using the rotation matrix (an OBC k-constant).  Roll is computed using the
+   arctan function.
+
+   When NOT in FSS FOV per AOSUNPRS:
+   <data>.bads = 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aoalpang', 'aobetang', 'aosunprs']
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: max_gap
+      :value: 10.0
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

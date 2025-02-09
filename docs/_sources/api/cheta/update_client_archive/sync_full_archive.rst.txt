@@ -1,0 +1,31 @@
+cheta.update_client_archive.sync_full_archive
+=============================================
+
+.. py:function:: cheta.update_client_archive.sync_full_archive(opt, msid_files, logger, content, index_tbl)
+
+   
+   Sync the archive for ``content``.
+
+   :param opt:
+   :param msid_files:
+   :param logger:
+   :param content:
+   :param index_tbl: index of sync file entries
+   :return:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

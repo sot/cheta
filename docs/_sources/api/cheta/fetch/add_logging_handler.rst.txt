@@ -1,0 +1,28 @@
+cheta.fetch.add_logging_handler
+===============================
+
+.. py:function:: cheta.fetch.add_logging_handler(level=logging.INFO, formatter=None, handler=None)
+
+   
+   Configure logging for fetch module.
+
+   :param level: logging level (logging.DEBUG, logging.INFO, etc)
+   :param formatter: logging.Formatter (default: Formatter('%(funcName)s: %(message)s'))
+   :param handler: logging.Handler (default: StreamHandler())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

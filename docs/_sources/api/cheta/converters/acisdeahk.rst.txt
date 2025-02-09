@@ -1,0 +1,29 @@
+cheta.converters.acisdeahk
+==========================
+
+.. py:function:: cheta.converters.acisdeahk(dat)
+
+   
+   Take the archive ACIS-0 DEA HKP data and convert to a format that is
+   consistent with normal eng0 files.  ACIS-0 housekeeping has data stored
+   in query-records, one row per DEA statistic query.  Gather all the
+   time-synced queries corresponding to columns for the acis0hkp table
+   and put into a single row.  Write out to temp files and modify self->{arch_files}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

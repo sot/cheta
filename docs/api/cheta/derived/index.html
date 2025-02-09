@@ -1,0 +1,1069 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>cheta.derived &#8212; cheta 4.63.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=7cd21745"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=30646c52"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/derived/index';</script>
+    <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/derived/index.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="cheta.derived.acispow" href="acispow/index.html" />
+    <link rel="prev" title="cheta.converters.pyfits_to_recarray" href="../converters/pyfits_to_recarray.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="4.63.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item"><a href="../../../index.html" style="text-decoration: none;">
+    <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
+</a>
+&nbsp;
+<span style="font-size: x-large;">4.63.0</span></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../fetch_tutorial.html">
+    Fetch Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../pseudo_msids.html">
+    Pseudo-MSIDs
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/sot/cheta" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../fetch_tutorial.html">
+    Fetch Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../pseudo_msids.html">
+    Pseudo-MSIDs
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/sot/cheta" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">cheta</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cheta.derived</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-cheta.derived">
+<span id="cheta-derived"></span><h1>cheta.derived<a class="headerlink" href="#module-cheta.derived" title="Link to this heading">#</a></h1>
+<p>Derived Parameters</p>
+<p>The engineering archive has pseudo-MSIDs that are derived via computation from
+telemetry MSIDs.  All derived parameter names begin with the characters <code class="docutils literal notranslate"><span class="pre">DP_</span></code>
+(not case sensitive as usual).  Otherwise there is no difference from standard
+MSIDs.</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="acispow/index.html">cheta.derived.acispow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base/index.html">cheta.derived.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comps/index.html">cheta.derived.comps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eps/index.html">cheta.derived.eps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mups_valve/index.html">cheta.derived.mups_valve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="orbit/index.html">cheta.derived.orbit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pcad/index.html">cheta.derived.pcad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test/index.html">cheta.derived.test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermal/index.html">cheta.derived.thermal</a></li>
+</ul>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_DPA_POWER.html#cheta.derived.DP_DPA_POWER" title="cheta.derived.DP_DPA_POWER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_DPA_POWER</span></code></a></p></td>
+<td><p>ACIS total DPA-A and DPA-B power</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_DEA_POWER.html#cheta.derived.DP_DEA_POWER" title="cheta.derived.DP_DEA_POWER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_DEA_POWER</span></code></a></p></td>
+<td><p>ACIS DEA power</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PSMC_POWER.html#cheta.derived.DP_PSMC_POWER" title="cheta.derived.DP_PSMC_POWER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PSMC_POWER</span></code></a></p></td>
+<td><p>ACIS PSMC power</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DerivedParameter.html#cheta.derived.DerivedParameter" title="cheta.derived.DerivedParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DerivedParameter</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DerivedParameterEps.html#cheta.derived.DerivedParameterEps" title="cheta.derived.DerivedParameterEps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DerivedParameterEps</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_BATT1_TAVE.html#cheta.derived.DP_BATT1_TAVE" title="cheta.derived.DP_BATT1_TAVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_BATT1_TAVE</span></code></a></p></td>
+<td><p>Battery 1 Average Temperature. Derived from average of all three battery temperature sensors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_BATT2_TAVE.html#cheta.derived.DP_BATT2_TAVE" title="cheta.derived.DP_BATT2_TAVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_BATT2_TAVE</span></code></a></p></td>
+<td><p>Battery 2 Average Temperature. Derived from average of all three battery temperature sensors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_BATT3_TAVE.html#cheta.derived.DP_BATT3_TAVE" title="cheta.derived.DP_BATT3_TAVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_BATT3_TAVE</span></code></a></p></td>
+<td><p>Battery 3 Average Temperature. Derived from average of all three battery temperature sensors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_EPOWER1.html#cheta.derived.DP_EPOWER1" title="cheta.derived.DP_EPOWER1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_EPOWER1</span></code></a></p></td>
+<td><p>Bus Power = ELBI_LOW * ELBV</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_MYSAPOW.html#cheta.derived.DP_MYSAPOW" title="cheta.derived.DP_MYSAPOW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_MYSAPOW</span></code></a></p></td>
+<td><p>-Y Solar Array Power = ESAMYI * ELBV</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PYSAPOW.html#cheta.derived.DP_PYSAPOW" title="cheta.derived.DP_PYSAPOW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PYSAPOW</span></code></a></p></td>
+<td><p>+Y Solar Array Power = ESAPYI * ELBV</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DerivedParameterOrbit.html#cheta.derived.DerivedParameterOrbit" title="cheta.derived.DerivedParameterOrbit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DerivedParameterOrbit</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_SEMI_MAJOR_AXIS.html#cheta.derived.DP_SEMI_MAJOR_AXIS" title="cheta.derived.DP_SEMI_MAJOR_AXIS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_SEMI_MAJOR_AXIS</span></code></a></p></td>
+<td><p>Orbital element: semi-major axis (m)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_ORBIT_PERIOD.html#cheta.derived.DP_ORBIT_PERIOD" title="cheta.derived.DP_ORBIT_PERIOD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ORBIT_PERIOD</span></code></a></p></td>
+<td><p>Orbital element: period (sec)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_ECCENTRICITY.html#cheta.derived.DP_ECCENTRICITY" title="cheta.derived.DP_ECCENTRICITY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ECCENTRICITY</span></code></a></p></td>
+<td><p>Orbital element: eccentricity</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_INCLINATION.html#cheta.derived.DP_INCLINATION" title="cheta.derived.DP_INCLINATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_INCLINATION</span></code></a></p></td>
+<td><p>Orbital element: inclination (degrees)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_ASCENDING_NODE.html#cheta.derived.DP_ASCENDING_NODE" title="cheta.derived.DP_ASCENDING_NODE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ASCENDING_NODE</span></code></a></p></td>
+<td><p>Orbital element: right ascension of ascending node (degrees)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_ARGUMENT_PERIGEE.html#cheta.derived.DP_ARGUMENT_PERIGEE" title="cheta.derived.DP_ARGUMENT_PERIGEE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ARGUMENT_PERIGEE</span></code></a></p></td>
+<td><p>Orbital element: argument of perigee (degrees)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_MEAN_ANOMALY.html#cheta.derived.DP_MEAN_ANOMALY" title="cheta.derived.DP_MEAN_ANOMALY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_MEAN_ANOMALY</span></code></a></p></td>
+<td><p>Orbital element: mean anomaly (degrees)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PERIGEE_RADIUS.html#cheta.derived.DP_PERIGEE_RADIUS" title="cheta.derived.DP_PERIGEE_RADIUS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PERIGEE_RADIUS</span></code></a></p></td>
+<td><p>Orbit perigee based on orbital elements (m)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_APOGEE_RADIUS.html#cheta.derived.DP_APOGEE_RADIUS" title="cheta.derived.DP_APOGEE_RADIUS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_APOGEE_RADIUS</span></code></a></p></td>
+<td><p>Orbit apogee based on orbital elements (m)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DerivedParameterPcad.html#cheta.derived.DerivedParameterPcad" title="cheta.derived.DerivedParameterPcad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DerivedParameterPcad</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_CSS1_NPM_SUN.html#cheta.derived.DP_CSS1_NPM_SUN" title="cheta.derived.DP_CSS1_NPM_SUN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_CSS1_NPM_SUN</span></code></a></p></td>
+<td><p>Coarse Sun Sensor Counts 1 filtered for NPM and SA Illuminated</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_CSS2_NPM_SUN.html#cheta.derived.DP_CSS2_NPM_SUN" title="cheta.derived.DP_CSS2_NPM_SUN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_CSS2_NPM_SUN</span></code></a></p></td>
+<td><p>Coarse Sun Sensor Counts 2 filtered for NPM and SA Illuminated</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_CSS3_NPM_SUN.html#cheta.derived.DP_CSS3_NPM_SUN" title="cheta.derived.DP_CSS3_NPM_SUN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_CSS3_NPM_SUN</span></code></a></p></td>
+<td><p>Coarse Sun Sensor Counts 3 filtered for NPM and SA Illuminated</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_CSS4_NPM_SUN.html#cheta.derived.DP_CSS4_NPM_SUN" title="cheta.derived.DP_CSS4_NPM_SUN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_CSS4_NPM_SUN</span></code></a></p></td>
+<td><p>Coarse Sun Sensor Counts 4 filtered for NPM and SA Illuminated</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_FSS_CSS_ANGLE_DIFF.html#cheta.derived.DP_FSS_CSS_ANGLE_DIFF" title="cheta.derived.DP_FSS_CSS_ANGLE_DIFF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_FSS_CSS_ANGLE_DIFF</span></code></a></p></td>
+<td><p>Angle between FSS and CSS Sun Vectors [Deg]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_MAN_ANG.html#cheta.derived.DP_MAN_ANG" title="cheta.derived.DP_MAN_ANG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_MAN_ANG</span></code></a></p></td>
+<td><p>Maneuver Angle (Total)  [deg]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_ONE_SHOT.html#cheta.derived.DP_ONE_SHOT" title="cheta.derived.DP_ONE_SHOT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ONE_SHOT</span></code></a></p></td>
+<td><p>One Shot [arcsec]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PITCH.html#cheta.derived.DP_PITCH" title="cheta.derived.DP_PITCH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PITCH</span></code></a></p></td>
+<td><p>Sun Pitch Angle from Predictive Ephemeris in ACA Frame [deg]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PITCH_CSS.html#cheta.derived.DP_PITCH_CSS" title="cheta.derived.DP_PITCH_CSS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PITCH_CSS</span></code></a></p></td>
+<td><p>Sun Pitch Angle from CSS Data in ACA Frame [Deg]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PITCH_CSS_SA.html#cheta.derived.DP_PITCH_CSS_SA" title="cheta.derived.DP_PITCH_CSS_SA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PITCH_CSS_SA</span></code></a></p></td>
+<td><p>Sun Pitch Angle from CSS Data in SA Frame [Deg]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PITCH_FSS.html#cheta.derived.DP_PITCH_FSS" title="cheta.derived.DP_PITCH_FSS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PITCH_FSS</span></code></a></p></td>
+<td><p>Sun Pitch Angle from FSS Data in ACA Frame [Deg]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_ROLL.html#cheta.derived.DP_ROLL" title="cheta.derived.DP_ROLL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ROLL</span></code></a></p></td>
+<td><p>Off-Nominal Roll Angle in ACA Frame [Deg]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_ROLL_CSS.html#cheta.derived.DP_ROLL_CSS" title="cheta.derived.DP_ROLL_CSS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ROLL_CSS</span></code></a></p></td>
+<td><p>Off-Nominal Roll Angle from CSS Data in ACA Frame [Deg]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_ROLL_CSS_SA.html#cheta.derived.DP_ROLL_CSS_SA" title="cheta.derived.DP_ROLL_CSS_SA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ROLL_CSS_SA</span></code></a></p></td>
+<td><p>Sun Roll Angle from CSS Data in SA Frame [Deg]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_ROLL_FSS.html#cheta.derived.DP_ROLL_FSS" title="cheta.derived.DP_ROLL_FSS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ROLL_FSS</span></code></a></p></td>
+<td><p>Off-Nominal Roll Angle from FSS Data in ACA Frame [Deg]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_RW_MOM_TOT.html#cheta.derived.DP_RW_MOM_TOT" title="cheta.derived.DP_RW_MOM_TOT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_RW_MOM_TOT</span></code></a></p></td>
+<td><p>Total Reaction Wheel Momentum [Ft-Lb-Sec]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_RW1_DELTA_TEMP.html#cheta.derived.DP_RW1_DELTA_TEMP" title="cheta.derived.DP_RW1_DELTA_TEMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_RW1_DELTA_TEMP</span></code></a></p></td>
+<td><p>Difference between Reaction Wheel 1 Compartment and Bearing Temperature</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_RW2_DELTA_TEMP.html#cheta.derived.DP_RW2_DELTA_TEMP" title="cheta.derived.DP_RW2_DELTA_TEMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_RW2_DELTA_TEMP</span></code></a></p></td>
+<td><p>Difference between Reaction Wheel 2 Compartment and Bearing Temperature</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_RW3_DELTA_TEMP.html#cheta.derived.DP_RW3_DELTA_TEMP" title="cheta.derived.DP_RW3_DELTA_TEMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_RW3_DELTA_TEMP</span></code></a></p></td>
+<td><p>Difference between Reaction Wheel 3 Compartment and Bearing Temperature</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_RW4_DELTA_TEMP.html#cheta.derived.DP_RW4_DELTA_TEMP" title="cheta.derived.DP_RW4_DELTA_TEMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_RW4_DELTA_TEMP</span></code></a></p></td>
+<td><p>Difference between Reaction Wheel 4 Compartment and Bearing Temperature</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_RW5_DELTA_TEMP.html#cheta.derived.DP_RW5_DELTA_TEMP" title="cheta.derived.DP_RW5_DELTA_TEMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_RW5_DELTA_TEMP</span></code></a></p></td>
+<td><p>Difference between Reaction Wheel 5 Compartment and Bearing Temperature</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_RW6_DELTA_TEMP.html#cheta.derived.DP_RW6_DELTA_TEMP" title="cheta.derived.DP_RW6_DELTA_TEMP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_RW6_DELTA_TEMP</span></code></a></p></td>
+<td><p>Difference between Reaction Wheel 6 Compartment and Bearing Temperature</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_SA_ANG_AVG.html#cheta.derived.DP_SA_ANG_AVG" title="cheta.derived.DP_SA_ANG_AVG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_SA_ANG_AVG</span></code></a></p></td>
+<td><p>Average Solar Array Angle [Deg]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_SUN_XZ_ANGLE.html#cheta.derived.DP_SUN_XZ_ANGLE" title="cheta.derived.DP_SUN_XZ_ANGLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_SUN_XZ_ANGLE</span></code></a></p></td>
+<td><p>Angle between Sun and ACA X/Z plane [Deg]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_SYS_MOM_TOT.html#cheta.derived.DP_SYS_MOM_TOT" title="cheta.derived.DP_SYS_MOM_TOT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_SYS_MOM_TOT</span></code></a></p></td>
+<td><p>Total System Momentum [Ft-Lb-Sec]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DerivedParameterTest.html#cheta.derived.DerivedParameterTest" title="cheta.derived.DerivedParameterTest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DerivedParameterTest</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TEST1.html#cheta.derived.DP_TEST1" title="cheta.derived.DP_TEST1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TEST1</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_TEST2.html#cheta.derived.DP_TEST2" title="cheta.derived.DP_TEST2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TEST2</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TEST3.html#cheta.derived.DP_TEST3" title="cheta.derived.DP_TEST3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TEST3</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DerivedParameterThermal.html#cheta.derived.DerivedParameterThermal" title="cheta.derived.DerivedParameterThermal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DerivedParameterThermal</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_EE_AXIAL.html#cheta.derived.DP_EE_AXIAL" title="cheta.derived.DP_EE_AXIAL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_EE_AXIAL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_EE_BULK.html#cheta.derived.DP_EE_BULK" title="cheta.derived.DP_EE_BULK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_EE_BULK</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_EE_DIAM.html#cheta.derived.DP_EE_DIAM" title="cheta.derived.DP_EE_DIAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_EE_DIAM</span></code></a></p></td>
+<td><p>Kodak diametrical encircled energy</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_EE_RADIAL.html#cheta.derived.DP_EE_RADIAL" title="cheta.derived.DP_EE_RADIAL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_EE_RADIAL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_EE_THERM.html#cheta.derived.DP_EE_THERM" title="cheta.derived.DP_EE_THERM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_EE_THERM</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_HAAG.html#cheta.derived.DP_HAAG" title="cheta.derived.DP_HAAG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HAAG</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_HARG.html#cheta.derived.DP_HARG" title="cheta.derived.DP_HARG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HARG</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_HMAX35.html#cheta.derived.DP_HMAX35" title="cheta.derived.DP_HMAX35"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HMAX35</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_HMCSAVE.html#cheta.derived.DP_HMCSAVE" title="cheta.derived.DP_HMCSAVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HMCSAVE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_HMIN35.html#cheta.derived.DP_HMIN35" title="cheta.derived.DP_HMIN35"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HMIN35</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_HRMA_AVE.html#cheta.derived.DP_HRMA_AVE" title="cheta.derived.DP_HRMA_AVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HRMA_AVE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_HRMHCHK.html#cheta.derived.DP_HRMHCHK" title="cheta.derived.DP_HRMHCHK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HRMHCHK</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_OBAAG.html#cheta.derived.DP_OBAAG" title="cheta.derived.DP_OBAAG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OBAAG</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_OBAAGW.html#cheta.derived.DP_OBAAGW" title="cheta.derived.DP_OBAAGW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OBAAGW</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_OBACAVE.html#cheta.derived.DP_OBACAVE" title="cheta.derived.DP_OBACAVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OBACAVE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_OBACAVEW.html#cheta.derived.DP_OBACAVEW" title="cheta.derived.DP_OBACAVEW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OBACAVEW</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_OBADIG.html#cheta.derived.DP_OBADIG" title="cheta.derived.DP_OBADIG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OBADIG</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_OBADIGW.html#cheta.derived.DP_OBADIGW" title="cheta.derived.DP_OBADIGW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OBADIGW</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_OBA_AVE.html#cheta.derived.DP_OBA_AVE" title="cheta.derived.DP_OBA_AVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OBA_AVE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_OMAX34.html#cheta.derived.DP_OMAX34" title="cheta.derived.DP_OMAX34"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OMAX34</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_OMIN34.html#cheta.derived.DP_OMIN34" title="cheta.derived.DP_OMIN34"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_OMIN34</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P01.html#cheta.derived.DP_P01" title="cheta.derived.DP_P01"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P01</span></code></a></p></td>
+<td><p>Zone 1 heater power</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P02.html#cheta.derived.DP_P02" title="cheta.derived.DP_P02"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P02</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P03.html#cheta.derived.DP_P03" title="cheta.derived.DP_P03"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P03</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P04.html#cheta.derived.DP_P04" title="cheta.derived.DP_P04"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P04</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P05.html#cheta.derived.DP_P05" title="cheta.derived.DP_P05"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P05</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P06.html#cheta.derived.DP_P06" title="cheta.derived.DP_P06"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P06</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P07.html#cheta.derived.DP_P07" title="cheta.derived.DP_P07"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P07</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P08.html#cheta.derived.DP_P08" title="cheta.derived.DP_P08"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P08</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P09.html#cheta.derived.DP_P09" title="cheta.derived.DP_P09"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P09</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P10.html#cheta.derived.DP_P10" title="cheta.derived.DP_P10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P10</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P11.html#cheta.derived.DP_P11" title="cheta.derived.DP_P11"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P11</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P12.html#cheta.derived.DP_P12" title="cheta.derived.DP_P12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P12</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P13.html#cheta.derived.DP_P13" title="cheta.derived.DP_P13"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P13</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P14.html#cheta.derived.DP_P14" title="cheta.derived.DP_P14"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P14</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P15.html#cheta.derived.DP_P15" title="cheta.derived.DP_P15"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P15</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P16.html#cheta.derived.DP_P16" title="cheta.derived.DP_P16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P16</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P17.html#cheta.derived.DP_P17" title="cheta.derived.DP_P17"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P17</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P18.html#cheta.derived.DP_P18" title="cheta.derived.DP_P18"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P18</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P19.html#cheta.derived.DP_P19" title="cheta.derived.DP_P19"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P19</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P20.html#cheta.derived.DP_P20" title="cheta.derived.DP_P20"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P20</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P23.html#cheta.derived.DP_P23" title="cheta.derived.DP_P23"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P23</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P24.html#cheta.derived.DP_P24" title="cheta.derived.DP_P24"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P24</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P25.html#cheta.derived.DP_P25" title="cheta.derived.DP_P25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P25</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P26.html#cheta.derived.DP_P26" title="cheta.derived.DP_P26"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P26</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P27.html#cheta.derived.DP_P27" title="cheta.derived.DP_P27"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P27</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P28.html#cheta.derived.DP_P28" title="cheta.derived.DP_P28"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P28</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P29.html#cheta.derived.DP_P29" title="cheta.derived.DP_P29"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P29</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P30.html#cheta.derived.DP_P30" title="cheta.derived.DP_P30"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P30</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P31.html#cheta.derived.DP_P31" title="cheta.derived.DP_P31"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P31</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P32.html#cheta.derived.DP_P32" title="cheta.derived.DP_P32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P32</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P33.html#cheta.derived.DP_P33" title="cheta.derived.DP_P33"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P33</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P34.html#cheta.derived.DP_P34" title="cheta.derived.DP_P34"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P34</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P35.html#cheta.derived.DP_P35" title="cheta.derived.DP_P35"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P35</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P36.html#cheta.derived.DP_P36" title="cheta.derived.DP_P36"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P36</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P37.html#cheta.derived.DP_P37" title="cheta.derived.DP_P37"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P37</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P38.html#cheta.derived.DP_P38" title="cheta.derived.DP_P38"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P38</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P39.html#cheta.derived.DP_P39" title="cheta.derived.DP_P39"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P39</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P40.html#cheta.derived.DP_P40" title="cheta.derived.DP_P40"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P40</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P41.html#cheta.derived.DP_P41" title="cheta.derived.DP_P41"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P41</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P42.html#cheta.derived.DP_P42" title="cheta.derived.DP_P42"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P42</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P43.html#cheta.derived.DP_P43" title="cheta.derived.DP_P43"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P43</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P44.html#cheta.derived.DP_P44" title="cheta.derived.DP_P44"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P44</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P45.html#cheta.derived.DP_P45" title="cheta.derived.DP_P45"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P45</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P46.html#cheta.derived.DP_P46" title="cheta.derived.DP_P46"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P46</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P47.html#cheta.derived.DP_P47" title="cheta.derived.DP_P47"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P47</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P48.html#cheta.derived.DP_P48" title="cheta.derived.DP_P48"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P48</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P49.html#cheta.derived.DP_P49" title="cheta.derived.DP_P49"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P49</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P50.html#cheta.derived.DP_P50" title="cheta.derived.DP_P50"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P50</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P51.html#cheta.derived.DP_P51" title="cheta.derived.DP_P51"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P51</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P52.html#cheta.derived.DP_P52" title="cheta.derived.DP_P52"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P52</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P53.html#cheta.derived.DP_P53" title="cheta.derived.DP_P53"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P53</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P54.html#cheta.derived.DP_P54" title="cheta.derived.DP_P54"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P54</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P55.html#cheta.derived.DP_P55" title="cheta.derived.DP_P55"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P55</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P57.html#cheta.derived.DP_P57" title="cheta.derived.DP_P57"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P57</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P58.html#cheta.derived.DP_P58" title="cheta.derived.DP_P58"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P58</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P59.html#cheta.derived.DP_P59" title="cheta.derived.DP_P59"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P59</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P60.html#cheta.derived.DP_P60" title="cheta.derived.DP_P60"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P60</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P61.html#cheta.derived.DP_P61" title="cheta.derived.DP_P61"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P61</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P62.html#cheta.derived.DP_P62" title="cheta.derived.DP_P62"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P62</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P63.html#cheta.derived.DP_P63" title="cheta.derived.DP_P63"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P63</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P64.html#cheta.derived.DP_P64" title="cheta.derived.DP_P64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P64</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P65.html#cheta.derived.DP_P65" title="cheta.derived.DP_P65"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P65</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P66.html#cheta.derived.DP_P66" title="cheta.derived.DP_P66"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P66</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P67.html#cheta.derived.DP_P67" title="cheta.derived.DP_P67"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P67</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P68.html#cheta.derived.DP_P68" title="cheta.derived.DP_P68"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P68</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P69.html#cheta.derived.DP_P69" title="cheta.derived.DP_P69"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P69</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P75.html#cheta.derived.DP_P75" title="cheta.derived.DP_P75"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P75</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P76.html#cheta.derived.DP_P76" title="cheta.derived.DP_P76"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P76</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P77.html#cheta.derived.DP_P77" title="cheta.derived.DP_P77"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P77</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P78.html#cheta.derived.DP_P78" title="cheta.derived.DP_P78"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P78</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_P79.html#cheta.derived.DP_P79" title="cheta.derived.DP_P79"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P79</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_P80.html#cheta.derived.DP_P80" title="cheta.derived.DP_P80"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_P80</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PABH.html#cheta.derived.DP_PABH" title="cheta.derived.DP_PABH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PABH</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PAFTCONE.html#cheta.derived.DP_PAFTCONE" title="cheta.derived.DP_PAFTCONE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PAFTCONE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PAFTCYL.html#cheta.derived.DP_PAFTCYL" title="cheta.derived.DP_PAFTCYL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PAFTCYL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PAHP.html#cheta.derived.DP_PAHP" title="cheta.derived.DP_PAHP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PAHP</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PCONE.html#cheta.derived.DP_PCONE" title="cheta.derived.DP_PCONE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PCONE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PFAP.html#cheta.derived.DP_PFAP" title="cheta.derived.DP_PFAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PFAP</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PFWDCONE.html#cheta.derived.DP_PFWDCONE" title="cheta.derived.DP_PFWDCONE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PFWDCONE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PFWDCYL.html#cheta.derived.DP_PFWDCYL" title="cheta.derived.DP_PFWDCYL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PFWDCYL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PHRMA.html#cheta.derived.DP_PHRMA" title="cheta.derived.DP_PHRMA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PHRMA</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PHRMASTRUTS.html#cheta.derived.DP_PHRMASTRUTS" title="cheta.derived.DP_PHRMASTRUTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PHRMASTRUTS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PIC.html#cheta.derived.DP_PIC" title="cheta.derived.DP_PIC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PIC</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PMIDCONE.html#cheta.derived.DP_PMIDCONE" title="cheta.derived.DP_PMIDCONE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PMIDCONE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PMNT.html#cheta.derived.DP_PMNT" title="cheta.derived.DP_PMNT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PMNT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_POBAT.html#cheta.derived.DP_POBAT" title="cheta.derived.DP_POBAT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_POBAT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_POC.html#cheta.derived.DP_POC" title="cheta.derived.DP_POC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_POC</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PPL10.html#cheta.derived.DP_PPL10" title="cheta.derived.DP_PPL10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PPL10</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PRADVNT.html#cheta.derived.DP_PRADVNT" title="cheta.derived.DP_PRADVNT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PRADVNT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PSCSTRUTS.html#cheta.derived.DP_PSCSTRUTS" title="cheta.derived.DP_PSCSTRUTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PSCSTRUTS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_PTFTE.html#cheta.derived.DP_PTFTE" title="cheta.derived.DP_PTFTE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PTFTE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_PTOTAL.html#cheta.derived.DP_PTOTAL" title="cheta.derived.DP_PTOTAL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_PTOTAL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_SUNANGLE.html#cheta.derived.DP_SUNANGLE" title="cheta.derived.DP_SUNANGLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_SUNANGLE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TABMAX.html#cheta.derived.DP_TABMAX" title="cheta.derived.DP_TABMAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TABMAX</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_TABMIN.html#cheta.derived.DP_TABMIN" title="cheta.derived.DP_TABMIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TABMIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TELAB_AVE.html#cheta.derived.DP_TELAB_AVE" title="cheta.derived.DP_TELAB_AVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TELAB_AVE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_TELHS_AVE.html#cheta.derived.DP_TELHS_AVE" title="cheta.derived.DP_TELHS_AVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TELHS_AVE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TELSS_AVE.html#cheta.derived.DP_TELSS_AVE" title="cheta.derived.DP_TELSS_AVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TELSS_AVE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_THSMAX.html#cheta.derived.DP_THSMAX" title="cheta.derived.DP_THSMAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_THSMAX</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_THSMIN.html#cheta.derived.DP_THSMIN" title="cheta.derived.DP_THSMIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_THSMIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_TILT_AXIAL.html#cheta.derived.DP_TILT_AXIAL" title="cheta.derived.DP_TILT_AXIAL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TILT_AXIAL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TILT_BULK.html#cheta.derived.DP_TILT_BULK" title="cheta.derived.DP_TILT_BULK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TILT_BULK</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_TILT_DIAM.html#cheta.derived.DP_TILT_DIAM" title="cheta.derived.DP_TILT_DIAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TILT_DIAM</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TILT_MAX.html#cheta.derived.DP_TILT_MAX" title="cheta.derived.DP_TILT_MAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TILT_MAX</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_TILT_RSS.html#cheta.derived.DP_TILT_RSS" title="cheta.derived.DP_TILT_RSS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TILT_RSS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_TSSMAX.html#cheta.derived.DP_TSSMAX" title="cheta.derived.DP_TSSMAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TSSMAX</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_TSSMIN.html#cheta.derived.DP_TSSMIN" title="cheta.derived.DP_TSSMIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_TSSMIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DP_HADG.html#cheta.derived.DP_HADG" title="cheta.derived.DP_HADG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_HADG</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DP_ABH_DUTYCYCLE.html#cheta.derived.DP_ABH_DUTYCYCLE" title="cheta.derived.DP_ABH_DUTYCYCLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DP_ABH_DUTYCYCLE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="times_indexes.html#cheta.derived.times_indexes" title="cheta.derived.times_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">times_indexes</span></code></a>(start, stop, dt)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="calc_orbital_elements.html#cheta.derived.calc_orbital_elements" title="cheta.derived.calc_orbital_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_orbital_elements</span></code></a>(x, y, z, vx, vy, vz)</p></td>
+<td><p>Calculate orbital elements given input position (x, y, z) in m and</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qmult.html#cheta.derived.qmult" title="cheta.derived.qmult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">qmult</span></code></a>(q1, q2)</p></td>
+<td><p>Multiply two quaternions or arrays of quaternions</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qrotate.html#cheta.derived.qrotate" title="cheta.derived.qrotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">qrotate</span></code></a>(q, r)</p></td>
+<td><p>Rotate a vector by a quaternion</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="arccos_clip.html#cheta.derived.arccos_clip" title="cheta.derived.arccos_clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arccos_clip</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sun_vector_body.html#cheta.derived.sun_vector_body" title="cheta.derived.sun_vector_body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sun_vector_body</span></code></a>(data[, predictive])</p></td>
+<td><p>Calculate the normalized sun vector in body coordinates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="calc_sun_vec_body_css.html#cheta.derived.calc_sun_vec_body_css" title="cheta.derived.calc_sun_vec_body_css"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_sun_vec_body_css</span></code></a>(data[, safe_mode])</p></td>
+<td><p>Calculate the normalized sun vector in body coordinates using CSS data.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../converters/pyfits_to_recarray.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">cheta.converters.pyfits_to_recarray</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="acispow/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">cheta.derived.acispow</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Smithsonian Astrophysical Observatory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

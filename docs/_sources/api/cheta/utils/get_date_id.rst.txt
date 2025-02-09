@@ -1,0 +1,27 @@
+cheta.utils.get_date_id
+=======================
+
+.. py:function:: cheta.utils.get_date_id(date)
+
+   
+   Get date_id format used in sync repo index.
+
+   :param date:
+   :return: date_id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

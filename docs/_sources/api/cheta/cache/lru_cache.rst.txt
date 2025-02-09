@@ -1,0 +1,29 @@
+cheta.cache.lru_cache
+=====================
+
+.. py:function:: cheta.cache.lru_cache(maxsize=30)
+
+   
+   Least-recently-used cache decorator.
+
+   Arguments to the cached function must be hashable.
+   Cache performance statistics stored in f.hits and f.misses.
+   Clear the cache with f.clear().
+   http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

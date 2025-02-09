@@ -1,0 +1,20 @@
+cheta.derived.DP_TSSMAX
+=======================
+
+.. py:class:: cheta.derived.DP_TSSMAX
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OOBTHR51', 'OOBTHR50', 'OOBTHR53', 'OOBTHR52', 'OOBTHR54', 'OOBTHR49']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

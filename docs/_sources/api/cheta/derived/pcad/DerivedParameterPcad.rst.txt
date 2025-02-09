@@ -1,0 +1,12 @@
+cheta.derived.pcad.DerivedParameterPcad
+=======================================
+
+.. py:class:: cheta.derived.pcad.DerivedParameterPcad
+
+   Bases: :py:obj:`cheta.derived.base.DerivedParameter`
+
+
+   .. py:attribute:: content_root
+      :value: 'pcad'
+
+

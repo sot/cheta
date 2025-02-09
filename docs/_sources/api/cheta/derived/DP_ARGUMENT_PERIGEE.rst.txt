@@ -1,0 +1,28 @@
+cheta.derived.DP_ARGUMENT_PERIGEE
+=================================
+
+.. py:class:: cheta.derived.DP_ARGUMENT_PERIGEE
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbital element: argument of perigee (degrees)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

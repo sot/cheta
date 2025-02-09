@@ -1,0 +1,31 @@
+cheta.utils.set_fetch_basedir
+=============================
+
+.. py:function:: cheta.utils.set_fetch_basedir(basedir)
+
+   
+   Temporarily override the base directory that fetch uses for telemetry data.
+
+   Example to use local data::
+
+     >>> with set_fetch_basedir('.'):
+     ...     dat = fetch.Msid('aacccdpt', '2018:001', '2018:100')
+
+   :param basedir: str or os.PathLike, base directory for cheta data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

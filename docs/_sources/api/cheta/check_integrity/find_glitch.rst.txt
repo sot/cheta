@@ -1,0 +1,4 @@
+cheta.check_integrity.find_glitch
+=================================
+
+.. py:function:: cheta.check_integrity.find_glitch()

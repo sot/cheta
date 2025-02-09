@@ -1,0 +1,4 @@
+cheta.add_derived.get_options
+=============================
+
+.. py:function:: cheta.add_derived.get_options()

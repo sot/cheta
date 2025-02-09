@@ -1,0 +1,4 @@
+cheta.get_telem.get_opt
+=======================
+
+.. py:function:: cheta.get_telem.get_opt()

@@ -1,0 +1,18 @@
+cheta.derived.thermal.DerivedParameterThermal
+=============================================
+
+.. py:class:: cheta.derived.thermal.DerivedParameterThermal
+
+   Bases: :py:obj:`cheta.derived.base.DerivedParameter`
+
+
+   .. py:attribute:: content_root
+      :value: 'thermal'
+
+
+
+   .. py:method:: fix_bus_5_and_bus_6(data)
+
+
+   .. py:method:: fix_4OHTRZ50(data)
+

@@ -1,0 +1,28 @@
+cheta.converters.generic_converter
+==================================
+
+.. py:function:: cheta.converters.generic_converter(prefix=None, add_quality=False, aliases=None)
+
+   
+   Convert an input FITS recarray assuming that it has a TIME column.
+   If ``add_prefix`` is set then add ``content_`` as a prefix
+   to the data column names.  If ``add_quality`` is set then add a QUALITY
+   column with all values False.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

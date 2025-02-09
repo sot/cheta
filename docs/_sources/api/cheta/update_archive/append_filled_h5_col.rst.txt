@@ -1,0 +1,29 @@
+cheta.update_archive.append_filled_h5_col
+=========================================
+
+.. py:function:: cheta.update_archive.append_filled_h5_col(dats, colname, data_len)
+
+   
+   For ``colname`` that has newly appeared in the CXC content file due to a TDB
+   change, append a sufficient number of empty, bad-quality rows to offset to the start
+   of the first ``dats`` table with that ``colname``.
+
+   ``data_len`` represents the data length to the END of the current ``dats``
+   for this content type.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

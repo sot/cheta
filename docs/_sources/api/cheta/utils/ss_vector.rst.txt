@@ -1,0 +1,66 @@
+cheta.utils.ss_vector
+=====================
+
+.. py:function:: cheta.utils.ss_vector(start, stop=None, obj='Earth')
+
+   
+   Calculate vector to Earth, Sun, or Moon in Chandra body coordinates
+   between ``start`` and ``stop`` dates at 5 minute (328 sec) intervals.
+
+   The return value in a NumPy structured array table (see below) which
+   contains the distance in km from Chandra to the the solar system object
+   along with the corresponding direction vectors in Chandra body coordinates
+   and in the ECI frame.  For convenience the attitude quaternion components
+   are also provided.
+
+   Output table columns:
+
+   * times: time in CXC seconds
+   * distance: Distance to object (km)
+   * body_x: X component of object in Chandra body coordinates
+   * body_y: Y component of object in Chandra body coordinates
+   * body_z: Z component of object in Chandra body coordinates
+   * eci_x: X component of object relative to Chandra in ECI coordinates
+   * eci_y: Y component of object relative to Chandra in ECI coordinates
+   * eci_z: Z component of object relative to Chandra in ECI coordinates
+   * q1: component 1 of the attitude quaternion
+   * q2: component 2 of the attitude quaternion
+   * q3: component 3 of the attitude quaternion
+   * q4: component 4 of the attitude quaternion
+
+   Example::
+
+     from cheta.utils import ss_vector
+     from Ska.Matplotlib import plot_cxctime
+     vec = ss_vector('2010:001', '2010:030', obj='Sun')
+     figure(1)
+     clf()
+     subplot(2, 1, 1)
+     plot_cxctime(vec['times'], vec['body_x'], '-b')
+     plot_cxctime(vec['times'], vec['body_y'], '-r')
+     plot_cxctime(vec['times'], vec['body_z'], '-g')
+     subplot(2, 1, 2)
+     plot_cxctime(vec['times'], vec['distance'])
+
+   :param start: start time (DateTime format)
+   :param stop: stop time (DateTime format)
+   :param obj: solar system object ('Earth', 'Moon', 'Sun')
+
+   :returns: table of vector values
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

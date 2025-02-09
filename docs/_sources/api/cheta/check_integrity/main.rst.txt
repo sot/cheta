@@ -1,0 +1,4 @@
+cheta.check_integrity.main
+==========================
+
+.. py:function:: cheta.check_integrity.main()

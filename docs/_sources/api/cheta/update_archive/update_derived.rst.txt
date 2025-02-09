@@ -1,0 +1,25 @@
+cheta.update_archive.update_derived
+===================================
+
+.. py:function:: cheta.update_archive.update_derived(filetype)
+
+   
+   Update full resolution MSID archive files for derived parameters with ``filetype``
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

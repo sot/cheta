@@ -1,0 +1,20 @@
+cheta.derived.DP_PAFTCONE
+=========================
+
+.. py:class:: cheta.derived.DP_PAFTCONE
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ48', '4OHTRZ49', '4OHTRZ50', '4OHTRZ51', '4OHTRZ52', '4S1PWR05', '4S1PWR06']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

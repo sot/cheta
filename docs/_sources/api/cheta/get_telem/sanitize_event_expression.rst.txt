@@ -1,0 +1,30 @@
+cheta.get_telem.sanitize_event_expression
+=========================================
+
+.. py:function:: cheta.get_telem.sanitize_event_expression(expr)
+
+   
+   Take an event expression from the --remove-intervals or --select-intervals
+   command line args and do two things:
+
+   - Fully parse and make sure it matches the limited allowed syntax so that
+     it can be later eval'd safely.
+   - Change e.g. "ltt_bads[pad=800, msid='airu2bt']" to
+     "events.ltt_bads(pad=800, msid='airu2bt')" for eval in module context.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

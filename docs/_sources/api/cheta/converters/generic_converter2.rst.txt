@@ -1,0 +1,31 @@
+cheta.converters.generic_converter2
+===================================
+
+.. py:function:: cheta.converters.generic_converter2(msid_cxc_map, default_dtypes=None)
+
+   
+   Convert an input FITS recarray assuming that it has a TIME column.  Use the
+   ``msid_cxc_map`` to define the list of output eng archive MSIDs (keys) and the
+   corresponding colnames in the CXC archive FITS file (values).
+
+   The CXC values can contain an optional bit specifier in the form <colname>:<N>
+   where N is the bit selector referenced from 0 as the leftmost bit.
+
+   :param msid_cxc_map: dict of out_name => in_name mapping
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

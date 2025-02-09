@@ -1,0 +1,46 @@
+cheta.derived.acispow.DP_DEA_POWER
+==================================
+
+.. py:class:: cheta.derived.acispow.DP_DEA_POWER
+
+   Bases: :py:obj:`cheta.derived.base.DerivedParameter`
+
+
+   
+   ACIS DEA power
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['1de28avo', '1deicacu']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:attribute:: content_root
+      :value: 'acispow'
+
+
+
+   .. py:method:: calc(data)
+

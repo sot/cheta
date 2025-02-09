@@ -1,0 +1,42 @@
+cheta.derived.DP_BATT1_TAVE
+===========================
+
+.. py:class:: cheta.derived.DP_BATT1_TAVE
+
+   Bases: :py:obj:`DerivedParameterEps`
+
+
+   
+   Battery 1 Average Temperature. Derived from average of all three battery temperature sensors.
+   Telemetry 16x / MF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['TB1T1', 'TB1T2', 'TB1T3']
+
+
+
+   .. py:attribute:: time_step
+      :value: 2.05
+
+
+
+   .. py:method:: calc(data)
+

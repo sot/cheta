@@ -1,0 +1,62 @@
+cheta.converters
+================
+
+.. py:module:: cheta.converters
+
+
+
+Exceptions
+----------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/converters/NoValidDataError
+   /api/cheta/converters/DataShapeError
+
+.. autoapisummary::
+
+   cheta.converters.NoValidDataError
+   cheta.converters.DataShapeError
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/converters/quality_index
+   /api/cheta/converters/numpy_converter
+   /api/cheta/converters/convert
+   /api/cheta/converters/generic_converter
+   /api/cheta/converters/get_bit_array
+   /api/cheta/converters/generic_converter2
+   /api/cheta/converters/parse_alias_str
+   /api/cheta/converters/sim_mrg
+   /api/cheta/converters/hrc0hk
+   /api/cheta/converters/obc4eng
+   /api/cheta/converters/tel2eng
+   /api/cheta/converters/acisdeahk
+   /api/cheta/converters/_get_deahk_cols
+   /api/cheta/converters/pyfits_to_recarray
+
+.. autoapisummary::
+
+   cheta.converters.quality_index
+   cheta.converters.numpy_converter
+   cheta.converters.convert
+   cheta.converters.generic_converter
+   cheta.converters.get_bit_array
+   cheta.converters.generic_converter2
+   cheta.converters.parse_alias_str
+   cheta.converters.sim_mrg
+   cheta.converters.hrc0hk
+   cheta.converters.obc4eng
+   cheta.converters.tel2eng
+   cheta.converters.acisdeahk
+   cheta.converters._get_deahk_cols
+   cheta.converters.pyfits_to_recarray
+
+
+

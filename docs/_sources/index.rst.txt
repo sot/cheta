@@ -1,69 +1,34 @@
-==================================
- Ska Engineering Telemetry Archive
-==================================
+=======================
+Cheta Telemetry Archive
+=======================
 .. include:: references.rst
 
-Overview
---------
+The cheta telemetry archive is a suite of tools and data products that provide the
+majority of all Chandra engineering telemetry since the start of the mission (1999:204).
+This includes about 6300 MSIDs which are taken directly from CXC Level-0 (L0) telemetry
+decom, plus numerous :ref:`pseudo-MSIDs <pseudo-msids>` that are derived from the
+primary engineering telemetry.
 
-The Ska engineering telemetry archive is a suite of tools and data products
-that make available the majority of all Chandra engineering telemetry since the
-start of the mission (1999:204).  This includes about 6300 MSIDs.  The telemetry are stored
-in a way that allows for very fast and efficient retrieval into memory.
-Typical retrieve rates are around 10^7 samples/sec.  For an MSID sampled once
-per second this translates to about 3 sec per year of data.
+The telemetry are stored in a way that allows for very fast retrieval into memory.
+Typical retrieval rates are around 10^7 samples/sec, so for an MSID sampled once per
+second this translates to about 3 sec per year of data.
 
-The engineering telemetry archive consists of:
+The data archive includes:
 
-* Tools to ingest and compress telemetry from the CXC Chandra archive products.
-* Compressed telemetry files in HDF5 format.  Each MSID has three associated products:
+- Full time-resolution data: time, value, quality.
+- 5-minute statistics: min, max, mean, sampled value, number of samples.
+- Daily statistics: min, max, mean, sampled value, standard deviation, percentiles (1,
+  5, 16, 50, 84, 95, 99), number of samples.
 
-  - Full time-resolution data: time, value, quality
-  - 5-minute statistics: min, max, mean, sampled value, number of samples
-  - Daily statistics: min, max, mean, sampled value, standard deviation, percentiles (1,
-    5, 16, 50, 84, 95, 99), number of samples.
-* A python module to retrieve telemetry values.
+The cheta package includes:
 
-Pseudo-MSIDs
-----------------------------
-
-A small selection of pseudo-MSIDs that do not come in the engineering telemetry
-stream are also available in the archive.  These are:
-
-* SIM telemetry: SIM position and moving status (deprecated)
-* EPHIN telemetry: level-0 science telemetry from EPHIN
-* ACIS DEA housekeeping: status from the DEA (including detector focal plane temperature)
-* Ephemeris: predictive and definitive orbital (Chandra), solar, and lunar ephemeris values
-* Derived parameters: values computed from other MSIDs in the archive (ACIS power, orbital elements, PCAD, thermal)
-
-For details see the documentation on Pseudo-MSIDs in the engineering archive.
-
-Documentation
--------------
-
-.. toctree::
-   :maxdepth: 1
-
-   tutorial
-   fetch_tutorial
-   ska_fetch
-   pseudo_msids
-
-API docs
---------
-
-.. toctree::
-   :maxdepth: 1
-
-   fetch
-   plot
-   utils
+- A powerful ``MSID`` class to fetch, manipulate, and plot telemetry data.
+- Interface to the MAUDE telemetry server which uses the ``MSID`` interface.
+- User-definable classes to compute pseudo-MSIDs from archive MSIDs.
+- Tools to synchronize a local archive of telemetry data from the primary archive.
 
 .. toctree::
    :hidden:
 
-   date_time_formats
-   ipython_tutorial
-   matplotlib_tutorial
-   numpy_tutorial
-   references
+   fetch_tutorial
+   pseudo_msids

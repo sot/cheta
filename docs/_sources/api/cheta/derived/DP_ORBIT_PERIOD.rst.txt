@@ -1,0 +1,28 @@
+cheta.derived.DP_ORBIT_PERIOD
+=============================
+
+.. py:class:: cheta.derived.DP_ORBIT_PERIOD
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbital element: period (sec)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

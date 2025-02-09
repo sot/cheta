@@ -1,0 +1,6 @@
+cheta.tests
+===========
+
+.. py:module:: cheta.tests
+
+

@@ -1,0 +1,20 @@
+cheta.derived.DP_HMIN35
+=======================
+
+.. py:class:: cheta.derived.DP_HMIN35
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OHRTHR52', 'OHRTHR53', 'OHRTHR50', 'OHRTHR51', 'OHRTHR56', 'OHRTHR55', 'OHRTHR23', 'OHRTHR08',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

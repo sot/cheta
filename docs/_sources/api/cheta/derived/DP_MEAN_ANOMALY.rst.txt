@@ -1,0 +1,28 @@
+cheta.derived.DP_MEAN_ANOMALY
+=============================
+
+.. py:class:: cheta.derived.DP_MEAN_ANOMALY
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbital element: mean anomaly (degrees)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

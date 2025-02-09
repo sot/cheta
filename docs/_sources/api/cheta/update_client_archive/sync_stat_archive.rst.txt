@@ -1,0 +1,35 @@
+cheta.update_client_archive.sync_stat_archive
+=============================================
+
+.. py:function:: cheta.update_client_archive.sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl)
+
+   
+   Sync the archive for ``content``.
+
+   This calls _sync_stat_archive with a wrapper to catch an exception related
+   to the last_date_id file being out of sync.
+
+   :param opt:
+   :param msid_files:
+   :param logger:
+   :param content:
+   :param stat: stat interval '5min' or 'daily'
+   :param index_tbl: table of sync file entries
+   :return:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

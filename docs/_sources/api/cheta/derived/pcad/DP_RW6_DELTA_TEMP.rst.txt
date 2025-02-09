@@ -1,0 +1,43 @@
+cheta.derived.pcad.DP_RW6_DELTA_TEMP
+====================================
+
+.. py:class:: cheta.derived.pcad.DP_RW6_DELTA_TEMP
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Difference between Reaction Wheel 6 Compartment and Bearing Temperature
+   [Deg F]
+
+   Defined as TCYZ_RW6 - ARWA6BT.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['tcyz_rw6', 'arwa6bt']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

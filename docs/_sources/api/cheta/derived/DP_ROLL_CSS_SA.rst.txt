@@ -1,0 +1,54 @@
+cheta.derived.DP_ROLL_CSS_SA
+============================
+
+.. py:class:: cheta.derived.DP_ROLL_CSS_SA
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Sun Roll Angle from CSS Data in SA Frame [Deg]
+
+   Defined as the rotation about the SA-1 X-axis required to align the sun
+   vector with the SA-1 X-Z plane.
+
+   Calculated as ARCTAN( (-1*AOSUNSA2) / (-1*AOSUNSA3) ) using the
+   four-quadrant version of ARCTAN.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aosunsa2', 'aosunsa3']
+
+
+
+   .. py:attribute:: time_step
+      :value: 8.2
+
+
+
+   .. py:attribute:: max_gap
+      :value: 18.0
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

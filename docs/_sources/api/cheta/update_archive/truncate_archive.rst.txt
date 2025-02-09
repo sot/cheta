@@ -1,0 +1,26 @@
+cheta.update_archive.truncate_archive
+=====================================
+
+.. py:function:: cheta.update_archive.truncate_archive(filetype, date)
+
+   
+   Truncate msid and statfiles for every archive file after date (to nearest
+   year:doy)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

@@ -1,0 +1,28 @@
+cheta.derived.orbit.DP_INCLINATION
+==================================
+
+.. py:class:: cheta.derived.orbit.DP_INCLINATION
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbital element: inclination (degrees)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

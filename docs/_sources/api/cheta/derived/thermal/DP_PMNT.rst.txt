@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_PMNT
+=============================
+
+.. py:class:: cheta.derived.thermal.DP_PMNT
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ14', '4OHTRZ15', '4OHTRZ16']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

@@ -1,0 +1,34 @@
+cheta.update_server_sync.update_sync_data_full
+==============================================
+
+.. py:function:: cheta.update_server_sync.update_sync_data_full(content, logger, row)
+
+   
+   Update full-resolution sync data including archfiles for index table ``row``
+
+   This generates a gzipped pickle file with a dict that has sync update values
+   for all available  MSIDs in this chunk of ``content`` telemetry.  This has
+   `archfiles` (structured ndarray of rows) to store archfiles rows and then
+   {msid}.quality, {msid}.data, {msid}.row0 and {msid}.row1.
+
+   :param content: content type
+   :param logger: global logger
+   :param row: archfile row
+   :return: None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

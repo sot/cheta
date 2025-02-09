@@ -1,0 +1,20 @@
+cheta.derived.DP_ABH_DUTYCYCLE
+==============================
+
+.. py:class:: cheta.derived.DP_ABH_DUTYCYCLE
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['4OHTRZ53', '4OHTRZ54', '4OHTRZ55', '4OHTRZ57', '4S1PWR05', '4S1PWR06']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

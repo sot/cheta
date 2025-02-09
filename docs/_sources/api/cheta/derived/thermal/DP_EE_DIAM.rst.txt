@@ -1,0 +1,41 @@
+cheta.derived.thermal.DP_EE_DIAM
+================================
+
+.. py:class:: cheta.derived.thermal.DP_EE_DIAM
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   
+   Kodak diametrical encircled energy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['OHRMGRD6', 'OHRMGRD3']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

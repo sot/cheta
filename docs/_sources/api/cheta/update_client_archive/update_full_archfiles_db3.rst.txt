@@ -1,0 +1,4 @@
+cheta.update_client_archive.update_full_archfiles_db3
+=====================================================
+
+.. py:function:: cheta.update_client_archive.update_full_archfiles_db3(dat, logger, msid_files, opt)

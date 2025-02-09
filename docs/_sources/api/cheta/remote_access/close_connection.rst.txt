@@ -1,0 +1,25 @@
+cheta.remote_access.close_connection
+====================================
+
+.. py:function:: cheta.remote_access.close_connection()
+
+   
+   Function to close the connection to the remote server
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

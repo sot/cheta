@@ -1,0 +1,20 @@
+cheta.derived.DP_TILT_AXIAL
+===========================
+
+.. py:class:: cheta.derived.DP_TILT_AXIAL
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OOBAGRD3']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

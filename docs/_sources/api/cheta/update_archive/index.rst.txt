@@ -1,0 +1,61 @@
+cheta.update_archive
+====================
+
+.. py:module:: cheta.update_archive
+
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/update_archive/get_options
+   /api/cheta/update_archive/get_colnames
+   /api/cheta/update_archive/create_content_dir
+   /api/cheta/update_archive/fix_state_code
+   /api/cheta/update_archive/main_loop
+   /api/cheta/update_archive/fix_misorders
+   /api/cheta/update_archive/del_stats
+   /api/cheta/update_archive/calc_stats_vals
+   /api/cheta/update_archive/update_stats
+   /api/cheta/update_archive/update_derived
+   /api/cheta/update_archive/update_archive
+   /api/cheta/update_archive/make_h5_col_file
+   /api/cheta/update_archive/append_filled_h5_col
+   /api/cheta/update_archive/append_h5_col
+   /api/cheta/update_archive/truncate_archive
+   /api/cheta/update_archive/read_archfile
+   /api/cheta/update_archive/read_derived
+   /api/cheta/update_archive/update_msid_files
+   /api/cheta/update_archive/unlink_archive_files
+   /api/cheta/update_archive/get_archive_files
+   /api/cheta/update_archive/main
+
+.. autoapisummary::
+
+   cheta.update_archive.get_options
+   cheta.update_archive.get_colnames
+   cheta.update_archive.create_content_dir
+   cheta.update_archive.fix_state_code
+   cheta.update_archive.main_loop
+   cheta.update_archive.fix_misorders
+   cheta.update_archive.del_stats
+   cheta.update_archive.calc_stats_vals
+   cheta.update_archive.update_stats
+   cheta.update_archive.update_derived
+   cheta.update_archive.update_archive
+   cheta.update_archive.make_h5_col_file
+   cheta.update_archive.append_filled_h5_col
+   cheta.update_archive.append_h5_col
+   cheta.update_archive.truncate_archive
+   cheta.update_archive.read_archfile
+   cheta.update_archive.read_derived
+   cheta.update_archive.update_msid_files
+   cheta.update_archive.unlink_archive_files
+   cheta.update_archive.get_archive_files
+   cheta.update_archive.main
+
+
+

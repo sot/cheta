@@ -1,0 +1,4 @@
+cheta.update_server_sync.get_options
+====================================
+
+.. py:function:: cheta.update_server_sync.get_options(args=None)

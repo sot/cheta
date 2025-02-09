@@ -1,0 +1,25 @@
+cheta.update_client_archive._sync_stat_archive
+==============================================
+
+.. py:function:: cheta.update_client_archive._sync_stat_archive(opt, msid_files, logger, content, stat, index_tbl)
+
+   
+   Actual worker for syncing the stat archive for ``content``.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

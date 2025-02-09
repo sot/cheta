@@ -1,0 +1,25 @@
+cheta.converters.quality_index
+==============================
+
+.. py:function:: cheta.converters.quality_index(dat, colname)
+
+   
+   Return the index for `colname` in `dat`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

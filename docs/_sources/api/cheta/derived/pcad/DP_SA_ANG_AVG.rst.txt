@@ -1,0 +1,47 @@
+cheta.derived.pcad.DP_SA_ANG_AVG
+================================
+
+.. py:class:: cheta.derived.pcad.DP_SA_ANG_AVG
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Average Solar Array Angle [Deg]
+
+   Defined as the mean of AOSARES1 and AOSARES2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aosares1', 'aosares2']
+
+
+
+   .. py:attribute:: time_step
+      :value: 4.1
+
+
+
+   .. py:attribute:: max_gap
+      :value: 10.0
+
+
+
+   .. py:method:: calc(data)
+

@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_TELHS_AVE
+==================================
+
+.. py:class:: cheta.derived.thermal.DP_TELHS_AVE
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OOBTHR02', 'OOBTHR03', 'OOBTHR06', 'OOBTHR07', 'OOBTHR04', 'OOBTHR05']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

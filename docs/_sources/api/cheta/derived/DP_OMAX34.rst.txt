@@ -1,0 +1,20 @@
+cheta.derived.DP_OMAX34
+=======================
+
+.. py:class:: cheta.derived.DP_OMAX34
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OOBTHR19', 'OOBTHR18', 'OOBTHR15', 'OOBTHR14', 'OOBTHR17', 'OOBTHR11', 'OOBTHR10', 'OOBTHR13',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

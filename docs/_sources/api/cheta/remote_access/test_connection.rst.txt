@@ -1,0 +1,26 @@
+cheta.remote_access.test_connection
+===================================
+
+.. py:function:: cheta.remote_access.test_connection()
+
+   
+   Function to perform a quick test of the connection to the
+   remote server
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

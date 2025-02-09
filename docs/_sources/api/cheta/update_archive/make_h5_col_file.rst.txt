@@ -1,0 +1,25 @@
+cheta.update_archive.make_h5_col_file
+=====================================
+
+.. py:function:: cheta.update_archive.make_h5_col_file(dats, colname)
+
+   
+   Make a new h5 table to hold column from ``dat``.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

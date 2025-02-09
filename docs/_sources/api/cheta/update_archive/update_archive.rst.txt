@@ -1,0 +1,26 @@
+cheta.update_archive.update_archive
+===================================
+
+.. py:function:: cheta.update_archive.update_archive(filetype)
+
+   
+   Get new CXC archive files for ``filetype`` and update the full-resolution MSID
+   archive files.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

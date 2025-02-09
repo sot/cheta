@@ -1,0 +1,28 @@
+cheta.remote_access.RemoteConnectionError
+=========================================
+
+.. py:exception:: cheta.remote_access.RemoteConnectionError
+
+   Bases: :py:obj:`Exception`
+
+
+   
+   Common base class for all non-exit exceptions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

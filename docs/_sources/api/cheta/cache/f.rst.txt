@@ -1,0 +1,4 @@
+cheta.cache.f
+=============
+
+.. py:function:: cheta.cache.f(x, y)

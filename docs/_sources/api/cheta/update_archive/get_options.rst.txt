@@ -1,0 +1,4 @@
+cheta.update_archive.get_options
+================================
+
+.. py:function:: cheta.update_archive.get_options(args=None)

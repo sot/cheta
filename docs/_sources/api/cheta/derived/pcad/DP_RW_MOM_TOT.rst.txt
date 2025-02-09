@@ -1,0 +1,45 @@
+cheta.derived.pcad.DP_RW_MOM_TOT
+================================
+
+.. py:class:: cheta.derived.pcad.DP_RW_MOM_TOT
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Total Reaction Wheel Momentum [Ft-Lb-Sec]
+
+   Defined as the RSS of AORWMOM1, AORWMOM2, and AORWMOM3.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aorwmom1', 'aorwmom2', 'aorwmom3']
+
+
+
+   .. py:attribute:: time_step
+      :value: 8.2
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

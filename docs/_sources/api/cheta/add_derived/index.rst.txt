@@ -1,0 +1,29 @@
+cheta.add_derived
+=================
+
+.. py:module:: cheta.add_derived
+
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/add_derived/get_options
+   /api/cheta/add_derived/make_archfiles_db
+   /api/cheta/add_derived/add_colname
+   /api/cheta/add_derived/make_msid_file
+   /api/cheta/add_derived/main
+
+.. autoapisummary::
+
+   cheta.add_derived.get_options
+   cheta.add_derived.make_archfiles_db
+   cheta.add_derived.add_colname
+   cheta.add_derived.make_msid_file
+   cheta.add_derived.main
+
+
+

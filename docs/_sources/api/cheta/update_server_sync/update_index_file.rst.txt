@@ -1,0 +1,29 @@
+cheta.update_server_sync.update_index_file
+==========================================
+
+.. py:function:: cheta.update_server_sync.update_index_file(index_file, opt, logger)
+
+   
+   Update the top-level index file of data available in the sync archive
+
+   :param index_file: Path of index ECSV file
+   :param opt: options
+   :param logger: output logger
+   :return: index table (astropy Table)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

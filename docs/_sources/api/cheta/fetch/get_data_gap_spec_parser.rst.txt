@@ -1,0 +1,36 @@
+cheta.fetch.get_data_gap_spec_parser
+====================================
+
+.. py:function:: cheta.fetch.get_data_gap_spec_parser()
+
+   
+   Get parser for fetch data gap specification.
+
+   This env var is in the form of a command line argument string with the following
+   command line options::
+
+       --include INCLUDE  Include MSIDs matching glob (default="*", can be repeated)
+       --exclude EXCLUDE  Exclude MSIDs matching glob (default=None, can be repeated)
+       --start START      Gap start (relative seconds or abs time)
+       --stop STOP        Gap stop (relative seconds or abs time)
+
+   For example::
+
+       "--exclude=*EPHEM* --start=-25000 --stop=-2000"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

@@ -1,0 +1,43 @@
+cheta.derived.DP_RW3_DELTA_TEMP
+===============================
+
+.. py:class:: cheta.derived.DP_RW3_DELTA_TEMP
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Difference between Reaction Wheel 3 Compartment and Bearing Temperature
+   [Deg F]
+
+   Defined as TPCP_RW3 - ARWA3BT.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['tpcp_rw3', 'arwa3bt']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

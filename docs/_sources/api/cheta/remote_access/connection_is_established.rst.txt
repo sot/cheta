@@ -1,0 +1,25 @@
+cheta.remote_access.connection_is_established
+=============================================
+
+.. py:function:: cheta.remote_access.connection_is_established()
+
+   
+   Function to check if a connection to the remote server has been established
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

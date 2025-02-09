@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_HADG
+=============================
+
+.. py:class:: cheta.derived.thermal.DP_HADG
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OHRMGRD3', 'OHRMGRD6']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

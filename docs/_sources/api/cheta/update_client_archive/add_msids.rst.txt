@@ -1,0 +1,28 @@
+cheta.update_client_archive.add_msids
+=====================================
+
+.. py:function:: cheta.update_client_archive.add_msids(opt, logger)
+
+   
+   Main function for adding MSIDs to the local archive from a remote server or disk.
+
+   :param opt: options
+   :param logger: logger
+   :return: None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

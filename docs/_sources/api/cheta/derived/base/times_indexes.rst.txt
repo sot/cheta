@@ -1,0 +1,4 @@
+cheta.derived.base.times_indexes
+================================
+
+.. py:function:: cheta.derived.base.times_indexes(start, stop, dt)

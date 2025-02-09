@@ -1,0 +1,32 @@
+cheta.converters.tel2eng
+========================
+
+.. py:function:: cheta.converters.tel2eng(dat)
+
+   
+   At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to
+   read out in wide-mode.  As 4OAVOBAT is an average of all these MSIDs and calculated on board,
+   only the wide version of this MSID is valid after this patch is applied.
+
+   This converter simply copies the 4OAVOBAT_WIDE values after the time of patch activation to
+   4OAVOBAT.
+
+   At 2024:102:11:20:00, patch PR-575 was applied which transitioned more HRMA thermistors
+   to wide-mode and msid 4OAVHRMT required the same update as 4OAVOBAT in 2014.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

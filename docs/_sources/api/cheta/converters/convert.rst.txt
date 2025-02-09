@@ -1,0 +1,4 @@
+cheta.converters.convert
+========================
+
+.. py:function:: cheta.converters.convert(dat, content)

@@ -1,0 +1,29 @@
+cheta.derived.orbit.DP_PERIGEE_RADIUS
+=====================================
+
+.. py:class:: cheta.derived.orbit.DP_PERIGEE_RADIUS
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbit perigee based on orbital elements (m)
+
+   Defined as ``semi_major_axis * (1 - eccentricity)``
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

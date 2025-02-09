@@ -1,0 +1,30 @@
+cheta.update_client_archive.append_h5_col
+=========================================
+
+.. py:function:: cheta.update_client_archive.append_h5_col(opt, msid, vals, logger, msid_files)
+
+   
+   Append new values to an HDF5 MSID data table.
+
+   :param opt:
+   :param msid:
+   :param vals: dict with `data`, `quality`, `row0` and `row1` keys
+   :param logger:
+   :param msid_files:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

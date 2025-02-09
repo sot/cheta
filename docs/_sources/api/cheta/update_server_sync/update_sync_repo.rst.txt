@@ -1,0 +1,28 @@
+cheta.update_server_sync.update_sync_repo
+=========================================
+
+.. py:function:: cheta.update_server_sync.update_sync_repo(opt, logger, content)
+
+   
+   :param opt: argparse options
+   :param logger: logger instance
+   :param content: content type
+   :return:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

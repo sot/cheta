@@ -1,0 +1,42 @@
+cheta.derived.eps.DP_MYSAPOW
+============================
+
+.. py:class:: cheta.derived.eps.DP_MYSAPOW
+
+   Bases: :py:obj:`DerivedParameterEps`
+
+
+   
+   -Y Solar Array Power = ESAMYI * ELBV
+   Telemetry 8x / MF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['ESAMYI', 'ELBV']
+
+
+
+   .. py:attribute:: time_step
+      :value: 4.1
+
+
+
+   .. py:method:: calc(data)
+

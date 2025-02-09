@@ -1,0 +1,28 @@
+cheta.update_archive.create_content_dir
+=======================================
+
+.. py:function:: cheta.update_archive.create_content_dir()
+
+   
+   Make empty files for colnames.pkl, colnames_all.pkl and archfiles.db3
+   for the current content type ft['content'].
+
+   This only works within the development (git) directory in conjunction
+   with the --create option.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

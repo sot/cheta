@@ -1,0 +1,51 @@
+cheta.derived.pcad.DP_ONE_SHOT
+==============================
+
+.. py:class:: cheta.derived.pcad.DP_ONE_SHOT
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   One Shot [arcsec]
+
+   Defined as the RSS of AOATTER2 and AOATTER3 while in NPM and zero for all
+   other PCAD modes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aoatter2', 'aoatter3', 'aopcadmd']
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: max_gap
+      :value: 4.0
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

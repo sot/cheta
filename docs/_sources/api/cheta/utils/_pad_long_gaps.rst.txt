@@ -1,0 +1,4 @@
+cheta.utils._pad_long_gaps
+==========================
+
+.. py:function:: cheta.utils._pad_long_gaps(times, bools, max_gap)

@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_P24
+============================
+
+.. py:class:: cheta.derived.thermal.DP_P24
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['4OHTRZ24', 'ELBV']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

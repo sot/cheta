@@ -1,0 +1,28 @@
+cheta.fetch.get_time_range
+==========================
+
+.. py:function:: cheta.fetch.get_time_range(msid, format=None)
+
+   
+   Get the time range for the given ``msid``.
+
+   :param msid: MSID name
+   :param format: Output format (DateTime format, e.g. 'secs', 'date', 'greta')
+   :returns: (tstart, tstop) in CXC seconds
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

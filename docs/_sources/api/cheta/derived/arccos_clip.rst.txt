@@ -1,0 +1,4 @@
+cheta.derived.arccos_clip
+=========================
+
+.. py:function:: cheta.derived.arccos_clip(x)

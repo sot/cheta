@@ -1,0 +1,4 @@
+cheta.converters.get_bit_array
+==============================
+
+.. py:function:: cheta.converters.get_bit_array(dat, in_name, out_name, bit_index)

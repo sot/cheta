@@ -1,0 +1,54 @@
+cheta.update_archive.read_derived
+=================================
+
+.. py:function:: cheta.update_archive.read_derived(idx_archfile, filename, filetype, row, colnames, archfiles, db)
+
+   
+   Read derived data using eng_archive and derived computation classes.
+
+
+   :Parameters:
+
+       **idx_archfile** : int
+           Index of the archfile in the list of archfiles
+
+       **filename** : str
+           File to read with format <content>_<index0>_<index1> where <content> is the
+           content type (e.g. "dp_thermal128"), <index0> is the start index for the new
+           data and <index1> is the end index (using Python slicing convention
+           index0:index1).
+
+       **filetype** : dict
+           Filetype dictionary with keys, level, instrum, content, arc5gl_query, fileglob.
+
+       **row** : int
+           Row number in the MSID file to start writing data (must equal <index0>)
+
+       **colnames** : list of str
+           List of column names for the content type
+
+       **archfiles** : numpy structured array
+           Array of archfiles
+
+
+
+   :Returns:
+
+       **dat** : numpy structured array
+           Data read from the FITS file
+
+       **archfiles_row** : dict
+           Row of info about this FILE to insert into archfiles table for content type
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

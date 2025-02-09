@@ -1,0 +1,42 @@
+cheta.derived.DerivedParameter
+==============================
+
+.. py:class:: cheta.derived.DerivedParameter
+
+   Bases: :py:obj:`object`
+
+
+   .. py:attribute:: max_gap
+      :value: 66.0
+
+
+
+   .. py:attribute:: max_gaps
+
+
+   .. py:attribute:: unit_system
+      :value: 'eng'
+
+
+
+   .. py:attribute:: dtype
+      :value: None
+
+
+
+   .. py:method:: calc(data)
+      :abstractmethod:
+
+
+
+   .. py:method:: fetch(start, stop)
+
+
+   .. py:method:: __call__(start, stop)
+
+
+   .. py:property:: mnf_step
+
+
+   .. py:property:: content
+

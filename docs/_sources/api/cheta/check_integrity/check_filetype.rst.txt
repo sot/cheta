@@ -1,0 +1,4 @@
+cheta.check_integrity.check_filetype
+====================================
+
+.. py:function:: cheta.check_integrity.check_filetype(filetype)

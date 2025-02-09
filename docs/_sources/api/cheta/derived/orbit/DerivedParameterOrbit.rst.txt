@@ -1,0 +1,33 @@
+cheta.derived.orbit.DerivedParameterOrbit
+=========================================
+
+.. py:class:: cheta.derived.orbit.DerivedParameterOrbit
+
+   Bases: :py:obj:`cheta.derived.base.DerivedParameter`
+
+
+   .. py:attribute:: content_root
+      :value: 'orbit'
+
+
+
+   .. py:attribute:: rootparams
+      :value: ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z', 'orbitephem0_vx', 'orbitephem0_vy', 'orbitephem0_vz']
+
+
+
+   .. py:attribute:: time_step
+      :value: 328.0
+
+
+
+   .. py:attribute:: max_gap
+      :value: 1000.0
+
+
+
+   .. py:method:: get_orbital_element(data)
+
+
+   .. py:method:: calc(data)
+

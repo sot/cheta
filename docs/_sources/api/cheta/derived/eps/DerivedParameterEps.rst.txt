@@ -1,0 +1,12 @@
+cheta.derived.eps.DerivedParameterEps
+=====================================
+
+.. py:class:: cheta.derived.eps.DerivedParameterEps
+
+   Bases: :py:obj:`cheta.derived.base.DerivedParameter`
+
+
+   .. py:attribute:: content_root
+      :value: 'eps'
+
+

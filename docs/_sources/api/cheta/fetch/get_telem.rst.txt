@@ -1,0 +1,50 @@
+cheta.fetch.get_telem
+=====================
+
+.. py:function:: cheta.fetch.get_telem(msids, start=None, stop=None, sampling='full', unit_system='eng', interpolate_dt=None, remove_events=None, select_events=None, time_format=None, outfile=None, quiet=False, max_fetch_Mb=1000, max_output_Mb=100)
+
+   
+   High-level routine to get telemetry for one or more MSIDs and perform
+   common processing functions:
+
+   - Fetch a set of MSIDs over a time range, specifying the sampling as
+     either full-resolution, 5-minute, or daily data.
+   - Filter out bad or missing data.
+   - Interpolate (resample) all MSID values to a common uniformly-spaced time sequence.
+   - Remove or select time intervals corresponding to specified Kadi event types.
+   - Change the time format from CXC seconds (seconds since 1998.0) to something more
+     convenient like GRETA time.
+   - Write the MSID telemetry data to a zipfile.
+
+   :param msids: MSID(s) to fetch (string or list of strings)
+   :param start: Start time for data fetch (default=<stop> - 30 days)
+   :param stop: Stop time for data fetch (default=NOW)
+   :param sampling: Data sampling (full | 5min | daily) (default=full)
+   :param unit_system: Unit system for data (eng | sci | cxc) (default=eng)
+   :param interpolate_dt: Interpolate to uniform time steps (secs, default=None)
+   :param remove_events: Remove kadi events expression (default=None)
+   :param select_events: Select kadi events expression (default=None)
+   :param time_format: Output time format (secs|date|greta|jd|..., default=secs)
+   :param outfile: Output file name (default=None)
+   :param quiet: Suppress run-time logging output (default=False)
+   :param max_fetch_Mb: Max allowed memory (Mb) for fetching (default=1000)
+   :param max_output_Mb: Max allowed memory (Mb) for file output (default=100)
+
+   :returns: MSIDset object
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

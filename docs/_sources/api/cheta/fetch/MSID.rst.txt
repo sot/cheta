@@ -1,0 +1,782 @@
+cheta.fetch.MSID
+================
+
+.. py:class:: cheta.fetch.MSID(msid, start=LAUNCH_DATE, stop=None, filter_bad=False, stat=None)
+
+   Bases: :py:obj:`object`
+
+
+   
+   Fetch data from the engineering telemetry archive into an MSID object.
+
+   The input ``msid`` is case-insensitive and can include linux file "glob"
+   patterns, for instance ``orb*1*_x`` (ORBITEPHEM1_X) or ``*pcadmd``
+   (AOPCADMD).  For derived parameters the initial ``DP_`` is optional, for
+   instance ``dpa_pow*`` (DP_DPA_POWER).
+
+   :param msid: name of MSID (case-insensitive)
+   :param start: start date of telemetry (Chandra.Time compatible)
+   :param stop: stop date of telemetry (current time if not supplied)
+   :param filter_bad: automatically filter out bad values
+   :param stat: return 5-minute or daily statistics ('5min' or 'daily')
+
+   :returns: MSID instance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: units
+
+
+   .. py:attribute:: fetch
+
+
+   .. py:attribute:: unit
+
+
+   .. py:attribute:: stat
+      :value: None
+
+
+
+   .. py:attribute:: tstart
+
+
+   .. py:attribute:: tstop
+
+
+   .. py:attribute:: datestart
+
+
+   .. py:attribute:: datestop
+
+
+   .. py:attribute:: data_source
+
+
+   .. py:attribute:: content
+
+
+   .. py:method:: __len__()
+
+
+   .. py:property:: dtype
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: _get_data_over_intervals(intervals)
+
+      
+      Fetch intervals separately and concatenate the results.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: _get_data()
+
+      
+      Get data from the Eng archive
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: _get_comp_data(comp_cls)
+
+
+   .. py:method:: _get_stat_data()
+
+      
+      Do the actual work of getting stats values for an MSID from HDF5
+      files
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: _get_msid_data_from_cxc_cached(content, tstart, tstop, msid, unit_system)
+      :staticmethod:
+
+
+      
+      Do the actual work of getting time and values for an MSID from HDF5
+      files and cache recent results.  Caching is very beneficial for derived
+      parameter updates but not desirable for normal fetch usage.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: _get_msid_data_from_cxc(content, tstart, tstop, msid, unit_system)
+      :staticmethod:
+
+
+      
+      Do the actual work of getting time and values for an MSID from HDF5
+      files
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: _get_msid_data_from_maude(content, tstart, tstop, msid, unit_system)
+
+      
+      Get time and values for an MSID from MAUDE.
+      Returned values are (for now) all assumed to be good.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: state_codes
+
+      
+      List of state codes tuples (raw_count, state_code) for state-valued
+      MSIDs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: raw_vals
+
+      
+      Raw counts corresponding to the string state-code values that are
+      stored in ``self.vals``
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: tdb
+
+      
+      Access the Telemetry database entries for this MSID
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: interpolate(dt=None, start=None, stop=None, times=None)
+
+      
+      Perform nearest-neighbor interpolation of the MSID to the specified
+      time sequence.
+
+      The time sequence steps uniformly by ``dt`` seconds starting at the
+      ``start`` time and ending at the ``stop`` time.  If not provided the
+      times default to the first and last times for the MSID.
+
+      The MSID ``times`` attribute is set to the common time sequence.  In
+      addition a new attribute ``times0`` is defined that stores the nearest
+      neighbor interpolated time, providing the *original* timestamps of each
+      new interpolated value for that MSID.
+
+      If ``times`` is provided then this gets used instead of the default linear
+      progression from ``start`` and ``dt``.
+
+      :param dt: time step (sec, default=328.0)
+      :param start: start of interpolation period (DateTime format)
+      :param stop: end of interpolation period (DateTime format)
+      :param times: array of times for interpolation (default=None)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: copy()
+
+
+   .. py:method:: filter_bad(bads=None, copy=False)
+
+      
+      Filter out any bad values.
+
+      After applying this method the "bads" column will be set to None to
+      indicate that there are no bad values.
+
+      :param bads: Bad values mask.  If not supplied then self.bads is used.
+      :param copy: return a copy of MSID object with bad values filtered
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: filter_bad_times(start=None, stop=None, table=None, copy=False)
+
+      
+      Filter out intervals of bad data in the MSID object.
+
+      There are three usage options:
+
+      - Supply no arguments.  This will use the global list of bad times read
+        in with fetch.read_bad_times().
+      - Supply both ``start`` and ``stop`` values where each is a single
+        value in a valid DateTime format.
+      - Supply a ``table`` parameter with one of two forms: (1) list of bad time
+        interval strings, where each string contains the start and stop dates
+        separated by a space; (2) string with the name of a file in the same format.
+
+      Examples::
+
+        bad_times = ['2008:292:00:00:00 2008:297:00:00:00',
+                     '2008:305:00:12:00 2008:305:00:12:03',
+                     '2010:101:00:01:12 2010:101:00:01:25']
+        msid.filter_bad_times(table=bad_times)
+        msid.filter_bad_times(table='msid_bad_times.dat')
+
+      :param start: Start of time interval to exclude (any DateTime format)
+      :param stop: End of time interval to exclude (any DateTime format)
+      :param table: List of str with start and stop for bad time intervals or str
+          with name of file containing list of bad time intervals
+      :param copy: return a copy of MSID object with bad times filtered
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: remove_intervals(intervals, copy=False)
+
+      
+      Remove telemetry points that occur within the specified ``intervals``
+
+      This method is the converse of select_intervals().
+
+      The ``intervals`` argument can be either a list of (start, stop) tuples
+      or an EventQuery object from kadi.
+
+      If ``copy`` is set to True then a copy of the MSID object is made prior
+      to removing intervals, and that copy is returned.  The default is to
+      remove intervals in place.
+
+      This example shows fetching the pitch component of the spacecraft rate.
+      After examining the rates, the samples during maneuvers are then removed
+      and the standard deviation is recomputed.  This filters out the large
+      rates during maneuvers::
+
+        >>> aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+        >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+        3.9969393528801782
+        >>> figure(1)
+        >>> aorate2.plot(',')
+
+        >>> from kadi import events
+        >>> aorate2.remove_intervals(events.manvrs)
+        >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+        -0.0003688639491030978
+        >>> figure(2)
+        >>> aorate2.plot(',')
+
+      :param intervals: EventQuery or iterable (N x 2) with start, stop dates/times
+      :param copy: return a copy of MSID object with intervals removed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: select_intervals(intervals, copy=False)
+
+      
+      Select telemetry points that occur within the specified ``intervals``
+
+      This method is the converse of remove_intervals().
+
+      The ``intervals`` argument can be either a list of (start, stop) tuples
+      or an EventQuery object from kadi.
+
+      If ``copy`` is set to True then a copy of the MSID object is made prior
+      to selecting intervals, and that copy is returned.  The default is to
+      selecte intervals in place.
+
+      This example shows fetching the pitch component of the spacecraft rate.
+      After examining the rates, the samples during maneuvers are then selected
+      and the mean is recomputed.  This highlights the large rates during
+      maneuvers::
+
+        >>> aorate2 = fetch.Msid('aorate2', '2011:001', '2011:002')
+        >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+        3.9969393528801782
+        >>> figure(1)
+        >>> aorate2.plot(',')
+
+        >>> from kadi import events
+        >>> aorate2.select_intervals(events.manvrs)
+        >>> aorate2.vals.mean() * 3600 * 180 / np.pi  # rate in arcsec/sec
+        24.764309542605481
+        >>> figure(2)
+        >>> aorate2.plot(',')
+
+      :param intervals: EventQuery or iterable (N x 2) with start, stop dates/times
+      :param copy: return a copy of MSID object with intervals selected
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: _filter_times(intervals, exclude=True)
+
+      
+      Filter the times of self based on ``intervals``.
+
+      :param intervals: iterable (N x 2) with tstart, tstop in seconds
+      :param exclude: exclude intervals if True, else include intervals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: write_zip(filename, append=False)
+
+      
+      Write MSID to a zip file named ``filename``
+
+      Within the zip archive the data for this MSID will be stored in csv
+      format with the name <msid_name>.csv.
+
+      :param filename: output zipfile name
+      :param append: append to an existing zipfile
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: logical_intervals(op, val, complete_intervals=False, max_gap=None)
+
+      
+      Determine contiguous intervals during which the logical comparison
+      expression "MSID.vals op val" is True.  Allowed values for ``op``
+      are::
+
+        ==  !=  >  <  >=  <=
+
+      If ``complete_intervals`` is True (default is False) then the intervals
+      are guaranteed to be complete so that the all reported intervals had a
+      transition before and after within the telemetry interval.
+
+      If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
+      filled with a fictitious False value to create an artificial interval
+      boundary at ``max_gap / 2`` seconds from the nearest data value.
+
+      Returns a structured array table with a row for each interval.
+      Columns are:
+
+      * datestart: date of interval start
+      * datestop: date of interval stop
+      * duration: duration of interval (sec)
+      * tstart: time of interval start (CXC sec)
+      * tstop: time of interval stop (CXC sec)
+
+      Examples::
+
+        >>> dat = fetch.MSID('aomanend', '2010:001', '2010:005')
+        >>> manvs = dat.logical_intervals('==', 'NEND', complete_intervals=True)
+
+        >>> dat = fetch.MSID('61PSTS02', '1999:200', '2000:001')
+        >>> safe_suns = dat.logical_intervals('==', 'SSM', max_gap=66)
+
+      :param op: logical operator, one of ==  !=  >  <  >=  <=
+      :param val: comparison value
+      :param complete_intervals: return only complete intervals (default=True)
+      :param max_gap: max allowed gap between time stamps (sec, default=None)
+      :returns: structured array table of intervals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: state_intervals()
+
+      
+      Determine contiguous intervals during which the MSID value
+      is unchanged.
+
+      Returns a structured array table with a row for each interval.
+      Columns are:
+
+      * datestart: date of interval start
+      * datestop: date of interval stop
+      * duration: duration of interval (sec)
+      * tstart: time of interval start (CXC sec)
+      * tstop: time of interval stop (CXC sec)
+      * val: MSID value during the interval
+
+      Example::
+
+        dat = fetch.MSID('cobsrqid', '2010:001', '2010:005')
+        obsids = dat.state_intervals()
+
+      :param val: state value for which intervals are returned.
+      :returns: structured array table of intervals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: iplot(fmt='-b', fmt_minmax='-c', **plot_kwargs)
+
+      
+      Make an interactive plot for exploring the MSID data.
+
+      This method opens a new plot figure (or clears the current figure) and
+      plots the MSID ``vals`` versus ``times``.  This plot can be panned or
+      zoomed arbitrarily and the data values will be fetched from the archive
+      as needed.  Depending on the time scale, ``iplot`` displays either full
+      resolution, 5-minute, or daily values.  For 5-minute and daily values
+      the min and max values are also plotted.
+
+      Once the plot is displayed and the window is selected by clicking in
+      it, the following key commands are recognized::
+
+        a: autoscale for full data range in x and y
+        m: toggle plotting of min/max values
+        p: pan at cursor x
+        y: toggle autoscaling of y-axis
+        z: zoom at cursor x
+        ?: print help
+
+      Example::
+
+        dat = fetch.Msid('aoattqt1', '2011:001', '2012:001', stat='5min')
+        dat.iplot()
+        dat.iplot('.b', '.c', markersize=0.5)
+
+      Caveat: the ``iplot()`` method is not meant for use within scripts, and
+      may give unexpected results if used in combination with other plotting
+      commands directed at the same plot figure.
+
+      :param fmt: plot format for values (default="-b")
+      :param fmt_minmax: plot format for mins and maxes (default="-c")
+      :param plot_kwargs: additional plotting keyword args
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: plot(*args, **kwargs)
+
+      
+      Plot the MSID ``vals`` using Ska.Matplotlib.plot_cxctime()
+
+      This is a convenience function for plotting the MSID values.  It
+      is equivalent to::
+
+        plot_cxctime(self.times, self.vals, *args, **kwargs)
+
+      where ``*args`` are additional arguments and ``**kwargs`` are
+      additional keyword arguments that are accepted by ``plot_cxctime()``.
+
+      Example::
+
+        dat = fetch.Msid('tephin', '2011:001', '2012:001', stat='5min')
+        dat.plot('-r', linewidth=2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

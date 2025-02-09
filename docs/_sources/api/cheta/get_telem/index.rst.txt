@@ -1,0 +1,57 @@
+cheta.get_telem
+===============
+
+.. py:module:: cheta.get_telem
+
+.. autoapi-nested-parse::
+
+   Fetch telemetry from the cheta archive.
+
+   Examples
+   ========
+   ::
+
+     # Get full-resolution TEPHIN, AOPCADMD for 30 days, and save as telem.zip
+     % ska_fetch TEPHIN AOPCADMD --start=2013:001 --stop=2013:030 --sampling=5min \
+                 --time-format=greta --outfile=telem.zip
+
+     # Get daily temps since 2000, removing times within 100000 seconds of safe- or normal- sun
+     % ska_fetch TEPHIN TCYLAFT6 --start 2000:001 --sampling=daily --outfile=tephin.zip \
+                 --remove-events='safe_suns[pad=100000] | normal_suns[pad=100000]'
+
+     # Get daily IRU-2 temps since 2004, removing know LTT bad times
+     % ska_fetch AIRU2BT --start 2004:001 --sampling=daily --outfile=airu2bt.zip \
+                 --remove-events='ltt_bads[msid="AIRU2BT"]'
+
+   Arguments
+   =========
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/get_telem/sanitize_event_expression
+   /api/cheta/get_telem/msidset_resample
+   /api/cheta/get_telem/get_queryset
+   /api/cheta/get_telem/get_telem
+   /api/cheta/get_telem/get_opt
+   /api/cheta/get_telem/main
+
+.. autoapisummary::
+
+   cheta.get_telem.sanitize_event_expression
+   cheta.get_telem.msidset_resample
+   cheta.get_telem.get_queryset
+   cheta.get_telem.get_telem
+   cheta.get_telem.get_opt
+   cheta.get_telem.main
+
+
+

@@ -1,0 +1,4 @@
+cheta.update_server_sync.get_row_from_archfiles
+===============================================
+
+.. py:function:: cheta.update_server_sync.get_row_from_archfiles(archfiles)

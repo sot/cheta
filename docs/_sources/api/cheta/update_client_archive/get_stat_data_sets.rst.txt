@@ -1,0 +1,4 @@
+cheta.update_client_archive.get_stat_data_sets
+==============================================
+
+.. py:function:: cheta.update_client_archive.get_stat_data_sets(ft, index_tbl, last_date_id, logger, opt)

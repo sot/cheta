@@ -1,0 +1,39 @@
+cheta.utils.get_telem_table
+===========================
+
+.. py:function:: cheta.utils.get_telem_table(msids, start, stop, time_pad = 15 * u.min, unit_system = 'eng')
+
+   
+   Fetch telemetry for a list of MSIDs and return as an Astropy Table.
+
+   This interpolates all the MSIDs to the time base of the first MSID in the list. It
+   also fetches ``time_pad`` more than requested to ensure that the samples are
+   complete (e.g. if the interval is between MSID samples).
+
+   If no telemetry is available for the requested interval then an empty table is
+   returned with all float columns.
+
+   :param msids: fetch msids list
+   :param start: start time for telemetry (CxoTime-like)
+   :param stop: stop time for telemetry (CxoTime-like)
+   :param time_pad: Quantity time pad on each end for fetch (default=15 min)
+   :param unit_system: unit system for fetch ("eng" | "cxc" | "sci", default="eng")
+
+   :returns: Table of requested telemetry values from fetch
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

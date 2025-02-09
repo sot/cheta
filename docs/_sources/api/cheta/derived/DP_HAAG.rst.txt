@@ -1,0 +1,20 @@
+cheta.derived.DP_HAAG
+=====================
+
+.. py:class:: cheta.derived.DP_HAAG
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OHRTHR58', 'OHRTHR12', 'OHRTHR56', 'OHRTHR57', 'OHRTHR55', 'OHRTHR13', 'OHRTHR36', 'OHRTHR37',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

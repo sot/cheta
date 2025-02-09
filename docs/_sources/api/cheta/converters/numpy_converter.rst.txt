@@ -1,0 +1,4 @@
+cheta.converters.numpy_converter
+================================
+
+.. py:function:: cheta.converters.numpy_converter(dat)

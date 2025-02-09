@@ -1,0 +1,74 @@
+cheta.derived.comps.Comp_KadiCommandState
+=========================================
+
+.. py:class:: cheta.derived.comps.Comp_KadiCommandState(unit_system='eng')
+
+   Bases: :py:obj:`ComputedMsid`
+
+
+   
+   Computed MSID for kadi dynamic commanded states.
+
+   The MSID here takes the form ``cmd_state_<state_key>_<dt>`` where:
+
+   * ``state_key`` is a valid commanded state key such as ``pitch`` or
+     ``pcad_mode`` or ``acisfp_temp``.
+   * ``dt`` is the sampling time expressed as a multiple of 1.025 sec
+     frames.
+
+   Example MSID names::
+
+     'cmd_state_pcad_mode_1': sample ``pcad_mode`` every 1.025 secs
+     'cmd_state_acisfp_temp_32': sample ``acisfp_temp`` every 32.8 secs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: msid_match
+      :value: 'cmd_state_(\\w+)_(\\d+)'
+
+
+
+   .. py:method:: get_msid_attrs(tstart, tstop, msid, msid_args)
+
+      
+      Get attributes for computed MSID: ``vals``, ``bads``, ``times``
+
+      :param tstart: start time (CXC secs)
+      :param tstop: stop time (CXC secs)
+      :param msid: full MSID name e.g. cmd_state_pitch_clean
+      :param msid_args: tuple of regex match groups: (state_key, dt)
+
+      :returns: dict of MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

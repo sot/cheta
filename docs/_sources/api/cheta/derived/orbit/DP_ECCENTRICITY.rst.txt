@@ -1,0 +1,28 @@
+cheta.derived.orbit.DP_ECCENTRICITY
+===================================
+
+.. py:class:: cheta.derived.orbit.DP_ECCENTRICITY
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbital element: eccentricity
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

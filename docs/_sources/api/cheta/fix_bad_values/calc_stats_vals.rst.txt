@@ -1,0 +1,4 @@
+cheta.fix_bad_values.calc_stats_vals
+====================================
+
+.. py:function:: cheta.fix_bad_values.calc_stats_vals(msid, rows, indexes, interval)

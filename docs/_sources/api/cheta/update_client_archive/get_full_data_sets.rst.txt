@@ -1,0 +1,4 @@
+cheta.update_client_archive.get_full_data_sets
+==============================================
+
+.. py:function:: cheta.update_client_archive.get_full_data_sets(ft, index_tbl, logger, opt)

@@ -1,0 +1,46 @@
+cheta.utils.get_fetch_size
+==========================
+
+.. py:function:: cheta.utils.get_fetch_size(msids, start, stop, stat=None, interpolate_dt=None, fast=True)
+
+   
+   Estimate the memory size required to fetch the ``msids`` between ``start`` and
+   ``stop``.  This is generally intended for limiting queries to be less than ~100 Mb and
+   allows for making some assumptions for improved performance (see below).
+
+   Returns a tuple of the estimated megabytes of memory for the raw fetch and megabytes
+   for the final output (which is different only in the case of interpolating).  This is
+   done by fetching 3 days of telemetry (2010:001 to 2010:004) and scaling appropriately.
+
+   If ``fast`` is True (default) then if either of the conditions below apply a result of
+   (-1, -1) is returned, indicating that the fetch will probably be less than ~100 Mb and
+   should be OK.  (This does not account for the number of MSIDs passed in ``msids``).
+
+     - Fetch duration (stop - start) is less than 30 days
+     - Fetch ``stat`` is '5min' or 'daily'
+
+   :param msids: list of MSIDs or a single MSID
+   :param start: start time
+   :param stop: stop time
+   :param stat: fetch stat (None|'5min'|'daily', default=None)
+   :param interpolate_dt: interpolate the output to uniform time steps (default=None)
+   :param fast: return (-1, -1) if conditions on duration / stat (default=True)
+
+   :returns: fetch_Mb, interpolated_Mb
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

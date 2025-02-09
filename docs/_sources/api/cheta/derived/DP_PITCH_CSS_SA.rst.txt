@@ -1,0 +1,53 @@
+cheta.derived.DP_PITCH_CSS_SA
+=============================
+
+.. py:class:: cheta.derived.DP_PITCH_CSS_SA
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Sun Pitch Angle from CSS Data in SA Frame [Deg]
+
+   Defined as the rotation about the SA-1 Y-axis required to align the sun
+   vector with the SA-1 Y-Z plane.
+
+   Calculated as 90.0 - ARCCOS(AOSUNSA1).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aosunsa1']
+
+
+
+   .. py:attribute:: time_step
+      :value: 8.2
+
+
+
+   .. py:attribute:: max_gap
+      :value: 18.0
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

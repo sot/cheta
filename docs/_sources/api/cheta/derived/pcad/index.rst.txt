@@ -1,0 +1,108 @@
+cheta.derived.pcad
+==================
+
+.. py:module:: cheta.derived.pcad
+
+.. autoapi-nested-parse::
+
+   Derived parameter MSIDs related to PCAD subsystem.
+
+   Author: A. Arvai
+
+   Revision History::
+
+        Jan 2012       Initial version
+      1 Mar 2012       Modified all ephemeris-based parameters to use predictive
+                       ephemeris
+     26 Mar 2012       Re-defined DP_ROLL_FSS and DP_PITCH_FSS to improve accuracy
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/pcad/DerivedParameterPcad
+   /api/cheta/derived/pcad/DP_CSS1_NPM_SUN
+   /api/cheta/derived/pcad/DP_CSS2_NPM_SUN
+   /api/cheta/derived/pcad/DP_CSS3_NPM_SUN
+   /api/cheta/derived/pcad/DP_CSS4_NPM_SUN
+   /api/cheta/derived/pcad/DP_FSS_CSS_ANGLE_DIFF
+   /api/cheta/derived/pcad/DP_MAN_ANG
+   /api/cheta/derived/pcad/DP_ONE_SHOT
+   /api/cheta/derived/pcad/DP_PITCH
+   /api/cheta/derived/pcad/DP_PITCH_CSS
+   /api/cheta/derived/pcad/DP_PITCH_CSS_SA
+   /api/cheta/derived/pcad/DP_PITCH_FSS
+   /api/cheta/derived/pcad/DP_ROLL
+   /api/cheta/derived/pcad/DP_ROLL_CSS
+   /api/cheta/derived/pcad/DP_ROLL_CSS_SA
+   /api/cheta/derived/pcad/DP_ROLL_FSS
+   /api/cheta/derived/pcad/DP_RW_MOM_TOT
+   /api/cheta/derived/pcad/DP_RW1_DELTA_TEMP
+   /api/cheta/derived/pcad/DP_RW2_DELTA_TEMP
+   /api/cheta/derived/pcad/DP_RW3_DELTA_TEMP
+   /api/cheta/derived/pcad/DP_RW4_DELTA_TEMP
+   /api/cheta/derived/pcad/DP_RW5_DELTA_TEMP
+   /api/cheta/derived/pcad/DP_RW6_DELTA_TEMP
+   /api/cheta/derived/pcad/DP_SA_ANG_AVG
+   /api/cheta/derived/pcad/DP_SUN_XZ_ANGLE
+   /api/cheta/derived/pcad/DP_SYS_MOM_TOT
+
+.. autoapisummary::
+
+   cheta.derived.pcad.DerivedParameterPcad
+   cheta.derived.pcad.DP_CSS1_NPM_SUN
+   cheta.derived.pcad.DP_CSS2_NPM_SUN
+   cheta.derived.pcad.DP_CSS3_NPM_SUN
+   cheta.derived.pcad.DP_CSS4_NPM_SUN
+   cheta.derived.pcad.DP_FSS_CSS_ANGLE_DIFF
+   cheta.derived.pcad.DP_MAN_ANG
+   cheta.derived.pcad.DP_ONE_SHOT
+   cheta.derived.pcad.DP_PITCH
+   cheta.derived.pcad.DP_PITCH_CSS
+   cheta.derived.pcad.DP_PITCH_CSS_SA
+   cheta.derived.pcad.DP_PITCH_FSS
+   cheta.derived.pcad.DP_ROLL
+   cheta.derived.pcad.DP_ROLL_CSS
+   cheta.derived.pcad.DP_ROLL_CSS_SA
+   cheta.derived.pcad.DP_ROLL_FSS
+   cheta.derived.pcad.DP_RW_MOM_TOT
+   cheta.derived.pcad.DP_RW1_DELTA_TEMP
+   cheta.derived.pcad.DP_RW2_DELTA_TEMP
+   cheta.derived.pcad.DP_RW3_DELTA_TEMP
+   cheta.derived.pcad.DP_RW4_DELTA_TEMP
+   cheta.derived.pcad.DP_RW5_DELTA_TEMP
+   cheta.derived.pcad.DP_RW6_DELTA_TEMP
+   cheta.derived.pcad.DP_SA_ANG_AVG
+   cheta.derived.pcad.DP_SUN_XZ_ANGLE
+   cheta.derived.pcad.DP_SYS_MOM_TOT
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/pcad/qmult
+   /api/cheta/derived/pcad/qrotate
+   /api/cheta/derived/pcad/arccos_clip
+   /api/cheta/derived/pcad/sun_vector_body
+   /api/cheta/derived/pcad/calc_sun_vec_body_css
+
+.. autoapisummary::
+
+   cheta.derived.pcad.qmult
+   cheta.derived.pcad.qrotate
+   cheta.derived.pcad.arccos_clip
+   cheta.derived.pcad.sun_vector_body
+   cheta.derived.pcad.calc_sun_vec_body_css
+
+
+

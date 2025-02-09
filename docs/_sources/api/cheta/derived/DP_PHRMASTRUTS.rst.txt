@@ -1,0 +1,20 @@
+cheta.derived.DP_PHRMASTRUTS
+============================
+
+.. py:class:: cheta.derived.DP_PHRMASTRUTS
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ25', '4OHTRZ26', '4OHTRZ27', '4OHTRZ28', '4OHTRZ29', '4OHTRZ30', '4S1PWR05', '4S1PWR06']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

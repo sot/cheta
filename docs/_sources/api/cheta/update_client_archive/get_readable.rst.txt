@@ -1,0 +1,32 @@
+cheta.update_client_archive.get_readable
+========================================
+
+.. py:function:: cheta.update_client_archive.get_readable(sync_root, is_url, filename, timeout=30)
+
+   
+   Get readable filename from either a local file or remote URL.
+
+   Returns None for the output filename if input does not exist.
+
+   :param sync_root: str, root directory of sync data (URL or local dir name)
+   :param is_url: bool, True if ``sync_root`` is a URL
+   :param filename: ContextVal, relative filename
+   :param timeout: Download timeout (default=60 sec)
+   :return: filename, URI
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

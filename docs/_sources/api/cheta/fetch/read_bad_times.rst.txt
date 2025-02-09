@@ -1,0 +1,35 @@
+cheta.fetch.read_bad_times
+==========================
+
+.. py:function:: cheta.fetch.read_bad_times(table)
+
+   
+   Include a list of bad times from ``table`` in the fetch module
+   ``bad_times`` registry.  This routine can be called multiple times with
+   different tables and the bad times will be appended to the registry.  The
+   table can include any number of bad time interval specifications, one per
+   line.  A bad time interval line has three columns separated by whitespace,
+   e.g.::
+
+     aogbias1  2008:292:00:00:00  2008:297:00:00:00
+
+   The MSID name is not case sensitive and the time values can be in any
+   ``DateTime`` format.  Blank lines and any line starting with the #
+   character are ignored.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

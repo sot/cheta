@@ -1,0 +1,28 @@
+cheta.update_client_archive.RowMismatchError
+============================================
+
+.. py:exception:: cheta.update_client_archive.RowMismatchError
+
+   Bases: :py:obj:`ValueError`
+
+
+   
+   Exception for row mismatch between existing archive and available sync update
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

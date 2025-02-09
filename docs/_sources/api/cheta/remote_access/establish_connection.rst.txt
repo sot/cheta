@@ -1,0 +1,26 @@
+cheta.remote_access.establish_connection
+========================================
+
+.. py:function:: cheta.remote_access.establish_connection()
+
+   
+   Function to establish a connection to the remote server
+   Return success status (True/False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

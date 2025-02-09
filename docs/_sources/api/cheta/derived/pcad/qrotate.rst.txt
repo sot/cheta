@@ -1,0 +1,33 @@
+cheta.derived.pcad.qrotate
+==========================
+
+.. py:function:: cheta.derived.pcad.qrotate(q, r)
+
+   
+   Rotate a vector by a quaternion
+
+   The input quaternion must have a shape of (4,) or (4, N, ..).
+
+   The input vector must have a shape of (3,) or (3, N, ..).
+
+   :param q:  quaternion defining the rotation
+   :param r:  vector to be rotated
+
+   :returns r rotated by q as an array with the same shape as r
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

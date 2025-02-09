@@ -1,0 +1,60 @@
+cheta.derived.pcad.DP_SUN_XZ_ANGLE
+==================================
+
+.. py:class:: cheta.derived.pcad.DP_SUN_XZ_ANGLE
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Angle between Sun and ACA X/Z plane [Deg]
+
+   Incidence angle of the Sun vector on the ACA X/Z plane.
+
+   Calculated using the four-quadrant arctan of the sun vector y and z
+   components in the ACA frame where the sun vector is from definitive
+   ephemeris [SOLAREPHEM0 and ORBITEPHEM0] and the estimated attitude from
+   the OBC's estimated quaternion [AOATTQT<n>].
+
+   http://occweb.cfa.harvard.edu/twiki/pub/Aspect/WebHome/ROLLDEV3.pdf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z', 'solarephem0_x', 'solarephem0_y',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: max_gap
+      :value: 4.0
+
+
+
+   .. py:attribute:: max_gaps
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

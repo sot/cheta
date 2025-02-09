@@ -1,0 +1,26 @@
+cheta.add_derived.add_colname
+=============================
+
+.. py:function:: cheta.add_derived.add_colname(filename, colname)
+
+   
+   Add ``colname`` to the pickled set() in ``filename``.  Create the pickle
+   as needed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

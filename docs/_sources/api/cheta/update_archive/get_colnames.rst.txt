@@ -1,0 +1,25 @@
+cheta.update_archive.get_colnames
+=================================
+
+.. py:function:: cheta.update_archive.get_colnames()
+
+   
+   Get column names for the current content type (defined by ft['content'])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

@@ -1,0 +1,59 @@
+cheta.derived.pcad.DP_PITCH_FSS
+===============================
+
+.. py:class:: cheta.derived.pcad.DP_PITCH_FSS
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Sun Pitch Angle from FSS Data in ACA Frame [Deg]
+
+   Defined as the angle between the sun vector and ACA X-axis.
+
+   When in FSS FOV per AOSUNPRS:
+   Calculated using the FSS alpha and beta angles to compute the sun vector
+   in the FSS frame.  The sun vector is then rotated into the ACA frame
+   using the rotation matrix (an OBC k-constant).  Pitch is computed using the
+   arccos function.
+
+   When NOT in FSS FOV per AOSUNPRS:
+   <data>.bads = 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aoalpang', 'aobetang', 'aosunprs']
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: max_gap
+      :value: 10.0
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

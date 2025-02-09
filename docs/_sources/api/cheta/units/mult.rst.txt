@@ -1,0 +1,4 @@
+cheta.units.mult
+================
+
+.. py:function:: cheta.units.mult(scale_factor, decimals=None)

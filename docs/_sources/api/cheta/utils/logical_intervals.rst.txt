@@ -1,0 +1,68 @@
+cheta.utils.logical_intervals
+=============================
+
+.. py:function:: cheta.utils.logical_intervals(times, bools, complete_intervals=False, max_gap=None, start=None, stop=None)
+
+   
+   Determine contiguous intervals during which `bools` is True.
+
+   If ``complete_intervals`` is True (default is False) then the intervals are
+   guaranteed to be complete so that the all reported intervals had a
+   transition before and after within the telemetry interval.
+
+   If ``max_gap`` is specified then any time gaps longer than ``max_gap`` are
+   filled with a fictitious False value to create an artificial interval
+   boundary at ``max_gap / 2`` seconds from the nearest data value.
+
+   If ``start`` is specified then the first interval will be from ``start``. If
+   ``stop`` is specified then the last interval will be to ``stop``.
+
+   Returns an astropy Table with a row for each interval.  Columns are:
+
+   * datestart: date of interval start
+   * datestop: date of interval stop
+   * duration: duration of interval (sec)
+   * tstart: time of interval start (CXC sec)
+   * tstop: time of interval stop (CXC sec)
+
+   Example (find SCS107 runs via telemetry)::
+
+     >>> from cheta import utils, fetch
+     >>> dat = fetch.Msidset(['3tscmove', 'aorwbias', 'coradmen'], '2012:190', '2012:205')
+     >>> dat.interpolate(32.8)  # Sample MSIDs onto 32.8 second intervals (like 3TSCMOVE)
+     >>> scs107 = ((dat['3tscmove'].vals == 'T')
+                   & (dat['aorwbias'].vals == 'DISA')
+                   & (dat['coradmen'].vals == 'DISA'))
+     >>> scs107s = utils.logical_intervals(dat.times, scs107)
+     >>> print(scs107s['datestart', 'datestop', 'duration'])
+           datestart              datestop          duration
+     --------------------- --------------------- -------------
+     2012:194:20:00:31.652 2012:194:20:04:21.252 229.600000083
+     2012:196:21:07:36.452 2012:196:21:11:26.052 229.600000083
+     2012:201:11:45:46.852 2012:201:11:49:36.452 229.600000083
+
+   :param times: array of time stamps in CXC seconds
+   :param bools: array of logical True/False values
+   :param complete_intervals: return only complete intervals (default=True)
+   :param max_gap: max allowed gap between time stamps (sec, default=None)
+   :param start: start time (CxoTimeLike, default=None)
+   :param stop: stop time (CxoTimeLike, default=None)
+
+   :returns: Table of intervals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

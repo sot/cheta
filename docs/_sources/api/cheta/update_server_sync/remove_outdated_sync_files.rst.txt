@@ -1,0 +1,31 @@
+cheta.update_server_sync.remove_outdated_sync_files
+===================================================
+
+.. py:function:: cheta.update_server_sync.remove_outdated_sync_files(opt, logger, index_tbl, index_file)
+
+   
+   Remove the sync data dirs and index file rows which correspond to data so
+   that no more than ``opt.max_sync_dirs`` sync directories are retained.
+
+   :param opt: options
+   :param logger: logger
+   :param index_tbl: table containing sync repo entries
+   :param index_file: index file Path
+   :return: mask of rows that were removed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

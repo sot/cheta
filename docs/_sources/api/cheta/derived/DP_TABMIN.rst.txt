@@ -1,0 +1,20 @@
+cheta.derived.DP_TABMIN
+=======================
+
+.. py:class:: cheta.derived.DP_TABMIN
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OOBTHR47', 'OOBTHR42', 'OOBTHR43']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

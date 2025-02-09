@@ -1,0 +1,29 @@
+cheta.cache.lfu_cache
+=====================
+
+.. py:function:: cheta.cache.lfu_cache(maxsize=100)
+
+   
+   Least-frequenty-used cache decorator.
+
+   Arguments to the cached function must be hashable.
+   Cache performance statistics stored in f.hits and f.misses.
+   Clear the cache with f.clear().
+   http://en.wikipedia.org/wiki/Least_Frequently_Used
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

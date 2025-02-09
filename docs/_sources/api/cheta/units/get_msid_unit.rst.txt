@@ -1,0 +1,4 @@
+cheta.units.get_msid_unit
+=========================
+
+.. py:function:: cheta.units.get_msid_unit(msid)

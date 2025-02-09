@@ -1,0 +1,63 @@
+cheta.fetch.memoized
+====================
+
+.. py:class:: cheta.fetch.memoized(func)
+
+   Bases: :py:obj:`object`
+
+
+   
+   Decorator that caches a function's return value each time it is called.
+   If called later with the same arguments, the cached value is returned, and
+   not re-evaluated.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: func
+
+
+   .. py:attribute:: cache
+
+
+   .. py:method:: __call__(*args)
+
+
+   .. py:method:: __repr__()
+
+      
+      Return the function's docstring.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

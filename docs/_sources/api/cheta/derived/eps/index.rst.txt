@@ -1,0 +1,46 @@
+cheta.derived.eps
+=================
+
+.. py:module:: cheta.derived.eps
+
+.. autoapi-nested-parse::
+
+   Derived parameter MSIDs related to EPS subsystem.
+
+   Author: B. Bissell
+
+   Revision History::
+
+        Jul 2014 Initial Version
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/eps/DerivedParameterEps
+   /api/cheta/derived/eps/DP_BATT1_TAVE
+   /api/cheta/derived/eps/DP_BATT2_TAVE
+   /api/cheta/derived/eps/DP_BATT3_TAVE
+   /api/cheta/derived/eps/DP_EPOWER1
+   /api/cheta/derived/eps/DP_MYSAPOW
+   /api/cheta/derived/eps/DP_PYSAPOW
+
+.. autoapisummary::
+
+   cheta.derived.eps.DerivedParameterEps
+   cheta.derived.eps.DP_BATT1_TAVE
+   cheta.derived.eps.DP_BATT2_TAVE
+   cheta.derived.eps.DP_BATT3_TAVE
+   cheta.derived.eps.DP_EPOWER1
+   cheta.derived.eps.DP_MYSAPOW
+   cheta.derived.eps.DP_PYSAPOW
+
+
+

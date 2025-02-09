@@ -1,0 +1,50 @@
+cheta.derived.DP_MAN_ANG
+========================
+
+.. py:class:: cheta.derived.DP_MAN_ANG
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Maneuver Angle (Total)  [deg]
+
+   Defined as the  angle between the estimated quaternion and the target
+   quaternion during a maneuver.
+
+   Computed using the fourth component of the delta quaternion between
+   AOTARQT<N> and AOATTQT<N> when a maneuver is in progress
+   (AOMANEND = NEND), otherwise equal to zero.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aoattqt1', 'aoattqt2', 'aoattqt3', 'aoattqt4', 'aotarqt1', 'aotarqt2', 'aotarqt3', 'aomanend']
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

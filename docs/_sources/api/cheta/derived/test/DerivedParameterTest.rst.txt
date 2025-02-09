@@ -1,0 +1,12 @@
+cheta.derived.test.DerivedParameterTest
+=======================================
+
+.. py:class:: cheta.derived.test.DerivedParameterTest
+
+   Bases: :py:obj:`cheta.derived.base.DerivedParameter`
+
+
+   .. py:attribute:: content_root
+      :value: 'test'
+
+

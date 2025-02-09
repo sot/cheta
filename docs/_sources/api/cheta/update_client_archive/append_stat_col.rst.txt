@@ -1,0 +1,32 @@
+cheta.update_client_archive.append_stat_col
+===========================================
+
+.. py:function:: cheta.update_client_archive.append_stat_col(dat, stat_file, msid, date_id, opt, logger)
+
+   
+   Append ``dat`` to the appropriate stats h5 file.
+
+   :param dat:
+   :param stat_file:
+   :param msid:
+   :param date_id:
+   :param opt:
+   :param logger:
+   :return: None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

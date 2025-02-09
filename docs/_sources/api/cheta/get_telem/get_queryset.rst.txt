@@ -1,0 +1,26 @@
+cheta.get_telem.get_queryset
+============================
+
+.. py:function:: cheta.get_telem.get_queryset(expr)
+
+   
+   Get query set for ``expr`` python-ish expression, e.g. (manvrs[bad=200] & radzones).
+   Using [] instead of () makes parsing easier.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

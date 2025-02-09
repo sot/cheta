@@ -1,0 +1,44 @@
+cheta.update_client_archive.get_msids_for_add_msids
+===================================================
+
+.. py:function:: cheta.update_client_archive.get_msids_for_add_msids(opt, logger)
+
+   
+   Parse MSIDs spec file (opt.add_msids) and return corresponding list of MSIDs.
+
+   This implements support for a MSID spec file like::
+
+       # MSIDs that match the name or pattern are included, where * matches
+       # anything (0 or more characters) while ? matches exactly one character:
+       #
+       aopcadm?
+       aacccd*
+
+       # MSIDs with the same subsystem and sampling rate as given MSIDs are included.
+       # Example: */1wrat gives all acis4eng engineering telemetry.
+       */1wrat
+
+       # MSIDs with the same subsystem regardless of sampling rate.
+       # Example: **/3tscpos gives all engineering SIM telemetry
+       **/3tscpos
+
+   :param opt: options
+   :param logger: logger
+   :return: msids_out, msids_content (mapping of MSID to content type)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

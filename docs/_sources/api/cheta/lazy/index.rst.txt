@@ -1,0 +1,21 @@
+cheta.lazy
+==========
+
+.. py:module:: cheta.lazy
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/lazy/LazyDict
+
+.. autoapisummary::
+
+   cheta.lazy.LazyDict
+
+
+

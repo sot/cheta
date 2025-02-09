@@ -1,0 +1,28 @@
+cheta.derived.pcad.sun_vector_body
+==================================
+
+.. py:function:: cheta.derived.pcad.sun_vector_body(data, predictive=True)
+
+   
+   Calculate the normalized sun vector in body coordinates.
+
+   :param data: MSIDset with orbitephem, solarephem and aoattqt<N> MSIDs
+   :param predictive: use predictive ephemeris
+   :returns: 3 x N array of vectors
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

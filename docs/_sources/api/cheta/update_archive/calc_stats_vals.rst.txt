@@ -1,0 +1,29 @@
+cheta.update_archive.calc_stats_vals
+====================================
+
+.. py:function:: cheta.update_archive.calc_stats_vals(msid, rows, indexes, interval)
+
+   
+   Compute statistics values for ``msid`` over specified intervals.
+
+   :param msid: Msid object (filter_bad=True)
+   :param rows: Msid row indices corresponding to stat boundaries
+   :param indexes: Universal index values for stat (row times // dt)
+   :param interval: interval name (5min or daily)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

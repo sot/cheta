@@ -1,0 +1,30 @@
+cheta.derived.mups_valve.get_corr_mups_temp
+===========================================
+
+.. py:function:: cheta.derived.mups_valve.get_corr_mups_temp(temp)
+
+   
+   Calculate a MUPS valve thermistor corrected temperature.
+
+   Args:
+       temp (float, int): Temperature in Fahrenheit to which a correction will be applied.
+
+   Returns:
+       (float): Corrected temperaure
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

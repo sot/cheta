@@ -1,0 +1,26 @@
+cheta.update_server_sync.update_msid_contents_pkl
+=================================================
+
+.. py:function:: cheta.update_server_sync.update_msid_contents_pkl(logger)
+
+   
+   Update the `msid_contents.pkl` file to contain a dict of the msid:content pairs.
+
+   :return: None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

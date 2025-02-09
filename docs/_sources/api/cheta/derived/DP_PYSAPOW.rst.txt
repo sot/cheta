@@ -1,0 +1,42 @@
+cheta.derived.DP_PYSAPOW
+========================
+
+.. py:class:: cheta.derived.DP_PYSAPOW
+
+   Bases: :py:obj:`DerivedParameterEps`
+
+
+   
+   +Y Solar Array Power = ESAPYI * ELBV
+   Telemetry 8x / MF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['ESAPYI', 'ELBV']
+
+
+
+   .. py:attribute:: time_step
+      :value: 4.1
+
+
+
+   .. py:method:: calc(data)
+

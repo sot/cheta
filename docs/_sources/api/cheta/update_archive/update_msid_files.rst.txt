@@ -1,0 +1,4 @@
+cheta.update_archive.update_msid_files
+======================================
+
+.. py:function:: cheta.update_archive.update_msid_files(filetype, archfiles)

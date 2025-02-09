@@ -1,0 +1,100 @@
+cheta.update_client_archive
+===========================
+
+.. py:module:: cheta.update_client_archive
+
+.. autoapi-nested-parse::
+
+   Synchronize local client copy of cheta archive to the server version.
+
+   This uses the bundles of sync data that are available on the ICXC server
+   to update the local HDF5 files that comprise the cheta telemetry archive.
+   It also updates the archfiles.db3 that serve as a date index for queries.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Exceptions
+----------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/update_client_archive/RowMismatchError
+
+.. autoapisummary::
+
+   cheta.update_client_archive.RowMismatchError
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/update_client_archive/DelayedKeyboardInterrupt
+
+.. autoapisummary::
+
+   cheta.update_client_archive.DelayedKeyboardInterrupt
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/update_client_archive/get_options
+   /api/cheta/update_client_archive/timing_logger
+   /api/cheta/update_client_archive/get_readable
+   /api/cheta/update_client_archive/add_msids
+   /api/cheta/update_client_archive/copy_server_files
+   /api/cheta/update_client_archive/copy_server_files_ssh
+   /api/cheta/update_client_archive/parse_server_data_root
+   /api/cheta/update_client_archive/get_copy_files
+   /api/cheta/update_client_archive/get_msids_for_add_msids
+   /api/cheta/update_client_archive/sync_full_archive
+   /api/cheta/update_client_archive/update_full_archfiles_db3
+   /api/cheta/update_client_archive/update_full_h5_files
+   /api/cheta/update_client_archive/get_full_data_sets
+   /api/cheta/update_client_archive/sync_stat_archive
+   /api/cheta/update_client_archive/_sync_stat_archive
+   /api/cheta/update_client_archive/get_stat_data_sets
+   /api/cheta/update_client_archive/concat_data_sets
+   /api/cheta/update_client_archive/append_stat_col
+   /api/cheta/update_client_archive/get_last_date_id
+   /api/cheta/update_client_archive/append_h5_col
+   /api/cheta/update_client_archive/get_index_tbl
+   /api/cheta/update_client_archive/main
+
+.. autoapisummary::
+
+   cheta.update_client_archive.get_options
+   cheta.update_client_archive.timing_logger
+   cheta.update_client_archive.get_readable
+   cheta.update_client_archive.add_msids
+   cheta.update_client_archive.copy_server_files
+   cheta.update_client_archive.copy_server_files_ssh
+   cheta.update_client_archive.parse_server_data_root
+   cheta.update_client_archive.get_copy_files
+   cheta.update_client_archive.get_msids_for_add_msids
+   cheta.update_client_archive.sync_full_archive
+   cheta.update_client_archive.update_full_archfiles_db3
+   cheta.update_client_archive.update_full_h5_files
+   cheta.update_client_archive.get_full_data_sets
+   cheta.update_client_archive.sync_stat_archive
+   cheta.update_client_archive._sync_stat_archive
+   cheta.update_client_archive.get_stat_data_sets
+   cheta.update_client_archive.concat_data_sets
+   cheta.update_client_archive.append_stat_col
+   cheta.update_client_archive.get_last_date_id
+   cheta.update_client_archive.append_h5_col
+   cheta.update_client_archive.get_index_tbl
+   cheta.update_client_archive.main
+
+
+

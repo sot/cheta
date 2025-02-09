@@ -1,0 +1,4 @@
+cheta.fetch.msid_matches_data_gap_spec
+======================================
+
+.. py:function:: cheta.fetch.msid_matches_data_gap_spec(msid, includes, excludes)

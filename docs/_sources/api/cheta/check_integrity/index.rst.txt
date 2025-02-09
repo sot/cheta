@@ -1,0 +1,27 @@
+cheta.check_integrity
+=====================
+
+.. py:module:: cheta.check_integrity
+
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/check_integrity/get_options
+   /api/cheta/check_integrity/check_filetype
+   /api/cheta/check_integrity/find_glitch
+   /api/cheta/check_integrity/main
+
+.. autoapisummary::
+
+   cheta.check_integrity.get_options
+   cheta.check_integrity.check_filetype
+   cheta.check_integrity.find_glitch
+   cheta.check_integrity.main
+
+
+

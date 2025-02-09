@@ -1,0 +1,32 @@
+cheta.update_client_archive.get_last_date_id
+============================================
+
+.. py:function:: cheta.update_client_archive.get_last_date_id(msid_files, msids, stat, logger)
+
+   
+   Get the last date_id used for syncing the client archive.  First try the
+   last_date_id file.  If this does not exist then infer a reasonable value
+   by looking at stat data for ``msids``
+
+   :param msid_files:
+   :param msids:
+   :param stat:
+   :param logger:
+   :return:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

@@ -1,0 +1,4 @@
+cheta.fix_bad_values.fix_stats_h5
+=================================
+
+.. py:function:: cheta.fix_bad_values.fix_stats_h5(msid, tstart, tstop, interval)

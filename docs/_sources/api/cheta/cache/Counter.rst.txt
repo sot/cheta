@@ -1,0 +1,31 @@
+cheta.cache.Counter
+===================
+
+.. py:class:: cheta.cache.Counter
+
+   Bases: :py:obj:`dict`
+
+
+   
+   Mapping where default values are zero
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:method:: __missing__(key)
+

@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_EE_THERM
+=================================
+
+.. py:class:: cheta.derived.thermal.DP_EE_THERM
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OHRTHR37', 'OHRTHR58', 'OHRMGRD6', 'OHRMGRD3', 'OHRTHR35', 'OHRTHR52', 'OHRTHR53', 'OHRTHR56',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

@@ -1,0 +1,4 @@
+cheta.update_client_archive.update_full_h5_files
+================================================
+
+.. py:function:: cheta.update_client_archive.update_full_h5_files(dat, logger, msid_files, msids, opt)

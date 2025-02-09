@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_P32
+============================
+
+.. py:class:: cheta.derived.thermal.DP_P32
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['4OHTRZ32', 'ELBV']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

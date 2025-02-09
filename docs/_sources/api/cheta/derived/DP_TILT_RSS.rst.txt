@@ -1,0 +1,20 @@
+cheta.derived.DP_TILT_RSS
+=========================
+
+.. py:class:: cheta.derived.DP_TILT_RSS
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OOBAGRD6', 'OOBAGRD3', 'OHRTHR43', 'OHRTHR42']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

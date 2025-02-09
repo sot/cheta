@@ -1,0 +1,20 @@
+cheta.derived.DP_P03
+====================
+
+.. py:class:: cheta.derived.DP_P03
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ03']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

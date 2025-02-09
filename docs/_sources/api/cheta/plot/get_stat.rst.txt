@@ -1,0 +1,4 @@
+cheta.plot.get_stat
+===================
+
+.. py:function:: cheta.plot.get_stat(t0, t1, npix)

@@ -1,0 +1,50 @@
+cheta.derived.DP_SYS_MOM_TOT
+============================
+
+.. py:class:: cheta.derived.DP_SYS_MOM_TOT
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Total System Momentum [Ft-Lb-Sec]
+
+   Defined as the sum of the reaction wheel, environmental, and spacecraft
+   momentum.
+
+   Calculated as the RSS of AOSYMOM1, AOSYMOM2, and AOSYMOM3.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aosymom1', 'aosymom2', 'aosymom3']
+
+
+
+   .. py:attribute:: time_step
+      :value: 8.2
+
+
+
+   .. py:attribute:: max_gap
+      :value: 18.0
+
+
+
+   .. py:method:: calc(data)
+

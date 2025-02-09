@@ -1,0 +1,4 @@
+cheta.update_client_archive.parse_server_data_root
+==================================================
+
+.. py:function:: cheta.update_client_archive.parse_server_data_root(server_data_root)

@@ -1,0 +1,25 @@
+cheta.fix_bad_values._set_msid_files_basedir
+============================================
+
+.. py:function:: cheta.fix_bad_values._set_msid_files_basedir(datestart)
+
+   
+   If datestart is before 2000:001:00:00:00 then use the 1999 archive files.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

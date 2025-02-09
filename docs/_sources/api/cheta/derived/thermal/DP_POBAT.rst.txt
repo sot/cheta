@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_POBAT
+==============================
+
+.. py:class:: cheta.derived.thermal.DP_POBAT
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ25', '4OHTRZ26', '4OHTRZ27', '4OHTRZ28', '4OHTRZ29', '4OHTRZ30', '4OHTRZ31',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

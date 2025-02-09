@@ -1,0 +1,4 @@
+cheta.check_integrity.get_options
+=================================
+
+.. py:function:: cheta.check_integrity.get_options()

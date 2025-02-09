@@ -1,0 +1,28 @@
+cheta.derived.DP_ASCENDING_NODE
+===============================
+
+.. py:class:: cheta.derived.DP_ASCENDING_NODE
+
+   Bases: :py:obj:`DerivedParameterOrbit`
+
+
+   
+   Orbital element: right ascension of ascending node (degrees)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

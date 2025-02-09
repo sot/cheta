@@ -1,0 +1,54 @@
+cheta.utils.state_intervals
+===========================
+
+.. py:function:: cheta.utils.state_intervals(times, vals, start=None, stop=None)
+
+   
+   Determine contiguous intervals during which the ``vals`` is unchanged.
+
+   Returns an Astropy Table with a row for each interval.  Columns are:
+
+   * datestart: date of interval start
+   * datestop: date of interval stop
+   * duration: duration of interval (sec)
+   * tstart: time of interval start (CXC sec)
+   * tstop: time of interval stop (CXC sec)
+   * val: MSID value during the interval
+
+   If ``start`` is specified then the first interval will be from ``start``. If
+   ``stop`` is specified then the last interval will be to ``stop``.
+
+   Example::
+
+     >>> from cheta import fetch, utils
+     >>> dat = fetch.Msid('cobsrqid', '2010:003:12:00:00', '2010:004:12:00:00')
+     >>> obsids = utils.state_intervals(dat.times, dat.vals)
+     >>> print(obsids['datestart', 'datestop', 'val'])
+           datestart              datestop         val
+     --------------------- --------------------- -------
+     2010:003:12:00:00.976 2010:004:09:07:44.180 11011.0
+     2010:004:09:07:44.180 2010:004:09:40:52.680 56548.0
+     2010:004:09:40:52.680 2010:004:12:00:00.280 12068.0
+
+   :param times: times (CXC seconds)
+   :param vals: state values for which intervals are returned.
+   :param start: start time (CxoTimeLike, default=None)
+   :param stop: stop time (CxoTimeLike, default=None)
+   :returns: structured array table of intervals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

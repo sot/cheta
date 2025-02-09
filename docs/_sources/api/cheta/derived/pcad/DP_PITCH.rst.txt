@@ -1,0 +1,58 @@
+cheta.derived.pcad.DP_PITCH
+===========================
+
+.. py:class:: cheta.derived.pcad.DP_PITCH
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Sun Pitch Angle from Predictive Ephemeris in ACA Frame [deg]
+
+   Defined as the angle between the sun vector and ACA X-axis.
+
+   Calculated using arccos of the sun vector x component in the body frame
+   where the sun vector is from predictive ephemeris
+   [SOLAREPHEM0 and ORBITEPHEM0] and the estimated attitude from the OBC's
+   estimated quaternion [AOATTQT<n>].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['orbitephem0_x', 'orbitephem0_y', 'orbitephem0_z', 'solarephem0_x', 'solarephem0_y',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 1.025
+
+
+
+   .. py:attribute:: max_gap
+      :value: 4.0
+
+
+
+   .. py:attribute:: max_gaps
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

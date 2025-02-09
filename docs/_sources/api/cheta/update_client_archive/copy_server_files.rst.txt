@@ -1,0 +1,34 @@
+cheta.update_client_archive.copy_server_files
+=============================================
+
+.. py:function:: cheta.update_client_archive.copy_server_files(opt, logger, copy_files, server_path, copy_func, as_posix=False)
+
+   
+   Copy list of files from server to local, making directories as needed.
+
+   This takes a function copy(src, dest) that could be a local copy or could be
+   a network copy.
+
+   :param opt: options
+   :param logger:  logger
+   :param copy_files: list of file paths, relative to the cheta archive root
+   :param server_path: path representing the cheta archive root on the server
+   :param copy_func: function to copy(src, dest)
+   :return: None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

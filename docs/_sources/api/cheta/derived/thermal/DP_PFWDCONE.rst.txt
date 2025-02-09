@@ -1,0 +1,20 @@
+cheta.derived.thermal.DP_PFWDCONE
+=================================
+
+.. py:class:: cheta.derived.thermal.DP_PFWDCONE
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ31', '4OHTRZ32', '4OHTRZ33', '4OHTRZ34', '4OHTRZ35', '4OHTRZ36', '4OHTRZ37',...
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

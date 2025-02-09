@@ -1,0 +1,30 @@
+cheta.derived.pcad.qmult
+========================
+
+.. py:function:: cheta.derived.pcad.qmult(q1, q2)
+
+   
+   Multiply two quaternions or arrays of quaternions
+
+   The input quaternions must have shape of (4,) or (4, N, ..).
+
+   :param q1: first quaternion
+   :param q2: second quaternion
+   :returns: q1*q2 as an array with same shape as q1 and q2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

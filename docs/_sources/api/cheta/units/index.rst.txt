@@ -1,0 +1,104 @@
+cheta.units
+===========
+
+.. py:module:: cheta.units
+
+.. autoapi-nested-parse::
+
+   Basic units handling and conversion.
+
+   >>> eng = units.units['eng']
+   >>> cxc = units.units['cxc']
+   >>> comb = set()
+   >>> for e in eng.keys():
+   ...    comb.add((eng[e], cxc[e]))
+
+   >>> comb   # ** entries require explicit conversion
+   {('AMP', 'A'),
+    ('ASEC', 'arcsec'),
+    ('DEG', 'deg'),
+    ('DEGC', 'K'),        **
+    ('DEGF', 'K'),        **
+    ('DEGF', 'deltaK'),   **
+    ('DEGPS', 'deg/s'),
+    ('FASTEP', 'mm'),     **
+    ('FTLB', 'J'),        **
+    ('FTLBSEC', 'J*s'),   **
+    ('KHZ', 'kHz'),
+    ('KM', 'km'),
+    ('KMPS', 'km/s'),
+    ('MAMP', 'mA'),
+    ('MIN', 's'),         **
+    ('MSEC', 'ms'),
+    ('PSIA', 'kPa'),      **
+    ('PWMSTEP', 'PWM'),   **
+    ('RAD', 'rad'),
+    ('RADPS', 'rad/s'),
+    ('RADSS', 'rad/s**2'),
+    ('SEC', 's'),
+    ('TORR', 'kPa'),      **
+    ('TSCSTEP', 'mm'),    **
+    ('V', 'V'),
+    ('VDC', 'V'),
+    ('W', 'W')}
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/units/NullHandler
+   /api/cheta/units/Units
+
+.. autoapisummary::
+
+   cheta.units.NullHandler
+   cheta.units.Units
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/units/F_to_C
+   /api/cheta/units/C_to_F
+   /api/cheta/units/C_to_K
+   /api/cheta/units/K_to_C
+   /api/cheta/units/K_to_F
+   /api/cheta/units/F_to_K
+   /api/cheta/units/FASTEP_to_mm
+   /api/cheta/units/mm_to_FASTEP
+   /api/cheta/units/mult
+   /api/cheta/units/divide
+   /api/cheta/units/load_units
+   /api/cheta/units/set_units
+   /api/cheta/units/get_msid_unit
+   /api/cheta/units/convert
+
+.. autoapisummary::
+
+   cheta.units.F_to_C
+   cheta.units.C_to_F
+   cheta.units.C_to_K
+   cheta.units.K_to_C
+   cheta.units.K_to_F
+   cheta.units.F_to_K
+   cheta.units.FASTEP_to_mm
+   cheta.units.mm_to_FASTEP
+   cheta.units.mult
+   cheta.units.divide
+   cheta.units.load_units
+   cheta.units.set_units
+   cheta.units.get_msid_unit
+   cheta.units.convert
+
+
+

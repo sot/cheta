@@ -1,0 +1,53 @@
+cheta.derived.DP_PITCH_CSS
+==========================
+
+.. py:class:: cheta.derived.DP_PITCH_CSS
+
+   Bases: :py:obj:`DerivedParameterPcad`
+
+
+   
+   Sun Pitch Angle from CSS Data in ACA Frame [Deg]
+
+   Defined as the angle between the sun vector and ACA X-axis.
+
+   Calculated by rotating the CSS sun vector from the SA-1 frame to ACA frame
+   based on the solar array angles AOSARES1 and AOSARES2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: rootparams
+      :value: ['aosares1', 'aosares2', 'aosunsa1', 'aosunsa2', 'aosunsa3']
+
+
+
+   .. py:attribute:: time_step
+      :value: 4.1
+
+
+
+   .. py:attribute:: max_gap
+      :value: 18.0
+
+
+
+   .. py:attribute:: dtype
+
+
+   .. py:method:: calc(data)
+

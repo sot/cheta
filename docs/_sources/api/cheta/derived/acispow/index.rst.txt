@@ -1,0 +1,32 @@
+cheta.derived.acispow
+=====================
+
+.. py:module:: cheta.derived.acispow
+
+.. autoapi-nested-parse::
+
+   Derived parameter MSIDs related to ACIS power.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/acispow/DP_DPA_POWER
+   /api/cheta/derived/acispow/DP_DEA_POWER
+   /api/cheta/derived/acispow/DP_PSMC_POWER
+
+.. autoapisummary::
+
+   cheta.derived.acispow.DP_DPA_POWER
+   cheta.derived.acispow.DP_DEA_POWER
+   cheta.derived.acispow.DP_PSMC_POWER
+
+
+

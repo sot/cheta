@@ -1,0 +1,73 @@
+cheta.update_server_sync
+========================
+
+.. py:module:: cheta.update_server_sync
+
+.. autoapi-nested-parse::
+
+   Update the repository of sync files on the server which can be used by
+   clients to maintain a local copy of the cheta telemetry archive.
+
+   The basic concept is to bundle about a day of raw telemetry values
+   (full-resolution, 5-minute stats and daily stats) for each MSID into
+   compressed data files that are served by the icxc web server and can
+   be easily downloaded to client machines.
+
+   This pairs with the ``cheta_update_client_archive`` script which uses
+   these sync files to keep a local cheta archive up to date.
+
+   The file structure is as follows::
+
+     sync/                                        Top-level, accessible from icxc URL
+     sync/msid_contents.pkl.gz                    Dict of all MSID:content key pairs
+     sync/acis4eng/                               Content type
+     sync/acis4eng/index.ecsv                     Index of bundles
+     sync/acis4eng/last_rows_5min.pkl             Last row index for 5min data for each MSID
+     sync/acis4eng/last_rows_daily.pkl            Last row index for daily data for each MSID
+     sync/acis4eng/2019-07-29T2340z/              One bundle of sync data
+     sync/acis4eng/2019-07-29T2340z/full.pkl.gz   Full-resolution data for all acis4eng MSIDs
+     sync/acis4eng/2019-07-29T2340z/5min.pkl.gz   5-minute data
+     sync/acis4eng/2019-07-29T2340z/daily.pkl.gz  Daily data
+
+   This script reads from the cheta telemetry archive and updates the
+   sync repository to capture newly-available data since the last bundle.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/update_server_sync/get_options
+   /api/cheta/update_server_sync/update_msid_contents_pkl
+   /api/cheta/update_server_sync/main
+   /api/cheta/update_server_sync/remove_outdated_sync_files
+   /api/cheta/update_server_sync/update_sync_repo
+   /api/cheta/update_server_sync/get_row_from_archfiles
+   /api/cheta/update_server_sync/check_index_tbl_consistency
+   /api/cheta/update_server_sync/update_index_file
+   /api/cheta/update_server_sync/update_sync_data_full
+   /api/cheta/update_server_sync/_get_stat_data_from_archive
+   /api/cheta/update_server_sync/update_sync_data_stat
+
+.. autoapisummary::
+
+   cheta.update_server_sync.get_options
+   cheta.update_server_sync.update_msid_contents_pkl
+   cheta.update_server_sync.main
+   cheta.update_server_sync.remove_outdated_sync_files
+   cheta.update_server_sync.update_sync_repo
+   cheta.update_server_sync.get_row_from_archfiles
+   cheta.update_server_sync.check_index_tbl_consistency
+   cheta.update_server_sync.update_index_file
+   cheta.update_server_sync.update_sync_data_full
+   cheta.update_server_sync._get_stat_data_from_archive
+   cheta.update_server_sync.update_sync_data_stat
+
+
+

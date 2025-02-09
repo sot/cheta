@@ -1,0 +1,25 @@
+cheta.fix_bad_values.fix_msid_h5
+================================
+
+.. py:function:: cheta.fix_bad_values.fix_msid_h5(msid, tstart, tstop)
+
+   
+   Fix the msid full-resolution HDF5 data file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

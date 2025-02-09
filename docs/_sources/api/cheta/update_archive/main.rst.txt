@@ -1,0 +1,26 @@
+cheta.update_archive.main
+=========================
+
+.. py:function:: cheta.update_archive.main()
+
+   
+   Program-level main.  This will normally be called via the update_archive.py wrapper
+   script installed in $SKA/share/eng_archive.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

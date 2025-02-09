@@ -1,0 +1,57 @@
+cheta.utils
+===========
+
+.. py:module:: cheta.utils
+
+.. autoapi-nested-parse::
+
+   Utilities for the engineering archive.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Exceptions
+----------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/utils/NoTelemetryError
+
+.. autoapisummary::
+
+   cheta.utils.NoTelemetryError
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/utils/get_fetch_size
+   /api/cheta/utils/ss_vector
+   /api/cheta/utils/_pad_long_gaps
+   /api/cheta/utils/logical_intervals
+   /api/cheta/utils/state_intervals
+   /api/cheta/utils/get_telem_table
+   /api/cheta/utils/get_ofp_states
+   /api/cheta/utils/get_date_id
+   /api/cheta/utils/set_fetch_basedir
+
+.. autoapisummary::
+
+   cheta.utils.get_fetch_size
+   cheta.utils.ss_vector
+   cheta.utils._pad_long_gaps
+   cheta.utils.logical_intervals
+   cheta.utils.state_intervals
+   cheta.utils.get_telem_table
+   cheta.utils.get_ofp_states
+   cheta.utils.get_date_id
+   cheta.utils.set_fetch_basedir
+
+
+

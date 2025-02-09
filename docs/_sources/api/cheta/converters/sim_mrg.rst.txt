@@ -1,0 +1,34 @@
+cheta.converters.sim_mrg
+========================
+
+.. py:function:: cheta.converters.sim_mrg(dat)
+
+   
+   Custom converter for SIM_MRG.
+
+   There is a bug in CXCDS L0 SIM decom wherein the 3LDRTMEK MSID is
+   incorrectly assigned (TSC and FA are reversed).  The calibration
+   of 3LDRTPOS from steps to mm is then also wrong because it uses
+   the FA conversion instead of TSC.
+
+   This function fixes 3LDRTMEK, then backs out the (incorrect) 3LDRTPOS
+   steps to mm conversion and re-does it correctly using the TSC conversion.
+   Note that 3LDRTMEK is (by virtue of the way mission operations run)
+   always "TSC".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

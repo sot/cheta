@@ -1,0 +1,20 @@
+cheta.derived.DP_HARG
+=====================
+
+.. py:class:: cheta.derived.DP_HARG
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['OHRTHR52', 'OHRTHR53', 'OHRTHR54', 'OHRTHR31', 'OHRTHR09', 'OHRTHR08', 'OHRTHR33']
+
+
+
+   .. py:attribute:: time_step
+      :value: 32.8
+
+
+
+   .. py:method:: calc(data)
+

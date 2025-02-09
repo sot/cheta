@@ -1,0 +1,25 @@
+cheta.units.set_units
+=====================
+
+.. py:function:: cheta.units.set_units(unit_system)
+
+   
+   Set conversion unit system.  The input ``unit_system`` must be a string.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

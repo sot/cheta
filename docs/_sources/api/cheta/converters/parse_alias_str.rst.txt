@@ -1,0 +1,4 @@
+cheta.converters.parse_alias_str
+================================
+
+.. py:function:: cheta.converters.parse_alias_str(alias_str, invert=False)

@@ -1,0 +1,26 @@
+cheta.update_archive.main_loop
+==============================
+
+.. py:function:: cheta.update_archive.main_loop()
+
+   
+   Perform one full update of the eng archive based on opt parameters.
+   This may be called in a loop by the program-level main().
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

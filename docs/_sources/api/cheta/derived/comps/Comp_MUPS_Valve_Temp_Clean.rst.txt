@@ -1,0 +1,78 @@
+cheta.derived.comps.Comp_MUPS_Valve_Temp_Clean
+==============================================
+
+.. py:class:: cheta.derived.comps.Comp_MUPS_Valve_Temp_Clean(unit_system='eng')
+
+   Bases: :py:obj:`ComputedMsid`
+
+
+   
+   Computed MSID for cleaned MUPS valve temps PM2THV1T, PM1THV2T
+
+   This uses the cleaning method demonstrated in the following notebook
+   to return a version of the MUPS valve temperature comprised of
+   telemetry values that are consistent with a thermal model.
+
+   https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/ipynb/misc/mups-valve-xija-filtering.ipynb
+   https://nbviewer.jupyter.org/urls/cxc.harvard.edu/mta/ASPECT/ipynb/misc/DAWG-mups-valve-xija-filtering.ipynb
+
+   Allowed MSIDs are 'pm2thv1t_clean' and 'pm1thv2t_clean' (as always case is
+   not important). Optionally one can include the ``chandra_models`` branch name,
+   tag or commit hash to used for reading the MUPS 1B and MUPS 2A thermal model
+   specifications. For example you can use 'pm1thv2t_clean_3.28' to get the model
+   from release 3.28 of chandra_models.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: msid_match
+      :value: '(pm2thv1t|pm1thv2t)_clean(_[\\w\\.]+)?'
+
+
+
+   .. py:attribute:: units
+
+
+   .. py:method:: get_msid_attrs(tstart, tstop, msid, msid_args)
+
+      
+      Get attributes for computed MSID: ``vals``, ``bads``, ``times``, ``unit``
+
+      :param tstart: start time (CXC secs)
+      :param tstop: stop time (CXC secs)
+      :param msid: full MSID name e.g. pm2thv1t_clean
+      :param msid_args: tuple of regex match groups (msid_name,)
+
+      :returns: dict of MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

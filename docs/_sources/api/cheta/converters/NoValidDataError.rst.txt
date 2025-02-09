@@ -1,0 +1,28 @@
+cheta.converters.NoValidDataError
+=================================
+
+.. py:exception:: cheta.converters.NoValidDataError
+
+   Bases: :py:obj:`Exception`
+
+
+   
+   Common base class for all non-exit exceptions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

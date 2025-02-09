@@ -1,0 +1,20 @@
+cheta.derived.DP_PIC
+====================
+
+.. py:class:: cheta.derived.DP_PIC
+
+   Bases: :py:obj:`DerivedParameterThermal`
+
+
+   .. py:attribute:: rootparams
+      :value: ['ELBV', '4OHTRZ23', '4OHTRZ24']
+
+
+
+   .. py:attribute:: time_step
+      :value: 0.25625
+
+
+
+   .. py:method:: calc(data)
+

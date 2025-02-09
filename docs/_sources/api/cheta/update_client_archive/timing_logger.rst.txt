@@ -1,0 +1,4 @@
+cheta.update_client_archive.timing_logger
+=========================================
+
+.. py:function:: cheta.update_client_archive.timing_logger(logger, text, level_pre='info', level_post='info')

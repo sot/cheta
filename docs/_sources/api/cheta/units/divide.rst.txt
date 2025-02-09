@@ -1,0 +1,4 @@
+cheta.units.divide
+==================
+
+.. py:function:: cheta.units.divide(scale_factor, decimals=None)

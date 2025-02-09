@@ -1,0 +1,34 @@
+cheta.derived.base
+==================
+
+.. py:module:: cheta.derived.base
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/base/DerivedParameter
+
+.. autoapisummary::
+
+   cheta.derived.base.DerivedParameter
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/base/times_indexes
+
+.. autoapisummary::
+
+   cheta.derived.base.times_indexes
+
+
+

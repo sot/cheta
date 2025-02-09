@@ -1,0 +1,27 @@
+cheta.update_server_sync.check_index_tbl_consistency
+====================================================
+
+.. py:function:: cheta.update_server_sync.check_index_tbl_consistency(index_tbl)
+
+   
+   Check for consistency of the index table.
+
+   :param index_tbl: index table (astropy Table)
+   :return msg: inconsistency message or None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

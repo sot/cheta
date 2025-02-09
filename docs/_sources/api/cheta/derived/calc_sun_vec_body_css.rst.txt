@@ -1,0 +1,31 @@
+cheta.derived.calc_sun_vec_body_css
+===================================
+
+.. py:function:: cheta.derived.calc_sun_vec_body_css(data, safe_mode=False)
+
+   
+   Calculate the normalized sun vector in body coordinates using CSS data.
+
+   This relies on the on-board computation of the sun vector in the solar array frame
+   along with the solar array resolver angle.
+
+   :param data: MSIDset with appropriate MSIDs
+   :param safe_mode: use safe mode telemetry MSIDs (6* vs AO*)
+   :returns (sun_vec_norm, bads): 3 x N array of vectors, bads mask
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

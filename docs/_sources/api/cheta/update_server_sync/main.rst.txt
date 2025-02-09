@@ -1,0 +1,4 @@
+cheta.update_server_sync.main
+=============================
+
+.. py:function:: cheta.update_server_sync.main(args=None)

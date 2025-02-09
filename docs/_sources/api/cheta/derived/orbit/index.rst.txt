@@ -1,0 +1,87 @@
+cheta.derived.orbit
+===================
+
+.. py:module:: cheta.derived.orbit
+
+.. autoapi-nested-parse::
+
+   Orbital elements based on the position and velocity of Chandra at each 5 minute predictive
+   ephemeris state vector.  In addition to the classical orbital elements, the orbit
+   perigee and apogee are available:
+
+     ================ ====
+     MSID             Unit
+     ================ ====
+     semi_major_axis    m
+     eccentricity      --
+     inclination       deg
+     ascending_node    deg
+     argument_perigee  deg
+     mean_anomaly      deg
+     orbit_period      sec
+     perigee_radius     m
+     apogee_radius      m
+     ================ ====
+
+   Example::
+
+     >>> from cheta import fetch_eng as fetch
+
+     >>> dat = fetch.Msidset(['inclination', 'perigee_radius'], '1999:200', stat='daily')
+     >>> subplot(2, 1, 1)
+     >>> dat['inclination'].plot()
+     >>> subplot(2, 1, 2)
+     >>> dat['perigee_radius'].plot()
+
+   The relevant equations were taken from http://www.castor2.ca/05_OD/01_Gauss/14_Kepler/index.html.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/orbit/DerivedParameterOrbit
+   /api/cheta/derived/orbit/DP_SEMI_MAJOR_AXIS
+   /api/cheta/derived/orbit/DP_ORBIT_PERIOD
+   /api/cheta/derived/orbit/DP_ECCENTRICITY
+   /api/cheta/derived/orbit/DP_INCLINATION
+   /api/cheta/derived/orbit/DP_ASCENDING_NODE
+   /api/cheta/derived/orbit/DP_ARGUMENT_PERIGEE
+   /api/cheta/derived/orbit/DP_MEAN_ANOMALY
+   /api/cheta/derived/orbit/DP_PERIGEE_RADIUS
+   /api/cheta/derived/orbit/DP_APOGEE_RADIUS
+
+.. autoapisummary::
+
+   cheta.derived.orbit.DerivedParameterOrbit
+   cheta.derived.orbit.DP_SEMI_MAJOR_AXIS
+   cheta.derived.orbit.DP_ORBIT_PERIOD
+   cheta.derived.orbit.DP_ECCENTRICITY
+   cheta.derived.orbit.DP_INCLINATION
+   cheta.derived.orbit.DP_ASCENDING_NODE
+   cheta.derived.orbit.DP_ARGUMENT_PERIGEE
+   cheta.derived.orbit.DP_MEAN_ANOMALY
+   cheta.derived.orbit.DP_PERIGEE_RADIUS
+   cheta.derived.orbit.DP_APOGEE_RADIUS
+
+
+Functions
+---------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/derived/orbit/calc_orbital_elements
+
+.. autoapisummary::
+
+   cheta.derived.orbit.calc_orbital_elements
+
+
+
