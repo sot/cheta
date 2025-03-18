@@ -1,0 +1,4 @@
+cheta.fetch.load_content
+========================
+
+.. py:function:: cheta.fetch.load_content(all_colnames)

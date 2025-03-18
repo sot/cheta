@@ -18,6 +18,10 @@ Classes
 .. toctree::
    :hidden:
 
+   /api/cheta/fetch/ComputedMsid
+   /api/cheta/fetch/LazyDict
+   /api/cheta/fetch/Units
+   /api/cheta/fetch/NullHandler
    /api/cheta/fetch/MSID
    /api/cheta/fetch/MSIDset
    /api/cheta/fetch/Msid
@@ -27,6 +31,10 @@ Classes
 
 .. autoapisummary::
 
+   cheta.fetch.ComputedMsid
+   cheta.fetch.LazyDict
+   cheta.fetch.Units
+   cheta.fetch.NullHandler
    cheta.fetch.MSID
    cheta.fetch.MSIDset
    cheta.fetch.Msid
@@ -42,12 +50,15 @@ Functions
    :hidden:
 
    /api/cheta/fetch/local_or_remote_function
+   /api/cheta/fetch/load_msid_names
+   /api/cheta/fetch/load_content
    /api/cheta/fetch/get_units
    /api/cheta/fetch/set_units
    /api/cheta/fetch/read_bad_times
    /api/cheta/fetch/msid_glob
    /api/cheta/fetch/get_time_range
    /api/cheta/fetch/get_telem
+   /api/cheta/fetch/get_interval
    /api/cheta/fetch/add_logging_handler
    /api/cheta/fetch/get_data_gap_spec_parser
    /api/cheta/fetch/msid_matches_data_gap_spec
@@ -56,12 +67,15 @@ Functions
 .. autoapisummary::
 
    cheta.fetch.local_or_remote_function
+   cheta.fetch.load_msid_names
+   cheta.fetch.load_content
    cheta.fetch.get_units
    cheta.fetch.set_units
    cheta.fetch.read_bad_times
    cheta.fetch.msid_glob
    cheta.fetch.get_time_range
    cheta.fetch.get_telem
+   cheta.fetch.get_interval
    cheta.fetch.add_logging_handler
    cheta.fetch.get_data_gap_spec_parser
    cheta.fetch.msid_matches_data_gap_spec

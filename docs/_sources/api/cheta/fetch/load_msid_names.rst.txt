@@ -1,0 +1,4 @@
+cheta.fetch.load_msid_names
+===========================
+
+.. py:function:: cheta.fetch.load_msid_names(all_msid_names_files)

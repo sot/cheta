@@ -1,0 +1,35 @@
+cheta.fetch.get_interval
+========================
+
+.. py:function:: cheta.fetch.get_interval(content, tstart, tstop)
+
+   
+   Get the approximate row intervals that enclose the specified ``tstart`` and
+   ``tstop`` times for the ``content`` type.
+
+   The output of this function is cached with an LRU cache of the most recent
+   1000 results. The cache expires every 10 minutes to ensure that a persistent
+   session will get new data if the archive gets updated.
+
+   :param content: content type (e.g. 'pcad3eng', 'thm1eng')
+   :param tstart: start time (CXC seconds)
+   :param tstop: stop time (CXC seconds)
+
+   :returns: rowslice
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

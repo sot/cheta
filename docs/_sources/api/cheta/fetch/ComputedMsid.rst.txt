@@ -1,0 +1,331 @@
+cheta.fetch.ComputedMsid
+========================
+
+.. py:class:: cheta.fetch.ComputedMsid(unit_system='eng')
+
+   
+   Base class for cheta computed MSID.
+
+   Sub-classes must define at least the following:
+
+   * ``msid_match`` class attribute as a regex to match for the MSID.
+   * ``get_msid_attrs()`` method to perform the computation and return
+     a dict with the result.
+
+   Optionally:
+
+   * ``units`` attribute to specify unit handling.
+
+   See the fetch tutorial Computed MSIDs section for details.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: msid_classes
+      :value: []
+
+
+
+   .. py:attribute:: units
+      :value: None
+
+
+
+   .. py:attribute:: unit_system
+      :value: 'eng'
+
+
+
+   .. py:method:: __init_subclass__(**kwargs)
+      :classmethod:
+
+
+      
+      Validate and register ComputedMSID subclass.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: get_matching_comp_cls(msid)
+      :classmethod:
+
+
+      
+      Get computed classes that match ``msid``
+
+      :param msid: str, input msid
+      :returns: first ComputedMsid subclass that matches ``msid`` or None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: fetch_eng
+
+      
+      Fetch in TDB engineering units like DEGF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: fetch_sci
+
+      
+      Fetch in scientific units like DEGC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: fetch_cxc
+
+      
+      Fetch in CXC (FITS standard) units like K
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: fetch_sys
+
+      
+      Fetch in the unit system specified for the class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: __call__(tstart, tstop, msid, interval=None)
+
+      
+      Emulate the fetch.MSID() API, but return a dict of MSID attributes.
+
+      The returned dict turned into a proper MSID object by the upstream caller
+      `fetch.MSID._get_comp_data()`.
+
+      :param tstart: float, start time (CXC seconds)
+      :param tstop: float, stop time (CXC seconds)
+      :param msid: str, MSID name
+      :param interval: str or None, stats interval (None, '5min', 'daily')
+
+      :returns: dict of MSID attributes including 'times', 'vals', 'bads'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: convert_units(msid_attrs)
+
+      
+      Convert required elements of ``msid_attrs`` to ``self.unit_system``.
+
+      Unit_system can be one of 'cxc', 'sci', 'eng'.
+
+      :param msid_attrs: dict, input MSID attributes
+      :param unit_system: str, unit system
+
+      :returns: dict, converted MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: get_msid_attrs(tstart, tstop, msid, msid_args)
+      :abstractmethod:
+
+
+      
+      Get the attributes required for this MSID.
+
+      Get attributes for computed MSID, which must include at least
+      ``vals``, ``bads``, ``times``, and may include additional attributes.
+
+      This MUST be supplied by sub-classes.
+
+      :param tstart: start time (CXC secs)
+      :param tstop: stop time (CXC secs)
+      :param msid: full MSID name e.g. tephin_plus_5
+      :param msid_args: tuple of regex match groups (msid_name,)
+      :returns: dict of MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: get_stats_attrs(tstart, tstop, msid, match_args, interval)
+
+      
+      Get 5-min or daily stats attributes.
+
+      This is normally not overridden by sub-classes.
+
+      :param tstart: start time (CXC secs)
+      :param tstop: stop time (CXC secs)
+      :param msid: full MSID name e.g. tephin_plus_5
+      :param msid_args: tuple of regex match groups (msid_name,)
+      :returns: dict of MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

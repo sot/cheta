@@ -1,0 +1,115 @@
+cheta.fetch.Units
+=================
+
+.. py:class:: cheta.fetch.Units(system='cxc')
+
+   Bases: :py:obj:`dict`
+
+
+   
+   Provide access to units via object-oriented replacement for
+   cheta.units module.
+
+   This class is weird because it was designed to conform to the
+   existing API where units.units was a module dict that had keys
+   'system', 'cxc', and possibly others.  But this implementation now
+   allows for non-interacting units systems in fetch, fetch_eng, and
+   fetch_sci.
+
+   It only allows a single key "system" to be set
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:method:: __getitem__(item)
+
+      
+      Return self[key].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: __setitem__(item, val)
+
+      
+      Set self[key] to value.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: set_units(unit_system)
+
+      
+      Set conversion unit system.  The input ``unit_system`` must be a
+      string.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: get_msid_unit(msid)
+
+
+   .. py:method:: convert(msid, vals, delta_val=False, from_system='cxc')
+

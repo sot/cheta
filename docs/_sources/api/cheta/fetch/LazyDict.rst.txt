@@ -1,0 +1,214 @@
+cheta.fetch.LazyDict
+====================
+
+.. py:class:: cheta.fetch.LazyDict(load_func, *args, **kwargs)
+
+   Bases: :py:obj:`dict`
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: _load_func
+
+
+   .. py:attribute:: _args
+      :value: ()
+
+
+
+   .. py:attribute:: _kwargs
+
+
+   .. py:attribute:: _loaded
+      :value: False
+
+
+
+   .. py:method:: load()
+
+
+   .. py:method:: __getitem__(item)
+
+      
+      Return self[key].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: __contains__(item)
+
+      
+      True if the dictionary has the specified key, else False.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: keys()
+
+      
+      D.keys() -> a set-like object providing a view on D's keys
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: values()
+
+      
+      D.values() -> an object providing a view on D's values
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: items()
+
+      
+      D.items() -> a set-like object providing a view on D's items
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: __len__()
+
+      
+      Return len(self).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: get(key, default=None)
+
+      
+      Return the value for key if key is in the dictionary, else default.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

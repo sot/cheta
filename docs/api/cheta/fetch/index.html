@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.fetch &#8212; cheta 4.63.0 documentation</title>
+    <title>cheta.fetch &#8212; cheta 4.63.1 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=7cd21745"></script>
+    <script src="../../../_static/documentation_options.js?v=d8aa935c"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,11 +50,11 @@
     <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/fetch/index.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="cheta.fetch.MSID" href="MSID.html" />
+    <link rel="next" title="cheta.fetch.ComputedMsid" href="ComputedMsid.html" />
     <link rel="prev" title="cheta.derived.calc_sun_vec_body_css" href="../derived/calc_sun_vec_body_css.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.63.0" />
+  <meta name="docsearch:version" content="4.63.1" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.63.0</span></div>
+<span style="font-size: x-large;">4.63.1</span></div>
     
   </div>
   
@@ -353,6 +353,18 @@
 </div>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="ComputedMsid.html#cheta.fetch.ComputedMsid" title="cheta.fetch.ComputedMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputedMsid</span></code></a></p></td>
+<td><p>Base class for cheta computed MSID.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="LazyDict.html#cheta.fetch.LazyDict" title="cheta.fetch.LazyDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LazyDict</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="Units.html#cheta.fetch.Units" title="cheta.fetch.Units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Units</span></code></a></p></td>
+<td><p>Provide access to units via object-oriented replacement for</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="NullHandler.html#cheta.fetch.NullHandler" title="cheta.fetch.NullHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NullHandler</span></code></a></p></td>
+<td><p>Handler instances dispatch logging events to specific destinations.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="MSID.html#cheta.fetch.MSID" title="cheta.fetch.MSID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSID</span></code></a></p></td>
 <td><p>Fetch data from the engineering telemetry archive into an MSID object.</p></td>
 </tr>
@@ -384,6 +396,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="local_or_remote_function.html#cheta.fetch.local_or_remote_function" title="cheta.fetch.local_or_remote_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_or_remote_function</span></code></a>(remote_print_output)</p></td>
 <td><p>Decorator maker so that a function gets run either locally or remotely</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="load_msid_names.html#cheta.fetch.load_msid_names" title="cheta.fetch.load_msid_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_msid_names</span></code></a>(all_msid_names_files)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="load_content.html#cheta.fetch.load_content" title="cheta.fetch.load_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_content</span></code></a>(all_colnames)</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="get_units.html#cheta.fetch.get_units" title="cheta.fetch.get_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_units</span></code></a>()</p></td>
 <td><p>Get the unit system currently being used for conversions.</p></td>
 </tr>
@@ -402,16 +420,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="get_telem.html#cheta.fetch.get_telem" title="cheta.fetch.get_telem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_telem</span></code></a>(msids[, start, stop, sampling, unit_system, ...])</p></td>
 <td><p>High-level routine to get telemetry for one or more MSIDs and perform</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="add_logging_handler.html#cheta.fetch.add_logging_handler" title="cheta.fetch.add_logging_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_logging_handler</span></code></a>([level, formatter, handler])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="get_interval.html#cheta.fetch.get_interval" title="cheta.fetch.get_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_interval</span></code></a>(content, tstart, tstop)</p></td>
+<td><p>Get the approximate row intervals that enclose the specified <code class="docutils literal notranslate"><span class="pre">tstart</span></code> and</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="add_logging_handler.html#cheta.fetch.add_logging_handler" title="cheta.fetch.add_logging_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_logging_handler</span></code></a>([level, formatter, handler])</p></td>
 <td><p>Configure logging for fetch module.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="get_data_gap_spec_parser.html#cheta.fetch.get_data_gap_spec_parser" title="cheta.fetch.get_data_gap_spec_parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_gap_spec_parser</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="get_data_gap_spec_parser.html#cheta.fetch.get_data_gap_spec_parser" title="cheta.fetch.get_data_gap_spec_parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_gap_spec_parser</span></code></a>()</p></td>
 <td><p>Get parser for fetch data gap specification.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="msid_matches_data_gap_spec.html#cheta.fetch.msid_matches_data_gap_spec" title="cheta.fetch.msid_matches_data_gap_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">msid_matches_data_gap_spec</span></code></a>(msid, includes, excludes)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="msid_matches_data_gap_spec.html#cheta.fetch.msid_matches_data_gap_spec" title="cheta.fetch.msid_matches_data_gap_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">msid_matches_data_gap_spec</span></code></a>(msid, includes, excludes)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="create_msid_data_gap.html#cheta.fetch.create_msid_data_gap" title="cheta.fetch.create_msid_data_gap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_msid_data_gap</span></code></a>(msid_obj, data_gap_spec)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="create_msid_data_gap.html#cheta.fetch.create_msid_data_gap" title="cheta.fetch.create_msid_data_gap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_msid_data_gap</span></code></a>(msid_obj, data_gap_spec)</p></td>
 <td><p>Make a data gap in the <code class="docutils literal notranslate"><span class="pre">msid_obj</span></code> (in-place) by removing data points.</p></td>
 </tr>
 </tbody>
@@ -440,11 +461,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="MSID.html"
+       href="ComputedMsid.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cheta.fetch.MSID</p>
+        <p class="prev-next-title">cheta.fetch.ComputedMsid</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
