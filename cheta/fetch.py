@@ -1948,7 +1948,7 @@ class HrcSsMsid(Msid):
 
     units = UNITS
 
-    def __new__(self, msid, start=LAUNCH_DATE, stop=None, stat=None):
+    def __new__(cls, msid, start=LAUNCH_DATE, stop=None, stat=None):
         ss_msids = "2TLEV1RT 2VLEV1RT 2SHEV1RT 2TLEV2RT 2VLEV2RT 2SHEV2RT"
         if msid.upper() not in ss_msids.split():
             raise ValueError(
