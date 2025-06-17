@@ -1,3 +1,5 @@
+"""Provide a singleton class to define data source (CXC or MAUDE or combination)"""
+
 import ast
 
 # Default source of data.
