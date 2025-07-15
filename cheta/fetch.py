@@ -4,6 +4,7 @@
 Fetch values from the cheta telemetry archive.
 """
 
+import ast
 import collections
 import contextlib
 import fnmatch
@@ -142,14 +143,24 @@ CONTENT_TIME_RANGES = {}
 DEFAULT_DATA_SOURCE = "cxc"
 
 
-class _DataSource(object):
+class _DataSourceMeta(type):
+    """
+    Metaclass for the _DataSource class that updates the repr to be more informative
+    """
+
+    def __repr__(cls):
+        out = super().__repr__()
+        return out[:-1] + f" options={cls.options()}" + out[-1]
+
+
+class _DataSource(metaclass=_DataSourceMeta):
     """
     Context manager and quasi-singleton configuration object for managing the
     data_source(s) used for fetching telemetry.
     """
 
     _data_sources = (DEFAULT_DATA_SOURCE,)
-    _allowed = ("cxc", "maude", "test-drop-half")
+    _allowed = ("cxc", "maude", "MAUDE", "test-drop-half")
 
     def __init__(self, *data_sources):
         self._new_data_sources = data_sources
@@ -192,12 +203,13 @@ class _DataSource(object):
         :param include_test: include sources that start with 'test'
         :returns: tuple of data source names
         """
-        if include_test:
-            sources = cls._data_sources
-        else:
-            sources = [x for x in cls._data_sources if not x.startswith("test")]
+        sources = (
+            tuple(cls.options())
+            if include_test
+            else tuple(x for x in cls.options() if not x.startswith("test"))
+        )
 
-        return tuple(source.split()[0] for source in sources)
+        return sources
 
     @classmethod
     def get_msids(cls, source):
@@ -216,7 +228,7 @@ class _DataSource(object):
 
             out = list(maude.MSIDS.keys())
         else:
-            raise ValueError('source must be "cxc" or "msid"')
+            raise ValueError('source must be "cxc" or "maude"')
 
         return set(out)
 
@@ -233,12 +245,19 @@ class _DataSource(object):
 
         :returns: dict of data source options
         """
-        import ast
-
         out = {}
+
         for source in cls._data_sources:
             vals = source.split()
             name, opts = vals[0], vals[1:]
+
+            # Special case for "MAUDE" which is an alias for "maude allow_subset=True".
+            # This sets the default but it could be overridden, for example with
+            # "MAUDE allow_subset=False".
+            if name == "MAUDE":
+                name = "maude"
+                opts.insert(0, "allow_subset=True")
+
             out[name] = {}
             for opt in opts:
                 key, val = opt.split("=")
@@ -247,6 +266,14 @@ class _DataSource(object):
 
         return out
 
+
+x = {
+    "maude": {
+        "start": "2015:001:00:00:17.449",
+        "stop": "2015:001:23:59:39.853",
+        "flags": {"subset": False, "tolerance": False, "allpoints_incomplete": False},
+    },
+}
 
 # Public interface is a "data_source" module attribute
 data_source = _DataSource
@@ -2005,8 +2032,22 @@ class memoized(object):
 
 
 def get_time_range(msid, format=None):
+    """Get the time range for the given ``msid``.
+
+    Parameters
+    ----------
+    msid : str | list[str]
+        The MSID or list of MSIDs to get the time range for.
+    format : str, optional
+        The output format (DateTime format, e.g. 'secs', 'date', 'greta').
     """
-    Get the time range for the given ``msid``.
+    out = get_time_range_cxc(msid, format=format)
+    return out
+
+
+def get_time_range_cxc(msid, format=None):
+    """
+    Get the time range for the given ``msid`` for CXC.
 
     :param msid: MSID name
     :param format: Output format (DateTime format, e.g. 'secs', 'date', 'greta')

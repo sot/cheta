@@ -1046,8 +1046,8 @@ The key differences between the CXC and MAUDE telemetry data sources are:
 - MAUDE is optimized for smaller, more frequent queries and uses a secure web server to
   provide data.  It has limits on both the number of returned data values (around 100k)
   and the total number of bytes in the data (around 1.6 Mb).
-- By default MAUDE will sub-sample the data as necessary to fit in the data limits
-  (see below for example of disabling this feature).
+- By default MAUDE will sub-sample the data as necessary to fit in the data limits.
+
 
 Basic usage
 -----------
@@ -1062,9 +1062,10 @@ configuration object.  You can first view the current data source with::
   >>> fetch_eng.data_source.sources()
   ('cxc',)
 
-This shows that the current source of data is the CXC files.  You can change to MAUDE as follows::
+This shows that the current source of data is the CXC files.  You can change to MAUDE as
+follows::
 
-  >>> fetch_eng.data_source.set('maude')
+  >>> fetch_eng.data_source.set('MAUDE')
   >>> fetch_eng.data_source.sources()
   ('maude',)
 
@@ -1074,37 +1075,43 @@ had queried from the CXC data::
 
   >>> dat = fetch_eng.Msid('tephin', '2015:001', '2015:002')
 
-The most direct way to be sure of the actual data source is to look at the ``data_source``
-attribute::
+Setting the data source to ``'MAUDE'`` (all upper case) will force the query to return
+full-resolution telemetry (see next section for details), while supplying ``'maude'``
+will all the MAUDE server to limit the result length or data size.
+
+The most direct way to be sure of the actual data source for a fetch is to look at the
+``data_source`` attribute::
 
   >>> dat.data_source
-  {'maude': {'flags': {'subset': False, 'tolerance': False},
-             'start': '2015:001:12:00:15.037',
-             'stop': '2015:002:11:59:37.452'}}
+  {
+    "maude": {
+        "start": "2015:001:00:00:17.449",
+        "stop": "2015:001:23:59:39.853",
+        "flags": {
+          "subset": False,
+          "tolerance": False,
+          "allpoints_incomplete": False
+        },
+    },
+  }
 
 This shows the ``start`` and ``stop`` time for data values that were returned
 by the MAUDE server.  In addition two status flags are returned.
 
 **Data subsets**
 
-For the purposes here, the important flag is ``subset``.  As mentioned above, the MAUDE
-server will not return more than around 100k data values in a single query.  When a query
-would return more than this number of values then the server automatically subsamples the
-data to return no more than 100k points.  This is done in a clever way such that it
-reproduces what a plot of the fully-sampled dataset would look like at screen resolution.
-Nevertheless one should pay attention to the ``subset`` flag, particularly in cases where
-subsampling could affect analysis results.  One example is examinine attitude quaternions
-(``AOATTQT{1,2,3,4}``) where the four values must be taken from the exact same readout
-frame.
+The MAUDE server will not return more than around 100k data values in a single query.
+If this limitation meets your requirements, then set the data source to ``'maude'``
+(all lower case).
 
-In order to force the MAUDE server to return full resolution data, the MAUDE data source
-needs to be configured with the ``allow_subset=False`` flag.  This will prevent
-sub-sampling by doing multiple small queries.  This has an overhead penalty because it may
-require multiple server requests to piece together the full query.  For example::
+If you need full-resolution telemetry, then set the data source to ``'MAUDE'``. In this
+case ``cheta`` may do multiple MAUDE queries until all the data are fetched. This has an
+overhead penalty because of multiple server requests to piece together the full query.
+For example::
 
   >>> import maude
   >>> maude.set_logger_level(10)  # Show debugging information from maude
-  >>> fetch_eng.data_source.set('maude allow_subset=False')
+  >>> fetch_eng.data_source.set('MAUDE')
   >>> dat = fetch_eng.Msid('aoattqt1', '2016:001', '2016:003')
   get_msids: Using .netrc with user=taldcroft
   get_msids_in_chunks: Chunked reading: max samples / major_frame = 32, chunk dt = 82000.0 secs
@@ -1114,28 +1121,37 @@ require multiple server requests to piece together the full query.  For example:
   >>> len(dat.vals)
   168586  # MORE than 100000!
 
-When ``allow_subset=False`` then a fetch query is not allowed to span more than 7 days in
-order to prevent swamping the MAUDE server.
+With the ``'MAUDE'`` data source then a fetch query is not allowed to span more than 7
+days in order to prevent swamping the MAUDE server.
 
 **Multiple data sources**
 
-A common use case (indeed a key driver for accessing MAUDE through the Ska interface) is
-to fetch data using *both* the CXC and MAUDE data, taking CXC data where possible and then
-filling in the last couple of days using MAUDE with full-resolution data (no subsetting).
-This is done by specifying the data source as both ``cxc`` and ``maude
-allow_subset=False``, as shown in the following example::
+You can also fetch data using *both* the CXC and MAUDE data, taking CXC data where
+possible and then filling in the last couple of days using MAUDE with full-resolution
+data. This is done by specifying the data source as both ``cxc`` and ``MAUDE``, as shown
+in the following example::
 
-  >>> fetch_eng.data_source.set('cxc', 'maude allow_subset=False')
+  >>> fetch_eng.data_source.set('cxc', 'MAUDE')
 
 Now assume the current date is 2016:152:01:00:00 and we want all available data since 2016:100
 
   >>> dat = fetch_eng.Msid('tephin', '2016:100')
   >>> dat.data_source
-  {'cxc': {'start': '2016:100:12:00:11.268',
-           'stop': '2016:150:19:38:40.317'},
-   'maude': {'flags': {'subset': False, 'tolerance': False},
-             'start': '2016:150:19:38:56.130',
-             'stop': '2016:151:20:40:37.392'}}
+  {
+    "cxc": {
+      "start": "2016:100:00:00:13.666",
+      "stop": "2025:189:02:20:39.050"
+    },
+    "maude": {
+      "start": "2025:189:02:20:54.168",
+      "stop": "2025:196:16:39:42.902",
+      "flags": {
+        "subset": false,
+        "tolerance": false,
+        "allpoints_incomplete": false
+      }
+    }
+  }
 
 This shows that data have been fetched from both data sources and stitched together
 seamlessly.
