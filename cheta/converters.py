@@ -158,7 +158,7 @@ def generic_converter2(msid_cxc_map, default_dtypes=None):
                     out_array = np.zeros(shape=len(dat), dtype=default_dtypes[out_name])
                     quality = True
 
-            assert out_array.ndim == 1
+            assert out_array.ndim == 1  # noqa: S101
             out_arrays[out_name] = out_array
             out_quality[:, out_names.index(out_name)] = quality
 
