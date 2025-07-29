@@ -515,7 +515,7 @@ def update_full_archfiles_db3(dat, logger, msid_files, opt):
                         db.insert(vals, "archfiles")
                     except sqlite3.IntegrityError as err:
                         # Expected exception for archfiles already in the table
-                        assert "UNIQUE constraint failed: archfiles.filename" in str(
+                        assert "UNIQUE constraint failed: archfiles.filename" in str(  # noqa: S101
                             err
                         )
 
