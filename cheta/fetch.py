@@ -538,11 +538,16 @@ class MSID(object):
 
     def __repr__(self):
         attrs = [self.__class__.__name__, self.MSID]
+        # Try to get dtype name, but handle objects without .dtype
+        try:
+            dtype_name = self.dtype.name
+        except Exception:
+            dtype_name = type(self.vals).__name__
         for name, val in (
             ("start", self.datestart),
             ("stop", self.datestop),
             ("len", len(self)),
-            ("dtype", self.dtype.name),
+            ("dtype", dtype_name),
             ("unit", self.unit),
             ("stat", self.stat),
         ):
