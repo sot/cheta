@@ -538,7 +538,7 @@ class MSID(object):
 
     def __repr__(self):
         attrs = [self.__class__.__name__, self.MSID]
-        # Try to get dtype name, but handle objects without .dtype
+        # Try to get dtype name, but handle objects without .dtype like Quat
         try:
             dtype_name = self.dtype.name
         except Exception:
