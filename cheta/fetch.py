@@ -533,21 +533,16 @@ class MSID(object):
         return len(self.vals)
 
     @property
-    def dtype(self):
-        return self.vals.dtype
+    def dtype(self) -> np.dtype:
+        return self.vals.dtype if hasattr(self.vals, "dtype") else np.dtype("object")
 
     def __repr__(self):
         attrs = [self.__class__.__name__, self.MSID]
-        # Try to get dtype name, but handle objects without .dtype like Quat
-        try:
-            dtype_name = self.dtype.name
-        except Exception:
-            dtype_name = type(self.vals).__name__
         for name, val in (
             ("start", self.datestart),
             ("stop", self.datestop),
             ("len", len(self)),
-            ("dtype", dtype_name),
+            ("dtype", self.dtype.name),
             ("unit", self.unit),
             ("stat", self.stat),
         ):
