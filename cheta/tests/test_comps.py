@@ -271,6 +271,19 @@ def test_quat_comp(msid, maude, offset):
     assert isinstance(datq.vals, Quat)
 
 
+def test_quat_comp_repr():
+    """Test the repr of a quat_comp MSID and confirm the dtype."""
+    start = "2025:001:00:00:00.000"
+    stop = "2025:001:00:01:00.000"
+    msid = "aoattqt"
+    datq = fetch_eng.MSID(f"quat_{msid}", start, stop)
+    assert (
+        repr(datq)
+        == "<MSID QUAT_AOATTQT start=2025:001:00:00:00.000 stop=2025:001:00:01:00.000 len=58 dtype=object>"
+    )
+    assert datq.dtype.name == "object"
+
+
 def test_quat_comp_bad_times():
     """Test bad time data on 2024:264. All four quats have zero value and are bad.
 
