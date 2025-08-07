@@ -533,8 +533,8 @@ class MSID(object):
         return len(self.vals)
 
     @property
-    def dtype(self):
-        return self.vals.dtype
+    def dtype(self) -> np.dtype:
+        return self.vals.dtype if hasattr(self.vals, "dtype") else np.dtype("object")
 
     def __repr__(self):
         attrs = [self.__class__.__name__, self.MSID]
