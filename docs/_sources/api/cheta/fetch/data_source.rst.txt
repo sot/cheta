@@ -1,0 +1,161 @@
+cheta.fetch.data_source
+=======================
+
+.. py:class:: cheta.fetch.data_source(*data_sources)
+
+   
+   Context manager and quasi-singleton configuration object for managing the
+   data_source(s) used for fetching telemetry.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: _data_sources
+
+
+   .. py:attribute:: _allowed
+      :value: ('cxc', 'maude', 'test-drop-half')
+
+
+
+   .. py:attribute:: _new_data_sources
+      :value: ()
+
+
+
+   .. py:method:: __enter__()
+
+
+   .. py:method:: __exit__(type, value, traceback)
+
+
+   .. py:method:: set(*data_sources)
+      :classmethod:
+
+
+      
+      Set current data sources.
+
+      :param data_sources: one or more sources (str)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: sources(include_test=True)
+      :classmethod:
+
+
+      
+      Get tuple of current data sources names.
+
+      :param include_test: include sources that start with 'test'
+      :returns: tuple of data source names
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: get_msids(source)
+      :classmethod:
+
+
+      
+      Get the set of MSID names corresponding to ``source`` (e.g. 'cxc' or 'maude')
+
+      :param source: str
+      :returns: set of MSIDs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: options()
+      :classmethod:
+
+
+      
+      Get the data sources and corresponding options as a dict.
+
+      Example::
+
+        >>> data_source.set('cxc', 'maude allow_subset=False')
+        >>> data_source.options()
+        {'cxc': {}, 'maude': {'allow_subset': False}}
+
+      :returns: dict of data source options
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

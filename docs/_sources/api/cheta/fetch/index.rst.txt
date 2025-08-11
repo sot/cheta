@@ -18,6 +18,7 @@ Classes
 .. toctree::
    :hidden:
 
+   /api/cheta/fetch/data_source
    /api/cheta/fetch/ComputedMsid
    /api/cheta/fetch/LazyDict
    /api/cheta/fetch/Units
@@ -31,6 +32,7 @@ Classes
 
 .. autoapisummary::
 
+   cheta.fetch.data_source
    cheta.fetch.ComputedMsid
    cheta.fetch.LazyDict
    cheta.fetch.Units

@@ -14,6 +14,7 @@ Submodules
    /api/cheta/cache/index
    /api/cheta/check_integrity/index
    /api/cheta/converters/index
+   /api/cheta/data_source/index
    /api/cheta/derived/index
    /api/cheta/fetch/index
    /api/cheta/fetch_eng/index

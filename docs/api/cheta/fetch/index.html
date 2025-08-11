@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.fetch &#8212; cheta 4.63.2 documentation</title>
+    <title>cheta.fetch &#8212; cheta 4.64.0 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=ef521936"></script>
+    <script src="../../../_static/documentation_options.js?v=f289e68b"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,11 +50,11 @@
     <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/fetch/index.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="cheta.fetch.ComputedMsid" href="ComputedMsid.html" />
+    <link rel="next" title="cheta.fetch.data_source" href="data_source.html" />
     <link rel="prev" title="cheta.derived.calc_sun_vec_body_css" href="../derived/calc_sun_vec_body_css.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.63.2" />
+  <meta name="docsearch:version" content="4.64.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.63.2</span></div>
+<span style="font-size: x-large;">4.64.0</span></div>
     
   </div>
   
@@ -353,34 +353,37 @@
 </div>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="ComputedMsid.html#cheta.fetch.ComputedMsid" title="cheta.fetch.ComputedMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputedMsid</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="data_source.html#cheta.fetch.data_source" title="cheta.fetch.data_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_source</span></code></a></p></td>
+<td><p>Context manager and quasi-singleton configuration object for managing the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ComputedMsid.html#cheta.fetch.ComputedMsid" title="cheta.fetch.ComputedMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputedMsid</span></code></a></p></td>
 <td><p>Base class for cheta computed MSID.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="LazyDict.html#cheta.fetch.LazyDict" title="cheta.fetch.LazyDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LazyDict</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="LazyDict.html#cheta.fetch.LazyDict" title="cheta.fetch.LazyDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LazyDict</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="Units.html#cheta.fetch.Units" title="cheta.fetch.Units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Units</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="Units.html#cheta.fetch.Units" title="cheta.fetch.Units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Units</span></code></a></p></td>
 <td><p>Provide access to units via object-oriented replacement for</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="NullHandler.html#cheta.fetch.NullHandler" title="cheta.fetch.NullHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NullHandler</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="NullHandler.html#cheta.fetch.NullHandler" title="cheta.fetch.NullHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NullHandler</span></code></a></p></td>
 <td><p>Handler instances dispatch logging events to specific destinations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="MSID.html#cheta.fetch.MSID" title="cheta.fetch.MSID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSID</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="MSID.html#cheta.fetch.MSID" title="cheta.fetch.MSID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSID</span></code></a></p></td>
 <td><p>Fetch data from the engineering telemetry archive into an MSID object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="MSIDset.html#cheta.fetch.MSIDset" title="cheta.fetch.MSIDset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSIDset</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="MSIDset.html#cheta.fetch.MSIDset" title="cheta.fetch.MSIDset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSIDset</span></code></a></p></td>
 <td><p>Fetch a set of MSIDs from the engineering telemetry archive.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="Msid.html#cheta.fetch.Msid" title="cheta.fetch.Msid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Msid</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="Msid.html#cheta.fetch.Msid" title="cheta.fetch.Msid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Msid</span></code></a></p></td>
 <td><p>Fetch data from the engineering telemetry archive into an MSID object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="Msidset.html#cheta.fetch.Msidset" title="cheta.fetch.Msidset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Msidset</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="Msidset.html#cheta.fetch.Msidset" title="cheta.fetch.Msidset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Msidset</span></code></a></p></td>
 <td><p>Fetch a set of MSIDs from the engineering telemetry archive.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="HrcSsMsid.html#cheta.fetch.HrcSsMsid" title="cheta.fetch.HrcSsMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HrcSsMsid</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="HrcSsMsid.html#cheta.fetch.HrcSsMsid" title="cheta.fetch.HrcSsMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HrcSsMsid</span></code></a></p></td>
 <td><p>Fetch data from the engineering telemetry archive into an MSID object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="memoized.html#cheta.fetch.memoized" title="cheta.fetch.memoized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memoized</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="memoized.html#cheta.fetch.memoized" title="cheta.fetch.memoized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memoized</span></code></a></p></td>
 <td><p>Decorator that caches a function's return value each time it is called.</p></td>
 </tr>
 </tbody>
@@ -461,11 +464,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="ComputedMsid.html"
+       href="data_source.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cheta.fetch.ComputedMsid</p>
+        <p class="prev-next-title">cheta.fetch.data_source</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

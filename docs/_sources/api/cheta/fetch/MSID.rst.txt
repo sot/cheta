@@ -75,6 +75,8 @@ cheta.fetch.MSID
 
 
    .. py:property:: dtype
+      :type: numpy.dtype
+
 
 
    .. py:method:: __repr__()

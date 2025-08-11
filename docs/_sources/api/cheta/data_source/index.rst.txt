@@ -1,0 +1,28 @@
+cheta.data_source
+=================
+
+.. py:module:: cheta.data_source
+
+.. autoapi-nested-parse::
+
+   Provide a singleton class to define data source (CXC or MAUDE or combination)
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/data_source/data_source
+
+.. autoapisummary::
+
+   cheta.data_source.data_source
+
+
+
