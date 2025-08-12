@@ -6,14 +6,23 @@ import ast
 DEFAULT_DATA_SOURCE = "cxc"
 
 
-class data_source:
+class DataSourceMeta(type):
     """
-    Context manager and quasi-singleton configuration object for managing the
-    data_source(s) used for fetching telemetry.
+    Metaclass for the data_source class that updates the repr to be more informative
+    """
+
+    def __repr__(cls):
+        out = super().__repr__()
+        return out[:-1] + f" options={cls.options()}" + out[-1]
+
+
+class data_source(metaclass=DataSourceMeta):
+    """
+    Context manager and singleton config object for managing telem data_sources(s).
     """
 
     _data_sources = (DEFAULT_DATA_SOURCE,)
-    _allowed = ("cxc", "maude", "test-drop-half")
+    _allowed = ("cxc", "maude", "maude-full-res", "test-drop-half")
 
     def __init__(self, *data_sources):
         self._new_data_sources = data_sources
@@ -56,12 +65,13 @@ class data_source:
         :param include_test: include sources that start with 'test'
         :returns: tuple of data source names
         """
-        if include_test:
-            sources = cls._data_sources
-        else:
-            sources = [x for x in cls._data_sources if not x.startswith("test")]
+        sources = (
+            tuple(cls.options())
+            if include_test
+            else tuple(x for x in cls.options() if not x.startswith("test"))
+        )
 
-        return tuple(source.split()[0] for source in sources)
+        return sources
 
     @classmethod
     def get_msids(cls, source):
@@ -82,7 +92,7 @@ class data_source:
 
             out = list(maude.MSIDS.keys())
         else:
-            raise ValueError('source must be "cxc" or "msid"')
+            raise ValueError('source must be "cxc" or "maude"')
 
         return set(out)
 
@@ -104,6 +114,14 @@ class data_source:
         for source in cls._data_sources:
             vals = source.split()
             name, opts = vals[0], vals[1:]
+
+            # Special case for "maude-full-res" which is an alias for "maude
+            # allow_subset=True". This sets the default but it could be overridden, for
+            # example with "maude-full-res allow_subset=False".
+            if name == "maude-full-res":
+                name = "maude"
+                opts.insert(0, "allow_subset=True")
+
             out[name] = {}
             for opt in opts:
                 key, val = opt.split("=")
