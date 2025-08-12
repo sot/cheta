@@ -160,7 +160,7 @@ class _DataSource(metaclass=_DataSourceMeta):
     """
 
     _data_sources = (DEFAULT_DATA_SOURCE,)
-    _allowed = ("cxc", "maude", "MAUDE", "test-drop-half")
+    _allowed = ("cxc", "maude", "maude-full-res", "test-drop-half")
 
     def __init__(self, *data_sources):
         self._new_data_sources = data_sources
@@ -251,10 +251,10 @@ class _DataSource(metaclass=_DataSourceMeta):
             vals = source.split()
             name, opts = vals[0], vals[1:]
 
-            # Special case for "MAUDE" which is an alias for "maude allow_subset=True".
-            # This sets the default but it could be overridden, for example with
-            # "MAUDE allow_subset=False".
-            if name == "MAUDE":
+            # Special case for "maude-full-res" which is an alias for "maude
+            # allow_subset=True". This sets the default but it could be overridden, for
+            # example with "maude-full-res allow_subset=False".
+            if name == "maude-full-res":
                 name = "maude"
                 opts.insert(0, "allow_subset=True")
 

@@ -65,7 +65,7 @@ def test_options():
 
 
 def test_options_with_MAUDE():
-    with fetch.data_source("cxc", "MAUDE param=1"):
+    with fetch.data_source("cxc", "maude-full-res param=1"):
         assert fetch.data_source.options() == {
             "cxc": {},
             "maude": {"allow_subset": True, "param": 1},
@@ -74,7 +74,7 @@ def test_options_with_MAUDE():
 
 
 def test_options_with_MAUDE_override():
-    with fetch.data_source("cxc", "MAUDE allow_subset=False param=1"):
+    with fetch.data_source("cxc", "maude-full-res allow_subset=False param=1"):
         assert fetch.data_source.options() == {
             "cxc": {},
             "maude": {"allow_subset": False, "param": 1},
