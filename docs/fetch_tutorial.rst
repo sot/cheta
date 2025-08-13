@@ -1065,19 +1065,19 @@ configuration object.  You can first view the current data source with::
 This shows that the current source of data is the CXC files.  You can change the source
 to MAUDE as follows::
 
-  >>> fetch_eng.data_source.set('maude-full-res')
+  >>> fetch_eng.data_source.set('MAUDE')
   >>> fetch_eng.data_source.sources()
   ('maude',)
 
-The data source ``maude-full-res`` means to force MAUDE to return full resolution data.
+The data source ``MAUDE`` means to force MAUDE to return full resolution data.
 Now if you execute a query MAUDE will be used.  There is not any obvious difference from
 the user perspective and the returned ``Msid`` object looks and behaves exactly as if
 you had queried from the CXC data::
 
   >>> dat = fetch_eng.Msid('tephin', '2015:001', '2015:002')
 
-Setting the data source to ``'maude'`` will allow the MAUDE server to limit the result
-length or data size by returning a subset of data.
+Setting the data source to ``'MAUDE allow_subset=True'`` will allow the MAUDE server to
+limit the result length or data size by returning a subset of data.
 
 The most direct way to be sure of the actual data source for a fetch is to look at the
 ``data_source`` attribute::
@@ -1098,20 +1098,24 @@ The most direct way to be sure of the actual data source for a fetch is to look 
 This shows the ``start`` and ``stop`` time for data values that were returned
 by the MAUDE server.  In addition two status flags are returned.
 
+.. Note:: A ``data_source`` of ``"maude"`` (all lower case) is an alias for
+    ``"MAUDE allow_subset=True"``. For clarity, you are encouraged to use the latter
+    explicit form to allow subsets.
+
 **Data subsets**
 
-The MAUDE server will not return more than around 100k data values in a single query.
-If this limitation meets your requirements, then set the data source to ``'maude'``
-(all lower case).
+The MAUDE server will not return more than around 100k data values in a single query. If
+this limitation meets your requirements, then set the data source to ``'MAUDE
+allow_subset=True'``.
 
-If you need full-resolution telemetry, then set the data source to ``'maude-full-res'``.
+If you need full-resolution telemetry, then set the data source to ``'MAUDE'``.
 In this case ``cheta`` may do multiple MAUDE queries until all the data are fetched.
 This has an overhead penalty because of multiple server requests to piece together the
 full query. For example::
 
   >>> import maude
   >>> maude.set_logger_level(10)  # Show debugging information from maude
-  >>> fetch_eng.data_source.set('maude-full-res')
+  >>> fetch_eng.data_source.set('MAUDE')
   >>> dat = fetch_eng.Msid('aoattqt1', '2016:001', '2016:003')
   get_msids: Using .netrc with user=taldcroft
   get_msids_in_chunks: Chunked reading: max samples / major_frame = 32, chunk dt = 82000.0 secs
@@ -1121,17 +1125,18 @@ full query. For example::
   >>> len(dat.vals)
   168586  # MORE than 100000!
 
-With the ``'maude-full-res'`` data source then a fetch query is not allowed to span more
-than 7 days in order to prevent swamping the MAUDE server.
+With the ``'MAUDE'`` data source then a fetch query is not allowed to span more
+than 7 days in order to prevent swamping the MAUDE server. With the
+``'MAUDE allow_subset=True'`` data source there is no limit on the query length.
 
 **Multiple data sources**
 
 You can also fetch data using *both* the CXC and MAUDE data, taking CXC data where
 possible and then filling in the last couple of days using MAUDE with full-resolution
-data. This is done by specifying the data source as both ``cxc`` and ``maude-full-res``,
+data. This is done by specifying the data source as both ``cxc`` and ``MAUDE``,
 as shown in the following example::
 
-  >>> fetch_eng.data_source.set('cxc', 'maude')
+  >>> fetch_eng.data_source.set('cxc', 'MAUDE')
 
 Now assume the current date is 2016:152:01:00:00 and we want all available data since 2016:100
 
@@ -1157,7 +1162,7 @@ instance::
 
   >>> fetch_eng.data_source.sources()
   ('cxc',)
-  >>> with fetch_eng.data_source('maude-full-res'):
+  >>> with fetch_eng.data_source('MAUDE'):
   ...     dat = fetch_eng.Msid('tephin', '2016:001', '2016:002')
   ...     print(fetch.data_source.sources())
   ...
@@ -1173,7 +1178,7 @@ overlap).  To directly understand this you can access the MSID lists as follows.
 ``get_msids()`` method of ``data_source`` returns a Python ``set`` of MSIDs::
 
   >>> cxc_msids = fetch_eng.data_source.get_msids('cxc')
-  >>> maude_msids = fetch_eng.data_source.get_msids('maude')
+  >>> maude_msids = fetch_eng.data_source.get_msids('MAUDE')
   >>> sorted(cxc_msids - maude_msids)  # In CXC but not MAUDE
   ['3W00FILL',
    '3W05FILL',
@@ -1390,7 +1395,7 @@ Remote access is controlled as follows:
   refer to user-defined environment variables.
 - If remote access is disabled and there is no local cheta data archive,
   then a warning is issued. In this case you can still use MAUDE for data access
-  with ``fetch.data_source.set('maude')``.
+  with ``fetch.data_source.set('MAUDE')``.
 
 Scripts using remote access
 ---------------------------

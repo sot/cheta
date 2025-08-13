@@ -22,7 +22,7 @@ class data_source(metaclass=DataSourceMeta):
     """
 
     _data_sources = (DEFAULT_DATA_SOURCE,)
-    _allowed = ("cxc", "maude", "maude-full-res", "test-drop-half")
+    _allowed = ("cxc", "maude", "MAUDE", "test-drop-half")
 
     def __init__(self, *data_sources):
         self._new_data_sources = data_sources
@@ -76,14 +76,14 @@ class data_source(metaclass=DataSourceMeta):
     @classmethod
     def get_msids(cls, source):
         """
-        Get the set of MSID names corresponding to ``source`` (e.g. 'cxc' or 'maude')
+        Get the set of MSID names corresponding to ``source`` (e.g. 'cxc' or 'MAUDE')
 
         :param source: str
         :returns: set of MSIDs
         """
         import cheta.fetch  # noqa: PLC0415
 
-        source = source.split()[0]
+        source = source.split()[0].lower()
 
         if source == "cxc":
             out = list(cheta.fetch.content.keys())
@@ -92,7 +92,7 @@ class data_source(metaclass=DataSourceMeta):
 
             out = list(maude.MSIDS.keys())
         else:
-            raise ValueError('source must be "cxc" or "maude"')
+            raise ValueError('source must be "cxc" or "maude" (case ignored)')
 
         return set(out)
 
@@ -115,10 +115,10 @@ class data_source(metaclass=DataSourceMeta):
             vals = source.split()
             name, opts = vals[0], vals[1:]
 
-            # Special case for "maude-full-res" which is an alias for "maude
+            # Special case for "MAUDE" which is an alias for "maude
             # allow_subset=True". This sets the default but it could be overridden, for
-            # example with "maude-full-res allow_subset=False".
-            if name == "maude-full-res":
+            # example with "MAUDE allow_subset=False".
+            if name == "MAUDE":
                 name = "maude"
                 opts.insert(0, "allow_subset=True")
 
