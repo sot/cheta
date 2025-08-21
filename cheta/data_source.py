@@ -116,8 +116,8 @@ class data_source(metaclass=DataSourceMeta):
             name, opts = vals[0], vals[1:]
 
             # Special case for "MAUDE" which is an alias for "maude
-            # allow_subset=True". This sets the default but it could be overridden, for
-            # example with "MAUDE allow_subset=False".
+            # allow_subset=False". This sets the default but it could be overridden, for
+            # example with "MAUDE allow_subset=True".
             if name == "MAUDE":
                 name = "maude"
                 opts.insert(0, "allow_subset=False")
