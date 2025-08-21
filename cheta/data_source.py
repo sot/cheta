@@ -120,7 +120,7 @@ class data_source(metaclass=DataSourceMeta):
             # example with "MAUDE allow_subset=False".
             if name == "MAUDE":
                 name = "maude"
-                opts.insert(0, "allow_subset=True")
+                opts.insert(0, "allow_subset=False")
 
             out[name] = {}
             for opt in opts:

@@ -1105,7 +1105,7 @@ by the MAUDE server.  In addition two status flags are returned.
 **Data subsets**
 
 The MAUDE server will not return more than around 100k data values in a single query. If
-this limitation meets your requirements, then set the data source to ``'MAUDE
+this limitation is desired, then set the data source to ``'MAUDE
 allow_subset=True'``.
 
 If you need full-resolution telemetry, then set the data source to ``'MAUDE'``.
@@ -1119,11 +1119,10 @@ full query. For example::
   >>> dat = fetch_eng.Msid('aoattqt1', '2016:001', '2016:003')
   get_msids: Using .netrc with user=taldcroft
   get_msids_in_chunks: Chunked reading: max samples / major_frame = 32, chunk dt = 82000.0 secs
-  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016001120000000&tp=2016002040000000
-  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002040000000&tp=2016002200000000
-  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002200000000&tp=2016003120000000
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016001120000000&tp=2016002040000000&ap=t
+  get_msids: Getting URL http://t...cfa.harvard.edu/...&ts=2016002042818499&tp=2016003000000000&ap=t
   >>> len(dat.vals)
-  168586  # MORE than 100000!
+  168585  # MORE than 100000!
 
 With the ``'MAUDE'`` data source then a fetch query is not allowed to span more
 than 7 days in order to prevent swamping the MAUDE server. With the

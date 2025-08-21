@@ -198,21 +198,19 @@ def test_zero_length_fetch_maude():
     }
 
 
-@pytest.mark.skipif("not HAS_MAUDE")
 def test_options_with_maude_full_res():
     with fetch.data_source("cxc", "MAUDE param=1"):
         assert fetch.data_source.options() == {
             "cxc": {},
-            "maude": {"allow_subset": True, "param": 1},
+            "maude": {"allow_subset": False, "param": 1},
         }
         assert fetch.data_source.sources() == ("cxc", "maude")
 
 
-@pytest.mark.skipif("not HAS_MAUDE")
 def test_options_with_maude_full_res_override():
-    with fetch.data_source("cxc", "MAUDE allow_subset=False param=1"):
+    with fetch.data_source("cxc", "MAUDE allow_subset=True param=1"):
         assert fetch.data_source.options() == {
             "cxc": {},
-            "maude": {"allow_subset": False, "param": 1},
+            "maude": {"allow_subset": True, "param": 1},
         }
         assert fetch.data_source.sources() == ("cxc", "maude")
