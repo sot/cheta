@@ -31,7 +31,7 @@ from . import (
     file_defs,
     remote_access,
 )
-from .derived.comps import ComputedMsid
+from .comps import ComputedMsid
 from .lazy import LazyDict
 from .units import Units
 
