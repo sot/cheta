@@ -2,7 +2,10 @@
 
 """Test that computed MSIDs work as expected."""
 
+import os
+import shutil
 import warnings
+from pathlib import Path
 
 import astropy.units as u
 import numpy as np
@@ -13,6 +16,7 @@ from Quaternion import Quat
 from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
 from ..comps import ComputedMsid
+from ..comps.ephem_stk import get_ephemeris_stk, read_stk_file_text
 from ..derived.base import DerivedParameter
 
 try:
@@ -190,6 +194,85 @@ def test_mups_valve():
     for attr in colnames:
         if attr != "bads":
             assert len(dat.vals) == len(getattr(dat, attr))
+
+
+def test_read_stk_file_text_format_cxc():
+    example_file = Path(__file__).parent / "data" / "example.stk"
+    stk_data = read_stk_file_text(example_file, format="stk")
+    assert stk_data.pformat(show_dtype=True) == [
+        "     Time (UTCG)          x (km)        y (km)       z (km)    vx (km/sec) vy (km/sec) vz (km/sec)",
+        "        str22            float64       float64      float64      float64     float64     float64  ",
+        "---------------------- ------------ ------------- ------------ ----------- ----------- -----------",
+        "6 Jul 2025 12:00:00.00 34557.394268 -88565.935003 32903.996133     0.19988    1.283853   -1.141781",
+        "6 Jul 2025 12:05:00.00 34616.746289 -88179.214343 32560.881289     0.19579    1.294299   -1.145653",
+        "6 Jul 2025 12:10:00.00  34674.86233 -87789.346381 32216.603475     0.19164    1.304835   -1.149534",
+    ]
+
+
+def test_read_stk_file_text_format_stk():
+    example_file = Path(__file__).parent / "data" / "example.stk"
+    stk_data = read_stk_file_text(example_file, format="cxc")
+    assert stk_data.pformat(show_dtype=True) == [
+        "     time             x                y            z               vx                 vy             zz   ",
+        "                      m                m            m             m / s              m / s          m / s  ",
+        "   float64         float64          float64      float64         float64            float64        float64 ",
+        "------------- ------------------ ------------- ------------ ------------------ ------------------ ---------",
+        "868190469.184       34557394.268 -88565935.003 32903996.133             199.88 1283.8529999999998 -1141.781",
+        "868190769.184 34616746.289000005 -88179214.343 32560881.289             195.79           1294.299 -1145.653",
+        "868191069.184 34674862.330000006 -87789346.381 32216603.475 191.64000000000001           1304.835 -1149.534",
+    ]
+
+
+@pytest.fixture(autouse=False)
+def set_cache_dir(tmp_path, monkeypatch):
+    # Set a temporary cache directory for tests
+    monkeypatch.setenv("CHETA_STK_CACHE_DIR", str(tmp_path / "cheta_cache"))
+
+
+# add a fixture to work with CHETA_EPHEM_DISABLE_LOCAL_STK
+@pytest.fixture(autouse=False)
+def disable_local_ephem_dir(monkeypatch):
+    # Disable local ephemeris directory for tests
+    monkeypatch.setenv("CHETA_EPHEM_DISABLE_LOCAL_STK", "True")
+
+
+@pytest.fixture(autouse=False)
+def set_local_ephem_dir(tmp_path, monkeypatch):
+    # Set a temporary local ephemeris directory for tests
+    ephem_dir = tmp_path / "ephem"
+    ephem_dir.mkdir(exist_ok=True)
+    monkeypatch.setenv("CHETA_EPHEM_STK_DIR", str(ephem_dir))
+    # Copy the test file into the temporary directory
+    example_file = Path(__file__).parent / "data" / "example.stk"
+    shutil.copy(example_file, ephem_dir / "Chandra_25187_25188.stk")
+
+
+def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir):
+    dat = get_ephemeris_stk("2025:187", "2025:188")
+    assert len(dat) == 3
+    assert np.allclose(dat["time"], [8.68190469e08, 8.68190769e08, 8.68191069e08])
+    assert np.allclose(dat["zz"], [-1141.781, -1145.653, -1149.534])
+    cache_dir = Path(os.environ["CHETA_STK_CACHE_DIR"])
+    assert (cache_dir / "Chandra_25187_25188.stk.npz").exists()
+
+
+def test_get_ephemeris_stk_occweb(
+    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir
+):
+    dat = get_ephemeris_stk("2025:187", "2025:189")
+    assert len(dat) > 200
+    # Check that the cache dir got at least one new file
+    cache_dir = Path(os.environ["CHETA_STK_CACHE_DIR"])
+    assert len(list(cache_dir.glob("Chandra_*.stk.npz"))) > 0
+
+
+def test_comps_ephem(set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir):
+    orbit_stk_x = fetch_cxc.Msid("orbitephem_stk_x", "2022:001", "2022:003")
+    orbit_x = fetch_cxc.Msid("orbitephem0_x", "2022:001", "2022:003")
+    # Confirm these are close
+    assert len(orbit_stk_x.vals) == len(orbit_x.vals)
+    # Though they aren't *very* close.
+    assert np.allclose(orbit_stk_x.vals, orbit_x.vals, rtol=0, atol=2e6)
 
 
 def test_cmd_states():
