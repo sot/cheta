@@ -278,8 +278,9 @@ def get_ephemeris_stk(start: CxoTimeLike, stop: CxoTimeLike) -> np.ndarray:
     """Get ephemeris data from local STK files, OCCweb, or local cache STK data.
 
     By default, looks for local STK files in the directory specified by the
-    CHETA_EPHEM_STK_DIR environment variable (default: platform-dependent standard
-    location). If no local files are found, then looks on OCCweb.
+    CHETA_EPHEM_STK_DIR environment variable (if not set, uses default of
+    platform-dependent standard location). If no local files are found, then
+    the search for data looks on OCCweb.
 
     Returns a structured array with columns time, x, y, z, vx, vy, vz. The time is in
     CXC seconds since 1998.0, and the position and velocity are in meters and
@@ -291,8 +292,8 @@ def get_ephemeris_stk(start: CxoTimeLike, stop: CxoTimeLike) -> np.ndarray:
 
     In addition, STK files are cached on disk as compressed numpy arrays in the
     directory specified by the CHETA_STK_CACHE_DIR environment variable
-    (default: ~/.cheta/cache). This reduces repeated downloads and speeds up
-    access to ephemeris data.
+    (if not set uses default ~/.cheta/cache). This reduces repeated downloads and
+    speeds up access to ephemeris data.
 
     This function also respects the CHETA_EPHEM_DISABLE_LOCAL_STK environment
     variable for testing. If set to "True", then local STK files are not used
