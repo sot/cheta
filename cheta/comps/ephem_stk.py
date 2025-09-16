@@ -223,8 +223,8 @@ def get_ephem_stk_paths(
                 yr1, doy1, yr2, doy2 = (int(val) for val in match.groups())
                 yr1 += 1900 if yr1 >= 98 else 2000
                 yr2 += 1900 if yr2 >= 98 else 2000
-                start_stk = CxoTime(f"{yr1}:{doy1}:00:00:00.000")
-                stop_stk = CxoTime(f"{yr2}:{doy2}:23:59:59.999")
+                start_stk = CxoTime(f"{yr1}:{doy1}:12:00:00.000")
+                stop_stk = CxoTime(f"{yr2}:{doy2}:11:59:59.999")
                 if not (start_stk > stop or stop_stk < start):
                     found_files.append(
                         {
