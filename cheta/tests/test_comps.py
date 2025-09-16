@@ -213,7 +213,7 @@ def test_read_stk_file_text_format_stk():
     example_file = Path(__file__).parent / "data" / "example.stk"
     stk_data = read_stk_file_text(example_file, format="cxc")
     assert stk_data.pformat(show_dtype=True) == [
-        "     time             x                y            z               vx                 vy             zz   ",
+        "     time             x                y            z               vx                 vy             vz   ",
         "                      m                m            m             m / s              m / s          m / s  ",
         "   float64         float64          float64      float64         float64            float64        float64 ",
         "------------- ------------------ ------------- ------------ ------------------ ------------------ ---------",
@@ -290,6 +290,17 @@ def test_comps_ephem(
     assert len(orbit_stk_x.vals) == len(orbit_x.vals)
     # Though they aren't *very* close.
     assert np.allclose(orbit_stk_x.vals, orbit_x.vals, rtol=0, atol=2e6)
+
+
+def test_comps_ephem_2(
+    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir, clear_lru_cache
+):
+    orbit_stk_y = fetch_cxc.Msid("orbitephem_stk_y", "2024:260", "2024:261")
+    orbit_y = fetch_cxc.Msid("orbitephem0_y", "2024:260", "2024:261")
+    # Confirm these are close
+    assert len(orbit_stk_y.vals) == len(orbit_y.vals)
+    # Though they aren't *very* close.
+    assert np.allclose(orbit_stk_y.vals, orbit_y.vals, rtol=0, atol=2e6)
 
 
 def test_get_ephem_stk_paths_not_latest(
