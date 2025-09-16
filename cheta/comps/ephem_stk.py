@@ -34,7 +34,9 @@ MONTH_NAME_TO_NUM = {
 def read_stk_file_text(text, format="stk"):
     """Read a STK ephemeris file text and return an astropy table.
 
-    For format "stk" the table is the same as the file with columns:
+    The ``format`` argument specifies the output format of the returned Table, in
+    particular the column names and units. For format "stk" the table is the same as the
+    file with columns:
 
            name     dtype
       ----------- -------
@@ -64,7 +66,7 @@ def read_stk_file_text(text, format="stk"):
     text: str
         Text of the STK ephemeris file
     format : str
-        Format of the file ("stk" or "cxc")
+        Format of the returned ephemeris Table ("stk" or "cxc")
 
     Returns
     -------
@@ -242,7 +244,9 @@ def get_ephem_stk_paths(
             else WINDOWS_EPHEM_STK_DIR
         )
         local_dir = Path(os.environ.get("CHETA_EPHEM_STK_DIR", local_default_dir))
-        local_names = [p.name for p in local_dir.iterdir()]
+        local_names = (
+            [p.name for p in local_dir.iterdir()] if local_dir.exists() else []
+        )
         logger.info(f"Checking local directory {local_dir} for STK files")
         files_stk.extend(find_stk_files(local_names, local_dir, "local"))
         if latest_only and any(f["start"] <= start for f in files_stk):
