@@ -224,6 +224,11 @@ def test_read_stk_file_text_format_stk():
 
 
 @pytest.fixture(autouse=False)
+def clear_lru_cache():
+    get_ephemeris_stk.cache_clear()
+
+
+@pytest.fixture(autouse=False)
 def set_cache_dir(tmp_path, monkeypatch):
     # Set a temporary cache directory for tests
     monkeypatch.setenv("CHETA_STK_CACHE_DIR", str(tmp_path / "cheta_cache"))
@@ -247,7 +252,7 @@ def set_local_ephem_dir(tmp_path, monkeypatch):
     shutil.copy(example_file, ephem_dir / "Chandra_25187_25188.stk")
 
 
-def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir):
+def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir, clear_lru_cache):
     dat = get_ephemeris_stk("2025:187", "2025:188")
     assert len(dat) == 3
     assert np.allclose(dat["time"], [8.68190469e08, 8.68190769e08, 8.68191069e08])
@@ -256,8 +261,18 @@ def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir):
     assert (cache_dir / "Chandra_25187_25188.stk.npz").exists()
 
 
+def test_get_ephemeris_stk_local_no_directory(
+    monkeypatch, tmp_path, set_cache_dir, clear_lru_cache
+):
+    ephem_dir = tmp_path / "noephem"
+    # Set the STK directory to a non-existent directory
+    monkeypatch.setenv("CHETA_EPHEM_STK_DIR", str(ephem_dir))
+    # This should fall back to OCCweb without error
+    get_ephemeris_stk("2025:188", "2025:189")
+
+
 def test_get_ephemeris_stk_occweb(
-    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir
+    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir, clear_lru_cache
 ):
     dat = get_ephemeris_stk("2025:187", "2025:189")
     assert len(dat) > 200
@@ -266,7 +281,9 @@ def test_get_ephemeris_stk_occweb(
     assert len(list(cache_dir.glob("Chandra_*.stk.npz"))) > 0
 
 
-def test_comps_ephem(set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir):
+def test_comps_ephem(
+    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir, clear_lru_cache
+):
     orbit_stk_x = fetch_cxc.Msid("orbitephem_stk_x", "2022:001", "2022:003")
     orbit_x = fetch_cxc.Msid("orbitephem0_x", "2022:001", "2022:003")
     # Confirm these are close

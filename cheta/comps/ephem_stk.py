@@ -164,12 +164,14 @@ def _read_stk_file_cxc_cached(path: str) -> np.ndarray:
     else:
         # Determine if path is local or occweb
         if Path(path).exists():
+            logger.info(f"Reading local STK file {path}")
             # Local file
             with open(path, "r") as f:
                 text = f.read()
             table = read_stk_file_text(text, format="cxc")
         else:
             # OCCweb file
+            logger.info(f"Reading OCCweb STK file {path}")
             table = read_stk_file(path, format="cxc")
         out = table.as_array()
         logger.info(f"Caching STK file {path} to {cache_file}")
