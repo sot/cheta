@@ -253,7 +253,7 @@ def set_local_ephem_dir(tmp_path, monkeypatch):
 
 
 def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir, clear_lru_cache):
-    dat = get_ephemeris_stk("2025:187", "2025:188")
+    dat = get_ephemeris_stk("2025:187:12:00:00.000", "2025:188")
     assert len(dat) == 3
     assert np.allclose(dat["time"], [8.68190469e08, 8.68190769e08, 8.68191069e08])
     assert np.allclose(dat["vz"], [-1141.781, -1145.653, -1149.534])
