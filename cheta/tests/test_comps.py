@@ -256,7 +256,7 @@ def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir, clear_lru_c
     dat = get_ephemeris_stk("2025:187", "2025:188")
     assert len(dat) == 3
     assert np.allclose(dat["time"], [8.68190469e08, 8.68190769e08, 8.68191069e08])
-    assert np.allclose(dat["zz"], [-1141.781, -1145.653, -1149.534])
+    assert np.allclose(dat["vz"], [-1141.781, -1145.653, -1149.534])
     cache_dir = Path(os.environ["CHETA_STK_CACHE_DIR"])
     assert (cache_dir / "Chandra_25187_25188.stk.npz").exists()
 
