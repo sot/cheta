@@ -16,7 +16,7 @@ from Quaternion import Quat
 from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
 from ..comps import ComputedMsid
-from ..comps.ephem_stk import get_ephemeris_stk, read_stk_file_text
+from ..comps.ephem_stk import get_ephem_stk_paths, get_ephemeris_stk, read_stk_file_text
 from ..derived.base import DerivedParameter
 
 try:
@@ -290,6 +290,33 @@ def test_comps_ephem(
     assert len(orbit_stk_x.vals) == len(orbit_x.vals)
     # Though they aren't *very* close.
     assert np.allclose(orbit_stk_x.vals, orbit_x.vals, rtol=0, atol=2e6)
+
+
+def test_get_ephem_stk_paths_not_latest(
+    set_cache_dir, disable_local_ephem_dir, clear_lru_cache
+):
+    date0 = "2020:001"
+    date1 = "2020:002"
+    paths_not_latest = get_ephem_stk_paths(date0, date1, latest_only=False)
+    paths_latest = get_ephem_stk_paths(date0, date1, latest_only=True)
+    # Confirm in this case that "latest" has a reference to one file
+    # and that file looks to contain the date range
+    assert len(paths_latest) == 1
+    path_latest = paths_latest[0]
+
+    # In this case the one file should cover both dates
+    assert path_latest["start"] <= CxoTime(date0).secs
+    assert path_latest["stop"] >= CxoTime(date1).secs
+
+    assert len(paths_not_latest) >= len(paths_latest)
+    # confirm that the latest path is in the not_latest list
+    files = [p["path"] for p in paths_not_latest]
+    assert path_latest["path"] in files
+
+    # Confirm that each of the not-latest files has some overlap with the date range
+    for path in paths_not_latest:
+        assert path["start"] < CxoTime(date1).secs
+        assert path["stop"] > CxoTime(date0).secs
 
 
 def test_cmd_states():
