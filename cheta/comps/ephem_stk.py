@@ -98,7 +98,7 @@ def read_stk_file_text(text, format="stk"):
         "z": Column(dat["z (km)"] * 1000, unit="m"),
         "vx": Column(dat["vx (km/sec)"] * 1000, unit="m/s"),
         "vy": Column(dat["vy (km/sec)"] * 1000, unit="m/s"),
-        "zz": Column(dat["vz (km/sec)"] * 1000, unit="m/s"),
+        "vz": Column(dat["vz (km/sec)"] * 1000, unit="m/s"),
     }
     return Table(out)
 
