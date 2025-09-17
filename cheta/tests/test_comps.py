@@ -17,6 +17,7 @@ from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
 from ..comps import ComputedMsid
 from ..comps.ephem_stk import (
+    EPHEM_STK_DIRS_DEFAULT,
     get_ephem_stk_paths,
     get_ephemeris_stk,
     parse_stk_file_text,
@@ -307,6 +308,17 @@ def test_comps_ephem(
     assert np.allclose(orbit_stk_x.vals, orbit_x.vals, rtol=0, atol=2e6)
     assert len(orbit_stk_y.vals) == len(orbit_y.vals)
     assert np.allclose(orbit_stk_y.vals, orbit_y.vals, rtol=0, atol=2e6)
+
+
+@pytest.mark.parametrize("stk_path", EPHEM_STK_DIRS_DEFAULT)
+def test_get_ephem_stk_paths_local_defaults(stk_path):
+    if not stk_path.exists():
+        pytest.skip(f"Local STK path {stk_path} does not exist")
+    start, stop = "2025:187:12:00:00.000", "2025:188"
+    paths = get_ephem_stk_paths(start, stop)
+    for path in paths:
+        assert path["source"] == "local"
+        assert path["path"].startswith(str(stk_path))
 
 
 def test_get_ephem_stk_paths_not_latest(
