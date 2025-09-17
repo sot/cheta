@@ -181,7 +181,7 @@ def read_stk_file_from_occweb(path: str | Path, format_out="stk", **kwargs) -> T
     text = retry_call(
         occweb.get_occweb_page,
         args=[path],
-        kwargs={"timeout": 5} | kwargs,
+        kwargs={"timeout": 10} | kwargs,
         tries=3,
         backoff=2,
         logger=logger,
