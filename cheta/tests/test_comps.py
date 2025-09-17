@@ -16,7 +16,11 @@ from Quaternion import Quat
 from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
 from ..comps import ComputedMsid
-from ..comps.ephem_stk import get_ephem_stk_paths, get_ephemeris_stk, read_stk_file_text
+from ..comps.ephem_stk import (
+    get_ephem_stk_paths,
+    get_ephemeris_stk,
+    parse_stk_file_text,
+)
 from ..derived.base import DerivedParameter
 
 try:
@@ -198,7 +202,7 @@ def test_mups_valve():
 
 def test_read_stk_file_text_format_cxc():
     example_file = Path(__file__).parent / "data" / "example.stk"
-    stk_data = read_stk_file_text(example_file, format="stk")
+    stk_data = parse_stk_file_text(example_file.read_text(), format_out="stk")
     assert stk_data.pformat(show_dtype=True) == [
         "     Time (UTCG)          x (km)        y (km)       z (km)    vx (km/sec) vy (km/sec) vz (km/sec)",
         "        str22            float64       float64      float64      float64     float64     float64  ",
@@ -211,7 +215,7 @@ def test_read_stk_file_text_format_cxc():
 
 def test_read_stk_file_text_format_stk():
     example_file = Path(__file__).parent / "data" / "example.stk"
-    stk_data = read_stk_file_text(example_file, format="cxc")
+    stk_data = parse_stk_file_text(example_file.read_text(), format_out="cxc")
     assert stk_data.pformat(show_dtype=True) == [
         "     time             x                y            z               vx                 vy             vz   ",
         "                      m                m            m             m / s              m / s          m / s  ",

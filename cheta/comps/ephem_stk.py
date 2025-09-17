@@ -14,6 +14,7 @@ import numpy as np
 from astropy.table import Column, Table
 from cxotime import CxoTime, CxoTimeLike
 from kadi import occweb
+from ska_helpers.retry import retry_call
 
 from .computed_msid import ComputedMsid
 
@@ -22,6 +23,7 @@ logger = logging.getLogger("cheta.fetch")
 
 EPHEM_STK_RECENT_DIR = "FOT/mission_planning/Backstop/Ephemeris"
 EPHEM_STK_ARCHIVE_DIR = "FOT/mission_planning/Backstop/Ephemeris/ArchiveMCC"
+STK_CACHE_DIR_DEFAULT = Path.home() / ".cheta" / "cache"
 
 WINDOWS_EPHEM_STK_DIR = Path.home() / "Documents" / "MATLAB" / "FOT_Tools" / "Ephemeris"
 LINUX_EPHEM_STK_DIR = Path("/home/mission/Backstop/Ephemeris")
@@ -31,10 +33,10 @@ MONTH_NAME_TO_NUM = {
 }
 
 
-def read_stk_file_text(text, format="stk"):
-    """Read a STK ephemeris file text and return an astropy table.
+def parse_stk_file_text(text: str, format_out="stk"):
+    """Parse STK ephemeris file text and return an astropy table.
 
-    The ``format`` argument specifies the output format of the returned Table, in
+    The ``format_out`` argument specifies the output format of the returned Table, in
     particular the column names and units. For format "stk" the table is the same as the
     file with columns:
 
@@ -64,8 +66,8 @@ def read_stk_file_text(text, format="stk"):
     Parameters
     ----------
     text: str
-        Text of the STK ephemeris file
-    format : str
+        Text of the STK ephemeris data
+    format_out : str
         Format of the returned ephemeris Table ("stk" or "cxc")
 
     Returns
@@ -73,13 +75,28 @@ def read_stk_file_text(text, format="stk"):
     astropy.table.Table :
         Table of ephemeris data.
     """
+    # Find the header line position, discarding blank lines since astropy io.ascii does
+    # not count them.
+    header_start = 0
+    for match in re.finditer(".*", text):
+        line = match.group(0).strip()
+        if line.startswith("Time (UTCG)"):
+            break
+        if line:
+            header_start += 1
+    else:
+        raise Exception("did not find header line starting with 'Time (UTCG)'")
+
     dat = Table.read(
-        text, format="ascii.fixed_width_two_line", header_start=2, position_line=3
+        text,
+        format="ascii.fixed_width_two_line",
+        header_start=header_start,
+        position_line=header_start + 1,
     )
-    if format == "stk":
+    if format_out == "stk":
         return dat
-    elif format != "cxc":
-        raise ValueError(f"Unknown format {format!r} (allowed: 'stk', 'cxc')")
+    elif format_out != "cxc":
+        raise ValueError(f"Unknown format {format_out!r} (allowed: 'stk', 'cxc')")
 
     isos = []
     for date in dat["Time (UTCG)"]:
@@ -103,10 +120,10 @@ def read_stk_file_text(text, format="stk"):
     return Table(out)
 
 
-def read_stk_file(path, format="stk", **kwargs):
+def read_stk_file_from_occweb(path: str | Path, format_out="stk", **kwargs) -> Table:
     """Read a STK ephemeris file from OCCweb and return an astropy table.
 
-    For format "stk" the table is the same as the file with columns:
+    For format "stk" the returned table is the same as the file with columns:
 
            name     dtype
       ----------- -------
@@ -118,8 +135,8 @@ def read_stk_file(path, format="stk", **kwargs):
       vy (km/sec) float64
       vz (km/sec) float64
 
-    For format "cxc" the table has the same columns as ephemeris files in the CXC
-    archive::
+    For format "cxc" the returned table has the same columns as ephemeris files in the
+    CXC archive::
 
       name  dtype   unit
       ---- ------- -----
@@ -136,8 +153,8 @@ def read_stk_file(path, format="stk", **kwargs):
     path : str
         Path on OCCweb of the STK ephemeris file, for example
         "FOT/mission_planning/Backstop/Ephemeris/Chandra_23177_24026.stk"
-    format : str
-        Format of the file ("stk" or "cxc")
+    format_out : str
+        Output format for the returned table ("stk" or "cxc")
     **kwargs :
         Additional args passed to get_occweb_page()
 
@@ -147,37 +164,71 @@ def read_stk_file(path, format="stk", **kwargs):
         Table of ephemeris data.
     """
     logger.info(f"Reading OCCweb STK file {path}")
-    text = occweb.get_occweb_page(path, **kwargs)
-    return read_stk_file_text(text, format=format)
-
-
-def _read_stk_file_cxc_cached(path: str) -> np.ndarray:
-    """Read a STK ephemeris file from OCCweb or local and return a numpy array."""
-    name = Path(path).name
-    cache_dir = Path(
-        os.environ.get("CHETA_STK_CACHE_DIR", Path.home() / ".cheta" / "cache")
+    text = retry_call(
+        occweb.get_occweb_page,
+        args=[path],
+        kwargs={"timeout": 5} | kwargs,
+        tries=3,
+        backoff=2,
+        logger=logger,
     )
-    cache_file = cache_dir / f"{name}.npz"
+    out = parse_stk_file_text(text, format_out=format_out)
+    return out
+
+
+def read_stk_file(path: str | Path) -> np.ndarray:
+    """Read a STK ephemeris file from OCCweb or local and return a numpy array.
+
+    This uses a local cache dir which has numpy savez files of the raw numpy arrays
+    for each named ephemeris file. Otherwise it reads the file from local directories
+    """
+    path = Path(path)
+    cache_dir = Path(os.environ.get("CHETA_STK_CACHE_DIR", STK_CACHE_DIR_DEFAULT))
+    cache_file = cache_dir / f"{path.name}.npz"
     if cache_file.exists():
         logger.info(f"Reading cached STK file {path} from {cache_file}")
         out = np.load(cache_file)["arr_0"]
+        return out
+
+    # Determine if path is local or occweb
+    if path.exists():
+        logger.info(f"Reading local STK file {path}")
+        text = path.read_text()
+        table = parse_stk_file_text(text, format_out="cxc")
     else:
-        # Determine if path is local or occweb
-        if Path(path).exists():
-            logger.info(f"Reading local STK file {path}")
-            # Local file
-            with open(path, "r") as f:
-                text = f.read()
-            table = read_stk_file_text(text, format="cxc")
-        else:
-            # OCCweb file
-            logger.info(f"Reading OCCweb STK file {path}")
-            table = read_stk_file(path, format="cxc")
-        out = table.as_array()
-        logger.info(f"Caching STK file {path} to {cache_file}")
-        cache_file.parent.mkdir(parents=True, exist_ok=True)
-        np.savez(cache_file, out)
+        logger.info(f"Reading OCCweb STK file {path}")
+        table = read_stk_file_from_occweb(path, format_out="cxc")
+
+    out = table.as_array()
+    logger.info(f"Caching STK file {path} to {cache_file}")
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(cache_file, out)
+
     return out
+
+
+def find_stk_files(file_names, dir_path, source, start, stop):
+    found_files = []
+    for name in file_names:
+        match = re.match(r"Chandra_(\d{2})(\d{3})_(\d{2})(\d{3}).stk$", name)
+        if match:
+            yr1, doy1, yr2, doy2 = (int(val) for val in match.groups())
+            yr1 += 1900 if yr1 >= 98 else 2000
+            yr2 += 1900 if yr2 >= 98 else 2000
+            start_stk = CxoTime(f"{yr1}:{doy1}:12:00:00.000")
+            stop_stk = CxoTime(f"{yr2}:{doy2}:11:59:59.999")
+            if not (start_stk > stop or stop_stk < start):
+                found_files.append(
+                    {
+                        "path": f"{dir_path}/{name}"
+                        if source == "occweb"
+                        else str(Path(dir_path) / name),
+                        "start": start_stk,
+                        "stop": stop_stk,
+                        "source": source,
+                    }
+                )
+    return found_files
 
 
 def get_ephem_stk_paths(
@@ -215,29 +266,6 @@ def get_ephem_stk_paths(
 
     files_stk = []
 
-    def find_stk_files(file_names, dir_path, source):
-        found_files = []
-        for name in file_names:
-            match = re.match(r"Chandra_(\d{2})(\d{3})_(\d{2})(\d{3}).stk$", name)
-            if match:
-                yr1, doy1, yr2, doy2 = (int(val) for val in match.groups())
-                yr1 += 1900 if yr1 >= 98 else 2000
-                yr2 += 1900 if yr2 >= 98 else 2000
-                start_stk = CxoTime(f"{yr1}:{doy1}:12:00:00.000")
-                stop_stk = CxoTime(f"{yr2}:{doy2}:11:59:59.999")
-                if not (start_stk > stop or stop_stk < start):
-                    found_files.append(
-                        {
-                            "path": f"{dir_path}/{name}"
-                            if source == "occweb"
-                            else str(Path(dir_path) / name),
-                            "start": start_stk,
-                            "stop": stop_stk,
-                            "source": source,
-                        }
-                    )
-        return found_files
-
     # Find the local path on Windows or GRETA Linux
     if os.environ.get("CHETA_EPHEM_DISABLE_LOCAL_STK", "False") == "False":
         local_default_dir = (
@@ -250,7 +278,7 @@ def get_ephem_stk_paths(
             [p.name for p in local_dir.iterdir()] if local_dir.exists() else []
         )
         logger.info(f"Checking local directory {local_dir} for STK files")
-        files_stk.extend(find_stk_files(local_names, local_dir, "local"))
+        files_stk.extend(find_stk_files(local_names, local_dir, "local", start, stop))
         if latest_only and any(f["start"] <= start for f in files_stk):
             files_stk = sorted(files_stk, key=lambda x: x["start"].date)
             for ii, file_stk in enumerate(reversed(files_stk)):
@@ -263,7 +291,7 @@ def get_ephem_stk_paths(
     for dir_path in [EPHEM_STK_RECENT_DIR, EPHEM_STK_ARCHIVE_DIR]:
         logger.info(f"Checking OCCweb directory {dir_path}")
         files = occweb.get_occweb_dir(dir_path)
-        files_stk.extend(find_stk_files(files["Name"], dir_path, "occweb"))
+        files_stk.extend(find_stk_files(files["Name"], dir_path, "occweb", start, stop))
         if latest_only and any(f["start"] <= start for f in files_stk):
             break
 
@@ -324,7 +352,7 @@ def get_ephemeris_stk(start: CxoTimeLike, stop: CxoTimeLike) -> np.ndarray:
     stop = CxoTime(stop)
 
     stk_paths = get_ephem_stk_paths(start, stop)
-    dats = [_read_stk_file_cxc_cached(stk_path["path"]) for stk_path in stk_paths]
+    dats = [read_stk_file(stk_path["path"]) for stk_path in stk_paths]
 
     # The ephemeris all overlap with the next one, so we can clip them to the interval.
     dats_clip = []
