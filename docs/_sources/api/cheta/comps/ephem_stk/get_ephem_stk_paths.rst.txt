@@ -1,0 +1,47 @@
+cheta.comps.ephem_stk.get_ephem_stk_paths
+=========================================
+
+.. py:function:: cheta.comps.ephem_stk.get_ephem_stk_paths(start, stop = None, latest_only=True)
+
+   
+   Get STK orbit ephemeris file paths from OCCweb or local directories.
+
+   Finds STK ephemeris files that overlap the interval from start to stop.
+
+   Returns a list of dict for each STK file, with keys:
+       - 'path': full path to the STK file (local or OCCweb)
+       - 'start': <CxoTime> start time of file
+       - 'stop': <CxoTime> stop time of file
+       - 'source': "local" or "occweb"
+
+   :Parameters:
+
+       **start** : CxoTimeLike
+           Start time of interval
+
+       **stop** : CxoTimeLike
+           Stop time of interval (default=NOW)
+
+       **latest_only** : bool
+           If True (default), return only the latest files that overlap the interval. If
+           False, return all files that overlap the interval.
+
+
+
+   :Returns:
+
+       **files_stk** : list of dict
+           List of dict with keys path, start, stop, source
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

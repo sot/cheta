@@ -1,0 +1,64 @@
+cheta.comps.ephem_stk.read_stk_file_from_occweb
+===============================================
+
+.. py:function:: cheta.comps.ephem_stk.read_stk_file_from_occweb(path, format_out='stk', **kwargs)
+
+   
+   Read a STK ephemeris file from OCCweb and return an astropy table.
+
+   For format "stk" the returned table is the same as the file with columns:
+
+          name     dtype
+     ----------- -------
+     Time (UTCG)   str23
+          x (km) float64
+          y (km) float64
+          z (km) float64
+     vx (km/sec) float64
+     vy (km/sec) float64
+     vz (km/sec) float64
+
+   For format "cxc" the returned table has the same columns as ephemeris files in the
+   CXC archive::
+
+     name  dtype   unit
+     ---- ------- -----
+     time float64
+        x float64     m
+        y float64     m
+        z float64     m
+       vx float64 m / s
+       vy float64 m / s
+       vz float64 m / s
+
+   :Parameters:
+
+       **path** : str
+           Path on OCCweb of the STK ephemeris file, for example
+           "FOT/mission_planning/Backstop/Ephemeris/Chandra_23177_24026.stk"
+
+       **format_out** : str
+           Output format for the returned table ("stk" or "cxc")
+
+       **\*\*kwargs**
+           Additional args passed to get_occweb_page()
+
+
+
+   :Returns:
+
+       astropy.table.Table
+           Table of ephemeris data.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

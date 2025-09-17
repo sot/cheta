@@ -1,0 +1,60 @@
+cheta.comps.ephem_stk.get_ephemeris_stk
+=======================================
+
+.. py:function:: cheta.comps.ephem_stk.get_ephemeris_stk(start, stop)
+
+   
+   Get ephemeris data from local STK files, OCCweb, or local cache STK data.
+
+   By default, looks for local STK files in the directory specified by the
+   CHETA_EPHEM_STK_DIR environment variable (if not set, uses default of
+   platform-dependent standard location). If no local files are found, then
+   the search for data looks on OCCweb.
+
+   Returns a structured array with columns time, x, y, z, vx, vy, vz. The time is in
+   CXC seconds since 1998.0, and the position and velocity are in meters and
+   meters/second, respectively.
+
+   The last result of this function is cached in memory for performance. The memory
+   cache is for the common use case of fetching (via fetch.Msid) multiple
+   components of the ephemeris over the same time range.
+
+   In addition, STK files are cached on disk as compressed numpy arrays in the
+   directory specified by the CHETA_EPHEM_STK_CACHE_DIR environment variable
+   (if not set uses default ~/.cheta/cache). This reduces repeated downloads and
+   speeds up access to ephemeris data.
+
+   This function also respects the CHETA_EPHEM_DISABLE_LOCAL_STK environment
+   variable for testing. If set to "True", then local STK files are not used
+   even if available (though note that the lru_cache does not know about environment
+   variables, so if the function is called with the same start and stop times as a
+   previous call, the cached result will be returned even if the environment variable
+   has changed).
+
+   :Parameters:
+
+       **start** : CxoTimeLike
+           Start time of interval
+
+       **stop** : CxoTimeLike
+           Stop time of interval
+
+
+
+   :Returns:
+
+       **dat** : np.ndarray
+           Structured array with columns time, x, y, z, vx, vy, vz
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

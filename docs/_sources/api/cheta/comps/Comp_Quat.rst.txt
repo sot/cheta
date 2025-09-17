@@ -1,9 +1,9 @@
-cheta.derived.comps.Comp_Quat
-=============================
+cheta.comps.Comp_Quat
+=====================
 
-.. py:class:: cheta.derived.comps.Comp_Quat(unit_system='eng')
+.. py:class:: cheta.comps.Comp_Quat(unit_system='eng')
 
-   Bases: :py:obj:`ComputedMsid`
+   Bases: :py:obj:`cheta.comps.computed_msid.ComputedMsid`
 
 
    

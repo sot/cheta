@@ -1,0 +1,73 @@
+cheta.comps.ephem_stk.parse_stk_file_text
+=========================================
+
+.. py:function:: cheta.comps.ephem_stk.parse_stk_file_text(text, format_out='stk')
+
+   
+   Parse STK ephemeris file text and return an astropy table.
+
+   Parse text that looks like below::
+
+                                                                                                         6 Aug 2025 03:30:16
+     Satellite-Chandra:  J2000 Position & Velocity
+
+         Time (UTCG)              x (km)           y (km)            z (km)       vx (km/sec)    vy (km/sec)    vz (km/sec)
+     -----------------------    -------------    --------------    -------------    -----------    -----------    -----------
+     6 Jul 2025 12:00:00.00     34557.394268     -88565.935003     32903.996133       0.199880       1.283853      -1.141781
+     6 Jul 2025 12:05:00.00     34616.746289     -88179.214343     32560.881289       0.195790       1.294299      -1.145653
+     6 Jul 2025 12:10:00.00     34674.862330     -87789.346381     32216.603475       0.191640       1.304835      -1.149534
+
+   The ``format_out`` argument specifies the output format of the returned Table, in
+   particular the column names and units. For format "stk" the table is the same as the
+   file with columns:
+
+          name     dtype
+     ----------- -------
+     Time (UTCG)   str23
+          x (km) float64
+          y (km) float64
+          z (km) float64
+     vx (km/sec) float64
+     vy (km/sec) float64
+     vz (km/sec) float64
+
+   For format "cxc" the table has the same columns as ephemeris files in the CXC
+   archive::
+
+     name  dtype   unit
+     ---- ------- -----
+     time float64
+        x float64     m
+        y float64     m
+        z float64     m
+       vx float64 m / s
+       vy float64 m / s
+       vz float64 m / s
+
+   :Parameters:
+
+       **text: str**
+           Text of the STK ephemeris data
+
+       **format_out** : str
+           Format of the returned ephemeris Table ("stk" or "cxc")
+
+
+
+   :Returns:
+
+       astropy.table.Table
+           Table of ephemeris data.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

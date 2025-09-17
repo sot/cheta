@@ -1,0 +1,31 @@
+cheta.data_source.DataSourceMeta
+================================
+
+.. py:class:: cheta.data_source.DataSourceMeta
+
+   Bases: :py:obj:`type`
+
+
+   
+   Metaclass for the data_source class that updates the repr to be more informative
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:method:: __repr__()
+

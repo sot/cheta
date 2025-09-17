@@ -1,9 +1,9 @@
-cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe
-============================================
+cheta.comps.Comp_Pitch_Roll_OBC_Safe
+====================================
 
-.. py:class:: cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe(unit_system='eng')
+.. py:class:: cheta.comps.Comp_Pitch_Roll_OBC_Safe(unit_system='eng')
 
-   Bases: :py:obj:`ComputedMsid`
+   Bases: :py:obj:`cheta.comps.computed_msid.ComputedMsid`
 
 
    

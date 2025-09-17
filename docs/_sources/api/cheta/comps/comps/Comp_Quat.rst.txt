@@ -1,0 +1,95 @@
+cheta.comps.comps.Comp_Quat
+===========================
+
+.. py:class:: cheta.comps.comps.Comp_Quat(unit_system='eng')
+
+   Bases: :py:obj:`cheta.comps.computed_msid.ComputedMsid`
+
+
+   
+   Computed MSID for returning the quaternion telemetry as a Quat object
+
+   This defines the following computed MSIDs based on the corresponding
+   TDB MSIDs:
+
+   - ``quat_aoattqt`` = ``AOATTQT[1-4]``
+   - ``quat_aoatupq`` = ``AOATUPQ[1-3]``
+   - ``quat_aocmdqt`` = ``AOCMDQT[1-3]``
+   - ``quat_aotarqt`` = ``AOTARQT[1-3]``
+
+   Example::
+
+     >>> from cheta import fetch
+     >>> qatt = fetch.Msid('quat_aoattqt', '2022:001:00:00:00', '2022:001:00:00:04')
+     >>> qatt.vals
+     Quat(array([[-0.07434856, -0.55918674, -0.80432653,  0.18665828],
+                 [-0.07434854, -0.55918679, -0.8043265 ,  0.18665825],
+                 [-0.07434849, -0.55918674, -0.80432653,  0.18665829],
+                 [-0.07434849, -0.55918667, -0.80432653,  0.18665852]]))
+     >>> qatt.vals.equatorial
+     array([[193.28905806,  19.16894296,  67.36207683],
+            [193.28905485,  19.1689407 ,  67.36208471],
+            [193.28906329,  19.16893787,  67.36207699],
+            [193.28908839,  19.16895134,  67.36206404]])
+
+   This computed MSID can be used with the MAUDE data source. Be aware that if the
+   telemetry has a missing VCDU then there is a risk of getting a slightly incorrect
+   quaternion. This would occur since the code uses nearest-neighbor interpolation to
+   associate the four components of the quaternion with a single time. For back-orbit
+   data this is rare, but for real-time data it is more likely.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: msid_match
+      :value: 'quat_(aoattqt|aoatupq|aocmdqt|aotarqt)'
+
+
+
+   .. py:method:: get_msid_attrs(tstart, tstop, msid, msid_args)
+
+      
+      Get the attributes required for this MSID.
+
+      Get attributes for computed MSID, which must include at least
+      ``vals``, ``bads``, ``times``, and may include additional attributes.
+
+      This MUST be supplied by sub-classes.
+
+      :param tstart: start time (CXC secs)
+      :param tstop: stop time (CXC secs)
+      :param msid: full MSID name e.g. tephin_plus_5
+      :param msid_args: tuple of regex match groups (msid_name,)
+      :returns: dict of MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

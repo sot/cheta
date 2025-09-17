@@ -39,7 +39,6 @@ Submodules
 
    /api/cheta/derived/acispow/index
    /api/cheta/derived/base/index
-   /api/cheta/derived/comps/index
    /api/cheta/derived/eps/index
    /api/cheta/derived/mups_valve/index
    /api/cheta/derived/orbit/index

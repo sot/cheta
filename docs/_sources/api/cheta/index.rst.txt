@@ -13,6 +13,7 @@ Submodules
    /api/cheta/add_derived/index
    /api/cheta/cache/index
    /api/cheta/check_integrity/index
+   /api/cheta/comps/index
    /api/cheta/converters/index
    /api/cheta/data_source/index
    /api/cheta/derived/index

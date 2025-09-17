@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.derived.comps.ComputedMsid &#8212; cheta 4.64.0 documentation</title>
+    <title>cheta.comps.computed_msid.ComputedMsid &#8212; cheta 4.65.0 documentation</title>
   
   
   
@@ -41,20 +41,20 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=f289e68b"></script>
+    <script src="../../../../_static/documentation_options.js?v=835cacd2"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=30646c52"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/derived/comps/ComputedMsid';</script>
-    <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/derived/comps/ComputedMsid.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/comps/computed_msid/ComputedMsid';</script>
+    <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/comps/computed_msid/ComputedMsid.html" />
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="cheta.derived.comps.Comp_Quat" href="Comp_Quat.html" />
-    <link rel="prev" title="cheta.derived.comps" href="index.html" />
+    <link rel="next" title="cheta.comps.ephem_stk" href="../ephem_stk/index.html" />
+    <link rel="prev" title="cheta.comps.computed_msid" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.64.0" />
+  <meta name="docsearch:version" content="4.65.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.64.0</span></div>
+<span style="font-size: x-large;">4.65.0</span></div>
     
   </div>
   
@@ -328,12 +328,12 @@
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">cheta</a></li>
     
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">cheta.derived</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">cheta.comps</a></li>
     
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">cheta.derived.comps</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">cheta.comps.computed_msid</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cheta.derived.comps.ComputedMsid</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cheta.comps.computed_msid.ComputedMsid</span></li>
   </ul>
 </nav>
 </div>
@@ -350,11 +350,11 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cheta-derived-comps-computedmsid">
-<h1>cheta.derived.comps.ComputedMsid<a class="headerlink" href="#cheta-derived-comps-computedmsid" title="Link to this heading">#</a></h1>
+  <section id="cheta-comps-computed-msid-computedmsid">
+<h1>cheta.comps.computed_msid.ComputedMsid<a class="headerlink" href="#cheta-comps-computed-msid-computedmsid" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.derived.comps.</span></span><span class="sig-name descname"><span class="pre">ComputedMsid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.comps.computed_msid.</span></span><span class="sig-name descname"><span class="pre">ComputedMsid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid" title="Link to this definition">#</a></dt>
 <dd><p>Base class for cheta computed MSID.</p>
 <p>Sub-classes must define at least the following:</p>
 <ul class="simple">
@@ -368,29 +368,29 @@ a dict with the result.</p></li>
 </ul>
 <p>See the fetch tutorial Computed MSIDs section for details.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.msid_classes">
-<span class="sig-name descname"><span class="pre">msid_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.msid_classes" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.msid_classes">
+<span class="sig-name descname"><span class="pre">msid_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.msid_classes" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.units">
-<span class="sig-name descname"><span class="pre">units</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.units" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.units">
+<span class="sig-name descname"><span class="pre">units</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.units" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.unit_system">
-<span class="sig-name descname"><span class="pre">unit_system</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'eng'</span></em><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.unit_system" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.unit_system">
+<span class="sig-name descname"><span class="pre">unit_system</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'eng'</span></em><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.unit_system" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.__init_subclass__">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.__init_subclass__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.__init_subclass__">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.__init_subclass__" title="Link to this definition">#</a></dt>
 <dd><p>Validate and register ComputedMSID subclass.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.get_matching_comp_cls">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_matching_comp_cls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.get_matching_comp_cls" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.get_matching_comp_cls">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_matching_comp_cls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.get_matching_comp_cls" title="Link to this definition">#</a></dt>
 <dd><p>Get computed classes that match <code class="docutils literal notranslate"><span class="pre">msid</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -403,32 +403,32 @@ a dict with the result.</p></li>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.fetch_eng">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_eng</span></span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.fetch_eng" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.fetch_eng">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_eng</span></span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.fetch_eng" title="Link to this definition">#</a></dt>
 <dd><p>Fetch in TDB engineering units like DEGF</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.fetch_sci">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_sci</span></span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.fetch_sci" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.fetch_sci">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_sci</span></span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.fetch_sci" title="Link to this definition">#</a></dt>
 <dd><p>Fetch in scientific units like DEGC</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.fetch_cxc">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_cxc</span></span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.fetch_cxc" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.fetch_cxc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_cxc</span></span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.fetch_cxc" title="Link to this definition">#</a></dt>
 <dd><p>Fetch in CXC (FITS standard) units like K</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.fetch_sys">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_sys</span></span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.fetch_sys" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.fetch_sys">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_sys</span></span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.fetch_sys" title="Link to this definition">#</a></dt>
 <dd><p>Fetch in the unit system specified for the class</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.__call__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.__call__" title="Link to this definition">#</a></dt>
 <dd><p>Emulate the fetch.MSID() API, but return a dict of MSID attributes.</p>
 <p>The returned dict turned into a proper MSID object by the upstream caller
 <cite>fetch.MSID._get_comp_data()</cite>.</p>
@@ -448,8 +448,8 @@ a dict with the result.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.convert_units">
-<span class="sig-name descname"><span class="pre">convert_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid_attrs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.convert_units" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.convert_units">
+<span class="sig-name descname"><span class="pre">convert_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid_attrs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.convert_units" title="Link to this definition">#</a></dt>
 <dd><p>Convert required elements of <code class="docutils literal notranslate"><span class="pre">msid_attrs</span></code> to <code class="docutils literal notranslate"><span class="pre">self.unit_system</span></code>.</p>
 <p>Unit_system can be one of ‘cxc’, ‘sci’, ‘eng’.</p>
 <dl class="field-list simple">
@@ -466,8 +466,8 @@ a dict with the result.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.get_msid_attrs">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_msid_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.get_msid_attrs" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.get_msid_attrs">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_msid_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.get_msid_attrs" title="Link to this definition">#</a></dt>
 <dd><p>Get the attributes required for this MSID.</p>
 <p>Get attributes for computed MSID, which must include at least
 <code class="docutils literal notranslate"><span class="pre">vals</span></code>, <code class="docutils literal notranslate"><span class="pre">bads</span></code>, <code class="docutils literal notranslate"><span class="pre">times</span></code>, and may include additional attributes.</p>
@@ -488,8 +488,8 @@ a dict with the result.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cheta.derived.comps.ComputedMsid.get_stats_attrs">
-<span class="sig-name descname"><span class="pre">get_stats_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.ComputedMsid.get_stats_attrs" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.computed_msid.ComputedMsid.get_stats_attrs">
+<span class="sig-name descname"><span class="pre">get_stats_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.computed_msid.ComputedMsid.get_stats_attrs" title="Link to this definition">#</a></dt>
 <dd><p>Get 5-min or daily stats attributes.</p>
 <p>This is normally not overridden by sub-classes.</p>
 <dl class="field-list simple">
@@ -527,15 +527,15 @@ a dict with the result.</p></li>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cheta.derived.comps</p>
+        <p class="prev-next-title">cheta.comps.computed_msid</p>
       </div>
     </a>
     <a class="right-next"
-       href="Comp_Quat.html"
+       href="../ephem_stk/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cheta.derived.comps.Comp_Quat</p>
+        <p class="prev-next-title">cheta.comps.ephem_stk</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -558,20 +558,20 @@ a dict with the result.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.msid_classes"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.msid_classes</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.units"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.units</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.unit_system"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.unit_system</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.__init_subclass__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.get_matching_comp_cls"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.get_matching_comp_cls()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.fetch_eng"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.fetch_eng</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.fetch_sci"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.fetch_sci</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.fetch_cxc"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.fetch_cxc</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.fetch_sys"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.fetch_sys</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.__call__"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.__call__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.convert_units"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.convert_units()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.get_msid_attrs"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.get_msid_attrs()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.ComputedMsid.get_stats_attrs"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.ComputedMsid.get_stats_attrs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.msid_classes"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.msid_classes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.units"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.units</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.unit_system"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.unit_system</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.__init_subclass__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.get_matching_comp_cls"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.get_matching_comp_cls()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.fetch_eng"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.fetch_eng</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.fetch_sci"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.fetch_sci</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.fetch_cxc"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.fetch_cxc</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.fetch_sys"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.fetch_sys</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.__call__"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.__call__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.convert_units"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.convert_units()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.get_msid_attrs"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.get_msid_attrs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.computed_msid.ComputedMsid.get_stats_attrs"><code class="docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid.get_stats_attrs()</span></code></a></li>
 </ul>
 </li>
 </ul>

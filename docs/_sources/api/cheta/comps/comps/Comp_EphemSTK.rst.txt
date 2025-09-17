@@ -1,0 +1,85 @@
+cheta.comps.comps.Comp_EphemSTK
+===============================
+
+.. py:class:: cheta.comps.comps.Comp_EphemSTK(unit_system='eng')
+
+   Bases: :py:obj:`cheta.comps.computed_msid.ComputedMsid`
+
+
+   
+   Computed MSID for returning the STK orbit ephemeris.
+
+   This defines the following computed MSIDs:
+
+   - ``orbitephem_stk_x``: STK orbit ephemeris X position (m)
+   - ``orbitephem_stk_y``: STK orbit ephemeris Y position (m)
+   - ``orbitephem_stk_z``: STK orbit ephemeris Z position (m)
+   - ``orbitephem_stk_vx``: STK orbit ephemeris X velocity (m/s)
+   - ``orbitephem_stk_vy``: STK orbit ephemeris Y velocity (m/s)
+   - ``orbitephem_stk_vz``: STK orbit ephemeris Z velocity (m/s)
+
+   Under the hood this uses get_ephemeris_stk() to fetch the ephemeris data from
+   local STK files, OCCweb, or local cache STK data.
+
+   Example::
+
+     >>> from cheta import fetch
+     >>> orbit_x = fetch.Msid('orbitephem_stk_x', '2022:001', '2023:001')
+     >>> orbit_x.plot()
+     # Makes a plot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: msid_match
+      :value: 'orbitephem_stk_(x|y|z|vx|vy|vz)'
+
+
+
+   .. py:method:: get_msid_attrs(tstart, tstop, msid, msid_args)
+
+      
+      Get the attributes required for this MSID.
+
+      Get attributes for computed MSID, which must include at least
+      ``vals``, ``bads``, ``times``, and may include additional attributes.
+
+      This MUST be supplied by sub-classes.
+
+      :param tstart: start time (CXC secs)
+      :param tstop: stop time (CXC secs)
+      :param msid: full MSID name e.g. tephin_plus_5
+      :param msid_args: tuple of regex match groups (msid_name,)
+      :returns: dict of MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

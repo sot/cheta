@@ -1,0 +1,80 @@
+cheta.comps.comps.Comp_Pitch_Roll_OBC_Safe
+==========================================
+
+.. py:class:: cheta.comps.comps.Comp_Pitch_Roll_OBC_Safe(unit_system='eng')
+
+   Bases: :py:obj:`cheta.comps.computed_msid.ComputedMsid`
+
+
+   
+   Computed MSID to return pitch or off-nominal roll angle which is valid in NPNT,
+   NMAN, NSUN, and Safe Mode.
+
+   MSID names are ``pitch_comp`` and ``roll_comp``.
+
+   The computation logic is shown below::
+
+     On OBC control (CONLOFP == "NRML"):
+       - AOPCADMD in ["NPNT", "NMAN"] => compute pitch/roll from AOATTQT[1234]
+         (MAUDE or CXC) and predictive ephemeris ORBITEPHEM0_[XYZ] and
+         SOLAREPHEM0_[XYZ] (CXC only but always available)
+       - AOPCADMD == "NSUN" => get pitch/roll from PITCH/ROLL_CSS derived params.
+         These are also in MAUDE.
+
+     On CPE control (CONLOFP == "SAFE"):
+       - Compute pitch/roll from 6SUNSA[123] + 6SARES[12] via calc_pitch/roll_css_safe()
+
+     Intervals for other CONLOFP values are ignored.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: msid_match
+      :value: '(roll|pitch)_comp'
+
+
+
+   .. py:method:: get_msid_attrs(tstart, tstop, msid, msid_args)
+
+      
+      Get attributes for computed MSID: ``vals``, ``bads``, ``times``,
+      ``unit``, ``raw_vals``, and ``offset``.  The first four must always
+      be provided.
+
+      :param tstart: start time (CXC secs)
+      :param tstop: stop time (CXC secs)
+      :param msid: full MSID name e.g. tephin_plus_5
+      :param msid_args: tuple of regex match groups (msid_name,)
+      :returns: dict of MSID attributes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+

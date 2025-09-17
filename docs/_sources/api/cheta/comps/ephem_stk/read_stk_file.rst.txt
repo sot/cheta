@@ -1,0 +1,27 @@
+cheta.comps.ephem_stk.read_stk_file
+===================================
+
+.. py:function:: cheta.comps.ephem_stk.read_stk_file(path)
+
+   
+   Read a STK ephemeris file from OCCweb or local and return a numpy array.
+
+   This uses a local cache dir which has numpy savez files of the raw numpy arrays
+   for each named ephemeris file. Otherwise it reads the file from local directories
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe &#8212; cheta 4.64.0 documentation</title>
+    <title>cheta.comps.comps.Comp_KadiCommandState &#8212; cheta 4.65.0 documentation</title>
   
   
   
@@ -41,20 +41,20 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=f289e68b"></script>
+    <script src="../../../../_static/documentation_options.js?v=835cacd2"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=30646c52"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/derived/comps/Comp_Pitch_Roll_OBC_Safe';</script>
-    <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/derived/comps/Comp_Pitch_Roll_OBC_Safe.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/comps/comps/Comp_KadiCommandState';</script>
+    <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/comps/comps/Comp_KadiCommandState.html" />
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="cheta.derived.eps" href="../eps/index.html" />
-    <link rel="prev" title="cheta.derived.comps.Comp_KadiCommandState" href="Comp_KadiCommandState.html" />
+    <link rel="next" title="cheta.comps.comps.Comp_Pitch_Roll_OBC_Safe" href="Comp_Pitch_Roll_OBC_Safe.html" />
+    <link rel="prev" title="cheta.comps.comps.Comp_MUPS_Valve_Temp_Clean" href="Comp_MUPS_Valve_Temp_Clean.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.64.0" />
+  <meta name="docsearch:version" content="4.65.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.64.0</span></div>
+<span style="font-size: x-large;">4.65.0</span></div>
     
   </div>
   
@@ -328,12 +328,12 @@
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">cheta</a></li>
     
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">cheta.derived</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">cheta.comps</a></li>
     
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">cheta.derived.comps</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">cheta.comps.comps</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cheta.comps.comps.Comp_KadiCommandState</span></li>
   </ul>
 </nav>
 </div>
@@ -350,47 +350,41 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cheta-derived-comps-comp-pitch-roll-obc-safe">
-<h1>cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe<a class="headerlink" href="#cheta-derived-comps-comp-pitch-roll-obc-safe" title="Link to this heading">#</a></h1>
+  <section id="cheta-comps-comps-comp-kadicommandstate">
+<h1>cheta.comps.comps.Comp_KadiCommandState<a class="headerlink" href="#cheta-comps-comps-comp-kadicommandstate" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.derived.comps.</span></span><span class="sig-name descname"><span class="pre">Comp_Pitch_Roll_OBC_Safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputedMsid</span></code></p>
-<p>Computed MSID to return pitch or off-nominal roll angle which is valid in NPNT,
-NMAN, NSUN, and Safe Mode.</p>
-<p>MSID names are <code class="docutils literal notranslate"><span class="pre">pitch_comp</span></code> and <code class="docutils literal notranslate"><span class="pre">roll_comp</span></code>.</p>
-<p>The computation logic is shown below:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">On</span> <span class="n">OBC</span> <span class="n">control</span> <span class="p">(</span><span class="n">CONLOFP</span> <span class="o">==</span> <span class="s2">&quot;NRML&quot;</span><span class="p">):</span>
-  <span class="o">-</span> <span class="n">AOPCADMD</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;NPNT&quot;</span><span class="p">,</span> <span class="s2">&quot;NMAN&quot;</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="n">compute</span> <span class="n">pitch</span><span class="o">/</span><span class="n">roll</span> <span class="kn">from</span> <span class="nn">AOATTQT</span><span class="p">[</span><span class="mi">1234</span><span class="p">]</span>
-    <span class="p">(</span><span class="n">MAUDE</span> <span class="ow">or</span> <span class="n">CXC</span><span class="p">)</span> <span class="ow">and</span> <span class="n">predictive</span> <span class="n">ephemeris</span> <span class="n">ORBITEPHEM0_</span><span class="p">[</span><span class="n">XYZ</span><span class="p">]</span> <span class="ow">and</span>
-    <span class="n">SOLAREPHEM0_</span><span class="p">[</span><span class="n">XYZ</span><span class="p">]</span> <span class="p">(</span><span class="n">CXC</span> <span class="n">only</span> <span class="n">but</span> <span class="n">always</span> <span class="n">available</span><span class="p">)</span>
-  <span class="o">-</span> <span class="n">AOPCADMD</span> <span class="o">==</span> <span class="s2">&quot;NSUN&quot;</span> <span class="o">=&gt;</span> <span class="n">get</span> <span class="n">pitch</span><span class="o">/</span><span class="n">roll</span> <span class="kn">from</span> <span class="nn">PITCH</span><span class="o">/</span><span class="n">ROLL_CSS</span> <span class="n">derived</span> <span class="n">params</span><span class="o">.</span>
-    <span class="n">These</span> <span class="n">are</span> <span class="n">also</span> <span class="ow">in</span> <span class="n">MAUDE</span><span class="o">.</span>
-
-<span class="n">On</span> <span class="n">CPE</span> <span class="n">control</span> <span class="p">(</span><span class="n">CONLOFP</span> <span class="o">==</span> <span class="s2">&quot;SAFE&quot;</span><span class="p">):</span>
-  <span class="o">-</span> <span class="n">Compute</span> <span class="n">pitch</span><span class="o">/</span><span class="n">roll</span> <span class="kn">from</span> <span class="mi">6</span><span class="n">SUNSA</span><span class="p">[</span><span class="mi">123</span><span class="p">]</span> <span class="o">+</span> <span class="mi">6</span><span class="n">SARES</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="n">via</span> <span class="n">calc_pitch</span><span class="o">/</span><span class="n">roll_css_safe</span><span class="p">()</span>
-
-<span class="n">Intervals</span> <span class="k">for</span> <span class="n">other</span> <span class="n">CONLOFP</span> <span class="n">values</span> <span class="n">are</span> <span class="n">ignored</span><span class="o">.</span>
+<dt class="sig sig-object py" id="cheta.comps.comps.Comp_KadiCommandState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.comps.comps.</span></span><span class="sig-name descname"><span class="pre">Comp_KadiCommandState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.comps.Comp_KadiCommandState" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../computed_msid/ComputedMsid.html#cheta.comps.computed_msid.ComputedMsid" title="cheta.comps.computed_msid.ComputedMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid</span></code></a></p>
+<p>Computed MSID for kadi dynamic commanded states.</p>
+<p>The MSID here takes the form <code class="docutils literal notranslate"><span class="pre">cmd_state_&lt;state_key&gt;_&lt;dt&gt;</span></code> where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">state_key</span></code> is a valid commanded state key such as <code class="docutils literal notranslate"><span class="pre">pitch</span></code> or
+<code class="docutils literal notranslate"><span class="pre">pcad_mode</span></code> or <code class="docutils literal notranslate"><span class="pre">acisfp_temp</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dt</span></code> is the sampling time expressed as a multiple of 1.025 sec
+frames.</p></li>
+</ul>
+<p>Example MSID names:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&#39;cmd_state_pcad_mode_1&#39;: sample ``pcad_mode`` every 1.025 secs
+&#39;cmd_state_acisfp_temp_32&#39;: sample ``acisfp_temp`` every 32.8 secs
 </pre></div>
 </div>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.msid_match">
-<span class="sig-name descname"><span class="pre">msid_match</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'(roll|pitch)_comp'</span></em><a class="headerlink" href="#cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.msid_match" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cheta.comps.comps.Comp_KadiCommandState.msid_match">
+<span class="sig-name descname"><span class="pre">msid_match</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmd_state_(\\w+)_(\\d+)'</span></em><a class="headerlink" href="#cheta.comps.comps.Comp_KadiCommandState.msid_match" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.get_msid_attrs">
-<span class="sig-name descname"><span class="pre">get_msid_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.get_msid_attrs" title="Link to this definition">#</a></dt>
-<dd><p>Get attributes for computed MSID: <code class="docutils literal notranslate"><span class="pre">vals</span></code>, <code class="docutils literal notranslate"><span class="pre">bads</span></code>, <code class="docutils literal notranslate"><span class="pre">times</span></code>,
-<code class="docutils literal notranslate"><span class="pre">unit</span></code>, <code class="docutils literal notranslate"><span class="pre">raw_vals</span></code>, and <code class="docutils literal notranslate"><span class="pre">offset</span></code>.  The first four must always
-be provided.</p>
+<dt class="sig sig-object py" id="cheta.comps.comps.Comp_KadiCommandState.get_msid_attrs">
+<span class="sig-name descname"><span class="pre">get_msid_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.comps.Comp_KadiCommandState.get_msid_attrs" title="Link to this definition">#</a></dt>
+<dd><p>Get attributes for computed MSID: <code class="docutils literal notranslate"><span class="pre">vals</span></code>, <code class="docutils literal notranslate"><span class="pre">bads</span></code>, <code class="docutils literal notranslate"><span class="pre">times</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tstart</strong> – start time (CXC secs)</p></li>
 <li><p><strong>tstop</strong> – stop time (CXC secs)</p></li>
-<li><p><strong>msid</strong> – full MSID name e.g. tephin_plus_5</p></li>
-<li><p><strong>msid_args</strong> – tuple of regex match groups (msid_name,)</p></li>
+<li><p><strong>msid</strong> – full MSID name e.g. cmd_state_pitch_clean</p></li>
+<li><p><strong>msid_args</strong> – tuple of regex match groups: (state_key, dt)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -414,20 +408,20 @@ be provided.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="Comp_KadiCommandState.html"
+       href="Comp_MUPS_Valve_Temp_Clean.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cheta.derived.comps.Comp_KadiCommandState</p>
+        <p class="prev-next-title">cheta.comps.comps.Comp_MUPS_Valve_Temp_Clean</p>
       </div>
     </a>
     <a class="right-next"
-       href="../eps/index.html"
+       href="Comp_Pitch_Roll_OBC_Safe.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cheta.derived.eps</p>
+        <p class="prev-next-title">cheta.comps.comps.Comp_Pitch_Roll_OBC_Safe</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -450,9 +444,9 @@ be provided.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.msid_match"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.msid_match</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.get_msid_attrs"><code class="docutils literal notranslate"><span class="pre">cheta.derived.comps.Comp_Pitch_Roll_OBC_Safe.get_msid_attrs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.comps.Comp_KadiCommandState"><code class="docutils literal notranslate"><span class="pre">cheta.comps.comps.Comp_KadiCommandState</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.comps.Comp_KadiCommandState.msid_match"><code class="docutils literal notranslate"><span class="pre">cheta.comps.comps.Comp_KadiCommandState.msid_match</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheta.comps.comps.Comp_KadiCommandState.get_msid_attrs"><code class="docutils literal notranslate"><span class="pre">cheta.comps.comps.Comp_KadiCommandState.get_msid_attrs()</span></code></a></li>
 </ul>
 </li>
 </ul>

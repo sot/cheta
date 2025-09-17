@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.data_source.data_source &#8212; cheta 4.64.0 documentation</title>
+    <title>cheta.data_source.data_source &#8212; cheta 4.65.0 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=f289e68b"></script>
+    <script src="../../../_static/documentation_options.js?v=835cacd2"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,10 +51,10 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="cheta.derived" href="../derived/index.html" />
-    <link rel="prev" title="cheta.data_source" href="index.html" />
+    <link rel="prev" title="cheta.data_source.DataSourceMeta" href="DataSourceMeta.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.64.0" />
+  <meta name="docsearch:version" content="4.65.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.64.0</span></div>
+<span style="font-size: x-large;">4.65.0</span></div>
     
   </div>
   
@@ -352,8 +352,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cheta.data_source.data_source">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.data_source.</span></span><span class="sig-name descname"><span class="pre">data_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">data_sources</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source" title="Link to this definition">#</a></dt>
-<dd><p>Context manager and quasi-singleton configuration object for managing the
-data_source(s) used for fetching telemetry.</p>
+<dd><p>Context manager and singleton config object for managing telem data_sources(s).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.data_source.data_source._data_sources">
 <span class="sig-name descname"><span class="pre">_data_sources</span></span><a class="headerlink" href="#cheta.data_source.data_source._data_sources" title="Link to this definition">#</a></dt>
@@ -361,7 +360,7 @@ data_source(s) used for fetching telemetry.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.data_source.data_source._allowed">
-<span class="sig-name descname"><span class="pre">_allowed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cxc',</span> <span class="pre">'maude',</span> <span class="pre">'test-drop-half')</span></em><a class="headerlink" href="#cheta.data_source.data_source._allowed" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_allowed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cxc',</span> <span class="pre">'maude',</span> <span class="pre">'MAUDE',</span> <span class="pre">'test-drop-half')</span></em><a class="headerlink" href="#cheta.data_source.data_source._allowed" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -407,7 +406,7 @@ data_source(s) used for fetching telemetry.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.data_source.data_source.get_msids">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_msids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.get_msids" title="Link to this definition">#</a></dt>
-<dd><p>Get the set of MSID names corresponding to <code class="docutils literal notranslate"><span class="pre">source</span></code> (e.g. ‘cxc’ or ‘maude’)</p>
+<dd><p>Get the set of MSID names corresponding to <code class="docutils literal notranslate"><span class="pre">source</span></code> (e.g. ‘cxc’ or ‘MAUDE’)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>source</strong> – str</p>
@@ -450,12 +449,12 @@ data_source(s) used for fetching telemetry.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="DataSourceMeta.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cheta.data_source</p>
+        <p class="prev-next-title">cheta.data_source.DataSourceMeta</p>
       </div>
     </a>
     <a class="right-next"

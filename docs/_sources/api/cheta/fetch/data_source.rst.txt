@@ -4,8 +4,7 @@ cheta.fetch.data_source
 .. py:class:: cheta.fetch.data_source(*data_sources)
 
    
-   Context manager and quasi-singleton configuration object for managing the
-   data_source(s) used for fetching telemetry.
+   Context manager and singleton config object for managing telem data_sources(s).
 
 
 
@@ -29,7 +28,7 @@ cheta.fetch.data_source
 
 
    .. py:attribute:: _allowed
-      :value: ('cxc', 'maude', 'test-drop-half')
+      :value: ('cxc', 'maude', 'MAUDE', 'test-drop-half')
 
 
 
@@ -104,7 +103,7 @@ cheta.fetch.data_source
 
 
       
-      Get the set of MSID names corresponding to ``source`` (e.g. 'cxc' or 'maude')
+      Get the set of MSID names corresponding to ``source`` (e.g. 'cxc' or 'MAUDE')
 
       :param source: str
       :returns: set of MSIDs

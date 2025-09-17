@@ -1,7 +1,7 @@
-cheta.derived.comps.ComputedMsid
-================================
+cheta.comps.comps.ComputedMsid
+==============================
 
-.. py:class:: cheta.derived.comps.ComputedMsid(unit_system='eng')
+.. py:class:: cheta.comps.comps.ComputedMsid(unit_system='eng')
 
    
    Base class for cheta computed MSID.

@@ -1,0 +1,28 @@
+cheta.comps.computed_msid
+=========================
+
+.. py:module:: cheta.comps.computed_msid
+
+.. autoapi-nested-parse::
+
+   Provide base class ``ComputedMsid`` for computed MSIDs in the cheta archive.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Classes
+-------
+
+.. toctree::
+   :hidden:
+
+   /api/cheta/comps/computed_msid/ComputedMsid
+
+.. autoapisummary::
+
+   cheta.comps.computed_msid.ComputedMsid
+
+
+

@@ -18,10 +18,12 @@ Classes
 .. toctree::
    :hidden:
 
+   /api/cheta/data_source/DataSourceMeta
    /api/cheta/data_source/data_source
 
 .. autoapisummary::
 
+   cheta.data_source.DataSourceMeta
    cheta.data_source.data_source
 
 
