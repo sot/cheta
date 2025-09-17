@@ -2,7 +2,9 @@
 
 """Test that computed MSIDs work as expected."""
 
+import os
 import warnings
+from pathlib import Path
 
 import astropy.units as u
 import numpy as np
@@ -12,8 +14,14 @@ from Quaternion import Quat
 
 from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
+from ..comps import ComputedMsid
+from ..comps.ephem_stk import (
+    EPHEM_STK_DIRS_DEFAULT,
+    get_ephem_stk_paths,
+    get_ephemeris_stk,
+    parse_stk_file_text,
+)
 from ..derived.base import DerivedParameter
-from ..derived.comps import ComputedMsid
 
 try:
     import maude
@@ -190,6 +198,153 @@ def test_mups_valve():
     for attr in colnames:
         if attr != "bads":
             assert len(dat.vals) == len(getattr(dat, attr))
+
+
+def test_read_stk_file_text_format_cxc():
+    example_file = Path(__file__).parent / "data" / "Chandra_25187_25188.stk"
+    stk_data = parse_stk_file_text(example_file.read_text(), format_out="stk")
+    assert stk_data.pformat(show_dtype=True) == [
+        "     Time (UTCG)          x (km)        y (km)       z (km)    vx (km/sec) vy (km/sec) vz (km/sec)",
+        "        str22            float64       float64      float64      float64     float64     float64  ",
+        "---------------------- ------------ ------------- ------------ ----------- ----------- -----------",
+        "6 Jul 2025 12:00:00.00 34557.394268 -88565.935003 32903.996133     0.19988    1.283853   -1.141781",
+        "6 Jul 2025 12:05:00.00 34616.746289 -88179.214343 32560.881289     0.19579    1.294299   -1.145653",
+        "6 Jul 2025 12:10:00.00  34674.86233 -87789.346381 32216.603475     0.19164    1.304835   -1.149534",
+    ]
+
+
+def test_read_stk_file_text_format_stk():
+    example_file = Path(__file__).parent / "data" / "Chandra_25187_25188.stk"
+    stk_data = parse_stk_file_text(example_file.read_text(), format_out="cxc")
+    assert stk_data.pformat(show_dtype=True) == [
+        "     time             x                y            z               vx                 vy             vz   ",
+        "                      m                m            m             m / s              m / s          m / s  ",
+        "   float64         float64          float64      float64         float64            float64        float64 ",
+        "------------- ------------------ ------------- ------------ ------------------ ------------------ ---------",
+        "868190469.184       34557394.268 -88565935.003 32903996.133             199.88 1283.8529999999998 -1141.781",
+        "868190769.184 34616746.289000005 -88179214.343 32560881.289             195.79           1294.299 -1145.653",
+        "868191069.184 34674862.330000006 -87789346.381 32216603.475 191.64000000000001           1304.835 -1149.534",
+    ]
+
+
+@pytest.fixture
+def clear_lru_cache():
+    get_ephemeris_stk.cache_clear()
+
+
+@pytest.fixture
+def set_cache_dir(tmp_path, monkeypatch):
+    # Set a temporary cache directory for tests
+    monkeypatch.setenv("CHETA_EPHEM_STK_CACHE_DIR", str(tmp_path / "cheta_cache"))
+
+
+# Fixture to disable using default local STK directories and force OCCweb
+@pytest.fixture
+def force_stk_files_from_occweb(monkeypatch):
+    # Disable local ephemeris directory for tests
+    monkeypatch.setenv("CHETA_EPHEM_STK_DIRS", "")
+
+
+@pytest.fixture
+def set_test_stk_dir_with_example(monkeypatch):
+    # Set a temporary local ephemeris directory for tests. This has a single file
+    # Chandra_25187_25188.stk (an abridged STK file). Also include a blank directory
+    # and a non-existent one for testing.
+    stk_dirs = f" ; /directory/that/does/not/exist ; {Path(__file__).parent / 'data'}"
+    monkeypatch.setenv("CHETA_EPHEM_STK_DIRS", stk_dirs)
+
+
+def test_get_ephemeris_stk_local(
+    set_cache_dir,
+    set_test_stk_dir_with_example,
+    clear_lru_cache,
+):
+    """Read abridged Chandra_25187_25188.stk file"""
+    dat = get_ephemeris_stk("2025:187:12:00:00.000", "2025:188")
+    assert len(dat) == 3
+    assert np.allclose(dat["time"], [8.68190469e08, 8.68190769e08, 8.68191069e08])
+    assert np.allclose(dat["vz"], [-1141.781, -1145.653, -1149.534])
+    cache_dir = Path(os.environ["CHETA_EPHEM_STK_CACHE_DIR"])
+    assert (cache_dir / "Chandra_25187_25188.stk.npz").exists()
+
+
+def test_get_ephemeris_stk_occweb(
+    set_cache_dir,
+    force_stk_files_from_occweb,
+    clear_lru_cache,
+):
+    """Force using OCCweb by disabling all local STK files"""
+    start, stop = "2024:188", "2024:189"
+    # This should fall back to OCCweb without error
+    stk_paths = get_ephem_stk_paths(start, stop)
+    assert len(stk_paths) == 2
+    prefix = "FOT/mission_planning/Backstop/Ephemeris/ArchiveMCC"
+    assert stk_paths[0]["path"] == f"{prefix}/Chandra_24162_25010.stk"
+    assert stk_paths[1]["path"] == f"{prefix}/Chandra_24188_25037.stk"
+    assert stk_paths[0]["source"] == "occweb"
+    assert stk_paths[1]["source"] == "occweb"
+
+    dat = get_ephemeris_stk(start, stop)
+    assert len(dat) == 288
+    # Check that the cache dir got at least one new file
+    cache_dir = Path(os.environ["CHETA_EPHEM_STK_CACHE_DIR"])
+    assert len(list(cache_dir.glob("Chandra_*.stk.npz"))) == 2
+
+
+def test_comps_ephem(
+    set_cache_dir,
+    force_stk_files_from_occweb,
+    clear_lru_cache,
+):
+    """Read STK ephemeris through the fetch interface using OCCweb"""
+    orbit_stk_x = fetch_cxc.Msid("orbitephem_stk_x", "2022:001", "2022:003")
+    orbit_x = fetch_cxc.Msid("orbitephem0_x", "2022:001", "2022:003")
+    orbit_stk_y = fetch_cxc.Msid("orbitephem_stk_y", "2024:260", "2024:261")
+    orbit_y = fetch_cxc.Msid("orbitephem0_y", "2024:260", "2024:261")
+
+    # Confirm these are close, though they aren't *very* close.
+    assert len(orbit_stk_x.vals) == len(orbit_x.vals)
+    assert np.allclose(orbit_stk_x.vals, orbit_x.vals, rtol=0, atol=2e6)
+    assert len(orbit_stk_y.vals) == len(orbit_y.vals)
+    assert np.allclose(orbit_stk_y.vals, orbit_y.vals, rtol=0, atol=2e6)
+
+
+@pytest.mark.parametrize("stk_path", EPHEM_STK_DIRS_DEFAULT)
+def test_get_ephem_stk_paths_local_defaults(stk_path):
+    if not stk_path.exists():
+        pytest.skip(f"Local STK path {stk_path} does not exist")
+    start, stop = "2025:187:12:00:00.000", "2025:188"
+    paths = get_ephem_stk_paths(start, stop)
+    for path in paths:
+        assert path["source"] == "local"
+        assert path["path"].startswith(str(stk_path))
+
+
+def test_get_ephem_stk_paths_not_latest(
+    set_cache_dir, force_stk_files_from_occweb, clear_lru_cache
+):
+    date0 = "2020:001"
+    date1 = "2020:002"
+    paths_not_latest = get_ephem_stk_paths(date0, date1, latest_only=False)
+    paths_latest = get_ephem_stk_paths(date0, date1, latest_only=True)
+    # Confirm in this case that "latest" has a reference to one file
+    # and that file looks to contain the date range
+    assert len(paths_latest) == 1
+    path_latest = paths_latest[0]
+
+    # In this case the one file should cover both dates
+    assert path_latest["start"] <= CxoTime(date0).secs
+    assert path_latest["stop"] >= CxoTime(date1).secs
+
+    assert len(paths_not_latest) >= len(paths_latest)
+    # confirm that the latest path is in the not_latest list
+    files = [p["path"] for p in paths_not_latest]
+    assert path_latest["path"] in files
+
+    # Confirm that each of the not-latest files has some overlap with the date range
+    for path in paths_not_latest:
+        assert path["start"] < CxoTime(date1).secs
+        assert path["stop"] > CxoTime(date0).secs
 
 
 def test_cmd_states():
