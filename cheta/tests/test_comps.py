@@ -227,36 +227,39 @@ def test_read_stk_file_text_format_stk():
     ]
 
 
-@pytest.fixture(autouse=False)
+@pytest.fixture
 def clear_lru_cache():
     get_ephemeris_stk.cache_clear()
 
 
-@pytest.fixture(autouse=False)
+@pytest.fixture
 def set_cache_dir(tmp_path, monkeypatch):
     # Set a temporary cache directory for tests
     monkeypatch.setenv("CHETA_EPHEM_STK_CACHE_DIR", str(tmp_path / "cheta_cache"))
 
 
-# add a fixture to work with CHETA_EPHEM_DISABLE_LOCAL_STK
-@pytest.fixture(autouse=False)
-def disable_local_ephem_dir(monkeypatch):
+# Fixture to disable using default local STK directories and force OCCweb
+@pytest.fixture
+def force_stk_files_from_occweb(monkeypatch):
     # Disable local ephemeris directory for tests
-    monkeypatch.setenv("CHETA_EPHEM_DISABLE_LOCAL_STK", "True")
+    monkeypatch.setenv("CHETA_EPHEM_STK_DIRS", "")
 
 
-@pytest.fixture(autouse=False)
-def set_local_ephem_dir(tmp_path, monkeypatch):
-    # Set a temporary local ephemeris directory for tests
-    ephem_dir = tmp_path / "ephem"
-    ephem_dir.mkdir(exist_ok=True)
-    monkeypatch.setenv("CHETA_EPHEM_STK_DIR", str(ephem_dir))
-    # Copy the test file into the temporary directory
-    example_file = Path(__file__).parent / "data" / "example.stk"
-    shutil.copy(example_file, ephem_dir / "Chandra_25187_25188.stk")
+@pytest.fixture
+def set_test_stk_dir_with_example(monkeypatch):
+    # Set a temporary local ephemeris directory for tests. This has a single file
+    # Chandra_25187_25188.stk (an abridged STK file). Also include a blank directory
+    # and a non-existent one for testing.
+    stk_dirs = f" ; /directory/that/does/not/exist ; {Path(__file__).parent / 'data'}"
+    monkeypatch.setenv("CHETA_EPHEM_STK_DIRS", stk_dirs)
 
 
-def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir, clear_lru_cache):
+def test_get_ephemeris_stk_local(
+    set_cache_dir,
+    set_test_stk_dir_with_example,
+    clear_lru_cache,
+):
+    """Read abridged Chandra_25187_25188.stk file"""
     dat = get_ephemeris_stk("2025:187:12:00:00.000", "2025:188")
     assert len(dat) == 3
     assert np.allclose(dat["time"], [8.68190469e08, 8.68190769e08, 8.68191069e08])
@@ -265,50 +268,49 @@ def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir, clear_lru_c
     assert (cache_dir / "Chandra_25187_25188.stk.npz").exists()
 
 
-def test_get_ephemeris_stk_local_no_directory(
-    monkeypatch, tmp_path, set_cache_dir, clear_lru_cache
-):
-    ephem_dir = tmp_path / "noephem"
-    # Set the STK directory to a non-existent directory
-    monkeypatch.setenv("CHETA_EPHEM_STK_DIR", str(ephem_dir))
-    # This should fall back to OCCweb without error
-    get_ephemeris_stk("2025:188", "2025:189")
-
-
 def test_get_ephemeris_stk_occweb(
-    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir, clear_lru_cache
+    set_cache_dir,
+    force_stk_files_from_occweb,
+    clear_lru_cache,
 ):
-    dat = get_ephemeris_stk("2025:187", "2025:189")
-    assert len(dat) > 200
+    """Force using OCCweb by disabling all local STK files"""
+    start, stop = "2024:188", "2024:189"
+    # This should fall back to OCCweb without error
+    stk_paths = get_ephem_stk_paths(start, stop)
+    assert len(stk_paths) == 2
+    prefix = "FOT/mission_planning/Backstop/Ephemeris/ArchiveMCC"
+    assert stk_paths[0]["path"] == f"{prefix}/Chandra_24162_25010.stk"
+    assert stk_paths[1]["path"] == f"{prefix}/Chandra_24188_25037.stk"
+    assert stk_paths[0]["source"] == "occweb"
+    assert stk_paths[1]["source"] == "occweb"
+
+    dat = get_ephemeris_stk(start, stop)
+    assert len(dat) == 288
     # Check that the cache dir got at least one new file
     cache_dir = Path(os.environ["CHETA_EPHEM_STK_CACHE_DIR"])
-    assert len(list(cache_dir.glob("Chandra_*.stk.npz"))) > 0
+    assert len(list(cache_dir.glob("Chandra_*.stk.npz"))) == 2
 
 
 def test_comps_ephem(
-    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir, clear_lru_cache
+    set_cache_dir,
+    force_stk_files_from_occweb,
+    clear_lru_cache,
 ):
+    """Read STK ephemeris through the fetch interface using OCCweb"""
     orbit_stk_x = fetch_cxc.Msid("orbitephem_stk_x", "2022:001", "2022:003")
     orbit_x = fetch_cxc.Msid("orbitephem0_x", "2022:001", "2022:003")
-    # Confirm these are close
-    assert len(orbit_stk_x.vals) == len(orbit_x.vals)
-    # Though they aren't *very* close.
-    assert np.allclose(orbit_stk_x.vals, orbit_x.vals, rtol=0, atol=2e6)
-
-
-def test_comps_ephem_2(
-    set_cache_dir, set_local_ephem_dir, disable_local_ephem_dir, clear_lru_cache
-):
     orbit_stk_y = fetch_cxc.Msid("orbitephem_stk_y", "2024:260", "2024:261")
     orbit_y = fetch_cxc.Msid("orbitephem0_y", "2024:260", "2024:261")
-    # Confirm these are close
+
+    # Confirm these are close, though they aren't *very* close.
+    assert len(orbit_stk_x.vals) == len(orbit_x.vals)
+    assert np.allclose(orbit_stk_x.vals, orbit_x.vals, rtol=0, atol=2e6)
     assert len(orbit_stk_y.vals) == len(orbit_y.vals)
-    # Though they aren't *very* close.
     assert np.allclose(orbit_stk_y.vals, orbit_y.vals, rtol=0, atol=2e6)
 
 
 def test_get_ephem_stk_paths_not_latest(
-    set_cache_dir, disable_local_ephem_dir, clear_lru_cache
+    set_cache_dir, force_stk_files_from_occweb, clear_lru_cache
 ):
     date0 = "2020:001"
     date1 = "2020:002"

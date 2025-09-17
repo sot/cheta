@@ -23,10 +23,11 @@ logger = logging.getLogger("cheta.fetch")
 
 EPHEM_STK_RECENT_DIR = "FOT/mission_planning/Backstop/Ephemeris"
 EPHEM_STK_ARCHIVE_DIR = "FOT/mission_planning/Backstop/Ephemeris/ArchiveMCC"
-STK_CACHE_DIR_DEFAULT = Path.home() / ".cheta" / "cache"
-
-WINDOWS_EPHEM_STK_DIR = Path.home() / "Documents" / "MATLAB" / "FOT_Tools" / "Ephemeris"
-LINUX_EPHEM_STK_DIR = Path("/home/mission/Backstop/Ephemeris")
+EPHEM_STK_CACHE_DIR_DEFAULT = Path.home() / ".cheta" / "cache"
+EPHEM_STK_DIRS_DEFAULT = [
+    Path.home() / "Documents" / "MATLAB" / "FOT_Tools" / "Ephemeris",  # Windows
+    Path("/home/mission/Backstop/Ephemeris"),  # Greta/linux
+]
 
 MONTH_NAME_TO_NUM = {
     mon: f"{ii + 1:02d}" for ii, mon in enumerate(calendar.month_abbr[1:])
@@ -196,7 +197,9 @@ def read_stk_file(path: str | Path) -> np.ndarray:
     for each named ephemeris file. Otherwise it reads the file from local directories
     """
     path = Path(path)
-    cache_dir = Path(os.environ.get("CHETA_EPHEM_STK_CACHE_DIR", STK_CACHE_DIR_DEFAULT))
+    cache_dir = Path(
+        os.environ.get("CHETA_EPHEM_STK_CACHE_DIR", EPHEM_STK_CACHE_DIR_DEFAULT)
+    )
     cache_file = cache_dir / f"{path.name}.npz"
     if cache_file.exists():
         logger.info(f"Reading cached STK file {path} from {cache_file}")
@@ -279,19 +282,22 @@ def get_ephem_stk_paths(
 
     files_stk = []
 
-    # Find the local path on Windows or GRETA Linux
-    if os.environ.get("CHETA_EPHEM_DISABLE_LOCAL_STK", "False") == "False":
-        local_default_dir = (
-            LINUX_EPHEM_STK_DIR
-            if LINUX_EPHEM_STK_DIR.exists()
-            else WINDOWS_EPHEM_STK_DIR
-        )
-        local_dir = Path(os.environ.get("CHETA_EPHEM_STK_DIR", local_default_dir))
-        local_names = (
-            [p.name for p in local_dir.iterdir()] if local_dir.exists() else []
-        )
-        logger.info(f"Checking local directory {local_dir} for STK files")
-        files_stk.extend(find_stk_files(local_names, local_dir, "local", start, stop))
+    # Find the local path on Windows or GRETA Linux. CHETA_EPHEM_STK_DIRS can be a ";"
+    # separated string of paths. Any whitespace-only paths are dropped so setting this
+    # var to "" results in stk_dirs = [] and falling through to reading from OCCweb.
+    stk_dirs: list[Path] = (
+        [Path(ss) for s in stk_dirs_str.split(";") if (ss := s.strip())]
+        if (stk_dirs_str := os.environ.get("CHETA_EPHEM_STK_DIRS")) is not None
+        else EPHEM_STK_DIRS_DEFAULT
+    )
+
+    # First try local STK directories (if they exist)
+    for stk_dir in stk_dirs:
+        if not stk_dir.exists():
+            continue
+        local_names = [p.name for p in stk_dir.iterdir()]
+        logger.info(f"Checking local directory {stk_dir} for STK files")
+        files_stk.extend(find_stk_files(local_names, stk_dir, "local", start, stop))
         if latest_only and any(f["start"] <= start for f in files_stk):
             files_stk = sorted(files_stk, key=lambda x: x["start"].date)
             for ii, file_stk in enumerate(reversed(files_stk)):
