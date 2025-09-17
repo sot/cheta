@@ -36,6 +36,19 @@ MONTH_NAME_TO_NUM = {
 def parse_stk_file_text(text: str, format_out="stk"):
     """Parse STK ephemeris file text and return an astropy table.
 
+    Parse text that looks like below::
+
+                                                                                                          6 Aug 2025 03:30:16
+      Satellite-Chandra:  J2000 Position & Velocity
+
+
+          Time (UTCG)              x (km)           y (km)            z (km)       vx (km/sec)    vy (km/sec)    vz (km/sec)
+      -----------------------    -------------    --------------    -------------    -----------    -----------    -----------
+      6 Jul 2025 12:00:00.00     34557.394268     -88565.935003     32903.996133       0.199880       1.283853      -1.141781
+      6 Jul 2025 12:05:00.00     34616.746289     -88179.214343     32560.881289       0.195790       1.294299      -1.145653
+      6 Jul 2025 12:10:00.00     34674.862330     -87789.346381     32216.603475       0.191640       1.304835      -1.149534
+
+
     The ``format_out`` argument specifies the output format of the returned Table, in
     particular the column names and units. For format "stk" the table is the same as the
     file with columns:
@@ -74,9 +87,9 @@ def parse_stk_file_text(text: str, format_out="stk"):
     -------
     astropy.table.Table :
         Table of ephemeris data.
-    """
-    # Find the header line position, discarding blank lines since astropy io.ascii does
-    # not count them.
+    """  # noqa: E501
+    # Find the position of the header line that starts with "Time (UTCG)", discarding
+    # blank lines since astropy io.ascii does not count them.
     header_start = 0
     for match in re.finditer(".*", text):
         line = match.group(0).strip()
@@ -183,7 +196,7 @@ def read_stk_file(path: str | Path) -> np.ndarray:
     for each named ephemeris file. Otherwise it reads the file from local directories
     """
     path = Path(path)
-    cache_dir = Path(os.environ.get("CHETA_STK_CACHE_DIR", STK_CACHE_DIR_DEFAULT))
+    cache_dir = Path(os.environ.get("CHETA_EPHEM_STK_CACHE_DIR", STK_CACHE_DIR_DEFAULT))
     cache_file = cache_dir / f"{path.name}.npz"
     if cache_file.exists():
         logger.info(f"Reading cached STK file {path} from {cache_file}")
@@ -325,7 +338,7 @@ def get_ephemeris_stk(start: CxoTimeLike, stop: CxoTimeLike) -> np.ndarray:
     components of the ephemeris over the same time range.
 
     In addition, STK files are cached on disk as compressed numpy arrays in the
-    directory specified by the CHETA_STK_CACHE_DIR environment variable
+    directory specified by the CHETA_EPHEM_STK_CACHE_DIR environment variable
     (if not set uses default ~/.cheta/cache). This reduces repeated downloads and
     speeds up access to ephemeris data.
 

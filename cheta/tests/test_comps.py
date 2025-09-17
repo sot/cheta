@@ -235,7 +235,7 @@ def clear_lru_cache():
 @pytest.fixture(autouse=False)
 def set_cache_dir(tmp_path, monkeypatch):
     # Set a temporary cache directory for tests
-    monkeypatch.setenv("CHETA_STK_CACHE_DIR", str(tmp_path / "cheta_cache"))
+    monkeypatch.setenv("CHETA_EPHEM_STK_CACHE_DIR", str(tmp_path / "cheta_cache"))
 
 
 # add a fixture to work with CHETA_EPHEM_DISABLE_LOCAL_STK
@@ -261,7 +261,7 @@ def test_get_ephemeris_stk_local(set_cache_dir, set_local_ephem_dir, clear_lru_c
     assert len(dat) == 3
     assert np.allclose(dat["time"], [8.68190469e08, 8.68190769e08, 8.68191069e08])
     assert np.allclose(dat["vz"], [-1141.781, -1145.653, -1149.534])
-    cache_dir = Path(os.environ["CHETA_STK_CACHE_DIR"])
+    cache_dir = Path(os.environ["CHETA_EPHEM_STK_CACHE_DIR"])
     assert (cache_dir / "Chandra_25187_25188.stk.npz").exists()
 
 
@@ -281,7 +281,7 @@ def test_get_ephemeris_stk_occweb(
     dat = get_ephemeris_stk("2025:187", "2025:189")
     assert len(dat) > 200
     # Check that the cache dir got at least one new file
-    cache_dir = Path(os.environ["CHETA_STK_CACHE_DIR"])
+    cache_dir = Path(os.environ["CHETA_EPHEM_STK_CACHE_DIR"])
     assert len(list(cache_dir.glob("Chandra_*.stk.npz"))) > 0
 
 
