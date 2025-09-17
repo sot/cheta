@@ -201,7 +201,7 @@ def test_mups_valve():
 
 
 def test_read_stk_file_text_format_cxc():
-    example_file = Path(__file__).parent / "data" / "example.stk"
+    example_file = Path(__file__).parent / "data" / "Chandra_25187_25188.stk"
     stk_data = parse_stk_file_text(example_file.read_text(), format_out="stk")
     assert stk_data.pformat(show_dtype=True) == [
         "     Time (UTCG)          x (km)        y (km)       z (km)    vx (km/sec) vy (km/sec) vz (km/sec)",
@@ -214,7 +214,7 @@ def test_read_stk_file_text_format_cxc():
 
 
 def test_read_stk_file_text_format_stk():
-    example_file = Path(__file__).parent / "data" / "example.stk"
+    example_file = Path(__file__).parent / "data" / "Chandra_25187_25188.stk"
     stk_data = parse_stk_file_text(example_file.read_text(), format_out="cxc")
     assert stk_data.pformat(show_dtype=True) == [
         "     time             x                y            z               vx                 vy             vz   ",
