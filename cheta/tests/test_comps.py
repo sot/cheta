@@ -3,7 +3,6 @@
 """Test that computed MSIDs work as expected."""
 
 import os
-import shutil
 import warnings
 from pathlib import Path
 
