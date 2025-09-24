@@ -25,15 +25,15 @@ from ska_helpers.utils import lru_cache_timed
 
 from cheta.data_source import DEFAULT_DATA_SOURCE, data_source
 
-from . import (
+from cheta import (
     __version__,  # noqa
     cache,
     file_defs,
     remote_access,
 )
-from .comps import ComputedMsid
-from .lazy import LazyDict
-from .units import Units
+from cheta.comps import ComputedMsid
+from cheta.lazy import LazyDict
+from cheta.units import Units
 
 # Output of following, with a few manual edits
 #     for name in sorted(fetch.__dict__):
