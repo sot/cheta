@@ -511,7 +511,6 @@ class MSID(object):
         self.datestart = DateTime(self.tstart).date
         self.datestop = DateTime(self.tstop).date
         self.data_source = {}
-        self.content = content.get(self.MSID)
 
         if self.datestart < DATE2000_LO and self.datestop > DATE2000_HI:
             intervals = [(self.datestart, DATE2000_HI), (DATE2000_HI, self.datestop)]
@@ -528,6 +527,10 @@ class MSID(object):
 
         if "CHETA_FETCH_DATA_GAP" in os.environ:
             create_msid_data_gap(self, os.environ["CHETA_FETCH_DATA_GAP"])
+
+    @property
+    def content(self):
+        return content.get(self.MSID)
 
     def __len__(self):
         return len(self.vals)
