@@ -529,8 +529,8 @@ class MSID(object):
             create_msid_data_gap(self, os.environ["CHETA_FETCH_DATA_GAP"])
 
     @property
-    def content(self):
-        return content.get(self.MSID)
+    def content(self) -> str | None:
+        return content.get(self.MSID) if "cxc" in data_source.sources() else None
 
     def __len__(self):
         return len(self.vals)
