@@ -636,7 +636,6 @@ def test_stk_ephem_timeout(monkeypatch, tmp_path, clear_lru_cache):
     )
     mock_get_occ_web_page = MockFuncFailure(occweb.get_occweb_page, n_fail=1)
     monkeypatch.setattr(occweb, "get_occweb_page", mock_get_occ_web_page)
-    fetch_cxc.add_logging_handler()
 
     result = fetch_cxc.Msid("orbitephem_stk_x", "2023:001", "2023:002")
 
