@@ -10,11 +10,13 @@ import astropy.units as u
 import numpy as np
 import pytest
 from cxotime import CxoTime
+from kadi import occweb
 from Quaternion import Quat
+from ska_helpers.retry import MockFuncFailure
 
 from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
-from ..comps import ComputedMsid
+from ..comps import ComputedMsid, ephem_stk
 from ..comps.ephem_stk import (
     EPHEM_STK_DIRS_DEFAULT,
     get_ephem_stk_paths,
@@ -626,3 +628,20 @@ def test_dp_roll_css():
     )
     # fmt: on
     assert np.allclose(vals, exp, rtol=0, atol=2e-4)
+
+
+def test_stk_ephem_timeout(monkeypatch, tmp_path, clear_lru_cache):
+    monkeypatch.setattr(
+        ephem_stk, "EPHEM_STK_CACHE_DIR_DEFAULT", str(tmp_path / "cache")
+    )
+    mock_get_occ_web_page = MockFuncFailure(occweb.get_occweb_page, n_fail=1)
+    monkeypatch.setattr(occweb, "get_occweb_page", mock_get_occ_web_page)
+    fetch_cxc.add_logging_handler()
+
+    result = fetch_cxc.Msid("orbitephem_stk_x", "2023:001", "2023:002")
+
+    assert result.MSID == "ORBITEPHEM_STK_X"
+    # Three places call get_occweb_page (once via get_occweb_dir). Each of those will
+    # have at least one fail and one success, so >= 6 calls total. There could be a
+    # bona-fide network failure giving more than 6 calls.
+    assert len(mock_get_occ_web_page.calls) >= 6

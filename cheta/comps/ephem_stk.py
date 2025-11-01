@@ -20,6 +20,15 @@ from .computed_msid import ComputedMsid
 
 logger = logging.getLogger("cheta.fetch")
 
+# Define standard retry_call for this module
+retry_call = functools.partial(
+    retry_call,
+    delay=1,
+    tries=3,
+    backoff=2,
+    logger=logger,
+    mangle_alert_words=True,
+)
 
 EPHEM_STK_RECENT_DIR = "FOT/mission_planning/Backstop/Ephemeris"
 EPHEM_STK_ARCHIVE_DIR = "FOT/mission_planning/Backstop/Ephemeris/ArchiveMCC"
@@ -178,14 +187,7 @@ def read_stk_file_from_occweb(path: str | Path, format_out="stk", **kwargs) -> T
         Table of ephemeris data.
     """
     logger.info(f"Reading OCCweb STK file {path}")
-    text = retry_call(
-        occweb.get_occweb_page,
-        args=[path],
-        kwargs={"timeout": 10} | kwargs,
-        tries=3,
-        backoff=2,
-        logger=logger,
-    )
+    text = retry_call(occweb.get_occweb_page, [path], {"timeout": 10} | kwargs)
     out = parse_stk_file_text(text, format_out=format_out)
     return out
 
@@ -309,7 +311,7 @@ def get_ephem_stk_paths(
     # Then try OCCweb
     for dir_path in [EPHEM_STK_RECENT_DIR, EPHEM_STK_ARCHIVE_DIR]:
         logger.info(f"Checking OCCweb directory {dir_path}")
-        files = occweb.get_occweb_dir(dir_path)
+        files = retry_call(occweb.get_occweb_dir, [dir_path], {"timeout": 5})
         files_stk.extend(find_stk_files(files["Name"], dir_path, "occweb", start, stop))
         if latest_only and any(f["start"] <= start for f in files_stk):
             break
