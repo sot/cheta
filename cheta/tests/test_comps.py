@@ -9,10 +9,11 @@ from pathlib import Path
 import astropy.units as u
 import numpy as np
 import pytest
+import requests
+import ska_helpers.retry.api
 from cxotime import CxoTime
-from kadi import occweb
 from Quaternion import Quat
-from ska_helpers.retry import MockFuncFailure
+from ska_helpers import retry
 
 from .. import fetch as fetch_cxc
 from .. import fetch_eng, fetch_sci
@@ -634,13 +635,19 @@ def test_stk_ephem_timeout(monkeypatch, tmp_path, clear_lru_cache):
     monkeypatch.setattr(
         ephem_stk, "EPHEM_STK_CACHE_DIR_DEFAULT", str(tmp_path / "cache")
     )
-    mock_get_occ_web_page = MockFuncFailure(occweb.get_occweb_page, n_fail=1)
-    monkeypatch.setattr(occweb, "get_occweb_page", mock_get_occ_web_page)
+    mock_requests_get = retry.MockFuncFailure(requests.get, n_fail=1)
+    monkeypatch.setattr(requests, "get", mock_requests_get)
+    # Make the test run faster by monkeypatching the default retry delay
+    monkeypatch.setattr(
+        ska_helpers.retry.api,
+        "RETRY_DEFAULTS",
+        ska_helpers.retry.api.RETRY_DEFAULTS | {"delay": 0.01},
+    )
 
     result = fetch_cxc.Msid("orbitephem_stk_x", "2023:001", "2023:002")
 
     assert result.MSID == "ORBITEPHEM_STK_X"
-    # Three places call get_occweb_page (once via get_occweb_dir). Each of those will
+    # Three places call requests.get (once via get_occweb_dir). Each of those will
     # have at least one fail and one success, so >= 6 calls total. There could be a
     # bona-fide network failure giving more than 6 calls.
-    assert len(mock_get_occ_web_page.calls) >= 6
+    assert len(mock_requests_get.calls) >= 6
