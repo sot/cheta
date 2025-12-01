@@ -7,6 +7,7 @@ Fetch values from the cheta telemetry archive.
 import collections
 import contextlib
 import fnmatch
+import itertools
 import logging
 import operator
 import os
@@ -140,6 +141,17 @@ STATE_CODES = {
 # Cached version (by content type) of first and last available times in archive
 CONTENT_TIME_RANGES = {}
 
+# CXC content types that are ephemeris data and need special handling in fetch
+EPHEM_CONTENT_TYPES = (
+    "orbitephem0",
+    "lunarephem0",
+    "solarephem0",
+    "orbitephem1",
+    "lunarephem1",
+    "solarephem1",
+    "angleephem",
+)
+
 
 def local_or_remote_function(remote_print_output):
     """
@@ -188,6 +200,78 @@ def local_or_remote_function(remote_print_output):
         return wrapper
 
     return the_decorator
+
+
+def _is_ephem_msid(msid: str) -> bool:
+    """True if this MSID is an ephemeris MSID
+
+    Parameters
+    ----------
+    msid : str
+        MSID to check.
+
+    Returns
+    -------
+    bool
+        True if this MSID is an ephemeris MSID.
+    """
+    return content.get(msid.upper()) in EPHEM_CONTENT_TYPES
+
+
+def _get_ephem_times_ok(times: np.ndarray[float]) -> np.ndarray[bool]:
+    """Select most recent sample times for ephemeris data from overlapping chunks.
+
+    The raw ephemeris HDF5 archive files are non-monotonic because the archive FITS
+    files are overlapping and have duplicate times. Typically new ephemeris files come
+    out each 7 days and cover many weeks of data (e.g. about 10 weeks for the predictive
+    EPHEM 0 files).
+
+    The HDF5 files on HEAD have TIME.quality set to bad for the duplicate times, so this
+    code is not strictly required there. But for archives maintained with cheta_sync,
+    the quality codes are not back-updated when new data appear, causing problems
+    (https://github.com/sot/cheta/issues/245).
+
+    This function ignores the existing quality entirely and dynamically assembles a mask
+    of the best (latest) time sample to use.
+
+    Parameters
+    ----------
+    times : np.ndarray[float]
+        Array of time samples (seconds since 1998.0) from ephemeris MSID.
+
+    Returns
+    -------
+    np.ndarray[bool]
+        Boolean mask array that is True for the best samples to keep.
+    """
+    # Baseline times to start at exactly zero and round to nearest 10. Ephem are
+    # nominally sampled at exactly 300 sec intervals, but sometimes there are floating
+    # point variations and sometimes 301 (leap second?), and at least one larger gap of
+    # 43436 seconds.
+    times = np.round(times - times[0], -1)
+
+    # Times here come from complete and overlapping archive file chunks. This means that
+    # each chunk starts in the middle of the previous chunk and extends beyond. First
+    # get the index of the start of each chunk where time jumps backward.
+    dts = np.diff(times)
+    idx_neg_jumps = np.where(dts < 0)[0] + 1
+
+    # Get complete chunks as pairs of (idx_start, idx_stop)
+    idx_chunks = np.concatenate([[0], idx_neg_jumps, [len(times)]])
+    chunks = list(itertools.pairwise(idx_chunks))
+
+    # Make the mask by masking out every time in the previous chunk that is after the
+    # start of the current chunk. This mirrors what is done in archive update processing.
+    # This process works for fetching data on the primary HEAD archive, but does not
+    # work for cheta_sync archives because the quality flags are back-updated in the
+    # primary archive but not in cheta_sync.
+    mask = np.ones(len(times), dtype=bool)
+    for (idx_start0, idx_stop0), (idx_start1, _) in itertools.pairwise(chunks):
+        times0 = times[idx_start0:idx_stop0]
+        i0 = np.searchsorted(times0, times[idx_start1])
+        mask[idx_start0 + i0 : idx_stop0] = False
+
+    return mask
 
 
 def _split_path(path):
@@ -801,10 +885,11 @@ class MSID(object):
 
             times_ok, times = get_time_data_from_server(h5_slice, _split_path(filename))
 
-            # Filter bad times.  Last instance of bad times in archive is 2004
-            # so don't do this unless needed.  Creating a new 'times' array is
-            # much more expensive than checking for np.all(times_ok).
-            times_all_ok = np.all(times_ok)
+            # Filter bad times if needed (rare except ephem). Creating a new 'times'
+            # array is much more expensive than checking for np.all(times_ok). Ephemeris
+            # content types routinely have times quality set bad for overlapped data,
+            # but this is handled instead via _get_ephem_times_ok() so ignore here.
+            times_all_ok = _is_ephem_msid(msid) or np.all(times_ok)
             if not times_all_ok:
                 times = times[times_ok]
 
@@ -847,6 +932,14 @@ class MSID(object):
             logger.info("Filtering bad times values for %s", msid)
             bads = bads[times_ok]
             vals = vals[times_ok]
+
+        if _is_ephem_msid(msid):
+            # Select the most recent sample at each time for ephemeris data from
+            # available overlapping chunks.
+            ok = _get_ephem_times_ok(times)
+            times = times[ok]
+            vals = vals[ok]
+            bads = bads[ok]
 
         # Slice down to exact requested time range
         row0, row1 = np.searchsorted(times, [tstart, tstop])
