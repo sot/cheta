@@ -14,6 +14,7 @@ MANIFEST
 *.log
 *.fits.gz
 stage
+.eggs
 cheta.egg-info
 sken.egg-info
 Ska/engarchive/GIT_VERSION
@@ -22,7 +23,7 @@ dev_utils/event_filter_1.png
 dev_utils/event_filter_2.png
 dev_utils/l0_5icd.pdf
 dev_utils/memleak.py
-*.ipynb
+play-*.ipynb
 .ipynb_checkpoints
 .idea
 .vscode
