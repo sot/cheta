@@ -2019,31 +2019,30 @@ def get_interval(content, tstart, tstop):
     def get_interval_from_db(tstart, tstop, server):
         import Ska.DBI
 
-        db = Ska.DBI.DBI(dbi="sqlite", server=os.path.join(*server))
-
-        query_row = db.fetchone(
-            "SELECT tstart, rowstart FROM archfiles "
-            "WHERE filetime < ? order by filetime desc",
-            (tstart,),
-        )
-        if not query_row:
+        with Ska.DBI.DBI(dbi="sqlite", server=os.path.join(*server)) as db:
             query_row = db.fetchone(
-                "SELECT tstart, rowstart FROM archfiles order by filetime asc"
+                "SELECT tstart, rowstart FROM archfiles "
+                "WHERE filetime < ? order by filetime desc",
+                (tstart,),
             )
+            if not query_row:
+                query_row = db.fetchone(
+                    "SELECT tstart, rowstart FROM archfiles order by filetime asc"
+                )
 
-        rowstart = query_row["rowstart"]
+            rowstart = query_row["rowstart"]
 
-        query_row = db.fetchone(
-            "SELECT tstop, rowstop FROM archfiles "
-            "WHERE filetime > ? order by filetime asc",
-            (tstop,),
-        )
-        if not query_row:
             query_row = db.fetchone(
-                "SELECT tstop, rowstop FROM archfiles order by filetime desc"
+                "SELECT tstop, rowstop FROM archfiles "
+                "WHERE filetime > ? order by filetime asc",
+                (tstop,),
             )
+            if not query_row:
+                query_row = db.fetchone(
+                    "SELECT tstop, rowstop FROM archfiles order by filetime desc"
+                )
 
-        rowstop = query_row["rowstop"]
+            rowstop = query_row["rowstop"]
 
         return slice(rowstart, rowstop)
 
