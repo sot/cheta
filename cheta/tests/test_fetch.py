@@ -93,6 +93,23 @@ def test_filter_bad_times_overlap():
     assert len(dat) == 5
 
 
+@pytest.mark.parametrize(
+    "msid_prefix",
+    [
+        "orbitephem0",
+        "lunarephem0",
+        "solarephem0",
+        "orbitephem1",
+        "lunarephem1",
+        "solarephem1",
+        "point",
+    ],
+)
+def test_fix_ephem_time_order(msid_prefix):
+    dat = fetch.MSID(f"{msid_prefix}_x", "2024:001", "2025:001")
+    assert np.unique(np.diff(dat.times)).tolist() == [300.0]
+
+
 def test_filter_bad_times_list():
     dat = fetch.MSID("aogyrct1", "2008:291:12:00:00", "2008:298:12:00:00")
     # 2nd test of repr here where we have an MSID object handy
