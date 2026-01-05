@@ -262,9 +262,9 @@ def _get_ephem_times_ok(times: np.ndarray[float]) -> np.ndarray[bool]:
 
     # Make the mask by masking out every time in the previous chunk that is after the
     # start of the current chunk. This mirrors what is done in archive update processing.
-    # This process works for fetching data on the primary HEAD archive, but does not
-    # work for cheta_sync archives because the quality flags are back-updated in the
-    # primary archive but not in cheta_sync.
+    # These masks are always correct and up to date for the primary HDF5 archive on
+    # HEAD. However, cheta_sync archives do not have the quality flags back-updated and
+    # so this dynamic masking is needed to get correct results.
     mask = np.ones(len(times), dtype=bool)
     for (idx_start0, idx_stop0), (idx_start1, _) in itertools.pairwise(chunks):
         times0 = times[idx_start0:idx_stop0]
