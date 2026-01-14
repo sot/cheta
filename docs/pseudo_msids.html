@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Pseudo-MSIDs &#8212; cheta 4.66.1 documentation</title>
+    <title>Pseudo-MSIDs &#8212; cheta 4.67.0 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -41,9 +41,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=b55bf620"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/documentation_options.js?v=60f63860"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=30646c52"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'pseudo_msids';</script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="One-stop fetch function" href="archived_topics.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.66.1" />
+  <meta name="docsearch:version" content="4.67.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.66.1</span></div>
+<span style="font-size: x-large;">4.67.0</span></div>
     
   </div>
   
@@ -680,8 +680,8 @@ housekeeping and sometimes the rate data to be corrupted.</p></li>
 (i.e. good data satisfies <code class="docutils literal notranslate"><span class="pre">SCIDPREN=0000xxxx000xxxxx</span></code>.  The least-significant 7 bits of
 <code class="docutils literal notranslate"><span class="pre">HRC_SS_HK_BAD</span></code> contain a copy of the 7 bits in <code class="docutils literal notranslate"><span class="pre">SCIDPREN</span></code> which must be 0 for good
 data.  The following code illustrates detecting conditions (1) or (2):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cxotime</span><span class="w"> </span><span class="kn">import</span> <span class="n">CxoTime</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dat</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;HRC_SS_HK_BAD&#39;</span><span class="p">,</span> <span class="s1">&#39;1999:300&#39;</span><span class="p">,</span> <span class="s1">&#39;1999:310&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">(</span><span class="n">dat</span><span class="o">.</span><span class="n">vals</span> <span class="o">&amp;</span> <span class="mh">0x7f</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">CxoTime</span><span class="p">(</span><span class="n">dat</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">bad</span><span class="p">])</span><span class="o">.</span><span class="n">date</span>
@@ -1872,7 +1872,7 @@ will search for derived parameters matching <code class="docutils literal notran
 <h3>Available MSIDs<a class="headerlink" href="#available-msids" title="Link to this heading">#</a></h3>
 <p>To see the available derived parameters or calcs in the CXC archive or MAUDE
 archive, issue the following commands respectively:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">([</span><span class="n">msid</span> <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">fetch</span><span class="o">.</span><span class="n">data_source</span><span class="o">.</span><span class="n">get_msids</span><span class="p">(</span><span class="s1">&#39;cxc&#39;</span><span class="p">)</span>
 <span class="gp">... </span>       <span class="k">if</span> <span class="n">msid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;DP_&#39;</span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">([</span><span class="n">msid</span> <span class="k">for</span> <span class="n">msid</span> <span class="ow">in</span> <span class="n">fetch</span><span class="o">.</span><span class="n">data_source</span><span class="o">.</span><span class="n">get_msids</span><span class="p">(</span><span class="s1">&#39;maude&#39;</span><span class="p">)</span>
@@ -1894,38 +1894,38 @@ definition classes have the same content root so another class
 values for each of the <code class="docutils literal notranslate"><span class="pre">rootparams</span></code> MSIDs.  The data values in the
 MSIDset will be filtered for bad values and aligned to a common time
 sequence with step size <code class="docutils literal notranslate"><span class="pre">time_step</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DerivedParameterThermal</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">DerivedParameterThermal</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
     <span class="n">content_root</span> <span class="o">=</span> <span class="s1">&#39;thermal&#39;</span>
 
-<span class="k">class</span> <span class="nc">DP_EE_DIAM</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DP_EE_DIAM</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Kodak diametrical encircled energy&quot;&quot;&quot;</span>
     <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OHRMGRD6&#39;</span><span class="p">,</span> <span class="s1">&#39;OHRMGRD3&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">32.8</span>
 
-    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">VAL2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;OHRMGRD6&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
         <span class="n">VAL1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;OHRMGRD3&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
         <span class="n">DTDIAM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">VAL1</span><span class="p">,</span> <span class="n">VAL2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">EE_DIAM</span> <span class="o">=</span> <span class="n">DTDIAM</span> <span class="o">*</span> <span class="mf">0.401</span>
         <span class="k">return</span> <span class="n">EE_DIAM</span>
 
-<span class="k">class</span> <span class="nc">DP_P01</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DP_P01</span><span class="p">(</span><span class="n">DerivedParameterThermal</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Zone 1 heater power&quot;&quot;&quot;</span>
     <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">,</span> <span class="s1">&#39;4OHTRZ01&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.25625</span>
 
-    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">VSQUARED</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ELBV&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span>
         <span class="n">P01</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;4OHTRZ01&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">VSQUARED</span> <span class="o">/</span> <span class="mf">110.2</span>
         <span class="k">return</span> <span class="n">P01</span>
 
-<span class="k">class</span> <span class="nc">DP_DPA_POWER</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DP_DPA_POWER</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">DerivedParameter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ACIS total DPA-A and DPA-B power&quot;&quot;&quot;</span>
     <span class="n">rootparams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1dp28avo&#39;</span><span class="p">,</span> <span class="s1">&#39;1dpicacu&#39;</span><span class="p">,</span> <span class="s1">&#39;1dp28bvo&#39;</span><span class="p">,</span> <span class="s1">&#39;1dpicbcu&#39;</span><span class="p">]</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">32.8</span>
     <span class="n">content_root</span> <span class="o">=</span> <span class="s1">&#39;acispow&#39;</span>
 
-    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">power</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;1dp28avo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;1dpicacu&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">+</span>
                  <span class="n">data</span><span class="p">[</span><span class="s1">&#39;1dp28bvo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;1dpicbcu&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">power</span>
@@ -1968,10 +1968,10 @@ released <code class="docutils literal notranslate"><span class="pre">cheta</spa
 <h3>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h3>
 <p>This example is not terribly useful but illustrates the key concepts and
 requirements for defining a computed MSID:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cheta.derived.comps</span> <span class="kn">import</span> <span class="n">ComputedMsid</span>  <span class="c1"># Inherit from this class</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta.derived.comps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputedMsid</span>  <span class="c1"># Inherit from this class</span>
 
 <span class="c1"># Class name is arbitrary, but by convention start with `Comp_`</span>
-<span class="k">class</span> <span class="nc">Comp_Val_Plus_Offset</span><span class="p">(</span><span class="n">ComputedMsid</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Comp_Val_Plus_Offset</span><span class="p">(</span><span class="n">ComputedMsid</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computed MSID to add an integer offset to MSID value.</span>
 
@@ -1990,7 +1990,7 @@ requirements for defining a computed MSID:</p>
     <span class="c1"># The \w symbol means to match a-z, A-Z, 0-9 and underscore (_).</span>
     <span class="c1"># The \d symbol means to match digits 0-9.</span>
 
-    <span class="k">def</span> <span class="nf">get_msid_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">msid_args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_msid_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">msid</span><span class="p">,</span> <span class="n">msid_args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get attributes for computed MSID: ``vals``, ``bads``, ``times``,</span>
 <span class="sd">        ``unit``, ``raw_vals``, and ``offset``.  The first four must always</span>
@@ -2170,7 +2170,7 @@ following structure:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

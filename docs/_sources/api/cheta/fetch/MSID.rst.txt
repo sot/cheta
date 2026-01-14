@@ -68,7 +68,9 @@ cheta.fetch.MSID
    .. py:attribute:: data_source
 
 
-   .. py:attribute:: content
+   .. py:property:: content
+      :type: str | None
+
 
 
    .. py:method:: __len__()

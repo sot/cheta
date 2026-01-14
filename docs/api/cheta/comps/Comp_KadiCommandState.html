@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.comps.Comp_KadiCommandState &#8212; cheta 4.66.1 documentation</title>
+    <title>cheta.comps.Comp_KadiCommandState &#8212; cheta 4.67.0 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -41,9 +41,9 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=b55bf620"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/documentation_options.js?v=60f63860"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=30646c52"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/comps/Comp_KadiCommandState';</script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="cheta.comps.Comp_EphemSTK" href="Comp_EphemSTK.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.66.1" />
+  <meta name="docsearch:version" content="4.67.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.66.1</span></div>
+<span style="font-size: x-large;">4.67.0</span></div>
     
   </div>
   
@@ -351,7 +351,7 @@
 <h1>cheta.comps.Comp_KadiCommandState<a class="headerlink" href="#cheta-comps-comp-kadicommandstate" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cheta.comps.Comp_KadiCommandState">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.comps.</span></span><span class="sig-name descname"><span class="pre">Comp_KadiCommandState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.Comp_KadiCommandState" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cheta.comps.</span></span><span class="sig-name descname"><span class="pre">Comp_KadiCommandState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.Comp_KadiCommandState" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="computed_msid/ComputedMsid.html#cheta.comps.computed_msid.ComputedMsid" title="cheta.comps.computed_msid.ComputedMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid</span></code></a></p>
 <p>Computed MSID for kadi dynamic commanded states.</p>
 <p>The MSID here takes the form <code class="docutils literal notranslate"><span class="pre">cmd_state_&lt;state_key&gt;_&lt;dt&gt;</span></code> where:</p>
@@ -368,7 +368,7 @@ frames.</p></li>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.comps.Comp_KadiCommandState.msid_match">
-<span class="sig-name descname"><span class="pre">msid_match</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmd_state_(\\w+)_(\\d+)'</span></em><a class="headerlink" href="#cheta.comps.Comp_KadiCommandState.msid_match" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">msid_match</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmd_state_(\\w+)_(\\d+)'</span></span><a class="headerlink" href="#cheta.comps.Comp_KadiCommandState.msid_match" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -483,7 +483,7 @@ frames.</p></li>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

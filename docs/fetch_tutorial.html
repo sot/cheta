@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Fetch Tutorial &#8212; cheta 4.66.1 documentation</title>
+    <title>Fetch Tutorial &#8212; cheta 4.67.0 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -41,9 +41,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=b55bf620"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/documentation_options.js?v=60f63860"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=30646c52"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'fetch_tutorial';</script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="Cheta Telemetry Archive" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.66.1" />
+  <meta name="docsearch:version" content="4.67.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.66.1</span></div>
+<span style="font-size: x-large;">4.67.0</span></div>
     
   </div>
   
@@ -353,8 +353,8 @@ and values but also various other data arrays and MSID metadata.</p>
 </div>
 <p>The basic process of fetching data always starts with importing modules into the Python
 session:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch_eng</span>  <span class="c1"># Use engineering units like degF, ft-lb-s</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>  <span class="c1"># Use cxotime for time conversions</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_eng</span>  <span class="c1"># Use engineering units like degF, ft-lb-s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cxotime</span><span class="w"> </span><span class="kn">import</span> <span class="n">CxoTime</span>  <span class="c1"># Use cxotime for time conversions</span>
 </pre></div>
 </div>
 <p>In these examples we do everything with engineering units, but see the <a class="reference internal" href="#unit-systems">Unit systems</a>
@@ -454,7 +454,7 @@ words ‘time’ and ‘date’ are used interchangably to mean a date-time stam
 </table>
 </div>
 <p>Converting between units is straightforward with the <a class="reference external" href="https://sot.github.io/cxotime">cxotime</a> module:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cxotime</span><span class="w"> </span><span class="kn">import</span> <span class="n">CxoTime</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">datetime</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="mf">126446464.184</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span>
 <span class="go">&#39;2002:003:12:00:00.000&#39;</span>
@@ -473,7 +473,7 @@ words ‘time’ and ‘date’ are used interchangably to mean a date-time stam
 <code class="docutils literal notranslate"><span class="pre">ska_matplotlib</span></code> module is a handy way to make a plot of telemetry data.  This function
 takes care of making nice time axis labels corresponding to the standard Year : Day of
 Year format.  The function is used in the following example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ska_matplotlib</span> <span class="kn">import</span> <span class="n">plot_cxctime</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">ska_matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_cxctime</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plot_cxctime</span><span class="p">(</span><span class="n">tephin</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">tephin</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -549,7 +549,7 @@ highlights the large rates during maneuvers:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span> <span class="o">=</span> <span class="n">fetch_eng</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;aorate2&#39;</span><span class="p">,</span> <span class="s1">&#39;2011:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2011:002&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">kadi</span> <span class="kn">import</span> <span class="n">events</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kadi</span><span class="w"> </span><span class="kn">import</span> <span class="n">events</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">select_intervals</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">manvrs</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
 </pre></div>
@@ -580,7 +580,7 @@ table where each row represents a desired interval and includes a <code class="d
 <code class="docutils literal notranslate"><span class="pre">datestop</span></code> column.</p>
 <p>For example to extract solar array temperatures when the off-nominal roll
 angle is between 5 and 10 degrees you would do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cheta.utils</span> <span class="kn">import</span> <span class="n">logical_intervals</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">logical_intervals</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sa_temps</span> <span class="o">=</span> <span class="n">fetch_eng</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;TSAPYT&#39;</span><span class="p">,</span><span class="s1">&#39;2010:001&#39;</span><span class="p">,</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;5min&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">roll</span> <span class="o">=</span> <span class="n">fetch_eng</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;ROLL&#39;</span><span class="p">,</span><span class="s1">&#39;2010:001&#39;</span><span class="p">,</span><span class="n">stat</span><span class="o">=</span><span class="s1">&#39;5min&#39;</span><span class="p">)</span>
@@ -1183,7 +1183,7 @@ units for the retrieved telemetry.</p>
 </table>
 </div>
 <p>The unit system is selected via the imported module as shown below:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch_cxc</span><span class="p">,</span> <span class="n">fetch_eng</span><span class="p">,</span> <span class="n">fetch_sci</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_cxc</span><span class="p">,</span> <span class="n">fetch_eng</span><span class="p">,</span> <span class="n">fetch_sci</span>
 
 <span class="o">&gt;&gt;&gt;</span> <span class="n">t_cxc</span> <span class="o">=</span> <span class="n">fetch_cxc</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;tephin&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:002&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">t_cxc</span><span class="o">.</span><span class="n">unit</span>
@@ -1431,7 +1431,7 @@ this limitation is desired, then set the data source to <code class="docutils li
 In this case <code class="docutils literal notranslate"><span class="pre">cheta</span></code> may do multiple MAUDE queries until all the data are fetched.
 This has an overhead penalty because of multiple server requests to piece together the
 full query. For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">maude</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">maude</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">maude</span><span class="o">.</span><span class="n">set_logger_level</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Show debugging information from maude</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fetch_eng</span><span class="o">.</span><span class="n">data_source</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;MAUDE&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dat</span> <span class="o">=</span> <span class="n">fetch_eng</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;aoattqt1&#39;</span><span class="p">,</span> <span class="s1">&#39;2016:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2016:003&#39;</span><span class="p">)</span>
@@ -1531,9 +1531,9 @@ you watch memory usage:</p>
 to tell it to order by memory usage.  Now go back to your main window and get
 all the <code class="docutils literal notranslate"><span class="pre">TEIO</span></code> data for the mission:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">matplotlib</span>
-<span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch_eng</span> <span class="k">as</span> <span class="n">fetch</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">ska_matplotlib</span> <span class="kn">import</span> <span class="n">plot_cxctime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_eng</span> <span class="k">as</span> <span class="n">fetch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ska_matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_cxctime</span>
 <span class="o">%</span><span class="n">time</span> <span class="n">teio</span> <span class="o">=</span> <span class="n">fetch_eng</span><span class="o">.</span><span class="n">MSID</span><span class="p">(</span><span class="s1">&#39;teio&#39;</span><span class="p">,</span> <span class="s1">&#39;2000:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:001&#39;</span><span class="p">,</span> <span class="n">filter_bad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Out</span><span class="p">[]:</span> <span class="n">CPU</span> <span class="n">times</span><span class="p">:</span> <span class="n">user</span> <span class="mi">457</span> <span class="n">ms</span><span class="p">,</span> <span class="n">sys</span><span class="p">:</span> <span class="mf">59.8</span> <span class="n">ms</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="mi">517</span> <span class="n">ms</span>
        <span class="n">Wall</span> <span class="n">time</span><span class="p">:</span> <span class="mi">561</span> <span class="n">ms</span>
@@ -1598,7 +1598,7 @@ especially useful for applications that want to avoid unreasonably large data re
 <p>As an example, compute the estimated size in Megabytes for fetching full-resolution data
 for TEPHIN and AOPCADMD for a period of 3 years, both of which are then interpolated at a
 time sampling of 32.8 seconds:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cheta.utils</span> <span class="kn">import</span> <span class="n">get_fetch_size</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_fetch_size</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">get_fetch_size</span><span class="p">([</span><span class="s1">&#39;TEPHIN&#39;</span><span class="p">,</span> <span class="s1">&#39;AOPCADMD&#39;</span><span class="p">],</span> <span class="s1">&#39;2011:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2014:001&#39;</span><span class="p">,</span> <span class="n">interpolate_dt</span><span class="o">=</span><span class="mf">32.8</span><span class="p">)</span>
 <span class="go">(1248.19, 75.06)</span>
 </pre></div>
@@ -1613,10 +1613,10 @@ and extrapolating.  Therefore the size estimates are reflective of normal operat
 <h2>Putting it all together<a class="headerlink" href="#putting-it-all-together" title="Link to this heading">#</a></h2>
 <p>As a final example here is a real-world problem of wanting to compare OBC
 rates to those derived on the ground using raw gyro data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch</span>
-<span class="kn">from</span> <span class="nn">ska_matplotlib</span> <span class="kn">import</span> <span class="n">plot_cxctime</span>
-<span class="kn">import</span> <span class="nn">ska_numpy</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ska_matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_cxctime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ska_numpy</span>
 
 <span class="n">tstart</span> <span class="o">=</span> <span class="s1">&#39;2009:313:16:00:00&#39;</span>
 <span class="n">tstop</span> <span class="o">=</span> <span class="s1">&#39;2009:313:17:00:00&#39;</span>
@@ -1709,9 +1709,9 @@ with <code class="docutils literal notranslate"><span class="pre">fetch.data_sou
 <p>If you are using remote data access from within a script, you should write the
 script using calls to functions instead of having everything at the main level.
 For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># For remote access this will interactively prompt the user for an</span>
     <span class="c1"># IP address, user name and password (for only the first fetch).</span>
     <span class="n">dat</span> <span class="o">=</span> <span class="n">fetch_eng</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;tephin&#39;</span><span class="p">,</span> <span class="s1">&#39;2020:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2020:002&#39;</span><span class="p">)</span>
@@ -1727,7 +1727,7 @@ For example:</p>
 up importing the main script many times, so if you have non-trivial code at the
 top level this causes problems. For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># DO NOT DO THIS</span>
-<span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch_eng</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_eng</span>
 
 <span class="c1"># This line gets run multiple times in succession via multiprocessing: FAIL</span>
 <span class="n">dat</span> <span class="o">=</span> <span class="n">fetch_eng</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;tephin&#39;</span><span class="p">,</span> <span class="s1">&#39;2020:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2020:002&#39;</span><span class="p">)</span>
@@ -1885,7 +1885,7 @@ These topics are still relevant but are not as commonly used as the main topics.
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

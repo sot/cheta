@@ -96,7 +96,7 @@ cheta.lazy.LazyDict
    .. py:method:: keys()
 
       
-      D.keys() -> a set-like object providing a view on D's keys
+      Return a set-like object providing a view on the dict's keys.
 
 
 
@@ -120,7 +120,7 @@ cheta.lazy.LazyDict
    .. py:method:: values()
 
       
-      D.values() -> an object providing a view on D's values
+      Return an object providing a view on the dict's values.
 
 
 
@@ -144,7 +144,7 @@ cheta.lazy.LazyDict
    .. py:method:: items()
 
       
-      D.items() -> a set-like object providing a view on D's items
+      Return a set-like object providing a view on the dict's items.
 
 
 

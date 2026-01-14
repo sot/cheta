@@ -60,7 +60,7 @@ cheta.fetch.MSIDset
    .. py:method:: copy()
 
       
-      D.copy() -> a shallow copy of D
+      Return a shallow copy of the dict.
 
 
 

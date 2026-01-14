@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.comps.comps.Comp_EphemSTK &#8212; cheta 4.66.1 documentation</title>
+    <title>cheta.comps.comps.Comp_EphemSTK &#8212; cheta 4.67.0 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -41,9 +41,9 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=b55bf620"></script>
-    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/documentation_options.js?v=60f63860"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=30646c52"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/comps/comps/Comp_EphemSTK';</script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="cheta.comps.comps.ComputedMsid" href="ComputedMsid.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.66.1" />
+  <meta name="docsearch:version" content="4.67.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.66.1</span></div>
+<span style="font-size: x-large;">4.67.0</span></div>
     
   </div>
   
@@ -354,7 +354,7 @@
 <h1>cheta.comps.comps.Comp_EphemSTK<a class="headerlink" href="#cheta-comps-comps-comp-ephemstk" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cheta.comps.comps.Comp_EphemSTK">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.comps.comps.</span></span><span class="sig-name descname"><span class="pre">Comp_EphemSTK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.comps.Comp_EphemSTK" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cheta.comps.comps.</span></span><span class="sig-name descname"><span class="pre">Comp_EphemSTK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eng'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.comps.comps.Comp_EphemSTK" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../computed_msid/ComputedMsid.html#cheta.comps.computed_msid.ComputedMsid" title="cheta.comps.computed_msid.ComputedMsid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cheta.comps.computed_msid.ComputedMsid</span></code></a></p>
 <p>Computed MSID for returning the STK orbit ephemeris.</p>
 <p>This defines the following computed MSIDs:</p>
@@ -369,7 +369,7 @@
 <p>Under the hood this uses get_ephemeris_stk() to fetch the ephemeris data from
 local STK files, OCCweb, or local cache STK data.</p>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">orbit_x</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">Msid</span><span class="p">(</span><span class="s1">&#39;orbitephem_stk_x&#39;</span><span class="p">,</span> <span class="s1">&#39;2022:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2023:001&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">orbit_x</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 <span class="go"># Makes a plot</span>
@@ -377,7 +377,7 @@ local STK files, OCCweb, or local cache STK data.</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.comps.comps.Comp_EphemSTK.msid_match">
-<span class="sig-name descname"><span class="pre">msid_match</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orbitephem_stk_(x|y|z|vx|vy|vz)'</span></em><a class="headerlink" href="#cheta.comps.comps.Comp_EphemSTK.msid_match" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">msid_match</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orbitephem_stk_(x|y|z|vx|vy|vz)'</span></span><a class="headerlink" href="#cheta.comps.comps.Comp_EphemSTK.msid_match" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -495,7 +495,7 @@ local STK files, OCCweb, or local cache STK data.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

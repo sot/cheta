@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.fetch.MSID &#8212; cheta 4.66.1 documentation</title>
+    <title>cheta.fetch.MSID &#8212; cheta 4.67.0 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -41,9 +41,9 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=b55bf620"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/documentation_options.js?v=60f63860"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=30646c52"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/fetch/MSID';</script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="cheta.fetch.NullHandler" href="NullHandler.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.66.1" />
+  <meta name="docsearch:version" content="4.67.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.66.1</span></div>
+<span style="font-size: x-large;">4.67.0</span></div>
     
   </div>
   
@@ -351,7 +351,7 @@
 <h1>cheta.fetch.MSID<a class="headerlink" href="#cheta-fetch-msid" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cheta.fetch.MSID">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.fetch.</span></span><span class="sig-name descname"><span class="pre">MSID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LAUNCH_DATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.fetch.MSID" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cheta.fetch.</span></span><span class="sig-name descname"><span class="pre">MSID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LAUNCH_DATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.fetch.MSID" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Fetch data from the engineering telemetry archive into an MSID object.</p>
 <p>The input <code class="docutils literal notranslate"><span class="pre">msid</span></code> is case-insensitive and can include linux file “glob”
@@ -389,7 +389,7 @@ instance <code class="docutils literal notranslate"><span class="pre">dpa_pow*</
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.fetch.MSID.stat">
-<span class="sig-name descname"><span class="pre">stat</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cheta.fetch.MSID.stat" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">stat</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cheta.fetch.MSID.stat" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -417,9 +417,9 @@ instance <code class="docutils literal notranslate"><span class="pre">dpa_pow*</
 <span class="sig-name descname"><span class="pre">data_source</span></span><a class="headerlink" href="#cheta.fetch.MSID.data_source" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cheta.fetch.MSID.content">
-<span class="sig-name descname"><span class="pre">content</span></span><a class="headerlink" href="#cheta.fetch.MSID.content" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">content</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cheta.fetch.MSID.content" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -429,7 +429,7 @@ instance <code class="docutils literal notranslate"><span class="pre">dpa_pow*</
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cheta.fetch.MSID.dtype">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.3)"><span class="pre">numpy.dtype</span></a></em><a class="headerlink" href="#cheta.fetch.MSID.dtype" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dtype</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">numpy.dtype</span></a></span><a class="headerlink" href="#cheta.fetch.MSID.dtype" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -463,7 +463,7 @@ files</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.fetch.MSID._get_msid_data_from_cxc_cached">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_msid_data_from_cxc_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.fetch.MSID._get_msid_data_from_cxc_cached" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_msid_data_from_cxc_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.fetch.MSID._get_msid_data_from_cxc_cached" title="Link to this definition">#</a></dt>
 <dd><p>Do the actual work of getting time and values for an MSID from HDF5
 files and cache recent results.  Caching is very beneficial for derived
 parameter updates but not desirable for normal fetch usage.</p>
@@ -471,7 +471,7 @@ parameter updates but not desirable for normal fetch usage.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.fetch.MSID._get_msid_data_from_cxc">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_msid_data_from_cxc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.fetch.MSID._get_msid_data_from_cxc" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_msid_data_from_cxc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.fetch.MSID._get_msid_data_from_cxc" title="Link to this definition">#</a></dt>
 <dd><p>Do the actual work of getting time and values for an MSID from HDF5
 files</p>
 </dd></dl>
@@ -485,21 +485,21 @@ Returned values are (for now) all assumed to be good.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cheta.fetch.MSID.state_codes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">state_codes</span></span><a class="headerlink" href="#cheta.fetch.MSID.state_codes" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">state_codes</span></span><a class="headerlink" href="#cheta.fetch.MSID.state_codes" title="Link to this definition">#</a></dt>
 <dd><p>List of state codes tuples (raw_count, state_code) for state-valued
 MSIDs</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cheta.fetch.MSID.raw_vals">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">raw_vals</span></span><a class="headerlink" href="#cheta.fetch.MSID.raw_vals" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">raw_vals</span></span><a class="headerlink" href="#cheta.fetch.MSID.raw_vals" title="Link to this definition">#</a></dt>
 <dd><p>Raw counts corresponding to the string state-code values that are
 stored in <code class="docutils literal notranslate"><span class="pre">self.vals</span></code></p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cheta.fetch.MSID.tdb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdb</span></span><a class="headerlink" href="#cheta.fetch.MSID.tdb" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tdb</span></span><a class="headerlink" href="#cheta.fetch.MSID.tdb" title="Link to this definition">#</a></dt>
 <dd><p>Access the Telemetry database entries for this MSID</p>
 </dd></dl>
 
@@ -605,7 +605,7 @@ rates during maneuvers:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">kadi</span> <span class="kn">import</span> <span class="n">events</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kadi</span><span class="w"> </span><span class="kn">import</span> <span class="n">events</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">remove_intervals</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">manvrs</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>  <span class="c1"># rate in arcsec/sec</span>
 <span class="go">-0.0003688639491030978</span>
@@ -643,7 +643,7 @@ maneuvers:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">kadi</span> <span class="kn">import</span> <span class="n">events</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kadi</span><span class="w"> </span><span class="kn">import</span> <span class="n">events</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">select_intervals</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">manvrs</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">aorate2</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>  <span class="c1"># rate in arcsec/sec</span>
 <span class="go">24.764309542605481</span>
@@ -952,7 +952,7 @@ additional keyword arguments that are accepted by <code class="docutils literal 
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

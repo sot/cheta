@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>One-stop fetch function &#8212; cheta 4.66.1 documentation</title>
+    <title>One-stop fetch function &#8212; cheta 4.67.0 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -41,9 +41,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=b55bf620"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/documentation_options.js?v=60f63860"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=30646c52"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'archived_topics';</script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="Fetch Tutorial" href="fetch_tutorial.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.66.1" />
+  <meta name="docsearch:version" content="4.67.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.66.1</span></div>
+<span style="font-size: x-large;">4.67.0</span></div>
     
   </div>
   
@@ -401,7 +401,7 @@ instead of F), or CXC units (whatever is in CXC decom, which e.g. has temperatur
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska</span>
 <span class="o">%</span> <span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">cheta.fetch</span> <span class="kn">import</span> <span class="n">get_telem</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">cheta.fetch</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_telem</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">dat</span> <span class="o">=</span> <span class="n">get_telem</span><span class="p">([</span><span class="s1">&#39;tephin&#39;</span><span class="p">,</span> <span class="s1">&#39;tcylaft6&#39;</span><span class="p">],</span> <span class="s1">&#39;2010:001&#39;</span><span class="p">,</span> <span class="s1">&#39;2010:030&#39;</span><span class="p">,</span> <span class="n">sampling</span><span class="o">=</span><span class="s1">&#39;5min&#39;</span><span class="p">)</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">clf</span><span class="p">()</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;tephin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;TEPHIN&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
@@ -564,7 +564,7 @@ include a <code class="docutils literal notranslate"><span class="pre">ska3-</sp
                  <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">fetch</span><span class="o">-</span><span class="n">Mb</span> <span class="n">MAX_FETCH_MB</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">Mb</span> <span class="n">MAX_OUTPUT_MB</span><span class="p">]</span>
                  <span class="n">MSID</span> <span class="p">[</span><span class="n">MSID</span> <span class="o">...</span><span class="p">]</span>
 
-<span class="n">Fetch</span> <span class="n">telemetry</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">cheta</span> <span class="n">archive</span><span class="o">.</span>
+<span class="n">Fetch</span> <span class="n">telemetry</span> <span class="kn">from</span><span class="w"> </span><span class="nn">the</span> <span class="n">cheta</span> <span class="n">archive</span><span class="o">.</span>
 
 <span class="n">Examples</span>
 <span class="o">========</span>
@@ -618,7 +618,7 @@ trying the first example provided in the help output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">TEPHIN</span> <span class="n">AOPCADMD</span> <span class="o">--</span><span class="n">start</span><span class="o">=</span><span class="mi">2013</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">stop</span><span class="o">=</span><span class="mi">2013</span><span class="p">:</span><span class="mi">030</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="mi">5</span><span class="nb">min</span> \
             <span class="o">--</span><span class="n">time</span><span class="o">-</span><span class="nb">format</span><span class="o">=</span><span class="n">greta</span> <span class="o">--</span><span class="n">outfile</span><span class="o">=</span><span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
 <span class="n">Fetching</span> <span class="mi">5</span><span class="nb">min</span><span class="o">-</span><span class="n">resolution</span> <span class="n">data</span> <span class="k">for</span> <span class="n">MSIDS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TEPHIN&#39;</span><span class="p">,</span> <span class="s1">&#39;AOPCADMD&#39;</span><span class="p">]</span>
-  <span class="kn">from</span> <span class="mi">2013</span><span class="p">:</span><span class="mi">001</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span> <span class="n">to</span> <span class="mi">2013</span><span class="p">:</span><span class="mi">030</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span>
+  <span class="kn">from</span><span class="w"> </span><span class="mi">2013</span><span class="p">:</span><span class="mi">001</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span> <span class="n">to</span> <span class="mi">2013</span><span class="p">:</span><span class="mi">030</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span>
 <span class="n">Writing</span> <span class="n">data</span> <span class="n">to</span> <span class="n">telem</span><span class="o">.</span><span class="n">zip</span>
 </pre></div>
 </div>
@@ -855,7 +855,7 @@ reduced via the <code class="docutils literal notranslate"><span class="pre">--i
 aforementioned gyro counts query:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">ska_fetch</span> <span class="n">AOGYRCT1</span> <span class="n">AOGYRCT2</span> <span class="n">AOGYRCT3</span> <span class="n">AOGYRCT4</span> <span class="o">--</span><span class="n">start</span><span class="o">=</span><span class="mi">2000</span><span class="p">:</span><span class="mi">001</span> <span class="o">--</span><span class="n">sampling</span><span class="o">=</span><span class="n">full</span>
 <span class="n">Fetching</span> <span class="n">full</span><span class="o">-</span><span class="n">resolution</span> <span class="n">data</span> <span class="k">for</span> <span class="n">MSIDS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;AOGYRCT1&#39;</span><span class="p">,</span> <span class="s1">&#39;AOGYRCT2&#39;</span><span class="p">,</span> <span class="s1">&#39;AOGYRCT3&#39;</span><span class="p">,</span> <span class="s1">&#39;AOGYRCT4&#39;</span><span class="p">]</span>
-  <span class="kn">from</span> <span class="mi">2000</span><span class="p">:</span><span class="mi">001</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span> <span class="n">to</span> <span class="mi">2014</span><span class="p">:</span><span class="mi">065</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mf">42.347</span>
+  <span class="kn">from</span><span class="w"> </span><span class="mi">2000</span><span class="p">:</span><span class="mi">001</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.000</span> <span class="n">to</span> <span class="mi">2014</span><span class="p">:</span><span class="mi">065</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mf">42.347</span>
 
 <span class="o">********************************************************************************</span>
 <span class="n">ERROR</span><span class="p">:</span> <span class="n">Requested</span> <span class="n">fetch</span> <span class="n">requires</span> <span class="mf">76821.73</span> <span class="n">Mb</span> <span class="n">vs</span><span class="o">.</span> <span class="n">limit</span> <span class="n">of</span> <span class="mf">1000.00</span> <span class="n">Mb</span>
@@ -1008,7 +1008,7 @@ unzip as follows:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

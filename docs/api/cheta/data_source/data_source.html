@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.data_source.data_source &#8212; cheta 4.66.1 documentation</title>
+    <title>cheta.data_source.data_source &#8212; cheta 4.67.0 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -41,9 +41,9 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=b55bf620"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/documentation_options.js?v=60f63860"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=30646c52"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/cheta/data_source/data_source';</script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="cheta.data_source.DataSourceMeta" href="DataSourceMeta.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.66.1" />
+  <meta name="docsearch:version" content="4.67.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.66.1</span></div>
+<span style="font-size: x-large;">4.67.0</span></div>
     
   </div>
   
@@ -351,7 +351,7 @@
 <h1>cheta.data_source.data_source<a class="headerlink" href="#cheta-data-source-data-source" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cheta.data_source.data_source">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cheta.data_source.</span></span><span class="sig-name descname"><span class="pre">data_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">data_sources</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cheta.data_source.</span></span><span class="sig-name descname"><span class="pre">data_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">data_sources</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source" title="Link to this definition">#</a></dt>
 <dd><p>Context manager and singleton config object for managing telem data_sources(s).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.data_source.data_source._data_sources">
@@ -360,12 +360,12 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.data_source.data_source._allowed">
-<span class="sig-name descname"><span class="pre">_allowed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cxc',</span> <span class="pre">'maude',</span> <span class="pre">'MAUDE',</span> <span class="pre">'test-drop-half')</span></em><a class="headerlink" href="#cheta.data_source.data_source._allowed" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_allowed</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cxc',</span> <span class="pre">'maude',</span> <span class="pre">'MAUDE',</span> <span class="pre">'test-drop-half')</span></span><a class="headerlink" href="#cheta.data_source.data_source._allowed" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cheta.data_source.data_source._new_data_sources">
-<span class="sig-name descname"><span class="pre">_new_data_sources</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#cheta.data_source.data_source._new_data_sources" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_new_data_sources</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></span><a class="headerlink" href="#cheta.data_source.data_source._new_data_sources" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -380,7 +380,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.data_source.data_source.set">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">data_sources</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.set" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">data_sources</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.set" title="Link to this definition">#</a></dt>
 <dd><p>Set current data sources.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -391,7 +391,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.data_source.data_source.sources">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.sources" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.sources" title="Link to this definition">#</a></dt>
 <dd><p>Get tuple of current data sources names.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -405,7 +405,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.data_source.data_source.get_msids">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_msids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.get_msids" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_msids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.get_msids" title="Link to this definition">#</a></dt>
 <dd><p>Get the set of MSID names corresponding to <code class="docutils literal notranslate"><span class="pre">source</span></code> (e.g. ‘cxc’ or ‘MAUDE’)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -419,7 +419,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cheta.data_source.data_source.options">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.options" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cheta.data_source.data_source.options" title="Link to this definition">#</a></dt>
 <dd><p>Get the data sources and corresponding options as a dict.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_source</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;cxc&#39;</span><span class="p">,</span> <span class="s1">&#39;maude allow_subset=False&#39;</span><span class="p">)</span>
@@ -534,7 +534,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>
