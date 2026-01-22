@@ -284,20 +284,21 @@ def get_ephem_stk_paths(
         else EPHEM_STK_DIRS_DEFAULT
     )
 
-    # First try local STK directories (if they exist)
+    # First try local STK directories (if they exist), including ArchiveMCC subdir
     for stk_dir in stk_dirs:
-        if not stk_dir.exists():
-            continue
-        local_names = [p.name for p in stk_dir.iterdir()]
-        logger.info(f"Checking local directory {stk_dir} for STK files")
-        files_stk.extend(find_stk_files(local_names, stk_dir, "local", start, stop))
-        if latest_only and any(f["start"] <= start for f in files_stk):
-            files_stk = sorted(files_stk, key=lambda x: x["start"].date)
-            for ii, file_stk in enumerate(reversed(files_stk)):
-                if file_stk["start"] <= start:
-                    files_stk = files_stk[-ii - 1 :]
-                    break
-            return files_stk
+        for subdir in [stk_dir, stk_dir / "ArchiveMCC"]:
+            if not subdir.exists():
+                continue
+            local_names = [p.name for p in subdir.iterdir()]
+            logger.info(f"Checking local directory {subdir} for STK files")
+            files_stk.extend(find_stk_files(local_names, subdir, "local", start, stop))
+            if latest_only and any(f["start"] <= start for f in files_stk):
+                files_stk = sorted(files_stk, key=lambda x: x["start"].date)
+                for ii, file_stk in enumerate(reversed(files_stk)):
+                    if file_stk["start"] <= start:
+                        files_stk = files_stk[-ii - 1 :]
+                        break
+                return files_stk
 
     # Then try OCCweb
     for dir_path in [EPHEM_STK_RECENT_DIR, EPHEM_STK_ARCHIVE_DIR]:
