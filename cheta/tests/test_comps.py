@@ -631,7 +631,9 @@ def test_dp_roll_css():
     assert np.allclose(vals, exp, rtol=0, atol=2e-4)
 
 
-def test_stk_ephem_timeout(monkeypatch, tmp_path, clear_lru_cache, force_stk_files_from_occweb):
+def test_stk_ephem_timeout(
+    monkeypatch, tmp_path, clear_lru_cache, force_stk_files_from_occweb
+):
     monkeypatch.setattr(
         ephem_stk, "EPHEM_STK_CACHE_DIR_DEFAULT", str(tmp_path / "cache")
     )
