@@ -72,6 +72,7 @@ equiv_units = set(
         ("ASEC", "arcsec"),
         ("DEG", "deg"),
         ("DEGPS", "deg/s"),
+        ("HZ", "count"),  # Strange equivalence but e.g. 2TLEV2RT
         ("KHZ", "kHz"),
         ("KM", "km"),
         ("KMPS", "km/s"),
