@@ -7,7 +7,7 @@ import pytest
 from Chandra.Time import DateTime
 from cxotime import CxoTime
 
-from .. import fetch, fetch_eng
+from .. import fetch, fetch_eng, fetch_sci
 
 print(fetch.__file__)
 
@@ -540,6 +540,38 @@ def test_interpolate_time_precision():
     dt = dat.times[-1] - dat.times[0]
     dt_frac = dt * 100 - round(dt * 100)
     assert abs(dt_frac) < 0.001
+
+
+@pytest.mark.skipif(not HAS_MAUDE, reason="MAUDE server not available")
+def test_2tlev2rt_units_maude():
+    msid = "2TLEV2RT"
+    start = "2026:065:13:39:10"
+    stop = "2026:065:13:40:30"
+
+    with fetch.data_source("MAUDE"):
+        dat_cxc = fetch.Msid(msid, start, stop)
+        assert dat_cxc.unit == "count"
+
+        dat_eng = fetch_eng.Msid(msid, start, stop)
+        assert dat_eng.unit == "HZ"
+
+        dat_sci = fetch_sci.Msid(msid, start, stop)
+        assert dat_sci.unit == "count"
+
+
+def test_2tlev2rt_units():
+    msid = "2TLEV2RT"
+    start = "2026:065:13:39:10"
+    stop = "2026:065:13:40:30"
+
+    dat_cxc = fetch.Msid(msid, start, stop)
+    assert dat_cxc.unit == "count"
+
+    dat_eng = fetch_eng.Msid(msid, start, stop)
+    assert dat_eng.unit == "HZ"
+
+    dat_sci = fetch_sci.Msid(msid, start, stop)
+    assert dat_sci.unit == "count"
 
 
 def _assert_msid_equal(msid1, msid2):
