@@ -315,7 +315,7 @@ class Units(dict):
                     MSID, conversion[0], conversion[1]
                 )
             )
-
-        vals = converters[conversion](vals, delta_val)
+        else:
+            vals = converters[conversion](vals, delta_val)
 
         return vals
