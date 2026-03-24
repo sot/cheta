@@ -72,6 +72,7 @@ equiv_units = set(
         ("ASEC", "arcsec"),
         ("DEG", "deg"),
         ("DEGPS", "deg/s"),
+        ("HZ", "count"),  # Strange equivalence but e.g. 2TLEV2RT
         ("KHZ", "kHz"),
         ("KM", "km"),
         ("KMPS", "km/s"),
@@ -314,7 +315,7 @@ class Units(dict):
                     MSID, conversion[0], conversion[1]
                 )
             )
-
-        vals = converters[conversion](vals, delta_val)
+        else:
+            vals = converters[conversion](vals, delta_val)
 
         return vals
