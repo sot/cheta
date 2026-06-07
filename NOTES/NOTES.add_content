@@ -15,10 +15,6 @@ Log in to a machine with at least 16 Gb RAM and get into ska environment
   export ENG_ARCHIVE=$PWD
   export CONTENT=<CONTENT>  # Upper case
 
-In order to use a local install of pyfits 2.3, which is *much* faster, do:
-
-  export PYTHONPATH=$PWD/local/lib/python2.7/site-packages
-
 Note that for adding new content the trick of soft links for the 1999 data is used.
 The archive update always goes to the ./data (non-1999) directory but fetch queries
 for pre-2000 data always look in 1999.  It's a little hacky but works.
@@ -58,25 +54,9 @@ Probably worth checking the stats files quickly before going forward.
   ./update_archive.py --content $CONTENT --date-start 2000:010 > $CONTENT.log 2>&1 &
 
 *********************************************************************************
-* Move FITS files into archive
-*********************************************************************************
-  python move_fits_archive.py $CONTENT
-
-*********************************************************************************
 * Copy h5 files into Ska
 *********************************************************************************
   cp -rp data/$CONTENT $SKA/data/eng_archive/data/
-
-*********************************************************************************
-* Update version and install new package
-*********************************************************************************
-
-- Update Ska/engarchive/version.py
-
-  python setup.py sdist
-  cp -p dist/...tar.gz $SKA/pkgs/
-
-- Update skare and install
 
 ===========================================
 DONE

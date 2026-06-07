@@ -5,7 +5,6 @@
 git checkout -b derived
 
 - Update Ska/engarchive/filetypes.dat
-- Update Ska/engarchive/version.py (inc. version, add "dev" e.g. "0.13dev"
 - Update Ska/engarchive/derived/__init__.py
 - Update Ska/engarchive/derived/<new>.py
 
@@ -62,14 +61,14 @@ git push origin derived
 
 # CAREFULLY do this (don't remove everything, just the new bit)
 set content=<new>
-rm -rf data/dp_${content}*   
+rm -rf data/dp_${content}*
 
 ./add_derived.py --data-root=$PWD
 
 For a quantity sampled at 32.8 sec or slower, this should work:
 # First a couple of short ingests to seed the stats
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:010 --max-lookback-time=400 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:020 --max-lookback-time=400 
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:010 --max-lookback-time=400
+./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:020 --max-lookback-time=400
 # Now go
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2001:001 --max-lookback-time=400 >&! run.log
 ./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2002:001 --max-lookback-time=400 >>& run.log
