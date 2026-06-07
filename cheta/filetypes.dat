@@ -81,6 +81,16 @@ L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
 L0.5 SIM       SIM_MRG         SIM_0.5{SIM_MRG}             *.fits.gz
 L0   EPHIN     EPHHK           EPHIN_0{EPHHK}               *.fits.gz
 L0   CPE       CPE1ENG         CPE_ENG_0{CPE1ENG}           *.fits.gz
+# ACA Level-0 is copied from the mica archive. Each slot 0..7 is independent.
+L0   ACA       ACA0            -                            *.fits.gz
+L0   ACA       ACA1            -                            *.fits.gz
+L0   ACA       ACA2            -                            *.fits.gz
+L0   ACA       ACA3            -                            *.fits.gz
+L0   ACA       ACA4            -                            *.fits.gz
+L0   ACA       ACA5            -                            *.fits.gz
+L0   ACA       ACA6            -                            *.fits.gz
+L0   ACA       ACA7            -                            *.fits.gz
+# Derived parameters
 L3   DERIVED   DP_THERMAL1     -                            -
 L3   DERIVED   DP_THERMAL128   -                            -
 L3   DERIVED   DP_ACISPOW128   -                            -
