@@ -110,6 +110,7 @@ class DerivedParameter(object):
         return dataset
 
     def __call__(self, start, stop):
+        """Compute derived parameter values for testing"""
         from .. import fetch_eng
 
         dataset = fetch_eng.MSIDset(self.rootparams, start, stop, filter_bad=True)
