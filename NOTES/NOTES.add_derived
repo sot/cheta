@@ -26,13 +26,13 @@ export ENG_ARCHIVE=${PWD}:/proj/sot/ska/data/eng_archive
 # ingest process (update_archive.py) does not currently handle this.
 # This reads data from 1999:200 to 1999:260
 
-./add_derived.py --data-root=$PWD --content=dp_$content
+python -m cheta.add_derived --data-root=$PWD --content=dp_$content
 
 # Update the archive, first in a small test.  --content takes a match regex.
 
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:260
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:270
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 1999:280
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 1999:260
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 1999:270
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 1999:280
 
 ipython --pylab
 impska
@@ -63,25 +63,25 @@ git push origin derived
 set content=<new>
 rm -rf data/dp_${content}*
 
-./add_derived.py --data-root=$PWD
+python -m cheta.add_derived --data-root=$PWD
 
 For a quantity sampled at 32.8 sec or slower, this should work:
 # First a couple of short ingests to seed the stats
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:010 --max-lookback-time=400
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2000:020 --max-lookback-time=400
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2000:010 --max-lookback-time=400
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2000:020 --max-lookback-time=400
 # Now go
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2001:001 --max-lookback-time=400 >&! run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2002:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2003:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2004:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2005:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2006:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2007:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2008:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2009:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2010:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2011:001 --max-lookback-time=400 >>& run.log
-./update_archive.py --data-root=$PWD --content=dp_$content --date-now 2012:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2001:001 --max-lookback-time=400 >&! run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2002:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2003:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2004:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2005:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2006:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2007:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2008:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2009:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2010:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2011:001 --max-lookback-time=400 >>& run.log
+python -m cheta.update_archive --data-root=$PWD --content=dp_$content --date-now 2012:001 --max-lookback-time=400 >>& run.log
 
 Otherwise see run_add_derived.csh.
 
@@ -154,23 +154,23 @@ Add 1999 derived params
 # that you cannot just add a new column to an existing content type because the
 # ingest process (update_archive.py) does not currently handle this.
 
-  ./add_derived.py --data-root=$PWD --start='1999:205' --stop='1999:210'
+  python -m cheta.add_derived --data-root=$PWD --start='1999:205' --stop='1999:210'
 
 The dp_pcad4 data depend on ephemeris values which don't start until 1999:226:08:00:00.
 (Use dev_utils/print_msidfile_times.py to see this).  So remove that and start that one later.
 
   rm -rf data/dp_pcad4
-  ./add_derived.py --data-root=$PWD --start='1999:226' --stop='1999:231' --content=dp_pcad4
+  python -m cheta.add_derived --data-root=$PWD --start='1999:226' --stop='1999:231' --content=dp_pcad4
 
 Now update everything for a few days:
 
-  ./update_archive.py --data-root=$PWD --content=dp_ --date-now 1999:240 --content dp_pcad4
+  python -m cheta.update_archive --data-root=$PWD --content=dp_ --date-now 1999:240 --content dp_pcad4
 
-  ./update_archive.py --data-root=$PWD --date-now 1999:241 --content dp_pcad >& log_pcad &
-  ./update_archive.py --data-root=$PWD --date-now 1999:241 --content dp_acispow >& log_acispow &
-  ./update_archive.py --data-root=$PWD --date-now 1999:214 --content dp_thermal >& log_thermal.1 &
+  python -m cheta.update_archive --data-root=$PWD --date-now 1999:241 --content dp_pcad >& log_pcad &
+  python -m cheta.update_archive --data-root=$PWD --date-now 1999:241 --content dp_acispow >& log_acispow &
+  python -m cheta.update_archive --data-root=$PWD --date-now 1999:214 --content dp_thermal >& log_thermal.1 &
 
 Finally update through the beginning of 2000.  This takes a little while:
 
-  ./update_archive.py --data-root=$PWD --date-now 2000:010 --max-lookback-time=400 \
+  python -m cheta.update_archive --data-root=$PWD --date-now 2000:010 --max-lookback-time=400 \
       --content dp_ >& log_derived.1 &
