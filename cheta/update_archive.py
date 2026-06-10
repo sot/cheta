@@ -10,11 +10,10 @@ import re
 import shutil
 import time
 import warnings
+from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Tuple
 
 import astropy.io.fits as pyfits
-import astropy.table as apt
 import mica.archive.aca_l0
 import mica.common
 import numpy as np
@@ -454,7 +453,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
     :param indexes: Universal index values for stat (row times // dt)
     :param interval: interval name (5min or daily)
     """
-    percentiles = (1, 5, 16, 50, 84, 95, 99)
+    quantiles = (1, 5, 16, 50, 84, 95, 99)
     n_out = len(rows) - 1
 
     # Check if data type is "numeric".  Boolean values count as numeric,
@@ -468,26 +467,21 @@ def calc_stats_vals(msid, rows, indexes, interval):
     if msid_dtype.kind == "U":
         msid_dtype = re.sub(r"U", "S", msid.vals.dtype.str)
 
-    # Handle N-d MSIDs (in particular ACA<slot>_IMGTLM)
-    shape_stat = (n_out,) + msid.vals.shape[1:]
-
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
-    out = {}
+    out = OrderedDict()
     out["index"] = np.ndarray((n_out,), dtype=np.int32)
     out["n"] = np.ndarray((n_out,), dtype=np.int32)
-    out["val"] = np.ndarray(shape_stat, dtype=msid_dtype)
+    out["val"] = np.ndarray((n_out,), dtype=msid_dtype)
 
     if msid_is_numeric:
-        out["min"] = np.ndarray(shape_stat, dtype=msid_dtype)
-        out["max"] = np.ndarray(shape_stat, dtype=msid_dtype)
-        out["mean"] = np.ndarray(shape_stat, dtype=np.float32)
+        out["min"] = np.ndarray((n_out,), dtype=msid_dtype)
+        out["max"] = np.ndarray((n_out,), dtype=msid_dtype)
+        out["mean"] = np.ndarray((n_out,), dtype=np.float32)
 
         if interval == "daily":
-            out["std"] = np.ndarray(shape_stat, dtype=msid_dtype)
-            for quantile in percentiles:
-                out["p{:02d}".format(quantile)] = np.ndarray(
-                    shape_stat, dtype=msid_dtype
-                )
+            out["std"] = np.ndarray((n_out,), dtype=msid_dtype)
+            for quantile in quantiles:
+                out["p{:02d}".format(quantile)] = np.ndarray((n_out,), dtype=msid_dtype)
 
     # MSID may have state codes
     if msid.state_codes:
@@ -499,33 +493,51 @@ def calc_stats_vals(msid, rows, indexes, interval):
         vals = msid.vals[row0:row1]
         times = msid.times[row0:row1]
 
-        n_vals = len(vals)  # same as row1 - row0
+        n_vals = len(vals)
         if n_vals > 0:
             out["index"][i] = index
             out["n"][i] = n_vals
             out["val"][i] = vals[n_vals // 2]
             if msid_is_numeric:
-                # dts_1d is time duration corresponding to each row in times/vals.
-                # sum_dts_scalar is the total time duration for the stat interval.
-                dts_1d, sum_dts_scalar = get_total_time_for_rows(msid, times)
-                # Fill out dt variables to be broadcastable in mean / variance calcs.
-                # shape = (n_vals, 1, ...) with 1's as needed to match vals shape
-                dts_nd = dts_1d.reshape((n_vals,) + (1,) * (vals.ndim - 1))
-                # shape = vals.shape[1:]
-                sum_dts = np.full(shape=vals.shape[1:], fill_value=sum_dts_scalar)
+                if n_vals <= 2:
+                    dts = np.ones(n_vals, dtype=np.float64)
+                else:
+                    dts = np.empty(n_vals, dtype=np.float64)
+                    dts[0] = times[1] - times[0]
+                    dts[-1] = times[-1] - times[-2]
+                    dts[1:-1] = (
+                        (times[1:-1] - times[:-2]) + (times[2:] - times[1:-1])
+                    ) / 2.0
+                    negs = dts < 0.0
+                    if np.any(negs):
+                        times_dts = [
+                            (DateTime(t).date, dt)
+                            for t, dt in zip(times[negs], dts[negs])
+                        ]
+                        logger.warning(
+                            "WARNING - negative dts in {} at {}".format(
+                                msid.MSID, times_dts
+                            )
+                        )
 
-                out["min"][i] = np.min(vals, axis=0)  # vals.shape[1:]
-                out["max"][i] = np.max(vals, axis=0)  # vals.shape[1:]
-                out["mean"][i] = (
-                    np.sum(dts_nd * vals, axis=0) / sum_dts
-                )  # vals.shape[1:]
+                    # Clip to range 0.001 to 300.0.  The low bound is just there
+                    # for data with identical time stamps.  This shouldn't happen
+                    # but in practice might.  The 300.0 represents 5 minutes and
+                    # is the largest normal time interval.  Data near large gaps
+                    # will get a weight of 5 mins.
+                    dts.clip(0.001, 300.0, out=dts)
+                sum_dts = np.sum(dts)
+
+                out["min"][i] = np.min(vals)
+                out["max"][i] = np.max(vals)
+                out["mean"][i] = np.sum(dts * vals) / sum_dts
                 if interval == "daily":
                     # biased weighted estimator of variance (N should be big enough)
                     # http://en.wikipedia.org/wiki/Mean_square_weighted_deviation.
                     # Note casting of vals to float64 to avoid overflow in square.
                     vals_minus_mean = vals.astype(np.float64) - out["mean"][i]
                     with warnings.catch_warnings(record=True) as warns:
-                        sigma_sq = np.sum(dts_nd * vals_minus_mean**2, axis=0) / sum_dts
+                        sigma_sq = np.sum(dts * vals_minus_mean**2) / sum_dts
                         if warns:
                             logger.warning(repr(warns[0].message))
                             logger.warning(f"{msid=}")
@@ -533,16 +545,10 @@ def calc_stats_vals(msid, rows, indexes, interval):
                             logger.warning(f"{vals_minus_mean.dtype=}")
 
                     out["std"][i] = np.sqrt(sigma_sq)
-                    # Scipy mquantiles can only be used for 1-d or 2-d data. I'm not
-                    # sure why that was originally used instead of numpy quantiles, but
-                    # for legacy consistency change to numpy quantiles only for > 2-d
-                    # data. Circa 2026-June the only case where this matters is the 3-d
-                    # ACA<slot>_IMGTLM data.
-                    quant_func = (
-                        scipy.stats.mstats.mquantiles if vals.ndim <= 2 else np.quantile
+                    quant_vals = scipy.stats.mstats.mquantiles(
+                        vals, np.array(quantiles) / 100.0
                     )
-                    quant_vals = quant_func(vals, np.array(percentiles) / 100.0, axis=0)
-                    for quant_val, quantile in zip(quant_vals, percentiles):
+                    for quant_val, quantile in zip(quant_vals, quantiles):
                         out["p%02d" % quantile][i] = quant_val
 
             if msid.state_codes:
@@ -559,62 +565,7 @@ def calc_stats_vals(msid, rows, indexes, interval):
 
             i += 1
 
-    if msid.vals.ndim == 1:
-        dat = np.rec.fromarrays([x[:i] for x in out.values()], names=list(out.keys()))
-    else:
-        # np.rec.fromarrays does not support multi-d arrays, so use astropy Table as an
-        # intermediate step to create a structured array and then view as recarray.
-        tbl = apt.Table(out)
-        arr = tbl.as_array()  # structured array with shape (n_out,)
-        dat = arr.view(np.recarray)  # recarray with shape (n_out,)
-
-    return dat
-
-
-def get_total_time_for_rows(msid: Any, times: np.ndarray) -> Tuple[np.ndarray, float]:
-    """Return per-row time weights and their total for a stats interval.
-
-    The weights approximate the amount of time represented by each telemetry row.
-    For 1-2 samples the rows are given unit weight. For longer spans, the edge rows
-    use the neighboring time delta and interior rows use the average of adjacent
-    deltas. Any negative deltas are logged, and the final weights are clipped to the
-    range 0.001 to 300.0 seconds.
-
-    Parameters
-    ----------
-    msid : Any
-        MSID object used only for logging the MSID name when time deltas are negative.
-    times : numpy.ndarray
-        Row timestamps in seconds.
-
-    Returns
-    -------
-    tuple[numpy.ndarray, float]
-        Row weights and their sum.
-    """
-    n_vals = len(times)
-    if n_vals <= 2:
-        dts = np.ones(n_vals, dtype=np.float64)
-    else:
-        dts = np.empty(n_vals, dtype=np.float64)
-        dts[0] = times[1] - times[0]
-        dts[-1] = times[-1] - times[-2]
-        dts[1:-1] = ((times[1:-1] - times[:-2]) + (times[2:] - times[1:-1])) / 2.0
-        negs = dts < 0.0
-        if np.any(negs):
-            times_dts = [
-                (DateTime(t).date, dt) for t, dt in zip(times[negs], dts[negs])
-            ]
-            logger.warning(f"WARNING - negative dts in {msid.MSID} at {times_dts}")
-
-        # Clip to range 0.001 to 300.0.  The low bound is just there for data with
-        # identical time stamps.  This shouldn't happen but in practice might.  The
-        # 300.0 represents 5 minutes and is the largest normal time interval.  Data near
-        # large gaps will get a weight of 5 mins.
-        dts.clip(0.001, 300.0, out=dts)
-
-    sum_dts = np.sum(dts)
-    return dts, sum_dts
+    return np.rec.fromarrays([x[:i] for x in out.values()], names=list(out.keys()))
 
 
 def update_stats(colname, interval, msid=None):
@@ -652,22 +603,6 @@ def update_stats(colname, interval, msid=None):
         )
         time1 = DateTime(opt.date_now).secs
         msid = fetch.MSID(colname, time0, time1, filter_bad=True)
-
-        # Special-case this colname
-        if m := re.match(r"ACA(\d)_IMGTLM", colname):
-            slot = int(m.group(1))
-            msid_scale = fetch.MSID(
-                f"ACA{slot}_IMGSCALE", time0, time1, filter_bad=True
-            )
-            # Scale the IMGTLM values by the corresponding IMGSCALE values.  This is
-            # needed so the stats values like mean or min are meaningful. Since this
-            # comes from the same content type the times and rows must match.
-            # `msid_scale.vals` is uint16 so be careful with arithmetic grouping to
-            # avoid overflows.
-            vals64 = (
-                msid.vals * (msid_scale.vals[:, None, None] / 32.0) - 50.0
-            )  # float64
-            msid.vals = vals64.astype(np.float32)
 
     if len(msid.times) > 0:
         if index0 == INDEX0:
