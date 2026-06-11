@@ -10,7 +10,6 @@ import re
 import shutil
 import time
 import warnings
-from collections import OrderedDict
 from pathlib import Path
 
 import astropy.io.fits as pyfits
@@ -299,12 +298,6 @@ def main_loop():
 
         if opt.update_stats:
             for colname in colnames:
-                if re.match(r"ACA\d_IMGTLM", colname):
-                    # Skip ACA images since they are 2-d and stats are not supported. It
-                    # would be ideal to ignore any unsupported columns within
-                    # update_stats() but currently this would end up creating an empty
-                    # stats file. So just use this special-case code.
-                    continue
                 if opt.state_codes_only:
                     # Check if colname has a state code in the TDB or if it is in the
                     # special-case fetch.STATE_CODES dict (e.g. simdiag or simmrg telem).
@@ -462,18 +455,24 @@ def calc_stats_vals(msid, rows, indexes, interval):
     msid_dtype = msid.vals.dtype
     msid_is_numeric = issubclass(msid_dtype.type, (np.number, np.bool_))
 
+    # If MSID vals are 2d or greater then stats only collect the index and n for each
+    # interval. Going beyond this requires substantial changes to the code (see commit
+    # 7ca1bf4) and there is questionable value-added.
+    msid_is_1d = msid.vals.ndim == 1
+
     # If MSID data is unicode, then for stats purposes cast back to bytes
     # by creating the output array as a like-sized S-type array.
     if msid_dtype.kind == "U":
         msid_dtype = re.sub(r"U", "S", msid.vals.dtype.str)
 
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
-    out = OrderedDict()
+    out = {}
     out["index"] = np.ndarray((n_out,), dtype=np.int32)
     out["n"] = np.ndarray((n_out,), dtype=np.int32)
-    out["val"] = np.ndarray((n_out,), dtype=msid_dtype)
+    if msid_is_1d:
+        out["val"] = np.ndarray((n_out,), dtype=msid_dtype)
 
-    if msid_is_numeric:
+    if msid_is_numeric and msid_is_1d:
         out["min"] = np.ndarray((n_out,), dtype=msid_dtype)
         out["max"] = np.ndarray((n_out,), dtype=msid_dtype)
         out["mean"] = np.ndarray((n_out,), dtype=np.float32)
@@ -497,8 +496,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
         if n_vals > 0:
             out["index"][i] = index
             out["n"][i] = n_vals
-            out["val"][i] = vals[n_vals // 2]
-            if msid_is_numeric:
+            if msid_is_1d:
+                out["val"][i] = vals[n_vals // 2]
+            if msid_is_numeric and msid_is_1d:
                 if n_vals <= 2:
                     dts = np.ones(n_vals, dtype=np.float64)
                 else:
