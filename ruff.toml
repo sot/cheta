@@ -2,8 +2,17 @@ extend = "ruff-base.toml"
 
 # These are files to exclude for this project.
 extend-exclude = [
-  # "**/*.ipynb",  # commonly not ruff-compliant
-  # "dev_utils",
+  "access_cheta_remotely_from_Windows.ipynb",
+  "dev_utils/legacy_py2",
+  "dev_utils/example_interpolate.py",
+  "dev_utils/find_colname_diffs.py",
+  "dev_utils/find_tdb_diffs.py",
+  "dev_utils/fix_oba_ave.py",
+  "dev_utils/plot_safes.py",
+  "dev_utils/print_msidfile_times.py",
+  "dev_utils/remote.py",
+  "dev_utils/validate_hrma_wide.ipynb",
+  "dev_utils/validate_tdb_updates.py",
 ]
 
 # These are rules that commonly cause many ruff warnings. Code will be improved by
