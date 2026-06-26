@@ -1,4 +1,11 @@
 *********************************************************************************
+NOTE
+*********************************************************************************
+These instructions are roughly on target but details may vary. See PR 291
+https://github.com/sot/cheta/pull/291 for a full modern example that includes
+creating the cheta sync archive files and thorough soak testing.
+
+*********************************************************************************
 Log in to a machine with at least 16 Gb RAM and get into ska environment
 *********************************************************************************
 
