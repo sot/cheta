@@ -771,10 +771,7 @@ def test_aca_l0_content(slot):
     start, stop = "2026:150:00:00:00", "2026:150:06:00:00"
 
     try:
-        dat_micas = [
-            apt.Table(aca_l0.get_slot_data(start, stop, slot=slot, imgsize=[8]))
-            for slot in range(8)
-        ]
+        dat_mica = apt.Table(aca_l0.get_slot_data(start, stop, slot=slot, imgsize=[8]))
     except Exception:
         pytest.skip(
             f"No mica ACA L0 data available for slot {slot} in {start} to {stop}"
@@ -782,7 +779,6 @@ def test_aca_l0_content(slot):
 
     aca_imgtlm = fetch_sci.Msid(f"aca{slot}_imgtlm", start, stop)
     aca_imgscale = fetch_sci.Msid(f"aca{slot}_imgscale", start, stop)
-    dat_mica = dat_micas[slot]
     dat_mica["IMGRAW"] = dat_mica["IMGRAW"].reshape(-1, 8, 8)
     imgraw = aca_imgtlm.vals * (aca_imgscale.vals[:, None, None] / 32.0) - 50.0
     assert aca_imgtlm.dtype == np.uint16
@@ -797,7 +793,6 @@ def test_aca_l0_content(slot):
         if re.match(r"IMG(FID|NUM|FUNC)[1234]$", colname):
             msid = msid[:-1]
         dat_cheta = fetch.Msid(msid, start, stop)
-        dat_mica = dat_micas[slot]
         assert np.all(dat_mica["TIME"] == dat_cheta.times)
         assert np.all(dat_mica[colname] == dat_cheta.vals)
         if colname.startswith("TEMP"):
