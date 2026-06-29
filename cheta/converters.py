@@ -179,11 +179,10 @@ def aca_converter(dat: FITS_rec, slot: int):
         ``IMGFUNC``.
     - Drop ``END_INTEG_TIME`` because it is redundant with ``TIME`` and
         ``INTEG`` and its 64-bit values compress poorly.
-    - Replace ``IMGRAW`` with 64 scalar telemetry columns (``IMGTLMij``), where
-        each pixel is converted back to the original 10-bit packet-space value using
+    - Replace ``IMGRAW`` with an 8x8 pixel telemetry column (``IMGTLM``), where each
+        pixel is converted back to the original 10-bit packet-space value using
         ``round((dn + 50) * (32 / IMGSCALE))`` and stored as ``uint16``.
     - Expand ``QUALITY`` from a single per-row flag into a per-column boolean
-        quality matrix with one entry per output column.
     - Rename all columns except ``TIME`` and ``QUALITY`` to have an ``ACA{slot}_``
         prefix for uniqueness of slot data.
 
