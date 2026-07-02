@@ -621,7 +621,10 @@ class MSID(object):
 
     @property
     def dtype(self) -> np.dtype:
-        return self.vals.dtype if hasattr(self.vals, "dtype") else np.dtype("object")
+        try:
+            return self.vals.dtype
+        except AttributeError:
+            return np.dtype("object")
 
     def __repr__(self):
         attrs = [self.__class__.__name__, self.MSID]
