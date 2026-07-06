@@ -1,11 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pickle
+import re
 from copy import deepcopy
 
+import astropy.table as apt
 import numpy as np
 import pytest
 from Chandra.Time import DateTime
 from cxotime import CxoTime
+from mica.archive import aca_l0
 
 from .. import fetch, fetch_eng, fetch_sci
 
@@ -761,3 +764,40 @@ def test_daily_state_bins():
 
     dat = fetch.Msid("aoacaseq", "2016:234:12:00:00", "2016:234:12:30:00", stat="5min")
     assert np.all(dat.n_BRITs == [0, 0, 51, 17, 0, 0])
+
+
+@pytest.mark.parametrize("slot", range(8))
+def test_aca_l0_content(slot):
+    start, stop = "2026:150:00:00:00", "2026:150:06:00:00"
+
+    try:
+        dat_mica = apt.Table(aca_l0.get_slot_data(start, stop, slot=slot, imgsize=[8]))
+    except Exception:
+        pytest.skip(
+            f"No mica ACA L0 data available for slot {slot} in {start} to {stop}"
+        )
+
+    aca_imgtlm = fetch_sci.Msid(f"aca{slot}_imgtlm", start, stop)
+    aca_imgscale = fetch_sci.Msid(f"aca{slot}_imgscale", start, stop)
+    dat_mica["IMGRAW"] = dat_mica["IMGRAW"].reshape(-1, 8, 8)
+    imgraw = aca_imgtlm.vals * (aca_imgscale.vals[:, None, None] / 32.0) - 50.0
+    assert aca_imgtlm.dtype == np.uint16
+    assert np.all(dat_mica["TIME"] == aca_imgtlm.times)
+    assert np.all(imgraw == dat_mica["IMGRAW"])
+    assert imgraw.shape == dat_mica["IMGRAW"].shape
+
+    skip = set(["END_INTEG_TIME", "TIME", "QUALITY", "IMGRAW", "IMGSIZE", "FILENAME"])
+
+    for colname in set(dat_mica.colnames) - skip:
+        msid = f"aca{slot}_{colname.lower()}"
+        if re.match(r"IMG(FID|NUM|FUNC)[1234]$", colname):
+            msid = msid[:-1]
+        dat_cheta = fetch.Msid(msid, start, stop)
+        assert np.all(dat_mica["TIME"] == dat_cheta.times)
+        assert np.all(dat_mica[colname] == dat_cheta.vals)
+        if colname.startswith("TEMP"):
+            assert dat_cheta.unit == "K"
+            datc = fetch_sci.Msid("aca0_tempccd", start, stop)
+            assert datc.unit == "DEGC"
+            datf = fetch_eng.Msid("aca0_tempccd", start, stop)
+            assert datf.unit == "DEGF"

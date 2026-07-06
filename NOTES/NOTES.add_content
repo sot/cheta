@@ -1,4 +1,11 @@
 *********************************************************************************
+NOTE
+*********************************************************************************
+These instructions are roughly on target but details may vary. See PR 291
+https://github.com/sot/cheta/pull/291 for a full modern example that includes
+creating the cheta sync archive files and thorough soak testing.
+
+*********************************************************************************
 Log in to a machine with at least 16 Gb RAM and get into ska environment
 *********************************************************************************
 
@@ -15,10 +22,6 @@ Log in to a machine with at least 16 Gb RAM and get into ska environment
   export ENG_ARCHIVE=$PWD
   export CONTENT=<CONTENT>  # Upper case
 
-In order to use a local install of pyfits 2.3, which is *much* faster, do:
-
-  export PYTHONPATH=$PWD/local/lib/python2.7/site-packages
-
 Note that for adding new content the trick of soft links for the 1999 data is used.
 The archive update always goes to the ./data (non-1999) directory but fetch queries
 for pre-2000 data always look in 1999.  It's a little hacky but works.
@@ -32,7 +35,7 @@ Add a new content type to eng_archive
 *********************************************************************************
 * Get FITS archive files from 1999:001 through 2000:001
 *********************************************************************************
-  ./update_archive.py --date-now=2000:001 --date-start=1999:210 --create --content=$CONTENT
+  python -m cheta.update_archive --date-now=2000:001 --date-start=1999:210 --create --content=$CONTENT
 
 This puts files into ./data.  In --create mode there is no limit on file gaps.
 
@@ -48,35 +51,19 @@ dat.iplot()
 *********************************************************************************
 * Update/create the stats files in ska
 *********************************************************************************
-  ./update_archive.py --no-full --content $CONTENT --max-lookback-time 1e20
+  python -m cheta.update_archive --no-full --content $CONTENT --max-lookback-time 1e20
 
 Probably worth checking the stats files quickly before going forward.
 
 *********************************************************************************
 * Bring archive up to current date
 *********************************************************************************
-  ./update_archive.py --content $CONTENT --date-start 2000:010 > $CONTENT.log 2>&1 &
-
-*********************************************************************************
-* Move FITS files into archive
-*********************************************************************************
-  python move_fits_archive.py $CONTENT
+  python -m cheta.update_archive --content $CONTENT --date-start 2000:010 > $CONTENT.log 2>&1 &
 
 *********************************************************************************
 * Copy h5 files into Ska
 *********************************************************************************
   cp -rp data/$CONTENT $SKA/data/eng_archive/data/
-
-*********************************************************************************
-* Update version and install new package
-*********************************************************************************
-
-- Update Ska/engarchive/version.py
-
-  python setup.py sdist
-  cp -p dist/...tar.gz $SKA/pkgs/
-
-- Update skare and install
 
 ===========================================
 DONE

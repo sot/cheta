@@ -1,13 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 import logging
 import sys
 from collections import OrderedDict
 
+import astropy.table as apt
 import numpy
 import numpy as np
 import Ska.Numpy
 import Ska.tdb
+from astropy.io.fits.fitsrec import FITS_rec
 from Chandra.Time import DateTime
 
 from . import units
@@ -30,11 +31,11 @@ def quality_index(dat, colname):
     return list(dat.dtype.names).index(colname)
 
 
-def numpy_converter(dat):
+def numpy_converter(dat: FITS_rec):
     return Ska.Numpy.structured_array(dat, colnames=dat.dtype.names)
 
 
-def convert(dat, content):
+def convert(dat: FITS_rec | None, content: str):
     # Zero-length file results in `dat is None`
     if dat is None:
         raise NoValidDataError
@@ -166,6 +167,91 @@ def generic_converter2(msid_cxc_map, default_dtypes=None):
         return out
 
     return _convert
+
+
+def aca_converter(dat: FITS_rec, slot: int):
+    """Convert ACA image telemetry rows into archive output format.
+
+    This converter performs the following archive-specific normalization:
+
+    - Keep only the first image-slot metadata columns, renaming
+        ``IMGFID1`` -> ``IMGFID``, ``IMGNUM1`` -> ``IMGNUM``, and ``IMGFUNC1`` ->
+        ``IMGFUNC``.
+    - Drop ``END_INTEG_TIME`` because it is redundant with ``TIME`` and
+        ``INTEG`` and its 64-bit values compress poorly.
+    - Replace ``IMGRAW`` with an 8x8 pixel telemetry column (``IMGTLM``), where each
+        pixel is converted back to the original 10-bit packet-space value using
+        ``round((dn + 50) * (32 / IMGSCALE))`` and stored as ``uint16``.
+    - Expand ``QUALITY`` from a single per-row flag into a per-column boolean
+    - Rename all columns except ``TIME`` and ``QUALITY`` to have an ``ACA{slot}_``
+        prefix for uniqueness of slot data.
+
+    Parameters
+    ----------
+    dat : FITS_rec
+        Input ACA L0 FITS binary table rows.
+    slot : int
+        Image slot.
+
+    Returns
+    -------
+    numpy.ndarray
+        Numpy structured array ready for archiving.
+
+    Notes
+    -----
+    """
+    tbl = apt.Table(numpy_converter(dat))
+
+    # There is no value in bad quality data (it is just all zeroes) so just drop it now.
+    # Also guard against IMGSCALE=0. This should only happen for bad quality.
+    # Empirically bad quality seems to happen around safe mode.
+    nok = (tbl["QUALITY"] != 0) | (tbl["IMGSCALE"] == 0)
+    if np.any(nok):
+        logger.info(
+            "ACA slot %d has %d telemetry rows with non-zero QUALITY "
+            "flag or zero IMGSCALE (removing)",
+            slot,
+            np.count_nonzero(nok),
+        )
+        tbl = tbl[~nok]
+
+    for name in ["IMGFID", "IMGNUM", "IMGFUNC"]:
+        tbl.rename_column(f"{name}1", name)
+        for n in (2, 3, 4):
+            del tbl[f"{name}{n}"]
+
+    # End integ time is the same as TIME + INTEG / 2 so don't store it. The 64-bit time
+    # results in a large file since it doesn't compress well.
+    del tbl["END_INTEG_TIME"]
+
+    # Invert the L0 image pixel decom to get back to the 10-bit values that the ACA
+    # puts into telemetry. This the more fundamental data and it compresses better.
+    # Downstream data fetch can quickly reconstruct IMGRAW (DN).
+    imgtlm = np.round((tbl["IMGRAW"] + 50.0) * (32.0 / tbl["IMGSCALE"][:, None, None]))
+    tbl["IMGTLM"] = imgtlm.astype(np.uint16)
+
+    del tbl["IMGRAW"]
+
+    # Make quality flags. Since all bad rows were dropped this is all False.
+    tbl["QUALITY"] = np.zeros(shape=(len(tbl), len(tbl.colnames)), dtype=bool)
+
+    # Final renaming for uniqueness of slot data
+    for name in tbl.colnames:
+        if name not in ("TIME", "QUALITY"):
+            tbl.rename_column(name, f"ACA{slot}_{name}")
+
+    return tbl.as_array()
+
+
+aca0 = lambda dat: aca_converter(dat, slot=0)
+aca1 = lambda dat: aca_converter(dat, slot=1)
+aca2 = lambda dat: aca_converter(dat, slot=2)
+aca3 = lambda dat: aca_converter(dat, slot=3)
+aca4 = lambda dat: aca_converter(dat, slot=4)
+aca5 = lambda dat: aca_converter(dat, slot=5)
+aca6 = lambda dat: aca_converter(dat, slot=6)
+aca7 = lambda dat: aca_converter(dat, slot=7)
 
 
 orbitephem0 = generic_converter("orbitephem0", add_quality=True)

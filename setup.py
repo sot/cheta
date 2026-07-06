@@ -1,6 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from setuptools import setup
-from ska_helpers.setup_helper import duplicate_package_info
+
+try:
+    from ska_helpers.setup_helper import duplicate_package_info
+except ModuleNotFoundError as err:
+    raise ModuleNotFoundError(
+        "cheta setup requires 'ska_helpers', which is typically provided by the "
+        "ska3 conda environment. If you are installing from source, either activate "
+        "that environment or disable pip build isolation, e.g. "
+        "'pip install --no-build-isolation .'."
+    ) from err
 
 console_scripts = [
     "ska_fetch = cheta.get_telem:main",

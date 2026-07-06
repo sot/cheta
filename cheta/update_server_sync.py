@@ -131,7 +131,7 @@ def main(args=None):
         contents = set(fetch.content.values())
 
     for content in sorted(contents):
-        update_sync_repo(opt, logger, content)
+        update_sync_repo(opt, logger, content.lower())
 
     # Make the main msid_contents.pkl file
     update_msid_contents_pkl(logger)

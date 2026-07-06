@@ -81,6 +81,16 @@ L0.5 SIM       SIMCOOR         SIM_0.5{SIMCOOR}             *.fits.gz
 L0.5 SIM       SIM_MRG         SIM_0.5{SIM_MRG}             *.fits.gz
 L0   EPHIN     EPHHK           EPHIN_0{EPHHK}               *.fits.gz
 L0   CPE       CPE1ENG         CPE_ENG_0{CPE1ENG}           *.fits.gz
+# ACA Level-0 is copied from the mica archive. Each slot 0..7 is independent.
+L0   ACA       ACA0            -                            *.fits.gz
+L0   ACA       ACA1            -                            *.fits.gz
+L0   ACA       ACA2            -                            *.fits.gz
+L0   ACA       ACA3            -                            *.fits.gz
+L0   ACA       ACA4            -                            *.fits.gz
+L0   ACA       ACA5            -                            *.fits.gz
+L0   ACA       ACA6            -                            *.fits.gz
+L0   ACA       ACA7            -                            *.fits.gz
+# Derived parameters
 L3   DERIVED   DP_THERMAL1     -                            -
 L3   DERIVED   DP_THERMAL128   -                            -
 L3   DERIVED   DP_ACISPOW128   -                            -
@@ -91,18 +101,18 @@ L3   DERIVED   DP_PCAD32       -                            -
 L3   DERIVED   DP_ORBIT1280    -                            -
 L3   DERIVED   DP_EPS8         -                            -
 L3   DERIVED   DP_EPS16        -                            -
-# 
+#
 # Candidate file types.
 # Arc5gl query <instrum>_<type>_<level> (or <instrum>_<level>if type is None)
 #
 #level instrum   content         arc5gl_query
-# L1   EPHEM     ANGLEEPHEM      ephem_angles_1   
-# L1   EPHEM     OANGLEEPHEM     EPHEM_ANGLES_1{ANGLES}                  
-# L1   EPHEM     ORBITEPHEM1     EPHEM_ANGLES_1{ORBITEPHEM1}  *.fits.gz  
-# L1   EPHEM     SOLAREPHEM1     EPHEM_ANGLES_1{SOLAREPHEM1}  *.fits.gz  
-# L1   EPHEM     LUNAREPHEM1     EPHEM_ANGLES_1{LUNAREPHEM1}  *.fits.gz  
+# L1   EPHEM     ANGLEEPHEM      ephem_angles_1
+# L1   EPHEM     OANGLEEPHEM     EPHEM_ANGLES_1{ANGLES}
+# L1   EPHEM     ORBITEPHEM1     EPHEM_ANGLES_1{ORBITEPHEM1}  *.fits.gz
+# L1   EPHEM     SOLAREPHEM1     EPHEM_ANGLES_1{SOLAREPHEM1}  *.fits.gz
+# L1   EPHEM     LUNAREPHEM1     EPHEM_ANGLES_1{LUNAREPHEM1}  *.fits.gz
 #
-#level instrum   hdu_name        content        pipe    type    hduclass        hduclas1     
+#level instrum   hdu_name        content        pipe    type    hduclass        hduclas1
 # L0.5 SIM       AXAF_SIMCOOR    SIMCOOR         SIM0.5  None    ASC             TEMPORALDATA  sim_0.5{simcoor}
 # L1   EPHEM     ANGLES          OANGLEEPHEM     EPHEM1  angles     ASC             TEMPORALDATA ephem_angles_1{angleephem}  # per obsid
 # L1   EPHEM     ORBITEPHEM      ORBITEPHEM1     EPHEM1  orbit      OGIP            TEMPORALDATA ephem_angles_1{orbitephem1}
@@ -111,16 +121,16 @@ L3   DERIVED   DP_EPS16        -                            -
 #
 # Deleted
 #
-# L0   PCAD      PCAD9ENG        PCAD_ENG_0 
-# L0   HRC        AXAF_HRC        HRC3ENG         _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   HRC        AXAF_HRC        HRC6ENG         _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   OBC        AXAF_OBC        OBC1ENG         _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   OBC        AXAF_OBC        OBC2ENG         _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   OBC        AXAF_OBC        OBC6ENG         _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   PCAD       AXAF_PCAD       PCAD16ENG       _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   PCAD       AXAF_PCAD       PCAD17ENG       _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   TEL        AXAF_TEL        TEL4ENG         _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   CCDM       AXAF_CCDM       CCDM9ENG        _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   CCDM       AXAF_CCDM       CCDM14ENG       _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   CCDM       AXAF_CCDM       CCDM15ENG       _ENG_0    eng     OGIP            TEMPORALDATA 
-# L0   CPE        AXAF_CPE        CPE1ENG         _ENG_0    eng     OGIP            TEMPORALDATA 
+# L0   PCAD      PCAD9ENG        PCAD_ENG_0
+# L0   HRC        AXAF_HRC        HRC3ENG         _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   HRC        AXAF_HRC        HRC6ENG         _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   OBC        AXAF_OBC        OBC1ENG         _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   OBC        AXAF_OBC        OBC2ENG         _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   OBC        AXAF_OBC        OBC6ENG         _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   PCAD       AXAF_PCAD       PCAD16ENG       _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   PCAD       AXAF_PCAD       PCAD17ENG       _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   TEL        AXAF_TEL        TEL4ENG         _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   CCDM       AXAF_CCDM       CCDM9ENG        _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   CCDM       AXAF_CCDM       CCDM14ENG       _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   CCDM       AXAF_CCDM       CCDM15ENG       _ENG_0    eng     OGIP            TEMPORALDATA
+# L0   CPE        AXAF_CPE        CPE1ENG         _ENG_0    eng     OGIP            TEMPORALDATA

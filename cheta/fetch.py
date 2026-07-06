@@ -617,11 +617,14 @@ class MSID(object):
         return content.get(self.MSID) if "cxc" in data_source.sources() else None
 
     def __len__(self):
-        return len(self.vals)
+        return len(self.times)
 
     @property
     def dtype(self) -> np.dtype:
-        return self.vals.dtype if hasattr(self.vals, "dtype") else np.dtype("object")
+        try:
+            return self.vals.dtype
+        except AttributeError:
+            return np.dtype("object")
 
     def __repr__(self):
         attrs = [self.__class__.__name__, self.MSID]

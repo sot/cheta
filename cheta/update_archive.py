@@ -7,12 +7,14 @@ import itertools
 import os
 import pickle
 import re
+import shutil
 import time
 import warnings
-from collections import OrderedDict
 from pathlib import Path
 
 import astropy.io.fits as pyfits
+import mica.archive.aca_l0
+import mica.common
 import numpy as np
 import pyyaks.context
 import pyyaks.logger
@@ -453,18 +455,24 @@ def calc_stats_vals(msid, rows, indexes, interval):
     msid_dtype = msid.vals.dtype
     msid_is_numeric = issubclass(msid_dtype.type, (np.number, np.bool_))
 
+    # If MSID vals are 2d or greater then stats only collect the index and n for each
+    # interval. Going beyond this requires substantial changes to the code (see commit
+    # 7ca1bf4) and there is questionable value-added.
+    msid_is_1d = msid.vals.ndim == 1
+
     # If MSID data is unicode, then for stats purposes cast back to bytes
     # by creating the output array as a like-sized S-type array.
     if msid_dtype.kind == "U":
         msid_dtype = re.sub(r"U", "S", msid.vals.dtype.str)
 
     # Predeclare numpy arrays of correct type and sufficient size for accumulating results.
-    out = OrderedDict()
+    out = {}
     out["index"] = np.ndarray((n_out,), dtype=np.int32)
     out["n"] = np.ndarray((n_out,), dtype=np.int32)
-    out["val"] = np.ndarray((n_out,), dtype=msid_dtype)
+    if msid_is_1d:
+        out["val"] = np.ndarray((n_out,), dtype=msid_dtype)
 
-    if msid_is_numeric:
+    if msid_is_numeric and msid_is_1d:
         out["min"] = np.ndarray((n_out,), dtype=msid_dtype)
         out["max"] = np.ndarray((n_out,), dtype=msid_dtype)
         out["mean"] = np.ndarray((n_out,), dtype=np.float32)
@@ -488,8 +496,9 @@ def calc_stats_vals(msid, rows, indexes, interval):
         if n_vals > 0:
             out["index"][i] = index
             out["n"][i] = n_vals
-            out["val"][i] = vals[n_vals // 2]
-            if msid_is_numeric:
+            if msid_is_1d:
+                out["val"][i] = vals[n_vals // 2]
+            if msid_is_numeric and msid_is_1d:
                 if n_vals <= 2:
                     dts = np.ones(n_vals, dtype=np.float64)
                 else:
@@ -653,7 +662,10 @@ def update_derived(filetype):
     # For derived parameters we have stopmjf <==> index1
     index0 = last_row["stopmjf"]
 
-    # Get the full set of rootparams for all colnames
+    # Get the full set of rootparams for all colnames for this content type. This is
+    # needed to determine the time step and the time range of data to fetch.  The
+    # colnames are filtered to just the DP_ colnames since those are the only ones that
+    # will be used in the derived parameter content types.
     colnames = pickle.load(open(msid_files["colnames"].abs, "rb"))
     colnames = [x for x in colnames if x.startswith("DP_")]
     msids = set()
@@ -803,8 +815,9 @@ def append_h5_col(dats, colname, files_overlaps):
         return list(dat.dtype.names).index(colname)
 
     h5 = tables_open_file(msid_files["msid"].abs, mode="a")
-    stacked_data = np.hstack([x[colname] for x in dats])
-    stacked_quality = np.hstack([x["QUALITY"][:, i_colname(x)] for x in dats])
+    # Concatenate data and quality. Default is axis=0 so this works for 1-d and N-d.
+    stacked_data = np.concatenate([x[colname] for x in dats])
+    stacked_quality = np.concatenate([x["QUALITY"][:, i_colname(x)] for x in dats])
     logger.verbose(
         "Appending %d items to %s" % (len(stacked_data), msid_files["msid"].abs)
     )
@@ -1113,13 +1126,17 @@ def update_msid_files(filetype, archfiles):
         if dat is None:
             continue
 
-        # If creating new content type and there are no existing colnames, then
-        # define the column names now.  Filter out any multidimensional
-        # columns, including (typically) QUALITY.
+        # If creating new content type and there are no existing colnames, then define
+        # the column names now.  Filter out any multidimensional columns, including
+        # (typically) QUALITY. Special-case ACA{0-7}_IMGTLM since this shape=(N, 8, 8)
+        # column is supported, but don't change the legacy logic since who knows what
+        # might break.
         if opt.create and not colnames:
             colnames = set(dat.dtype.names)
             for colname in dat.dtype.names:
-                if len(dat[colname].shape) > 1:
+                if len(dat[colname].shape) > 1 and not re.match(
+                    r"ACA\d_IMGTLM", colname
+                ):
                     logger.info(
                         "Removing column {} from colnames because shape = {}".format(
                             colname, dat[colname].shape
@@ -1155,6 +1172,9 @@ def update_msid_files(filetype, archfiles):
             elif filetype["content"] in ["CPE1ENG", "CCDM15ENG"]:
                 # 100 years => no max gap for safe mode telemetry or dwell mode telemetry
                 max_gap = 100 * 3.1e7
+            elif filetype["instrum"] == "ACA":
+                # Gaps due to NSM, or SCS-107 where fids stop being tracked.
+                max_gap = 100000
             else:
                 max_gap = 32.9
         if time_gap > max_gap:
@@ -1283,17 +1303,26 @@ def unlink_archive_files(filetype, archfiles):
             os.unlink(f)
 
 
-def get_archive_files(filetype):
-    """Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive"""
+def get_archive_files(filetype) -> list[str]:
+    """Get telemetry FITS files into the current directory.
+
+    This uses arc5gl to query and retrieve files from the CXC archive.  The files are
+    retrieved into the current directory, which is expected to be a temporary directory.
+
+    For the ACA L0 files, this function is overridden to get files from the mica archive
+    instead of arc5gl.
+
+    Returns
+    -------
+    list of str
+        List of file paths for the retrieved files
+    """
 
     # Files could exist already in testing.
     # Don't allow arbitrary arch files at once because of memory issues.
     files = sorted(glob.glob(filetype["fileglob"]))
     if files:
         return sorted(files)[: opt.max_arch_files]
-
-    # Retrieve CXC archive files in a temp directory with arc5gl
-    arc5 = Ska.arc5gl.Arc5gl(echo=True)
 
     # End time for archive queries (minimum of start + max_query_days and NOW)
     datestop = DateTime(opt.date_now)
@@ -1305,6 +1334,11 @@ def get_archive_files(filetype):
     datestart = DateTime(
         max(vals["max(filetime)"] or 0.0, datestop.secs - opt.max_lookback_time * 86400)
     )
+
+    # Special-case getting ACA L0 files from mica archive instead of arc5gl. This allows
+    # laptop development and avoids duplicate downloads from the archive.
+    if filetype["instrum"] == "ACA":
+        return get_archive_files_aca(filetype, datestart, datestop)
 
     # For *ephem0 the query needs to extend well into the future
     # to guarantee getting all available files.  This is the archives fault.
@@ -1323,6 +1357,9 @@ def get_archive_files(filetype):
 
     logger.info("********** %s %s **********" % (ft["content"], time.ctime()))
 
+    # Retrieve CXC archive files in a temp directory with arc5gl
+    arc5 = Ska.arc5gl.Arc5gl(echo=True)
+
     for t0, t1 in zip(times[:-1], times[1:]):
         if t1 > t0:
             arc5.sendline("tstart=%s" % DateTime(t0).date)
@@ -1334,6 +1371,37 @@ def get_archive_files(filetype):
                     DateTime(t1).date, DateTime(t0).date
                 )
             )
+
+    return sorted(glob.glob(filetype["fileglob"]))
+
+
+def get_archive_files_aca(
+    filetype, datestart: DateTime, datestop: DateTime
+) -> list[str]:
+    """Get telemetry FITS files for ACA L0 into current dir using the mica archive.
+
+    Returns
+    -------
+    list of str
+        List of file paths for the retrieved files
+    """
+    # Content is "ACA<slot>"
+    slot = int(filetype["content"][-1])
+
+    # This returns a numpy record array with fields for each archive file: filename,
+    # filetime, year, doy, tstart, tstop, startmjf, startmnf, stopmjf, stopmnf,
+    # checksum, tlmver, ascdsver, revision, date, rows, imgsize, slot
+    file_records = mica.archive.aca_l0._get_file_records(
+        start=datestart, stop=datestop, slots=[slot], imgsize=[8]
+    )
+
+    # Copy files into current directory
+    mica_path = Path(mica.common.MICA_ARCHIVE) / "aca0"
+    for fr in file_records:
+        src = mica_path / str(fr["year"]) / f"{fr['doy']:03d}" / fr["filename"]
+        dst = src.name
+        logger.info(f"Copying mica file {src} to {dst}")
+        shutil.copy(src, dst)
 
     return sorted(glob.glob(filetype["fileglob"]))
 
