@@ -34,6 +34,27 @@ cheta.derived.DerivedParameter
 
    .. py:method:: __call__(start, stop)
 
+      
+      Compute derived parameter values for testing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
 
    .. py:property:: mnf_step
 

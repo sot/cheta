@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.update_archive.get_archive_files &#8212; cheta 4.67.1 documentation</title>
+    <title>cheta.update_archive.get_archive_files &#8212; cheta 4.69.0 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=c48ebc79"></script>
+    <script src="../../../_static/documentation_options.js?v=a730ddbd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,11 +50,11 @@
     <link rel="canonical" href="https://sot.github.io/cheta/api/cheta/update_archive/get_archive_files.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="cheta.update_archive.main" href="main.html" />
+    <link rel="next" title="cheta.update_archive.get_archive_files_aca" href="get_archive_files_aca.html" />
     <link rel="prev" title="cheta.update_archive.unlink_archive_files" href="unlink_archive_files.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.67.1" />
+  <meta name="docsearch:version" content="4.69.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.67.1</span></div>
+<span style="font-size: x-large;">4.69.0</span></div>
     
   </div>
   
@@ -352,7 +352,19 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cheta.update_archive.get_archive_files">
 <span class="sig-prename descclassname"><span class="pre">cheta.update_archive.</span></span><span class="sig-name descname"><span class="pre">get_archive_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filetype</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cheta.update_archive.get_archive_files" title="Link to this definition">#</a></dt>
-<dd><p>Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive</p>
+<dd><p>Get telemetry FITS files into the current directory.</p>
+<p>This uses arc5gl to query and retrieve files from the CXC archive.  The files are
+retrieved into the current directory, which is expected to be a temporary directory.</p>
+<p>For the ACA L0 files, this function is overridden to get files from the mica archive
+instead of arc5gl.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list of str</dt><dd><p>List of file paths for the retrieved files</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -377,11 +389,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="main.html"
+       href="get_archive_files_aca.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cheta.update_archive.main</p>
+        <p class="prev-next-title">cheta.update_archive.get_archive_files_aca</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cheta.converters &#8212; cheta 4.67.1 documentation</title>
+    <title>cheta.converters &#8212; cheta 4.69.0 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=c48ebc79"></script>
+    <script src="../../../_static/documentation_options.js?v=a730ddbd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="cheta.comps.Comp_Quat" href="../comps/Comp_Quat.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="4.67.1" />
+  <meta name="docsearch:version" content="4.69.0" />
   </head>
   
   
@@ -107,7 +107,7 @@
     <span style="color: rgb(186, 70, 21); font-size: x-large;">cheta</span>
 </a>
 &nbsp;
-<span style="font-size: x-large;">4.67.1</span></div>
+<span style="font-size: x-large;">4.69.0</span></div>
     
   </div>
   
@@ -386,28 +386,31 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generic_converter2.html#cheta.converters.generic_converter2" title="cheta.converters.generic_converter2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generic_converter2</span></code></a>(msid_cxc_map[, default_dtypes])</p></td>
 <td><p>Convert an input FITS recarray assuming that it has a TIME column.  Use the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="parse_alias_str.html#cheta.converters.parse_alias_str" title="cheta.converters.parse_alias_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_alias_str</span></code></a>(alias_str[, invert])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="aca_converter.html#cheta.converters.aca_converter" title="cheta.converters.aca_converter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aca_converter</span></code></a>(dat, slot)</p></td>
+<td><p>Convert ACA image telemetry rows into archive output format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="parse_alias_str.html#cheta.converters.parse_alias_str" title="cheta.converters.parse_alias_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_alias_str</span></code></a>(alias_str[, invert])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sim_mrg.html#cheta.converters.sim_mrg" title="cheta.converters.sim_mrg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_mrg</span></code></a>(dat)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="sim_mrg.html#cheta.converters.sim_mrg" title="cheta.converters.sim_mrg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_mrg</span></code></a>(dat)</p></td>
 <td><p>Custom converter for SIM_MRG.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hrc0hk.html#cheta.converters.hrc0hk" title="cheta.converters.hrc0hk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hrc0hk</span></code></a>(dat)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hrc0hk.html#cheta.converters.hrc0hk" title="cheta.converters.hrc0hk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hrc0hk</span></code></a>(dat)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="obc4eng.html#cheta.converters.obc4eng" title="cheta.converters.obc4eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">obc4eng</span></code></a>(dat)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="obc4eng.html#cheta.converters.obc4eng" title="cheta.converters.obc4eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">obc4eng</span></code></a>(dat)</p></td>
 <td><p>At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tel2eng.html#cheta.converters.tel2eng" title="cheta.converters.tel2eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tel2eng</span></code></a>(dat)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tel2eng.html#cheta.converters.tel2eng" title="cheta.converters.tel2eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tel2eng</span></code></a>(dat)</p></td>
 <td><p>At 2014:342:XX:XX:XX, patch PR-361 was applied which transitioned 41 OBA thermistors to</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="acisdeahk.html#cheta.converters.acisdeahk" title="cheta.converters.acisdeahk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">acisdeahk</span></code></a>(dat)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="acisdeahk.html#cheta.converters.acisdeahk" title="cheta.converters.acisdeahk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">acisdeahk</span></code></a>(dat)</p></td>
 <td><p>Take the archive ACIS-0 DEA HKP data and convert to a format that is</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_get_deahk_cols.html#cheta.converters._get_deahk_cols" title="cheta.converters._get_deahk_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_deahk_cols</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_get_deahk_cols.html#cheta.converters._get_deahk_cols" title="cheta.converters._get_deahk_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_deahk_cols</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyfits_to_recarray.html#cheta.converters.pyfits_to_recarray" title="cheta.converters.pyfits_to_recarray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyfits_to_recarray</span></code></a>(dat)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyfits_to_recarray.html#cheta.converters.pyfits_to_recarray" title="cheta.converters.pyfits_to_recarray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyfits_to_recarray</span></code></a>(dat)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>

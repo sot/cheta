@@ -1,0 +1,29 @@
+cheta.update_archive.get_archive_files_aca
+==========================================
+
+.. py:function:: cheta.update_archive.get_archive_files_aca(filetype, datestart, datestop)
+
+   
+   Get telemetry FITS files for ACA L0 into current dir using the mica archive.
+
+
+
+
+
+   :Returns:
+
+       list of str
+           List of file paths for the retrieved files
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

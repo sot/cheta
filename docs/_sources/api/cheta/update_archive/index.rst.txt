@@ -31,6 +31,7 @@ Functions
    /api/cheta/update_archive/update_msid_files
    /api/cheta/update_archive/unlink_archive_files
    /api/cheta/update_archive/get_archive_files
+   /api/cheta/update_archive/get_archive_files_aca
    /api/cheta/update_archive/main
 
 .. autoapisummary::
@@ -55,6 +56,7 @@ Functions
    cheta.update_archive.update_msid_files
    cheta.update_archive.unlink_archive_files
    cheta.update_archive.get_archive_files
+   cheta.update_archive.get_archive_files_aca
    cheta.update_archive.main
 
 

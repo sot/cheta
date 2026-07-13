@@ -1,0 +1,49 @@
+cheta.converters.aca_converter
+==============================
+
+.. py:function:: cheta.converters.aca_converter(dat, slot)
+
+   
+   Convert ACA image telemetry rows into archive output format.
+
+   This converter performs the following archive-specific normalization:
+
+   - Keep only the first image-slot metadata columns, renaming
+       ``IMGFID1`` -> ``IMGFID``, ``IMGNUM1`` -> ``IMGNUM``, and ``IMGFUNC1`` ->
+       ``IMGFUNC``.
+   - Drop ``END_INTEG_TIME`` because it is redundant with ``TIME`` and
+       ``INTEG`` and its 64-bit values compress poorly.
+   - Replace ``IMGRAW`` with an 8x8 pixel telemetry column (``IMGTLM``), where each
+       pixel is converted back to the original 10-bit packet-space value using
+       ``round((dn + 50) * (32 / IMGSCALE))`` and stored as ``uint16``.
+   - Expand ``QUALITY`` from a single per-row flag into a per-column boolean
+   - Rename all columns except ``TIME`` and ``QUALITY`` to have an ``ACA{slot}_``
+       prefix for uniqueness of slot data.
+
+   :Parameters:
+
+       **dat** : FITS_rec
+           Input ACA L0 FITS binary table rows.
+
+       **slot** : int
+           Image slot.
+
+
+
+   :Returns:
+
+       numpy.ndarray
+           Numpy structured array ready for archiving.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!

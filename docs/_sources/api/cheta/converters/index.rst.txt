@@ -32,6 +32,7 @@ Functions
    /api/cheta/converters/generic_converter
    /api/cheta/converters/get_bit_array
    /api/cheta/converters/generic_converter2
+   /api/cheta/converters/aca_converter
    /api/cheta/converters/parse_alias_str
    /api/cheta/converters/sim_mrg
    /api/cheta/converters/hrc0hk
@@ -49,6 +50,7 @@ Functions
    cheta.converters.generic_converter
    cheta.converters.get_bit_array
    cheta.converters.generic_converter2
+   cheta.converters.aca_converter
    cheta.converters.parse_alias_str
    cheta.converters.sim_mrg
    cheta.converters.hrc0hk

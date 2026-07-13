@@ -4,12 +4,21 @@ cheta.update_archive.get_archive_files
 .. py:function:: cheta.update_archive.get_archive_files(filetype)
 
    
-   Update FITS file archive with arc5gl and ingest files into msid (HDF5) archive
+   Get telemetry FITS files into the current directory.
+
+   This uses arc5gl to query and retrieve files from the CXC archive.  The files are
+   retrieved into the current directory, which is expected to be a temporary directory.
+
+   For the ACA L0 files, this function is overridden to get files from the mica archive
+   instead of arc5gl.
 
 
 
 
+   :Returns:
 
+       list of str
+           List of file paths for the retrieved files
 
 
 
